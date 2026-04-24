@@ -292,10 +292,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fcs-label{flex:1;font-size:13px;color:var(--text-muted);text-align:left}
 .fcs-val{font-size:17px;font-weight:800;color:var(--text)}
 .fcs-sub{font-size:13px;color:var(--text-muted)}
-.fcs-btn{background:var(--accent);color:#fff;border:none;padding:12px 32px;
+.fcs-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:4px}
+.fcs-btn{background:var(--accent);color:#fff;border:none;padding:12px 28px;
   border-radius:var(--r-btn);font-size:14px;font-weight:700;cursor:pointer;
-  font-family:inherit;transition:opacity .15s;margin-top:4px}
+  font-family:inherit;transition:opacity .15s}
 .fcs-btn:hover{opacity:.88}
+.fcs-btn.ghost{background:transparent;color:var(--text-muted);
+  border:1px solid var(--border);font-weight:600}
+.fcs-btn.ghost:hover{background:var(--bg);color:var(--text);opacity:1}
 /* pass badge in counter */
 .pass-badge{display:inline-block;background:var(--accent);color:#fff;
   font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
@@ -1039,6 +1043,7 @@ async function initApp(){
 var fcDeck=[],fcAllCards=[],fcIdx=0,fcFlipped=false,fcPass=1;
 var fcStats={got_it:0,unsure:0,missed:0};
 var fcPass1Results={got_it:[],unsure:[],missed:[]};
+var fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
@@ -1064,7 +1069,7 @@ function sbFetch(path,opts){
 function lsSave(){
   try{localStorage.setItem(getLsKey(),JSON.stringify({
     allCards:fcAllCards,deck:fcDeck,idx:fcIdx,pass:fcPass,
-    stats:fcStats,p1r:fcPass1Results,
+    stats:fcStats,p1r:fcPass1Results,cpr:fcCurrentPassResults,
     sessionId:fcSessionId,filter:fcCurrentFilter
   }));}catch(e){}
 }
@@ -1106,23 +1111,27 @@ function startPass1(cards){
   fcPass=1; fcIdx=0;
   fcStats={got_it:0,unsure:0,missed:0};
   fcPass1Results={got_it:[],unsure:[],missed:[]};
+  fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
   fcSessionId='sess-'+Date.now();
   fcDeck=fcShuffleOn?shuffleArr(cards.slice()):cards.slice();
   lsClear(); hideSummary(); updateStats(); showCard(0);
   setPassBadge(1);
 }
 
-function fcStartPass2(){
-  var missed=fcAllCards.filter(function(c){return fcPass1Results.missed.indexOf(c.id)>-1;});
-  var unsure=fcAllCards.filter(function(c){return fcPass1Results.unsure.indexOf(c.id)>-1;});
+function fcStartNextPass(){
+  var src=fcPass===1?fcPass1Results:fcCurrentPassResults;
+  var missed=fcAllCards.filter(function(c){return src.missed.indexOf(c.id)>-1;});
+  var unsure=fcAllCards.filter(function(c){return src.unsure.indexOf(c.id)>-1;});
   if(!missed.length&&!unsure.length){showFinalSummary();return;}
-  /* missed cards come FIRST, then unsure — drill hardest while focus is highest */
-  var p2Cards=shuffleArr(missed).concat(shuffleArr(unsure));
-  fcPass=2; fcIdx=0;
+  /* missed cards always come FIRST regardless of shuffle */
+  var mArr=fcShuffleOn?shuffleArr(missed.slice()):missed;
+  var uArr=fcShuffleOn?shuffleArr(unsure.slice()):unsure;
+  fcPass++; fcIdx=0;
   fcStats={got_it:0,unsure:0,missed:0};
-  fcDeck=p2Cards;
+  fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
+  fcDeck=mArr.concat(uArr);
   hideSummary(); updateStats(); showCard(0);
-  setPassBadge(2); lsSave();
+  setPassBadge(fcPass); lsSave();
 }
 
 var PASS_COLORS=['#4f7ef8','#7e22ce','#15803d','#b45309'];
@@ -1162,7 +1171,7 @@ function resetCardShell(){
 
 function showCard(idx){
   if(idx>=fcDeck.length){
-    if(fcPass===1) showPass1Summary(); else showFinalSummary(); return;
+    if(fcPass===1) showPass1Summary(); else showPassNSummary(); return;
   }
   fcFlipped=false;
   var c=fcDeck[idx];
@@ -1194,6 +1203,7 @@ function fcRate(result){
   var c=fcDeck[fcIdx];
   fcStats[result]=(fcStats[result]||0)+1;
   if(fcPass===1) fcPass1Results[result].push(c.id);
+  fcCurrentPassResults[result].push(c.id);
   updateStats();
   sbFetch('/rest/v1/card_attempts',{
     method:'POST',
@@ -1290,6 +1300,12 @@ function toggleShuffle(){
 function showPass1Summary(){
   var u=fcPass1Results.unsure.length,m=fcPass1Results.missed.length,p2=u+m;
   var total=fcDeck.length;
+  var btns=p2>0
+    ?[{label:'Start Pass 2 \u2014 '+p2+' card'+(p2>1?'s':''),fn:'fcStartNextPass()'},
+      {label:'Reset',fn:'fcRestart()',ghost:true},
+      {label:'Study Guide',fn:"goTo('study')",ghost:true}]
+    :[{label:'\uD83C\uDF89 All Done!',fn:'fcRestart()'},
+      {label:'Study Guide',fn:"goTo('study')",ghost:true}];
   renderSummary({
     title:'Pass 1 Complete \u2713',
     rows:[
@@ -1298,13 +1314,36 @@ function showPass1Summary(){
       {color:'var(--missed)',label:'Missed', val:m}
     ],
     sub: p2>0 ? p2+' card'+(p2>1?'s':'')+' coming back for Pass 2'
-              : 'Perfect score! No cards to review.',
-    btnLabel: p2>0 ? 'Start Pass 2 \u2192' : 'Done \u2714',
-    btnFn: 'fcStartPass2()'
+              : 'Perfect score \u2014 no cards to review!',
+    btns: btns
   });
   document.getElementById('fc-prog-fill').style.width='100%';
   document.getElementById('fc-counter').textContent=total+' / '+total;
   setPassBadge(1);
+}
+
+function showPassNSummary(){
+  var u=fcCurrentPassResults.unsure.length,m=fcCurrentPassResults.missed.length,next=u+m;
+  if(!next){showFinalSummary();return;}
+  var total=fcDeck.length;
+  var nextPass=fcPass+1;
+  renderSummary({
+    title:'Pass '+fcPass+' Complete \u2713',
+    rows:[
+      {color:'var(--got)',   label:'Got it', val:fcCurrentPassResults.got_it.length},
+      {color:'var(--unsure)',label:'Unsure', val:u},
+      {color:'var(--missed)',label:'Missed', val:m}
+    ],
+    sub: next+' card'+(next>1?'s':'')+' coming back for Pass '+nextPass,
+    btns:[
+      {label:'Start Pass '+nextPass+' \u2014 '+next+' card'+(next>1?'s':''),fn:'fcStartNextPass()'},
+      {label:'Reset',fn:'fcRestart()',ghost:true},
+      {label:'Study Guide',fn:"goTo('study')",ghost:true}
+    ]
+  });
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-counter').textContent=total+' / '+total;
+  setPassBadge(fcPass); lsClear();
 }
 
 function showFinalSummary(){
@@ -1314,7 +1353,7 @@ function showFinalSummary(){
     : fcPass1Results.got_it.length+fcStats.got_it;
   var pct=total?Math.round(mastered/total*100):0;
   renderSummary({
-    title:'Session Complete \uD83C\uDF89',
+    title:'\uD83C\uDF89 All cards mastered!',
     rows:[
       {color:'var(--got)',   label:'Mastered', val:mastered+' / '+total},
       {color: pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)',
@@ -1323,8 +1362,10 @@ function showFinalSummary(){
     sub: pct>=80?'Great work \u2014 you\u2019ve got this!'
        : pct>=50?'Good effort \u2014 try another round.'
                : 'Keep going \u2014 practice makes perfect.',
-    btnLabel:'Restart \u21BB',
-    btnFn:'fcRestart()'
+    btns:[
+      {label:'Start over',fn:'fcRestart()'},
+      {label:'Go study something else',fn:"goTo('study')",ghost:true}
+    ]
   });
   document.getElementById('fc-prog-fill').style.width='100%';
   document.getElementById('fc-counter').textContent=total+' / '+total;
@@ -1340,11 +1381,15 @@ function renderSummary(opts){
       +'<span class="fcs-label">'+r.label+'</span>'
       +'<span class="fcs-val">'+r.val+'</span></div>';
   }).join('');
+  var btns=opts.btns||[{label:opts.btnLabel,fn:opts.btnFn}];
+  var btnHtml=btns.map(function(b){
+    return '<button class="fcs-btn'+(b.ghost?' ghost':'')+'" onclick="'+b.fn+'">'+b.label+'</button>';
+  }).join('');
   document.getElementById('fc-summary').innerHTML=
     '<div class="fcs-title">'+opts.title+'</div>'
     +'<div class="fcs-stats">'+rows+'</div>'
     +'<div class="fcs-sub">'+opts.sub+'</div>'
-    +'<button class="fcs-btn" onclick="'+opts.btnFn+'">'+opts.btnLabel+'</button>';
+    +'<div class="fcs-btns">'+btnHtml+'</div>';
   document.getElementById('fc-summary').style.display='flex';
 }
 
@@ -1376,6 +1421,7 @@ function fcResume(){
   fcIdx=saved.idx||0; fcPass=saved.pass||1;
   fcStats=saved.stats||{got_it:0,unsure:0,missed:0};
   fcPass1Results=saved.p1r||{got_it:[],unsure:[],missed:[]};
+  fcCurrentPassResults=saved.cpr||{got_it:[],unsure:[],missed:[]};
   fcSessionId=saved.sessionId||'sess-'+Date.now();
   fcCurrentFilter=saved.filter||'';
   fcLoaded=true;
@@ -1384,7 +1430,7 @@ function fcResume(){
   if(banner) banner.remove();
   hideSummary(); updateStats(); renderObjBars();
   if(fcIdx>=fcDeck.length){
-    if(fcPass===1) showPass1Summary(); else showFinalSummary();
+    if(fcPass===1) showPass1Summary(); else showPassNSummary();
   } else { showCard(fcIdx); }
 }
 
