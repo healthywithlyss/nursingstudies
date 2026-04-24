@@ -1,4 +1,1694 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="refresh" content="0; url=NUR118_Unit2_StudyGuide.html"></head>
-<body><a href="NUR118_Unit2_StudyGuide.html">Go to NUR 118 Study Guide</a></body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUR 118 Unit 2 — Study Guide</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0f766e;--teal-lt:#ccfbf1;--teal-bg:#f0fdfa;
+  --plum:#7e22ce;--plum-lt:#f3e8ff;--plum-bg:#faf5ff;
+  --rust:#b91c1c;--rust-lt:#fee2e2;--rust-bg:#fff5f5;
+  --forest:#15803d;--forest-lt:#dcfce7;--forest-bg:#f0fdf4;
+  --cobalt:#1d4ed8;--cobalt-lt:#dbeafe;--cobalt-bg:#eff6ff;
+  --slate:#334155;--slate-lt:#f1f5f9;--slate-bg:#f8fafc;
+  --gold:#b45309;--gold-lt:#fef3c7;--gold-bg:#fffbeb;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g400:#9ca3af;--g700:#374151;--g900:#111827;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:14px;line-height:1.6;color:var(--g700);background:var(--g100);min-height:100vh}
+
+/* APP HEADER */
+.app-header{background:var(--g900);color:#fff;padding:12px 20px 0;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.app-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  opacity:.6;margin-bottom:10px}
+
+/* TABS */
+.tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;background:transparent;color:rgba(255,255,255,.5);
+  font-size:12px;font-weight:600;padding:8px 13px 10px;cursor:pointer;
+  border-radius:6px 6px 0 0;transition:background .15s,color .15s;
+  white-space:nowrap;letter-spacing:.02em}
+.tab-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.tab-btn.active{background:var(--tc,#fff);color:#fff}
+
+/* PANELS */
+.panel{display:none;padding:20px 16px 48px;max-width:1200px;margin:0 auto}
+.panel.active{display:block}
+
+/* SECTION HEADER */
+.sec-head{font-size:17px;font-weight:800;padding:13px 18px;border-radius:var(--r);
+  margin-bottom:16px;color:#fff;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lec-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);
+  padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.sh-teal{background:var(--teal)}.sh-plum{background:var(--plum)}
+.sh-rust{background:var(--rust)}.sh-forest{background:var(--forest)}
+.sh-cobalt{background:var(--cobalt)}.sh-slate{background:var(--slate)}
+.sh-gold{background:var(--gold)}
+
+/* CONTENT WRAPPERS */
+.pg,.pg-wide{background:#fff;border-radius:var(--r);padding:18px 20px;
+  box-shadow:var(--sh);margin-bottom:14px}
+
+/* SUBSECTION HEADERS */
+.sub{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  padding:5px 12px;border-radius:4px;margin:16px 0 10px;display:block}
+.sub-teal{background:var(--teal);color:#fff}.sub-plum{background:var(--plum);color:#fff}
+.sub-rust{background:var(--rust);color:#fff}.sub-forest{background:var(--forest);color:#fff}
+.sub-cobalt{background:var(--cobalt);color:#fff}.sub-slate{background:var(--slate);color:#fff}
+.sub-gold{background:var(--gold);color:#fff}
+
+/* OBJECTIVES */
+.obj{background:var(--g50);border-left:4px solid var(--g200);
+  border-radius:0 var(--r) var(--r) 0;padding:11px 15px;margin-bottom:14px;font-size:13px}
+.obj h4{font-size:13px;margin-bottom:4px;color:var(--g900)}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(min-width:701px) and (max-width:1024px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+
+/* CARDS */
+.card{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r);padding:13px}
+.card h4{font-size:13px;font-weight:700;margin-bottom:7px}
+.card ul,.card ol{padding-left:17px}.card li{margin-bottom:2px}
+.card p{margin-bottom:5px}
+.card-teal{border-top:3px solid var(--teal);background:var(--teal-bg)}
+.card-plum{border-top:3px solid var(--plum);background:var(--plum-bg)}
+.card-rust{border-top:3px solid var(--rust);background:var(--rust-bg)}
+.card-forest{border-top:3px solid var(--forest);background:var(--forest-bg)}
+.card-cobalt{border-top:3px solid var(--cobalt);background:var(--cobalt-bg)}
+.card-slate{border-top:3px solid var(--slate);background:var(--slate-bg)}
+.card-gold{border-top:3px solid var(--gold);background:var(--gold-bg)}
+.card-teal h4{color:var(--teal)}.card-plum h4{color:var(--plum)}
+.card-rust h4{color:var(--rust)}.card-forest h4{color:var(--forest)}
+.card-cobalt h4{color:var(--cobalt)}.card-slate h4{color:var(--slate)}
+.card-gold h4{color:var(--gold)}
+
+/* BAND CARDS */
+.band-card{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:4px}
+.band-head{font-weight:800;font-size:13px;padding:9px 14px;color:#fff}
+.band-body{background:#fff;padding:11px 14px;border:1px solid var(--g200);border-top:none}
+.band-body p{margin-bottom:4px}.band-body ul{padding-left:17px}
+.bh-teal .band-head{background:var(--teal)}.bh-plum .band-head{background:var(--plum)}
+.bh-rust .band-head{background:var(--rust)}.bh-forest .band-head{background:var(--forest)}
+.bh-cobalt .band-head{background:var(--cobalt)}.bh-slate .band-head{background:var(--slate)}
+
+/* WARNINGS & MNEMONICS */
+.warn{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:#9a3412}
+.mnem{background:#fefce8;border:1px solid #fde68a;border-left:4px solid #eab308;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;
+  color:#713f12;font-style:italic}
+
+/* EMERGENCY */
+.emerg{color:#dc2626!important;font-weight:700}
+td.emerg{background:#fff5f5}
+
+/* LABELS */
+.lbl{font-weight:700}
+
+/* NORMAL VALUE BADGES */
+.norm{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;
+  font-weight:600;margin:2px;background:var(--g200);color:var(--g700)}
+.norm-rust{background:var(--rust-lt);color:var(--rust);border:1px solid #fca5a5}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;
+  box-shadow:var(--sh);border-radius:var(--r);overflow:hidden}
+th{background:var(--g700);color:#fff;padding:8px 11px;text-align:left;
+  font-size:12px;font-weight:700;letter-spacing:.02em}
+td{padding:7px 11px;border-bottom:1px solid var(--g200);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--g50)}
+tr:nth-child(odd) td{background:#fff}
+.t-teal th{background:var(--teal)}.t-plum th{background:var(--plum)}
+.t-rust th{background:var(--rust)}.t-forest th{background:var(--forest)}
+.t-cobalt th{background:var(--cobalt)}.t-slate th{background:var(--slate)}
+.t-gold th{background:var(--gold)}
+.ts{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px}
+.ts table{min-width:580px}
+
+/* ELECTROLYTE MATRIX */
+th.lo{background:#b91c1c!important}th.hi{background:#1d4ed8!important}
+td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
+
+/* DRUG CLASS */
+.drug-class{display:block;font-size:11px;color:#64748b;font-style:italic;margin-top:2px}
+
+/* MISC */
+p{margin-bottom:5px}ul{padding-left:17px;margin-bottom:5px}
+ol{padding-left:17px;margin-bottom:5px}li{margin-bottom:2px}
+h4{font-size:14px}strong{font-weight:700}
+
+/* ── FLASHCARD UI ── */
+#fc-wrap{max-width:660px;margin:0 auto;padding-top:4px}
+.fc-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.fc-controls select{padding:7px 11px;border-radius:6px;border:1px solid var(--g200);font-size:13px;cursor:pointer;background:#fff}
+.fc-ctrl-btn{padding:7px 13px;border-radius:6px;border:1px solid var(--g700);background:var(--g900);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.fc-ctrl-btn:hover{opacity:.85}
+.fc-progress{margin-bottom:14px}
+.fc-progress-bar{height:7px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:5px}
+.fc-progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .3s}
+.fc-progress-label{font-size:12px;color:var(--g400)}
+.fc-face{border-radius:var(--r);padding:28px 24px;min-height:180px;margin-bottom:12px;cursor:pointer}
+.fc-front{background:#fff;border:2px solid var(--g200);box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:center}
+.fc-back{background:var(--teal-bg);border:2px solid var(--teal);box-shadow:var(--sh);display:none}
+.fc-hint{font-size:11px;color:var(--g400);text-align:center;margin-bottom:10px}
+.fc-q{font-size:15px;font-weight:600;text-align:center;color:var(--g900);line-height:1.6}
+.fc-a-head{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.fc-a{font-size:14px;color:var(--g700);line-height:1.7}
+.fc-btns{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.fc-btns button{flex:1;max-width:140px;padding:11px 8px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-got{background:#16a34a;color:#fff}.btn-unsure{background:#d97706;color:#fff}.btn-missed{background:#dc2626;color:#fff}
+.fc-btns button:hover{opacity:.85}
+#fc-summary{text-align:center;padding:32px 16px;background:#fff;border-radius:var(--r);box-shadow:var(--sh)}
+#fc-summary h3{font-size:20px;font-weight:800;margin-bottom:16px;color:var(--g900)}
+.sum-stat{display:inline-block;padding:10px 18px;border-radius:8px;margin:4px;font-size:14px;font-weight:600}
+.sum-got{background:#dcfce7;color:#16a34a}.sum-unsure{background:#fef3c7;color:#d97706}.sum-missed{background:#fee2e2;color:#dc2626}
+
+/* ── DASHBOARD UI ── */
+#db-wrap{max-width:860px;margin:0 auto}
+.db-lecture-group{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.db-lec-head{padding:11px 16px;font-weight:800;font-size:13px;color:#fff}
+.db-obj-row{padding:10px 16px;border-bottom:1px solid var(--g200)}
+.db-obj-row:last-child{border-bottom:none}
+.db-obj-label{font-size:12px;color:var(--g700);margin-bottom:5px}
+.db-bar-wrap{display:flex;align-items:center;gap:10px}
+.db-bar-bg{flex:1;height:12px;background:var(--g200);border-radius:6px;overflow:hidden}
+.db-bar-fill{height:100%;border-radius:6px;transition:width .4s}
+.db-bar-pct{font-size:12px;font-weight:700;min-width:36px;text-align:right}
+.db-bar-notstarted .db-bar-fill{background:var(--g400);width:0%!important}
+.db-green .db-bar-fill{background:#16a34a}.db-yellow .db-bar-fill{background:#d97706}.db-red .db-bar-fill{background:#dc2626}
+.db-green .db-bar-pct{color:#16a34a}.db-yellow .db-bar-pct{color:#d97706}.db-red .db-bar-pct{color:#dc2626}
+.db-bar-notstarted .db-bar-pct{color:var(--g400)}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">NUR 118 · Unit 2 Study Guide — Lectures 7–12</div>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" style="--tc:#0f766e" onclick="show(0,this)">Oxygenation</button>
+    <button class="tab-btn" style="--tc:#7e22ce" onclick="show(1,this)">Cardiovascular</button>
+    <button class="tab-btn" style="--tc:#b91c1c" onclick="show(2,this)">ABG &amp; Acid-Base</button>
+    <button class="tab-btn" style="--tc:#15803d" onclick="show(3,this)">Fluids &amp; Electrolytes</button>
+    <button class="tab-btn" style="--tc:#15803d" onclick="show(4,this)">Electrolyte Matrix</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(5,this)">IV Therapy</button>
+    <button class="tab-btn" style="--tc:#334155" onclick="show(6,this)">Management</button>
+    <button class="tab-btn" style="--tc:#334155" onclick="show(7,this)">Meds: CV &amp; Anticoag</button>
+    <button class="tab-btn" style="--tc:#334155" onclick="show(8,this)">Meds: Diuretics +</button>
+    <button class="tab-btn" style="--tc:#b45309" onclick="show(9,this)">Lab Values</button>
+    <button class="tab-btn" style="--tc:#0f766e" onclick="show(10,this)" id="fc-tab">&#127794; Flashcards</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(11,this)" id="db-tab">&#128202; Dashboard</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 0 ═══ -->
+<div id="s0" class="panel active">
+  <div class="sec-head sh-teal">Oxygenation &amp; Gaseous Transfer <span class="lec-tag">Lectures 7 &amp; 8</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives (Part 1)</h4>
+  <p>Airway structures (upper/lower) · External vs. internal respiration · Inspection (6 characteristics) · 9 breathing patterns · 8 signs of respiratory distress · Palpation &amp; auscultation (technique, normal/abnormal sounds) · Hypoxia S&amp;S (early &amp; late)</p>
+</div>
+
+<div class="g2">
+  <div class="band-card bh-teal">
+    <div class="band-head">Upper vs. Lower Airway</div>
+    <div class="band-body">
+      <p><b class="lbl">Upper airway</b> (above larynx): nasal passages, mouth, pharynx — NOT sterile</p>
+      <p><b class="lbl">Lower airway</b> (below larynx): trachea, bronchi, bronchioles — <strong>STERILE</strong> (critical for suctioning)</p>
+      <p>Alveoli = site of gas exchange</p>
+    </div>
+  </div>
+  <div class="band-card bh-teal">
+    <div class="band-head">Ventilation / Respiration / Oxygenation</div>
+    <div class="band-body">
+      <p><b class="lbl">Ventilation</b> = movement of air in/out of lungs (breathing)</p>
+      <p><b class="lbl">Respiration</b> = exchange of O2/CO2</p>
+      <p>&nbsp;&nbsp;• <em>External</em>: at lungs/alveoli — O2 enters blood, CO2 exits</p>
+      <p>&nbsp;&nbsp;• <em>Internal</em>: at body organs &amp; tissues — O2 leaves blood into cells, CO2 returns</p>
+      <p><b class="lbl">Oxygenation</b> = how well O2 reaches cells, tissues, organs</p>
+      <p>You cannot measure gas exchange by counting breaths per minute.</p>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="card card-teal">
+    <h4>Hypoxemia vs. Hypoxia</h4>
+    <p><b class="lbl">Hypoxemia</b> = low O2 in BLOOD (PaO2 &lt;80 mmHg) — poor alveolar diffusion</p>
+    <p><b class="lbl">Hypoxia</b> = low O2 in TISSUES (SpO2 &lt;90%) — hypoxemia or circulation issue</p>
+    <p>Hypoxemia → hypoxia if untreated</p>
+  </div>
+  <div class="card card-teal">
+    <h4>Hypercarbia vs. Hypocarbia</h4>
+    <p><b class="lbl">Hypercarbia</b> PaCO2 &gt;45 = excess CO2 — hypoventilation — <em>anesthetic effect</em> → drowsiness → coma → death</p>
+    <p><b class="lbl">Hypocarbia</b> PaCO2 &lt;35 = low CO2 — hyperventilation — <em>stimulating effect</em> → tingling, cramps, dizziness</p>
+  </div>
+</div>
+
+<div class="warn"><strong>&#9888; COPD Hypoxic Drive:</strong> Normal: HIGH CO2 = primary stimulus to breathe. COPD: Chronically ↑ CO2 → body desensitized → <strong>LOW O2 = only stimulus</strong>. Too much O2 → removes drive → patient STOPS BREATHING → DEATH. Use Venturi mask. Target SpO2 88–92%.</div>
+
+<div class="sub sub-teal">Respiratory Assessment — Inspection: 6 Characteristics</div>
+<div class="g3">
+  <div class="card card-teal"><h4>1. Skin &amp; Mucous Membrane Color</h4><p>Pale, cyanotic, or normal; inspect throat, palate, tonsils, pharynx, nose</p></div>
+  <div class="card card-teal">
+    <h4>2. Cough &amp; Sputum — COCAF</h4>
+    <ul>
+      <li><b class="lbl">C</b>olor: white/clear=viral · yellow/green=bacterial · pink frothy=pulm. edema · rust=TB · black=smoke</li>
+      <li><b class="lbl">O</b>dor: foul = bacterial (pneumonia, lung abscess)</li>
+      <li><b class="lbl">C</b>onsistency: thick/tenacious vs. watery</li>
+      <li><b class="lbl">A</b>mount &nbsp;·&nbsp; <b class="lbl">F</b>requency</li>
+    </ul>
+  </div>
+  <div class="card card-teal"><h4>3. Respiratory Rate, Rhythm, Depth, Pattern, Effort</h4><p>Note all 5 together</p></div>
+  <div class="card card-teal"><h4>4. Symmetry of Chest Movements</h4><p>Asymmetry = problem: unilateral obstruction, pleural fibrosis, effusion, pneumothorax</p></div>
+  <div class="card card-teal"><h4>5. Shape of Chest — AP Diameter</h4><p>Normal AP:Lateral = <strong>1:2</strong></p><p>Barrel chest <strong>1:1</strong> = COPD/emphysema</p></div>
+  <div class="card card-teal"><h4>6. Spinal Deformities &amp; Edema</h4><p>Kyphosis = posterior curve (common elderly) · Scoliosis = lateral S-curve · note presence/absence of edema</p></div>
+</div>
+
+<div class="sub sub-teal">Palpation &amp; Percussion</div>
+<div class="g2">
+  <div class="card card-teal">
+    <h4>Palpation (FEEL)</h4>
+    <p>Assess: pain/tenderness · masses · respiratory excursion · skin temperature</p>
+    <p><b class="lbl">Respiratory Excursion:</b> Thumbs at T10 — both sides should expand equally; asymmetry = pleurisy, fractured ribs, trauma</p>
+  </div>
+  <div class="card card-teal">
+    <h4>Percussion</h4>
+    <p><b class="lbl">Resonance</b> = normal lung &nbsp;·&nbsp; <b class="lbl">Dullness</b> = fluid/pneumonia/solid organs</p>
+    <p><b class="lbl">Hyperresonance</b> = emphysema/pneumothorax &nbsp;·&nbsp; <b class="lbl">Flatness</b> = bone/solid tissue</p>
+  </div>
+</div>
+
+<div class="sub sub-teal">Auscultation — Technique, Normal &amp; Abnormal Lung Sounds</div>
+<div class="g2">
+  <div class="card card-teal">
+    <h4>Technique</h4>
+    <p>Instruct patient: slow deep breaths through <strong>open mouth</strong></p>
+    <p>Use diaphragm of stethoscope · listen between ribs (never over bone) · systematic pattern comparing side to side</p>
+    <p><b class="lbl">Expected:</b> Lung sounds clear to auscultation</p>
+    <p><b class="lbl">Normal Sounds:</b></p>
+    <ul>
+      <li>Bronchial — over trachea</li>
+      <li>Broncho-vesicular — over sternum in front, between clavicles posteriorly</li>
+      <li>Vesicular — over lower lung fields</li>
+    </ul>
+  </div>
+  <div class="ts"><table class="t-teal">
+    <tr><th>Sound</th><th>Location</th><th>Phase</th><th>Cause / Significance</th></tr>
+    <tr><td><strong>Crackles (Rales)</strong></td><td>Alveoli</td><td>Inspiration</td><td>Cannot cough clear · CHF, pneumonia, pulm. edema, asthma, atelectasis</td></tr>
+    <tr><td><strong>Rhonchi</strong></td><td>Bronchi</td><td>Expiration</td><td>May clear with coughing · COPD, bronchitis, secretions</td></tr>
+    <tr><td><strong>Wheezes</strong></td><td>Airways</td><td>Expiration</td><td>Narrowed airways · asthma, bronchospasm</td></tr>
+    <tr><td><strong>Friction Rub</strong></td><td>Pleura</td><td>Both</td><td>Pleuritis — grating/leathery sound</td></tr>
+    <tr><td class="emerg"><strong>Stridor &#9888;</strong></td><td>Upper</td><td>Inspiration</td><td class="emerg">EMERGENCY — upper airway obstruction — call for help immediately</td></tr>
+  </table></div>
+</div>
+
+<div class="sub sub-teal">9 Breathing Patterns</div>
+<div class="ts"><table class="t-teal">
+  <tr><th>Pattern</th><th>Description</th><th>Causes / Significance</th></tr>
+  <tr><td><strong>Eupnea</strong></td><td>Normal — 12–20 bpm, regular</td><td>Normal</td></tr>
+  <tr><td><strong>Tachypnea</strong></td><td>&gt;24 bpm, fast &amp; shallow</td><td>Pneumonia, pulmonary edema, metabolic acidosis, sepsis, pain, fractures, fever</td></tr>
+  <tr><td><strong>Bradypnea</strong></td><td>&lt;10 bpm, slow</td><td>Head injury, drug OD, PaCO2 &gt;45, neurological damage</td></tr>
+  <tr><td><strong>Apnea</strong></td><td>Absent breathing</td><td>Respiratory arrest, sleep apnea episodes</td></tr>
+  <tr><td><strong>Kussmaul's</strong></td><td>Fast AND deep</td><td>Metabolic acidosis (DKA) — lungs blowing off CO2 to compensate</td></tr>
+  <tr><td><strong>Cheyne-Stokes</strong></td><td>Cycles of ↑ then ↓ depth ending in apnea</td><td>Damage to respiratory center</td></tr>
+  <tr><td><strong>Biot's</strong></td><td>Irregular — NOT cyclic (neuro breathing)</td><td>Brain injury, increased ICP</td></tr>
+  <tr><td><strong>Orthopnea</strong></td><td>SOB lying flat — must sit upright</td><td>Left HF — fluid shifts to lungs supine</td></tr>
+  <tr><td class="emerg"><strong>Stridor &#9888;</strong></td><td>Harsh crowing on INSPIRATION — audible without stethoscope</td><td class="emerg">EMERGENCY — partial upper airway obstruction — anaphylaxis, croup, epiglottitis, foreign body — CALL FOR HELP</td></tr>
+</table></div>
+
+<div class="sub sub-teal">8 Signs of Respiratory Distress &amp; Signs of Hypoxia</div>
+<div class="g2">
+  <div class="card card-teal">
+    <h4>8 Signs of Respiratory Distress/Effort</h4>
+    <ol>
+      <li>Nasal flaring — nostrils enlarge to ↓ airway resistance</li>
+      <li>Retractions — skin pulls in between/below ribs</li>
+      <li>Accessory muscle use — neck, shoulder, abdomen</li>
+      <li>Grunting — forced expiration to keep alveoli open</li>
+      <li>Orthopnea — SOB lying flat; must sit upright</li>
+      <li>Conversational dyspnea — can't complete sentences</li>
+      <li>Wheezing — narrowed small airways — EXPIRATORY</li>
+      <li class="emerg">Stridor &#9888; — crowing — INSPIRATORY — EMERGENCY</li>
+    </ol>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <h4>Early Signs of Hypoxia — ACT NOW</h4>
+      <ul>
+        <li><strong>Restlessness (FIRST SIGN)</strong> · Anxiety · Confusion</li>
+        <li>Tachycardia · Tachypnea · Hypertension</li>
+        <li>Nasal flaring · Accessory muscle use · Pale skin</li>
+        <li>Adventitious lung sounds</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Late Signs of Hypoxia — LIFE-THREATENING</h4>
+      <ul>
+        <li>Bradycardia · Bradypnea · Extreme restlessness</li>
+        <li>Severe dyspnea · Decreased LOC/Coma · Hypotension</li>
+        <li><strong>Cyanosis of tongue &amp; oral mucosa = best indicator</strong></li>
+        <li>Chronic hypoxia → clubbing of fingers/toes</li>
+      </ul>
+    </div>
+  </div>
+
+<div class="obj">
+  <h4>&#9745; Objectives (Part 2)</h4>
+  <p>COPD (bronchitis vs. emphysema) · OSA S&amp;S &amp; TX · Normal vs. hypoxic drive · Supplemental O2 situations · Suctioning (Yankauer vs. catheter) · Nursing interventions · Codeine &amp; guaifenesin · Labs &amp; diagnostics</p>
+</div>
+
+<div class="sub sub-teal">COPD — Chronic Bronchitis vs. Emphysema</div>
+<div class="g2">
+  <div class="band-card bh-teal">
+    <div class="band-head">"Blue Bloater" — Chronic Bronchitis</div>
+    <div class="band-body">
+      <p><b class="lbl">Problem:</b> Inflammation + mucus hypersecretion in bronchi → O2 can't get IN</p>
+      <p><b class="lbl">Etiology:</b> Smoking (90%), occupational exposures, air pollution, asthma</p>
+      <p><b class="lbl">S&amp;S:</b> Chronic productive cough · thick tenacious sputum · rhonchi · wheezing · hypoxemia/cyanosis · tachycardia · tachypnea · dyspnea · peripheral edema · orthopnea</p>
+      <p><b class="lbl">Dx:</b> PFTs · CXR · ABGs</p>
+      <p><b class="lbl">TX:</b> Bronchodilators · corticosteroids · expectorants · controlled O2/BiPAP · stop smoking · pulm. rehab · vaccinations</p>
+    </div>
+  </div>
+  <div class="band-card bh-teal">
+    <div class="band-head">"Pink Puffer" — Emphysema</div>
+    <div class="band-body">
+      <p><b class="lbl">Problem:</b> Destruction of alveoli + air trapping → CO2 can't get OUT</p>
+      <p><b class="lbl">Etiology:</b> Smoking (90%), occupational exposures, air pollution</p>
+      <p><b class="lbl">S&amp;S:</b> Barrel chest · pursed-lip breathing · difficulty exhaling · grunting · weight loss · tripod positioning · clubbing · accessory muscle use · infrequent cough · orthopnea · dyspnea</p>
+      <p><b class="lbl">Dx:</b> PFTs · CXR · ABGs</p>
+      <p><b class="lbl">TX:</b> Same as bronchitis + pursed-lip breathing is <strong>critical</strong></p>
+    </div>
+  </div>
+</div>
+<div class="mnem">Blue Bloater: cyanotic, overweight, mucus IN airways, O2 can't get IN, rhonchi &nbsp;|&nbsp; Pink Puffer: pink, thin, air TRAPPED, CO2 can't get OUT, pursed-lip breathing to release CO2</div>
+
+<div class="sub sub-teal">Obstructive Sleep Apnea (OSA)</div>
+<div class="g3">
+  <div class="card card-teal">
+    <h4>Signs &amp; Symptoms</h4>
+    <ul>
+      <li>Snoring/gasping/restlessness during sleep</li>
+      <li>Apnea lasting 10–120 seconds</li>
+      <li>Unrefreshing sleep · daytime sleepiness</li>
+      <li>Morning headache (CO2 retained)</li>
+      <li>Dry mouth in AM</li>
+    </ul>
+  </div>
+  <div class="card card-teal">
+    <h4>Risk Factors</h4>
+    <ul>
+      <li>Age &gt;40 · male · overweight</li>
+      <li>Neck &gt;17" (M) / &gt;16" (F)</li>
+      <li>Alcohol before sleep · smoking</li>
+      <li>Sleep-inducing medications</li>
+      <li>Large tonsils/tongue, small mandible</li>
+    </ul>
+  </div>
+  <div class="card card-teal">
+    <h4>Treatment</h4>
+    <ul>
+      <li>CPAP (first line) · BiPAP</li>
+      <li>Side-lying positioning</li>
+      <li>Weight loss of at least 10%</li>
+      <li>No alcohol · no smoking</li>
+      <li>Dental appliances</li>
+    </ul>
+    <div class="warn"><strong>&#9888;</strong> Sedatives, opioids, benzos, anesthesia = DANGEROUS in OSA</div>
+  </div>
+</div>
+
+<div class="sub sub-teal">Supplemental O2 — Situations for Application &amp; Devices</div>
+<div class="mnem">Apply O2 when SpO2 &lt;90% and patient is symptomatic · Restlessness, confusion, cyanosis, MI · O2 = medication, requires order (except 2L NC in emergency — get order after)</div>
+<div class="ts"><table class="t-teal">
+  <tr><th>Device</th><th>Flow / FiO2</th><th>Key Points</th></tr>
+  <tr><td><strong>Nasal Cannula (NC)</strong></td><td>1–6 L/min · 20–40%</td><td>Prongs curve DOWN · humidify if &gt;3L · RN can give 2L independently in emergency (get order after)</td></tr>
+  <tr><td><strong>Simple Face Mask</strong></td><td>6–10 L/min · 40–60%</td><td>Mouth breathers · minimum 6L or CO2 rebreathes in mask dead space</td></tr>
+  <tr><td><strong>Partial Non-Rebreather</strong></td><td>8–11 L/min · 60–75%</td><td>Reservoir bag must stay PARTIALLY inflated; one-way valves</td></tr>
+  <tr><td><strong>Non-Rebreather (NRB)</strong></td><td>10–15 L/min · 80–100%</td><td>Short-term 1–1.5 hrs only · if fails → intubation</td></tr>
+  <tr><td><strong>&#9733; Venturi — COPD</strong></td><td>2–15 L/min · precise FiO2</td><td>Most precise delivery: 2L=24%, 4L=28%, 6L=31%, 8L=35%, 10L=40%, 15L=60% · Preferred for COPD · target SpO2 88–92%</td></tr>
+  <tr><td><strong>Face Tent</strong></td><td>Variable</td><td>Claustrophobic patients needing humidified O2</td></tr>
+</table></div>
+
+<div class="sub sub-teal">Suctioning — Yankauer vs. Suction Catheter</div>
+<div class="g2">
+  <div class="card card-teal">
+    <h4>Yankauer (Upper Airway)</h4>
+    <ul>
+      <li>Suctions mouth/throat — NOT sterile</li>
+      <li>Used for gurgling or moist sounds in upper airway</li>
+      <li>PRN only — not a routine procedure</li>
+    </ul>
+  </div>
+  <div class="card card-teal">
+    <h4>Suction Catheter (Lower Airway — STERILE)</h4>
+    <ul>
+      <li>Pre-oxygenate with 100% O2 before suctioning</li>
+      <li>Max <strong>10 seconds</strong> per pass — suction on <strong>withdrawal ONLY</strong></li>
+      <li>Max <strong>3 passes</strong> per session · allow recovery time between passes</li>
+      <li>Complications: mucosal trauma · hypoxia · bronchospasm · atelectasis · dysrhythmias</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sub sub-teal">Nursing Interventions for Gaseous Transfer</div>
+<div class="g3">
+  <div class="card card-teal"><h4>Positioning</h4><p>High Fowler's or orthopneic/tripod — gravity pulls abdominal organs down, maximizes diaphragmatic excursion</p></div>
+  <div class="card card-teal"><h4>Incentive Spirometer (INHALE)</h4><p>Prevents atelectasis · slow deep inhale, hold 3–5 sec · <strong>10–20x/hr</strong> · used for surgical/immobilized patients</p></div>
+  <div class="card card-teal"><h4>Pursed-Lip Breathing (EXHALE)</h4><p>Slows breathing down · keeps airways open longer to release trapped CO2 · improves O2/CO2 exchange · key for emphysema</p></div>
+  <div class="card card-teal"><h4>Mobilize Secretions</h4><p>Coughing, deep breathing, chest PT · maintain hydration to thin secretions · postural drainage · percussion · vibration</p></div>
+  <div class="card card-teal"><h4>Peak Flow Meter (EXHALE — Asthma)</h4><p>Green 80–100% = all clear<br>Yellow 50–80% = take bronchodilator<br><span class="emerg">Red &lt;50% = go to ED</span></p></div>
+  <div class="card card-teal"><h4>Health Promotion &amp; Teaching</h4><p>Smoking cessation · diet &amp; exercise · vaccines (flu, pneumonia) · infection control · occupational safety</p></div>
+</div>
+
+<div class="sub sub-teal">Medications: Codeine &amp; Guaifenesin</div>
+<div class="g2">
+  <div class="card card-teal">
+    <h4>Codeine</h4>
+    <p><b class="lbl">Classification:</b> Antitussive (opioid) — controlled substance</p>
+    <p><b class="lbl">Action:</b> Suppresses cough reflex in medulla</p>
+    <p><b class="lbl">Key Nursing:</b> Monitor RR &amp; sedation level · SE: sedation, constipation, hypotension · do NOT give with CNS depressants · caution in COPD/OSA</p>
+  </div>
+  <div class="card card-teal">
+    <h4>Guaifenesin (Mucinex)</h4>
+    <p><b class="lbl">Classification:</b> Expectorant</p>
+    <p><b class="lbl">Action:</b> Thins/loosens mucus → more productive cough — does <strong>NOT suppress</strong> cough — <strong>promotes</strong> it</p>
+    <p><b class="lbl">Key Nursing:</b> Encourage ↑ fluid intake (essential for drug to work) · assess sputum · give with full glass of water</p>
+  </div>
+</div>
+<div class="mnem">Codeine = SUPPRESS cough (antitussive) &nbsp;·&nbsp; Guaifenesin = PROMOTE cough (expectorant)</div>
+
+<div class="sub sub-teal">Labs &amp; Diagnostics Related to Gaseous Transfer</div>
+<div class="ts"><table class="t-teal">
+  <tr><th>Test</th><th>Normal / Key Info</th><th>Nursing Notes</th></tr>
+  <tr><td>CBC</td><td>WBC 5,000–10,000; Hgb F:12–16, M:14–18 g/dL; Hct F:37–47%, M:42–52%</td><td>WBC = infection; Hgb/Hct = O2-carrying capacity</td></tr>
+  <tr><td>ABGs</td><td>pH 7.35–7.45 · PaCO2 35–45 · PaO2 80–100 · HCO3 22–26</td><td>Arterial blood — on ice immediately; 5 min pressure after draw</td></tr>
+  <tr><td>SpO2 / Pulse Oximetry</td><td>95–100% normal · COPD 88–92%</td><td>Inaccurate with: nail polish, poor perfusion, CO poisoning, severe anemia</td></tr>
+  <tr><td>Sputum C&amp;S</td><td>—</td><td>Best collected in AM before breakfast; deep cough into sterile container</td></tr>
+  <tr><td>PPD (TB skin test)</td><td>—</td><td>Read 48–72 hrs · positive = redness + induration (not just redness)</td></tr>
+  <tr><td>CXR / CT</td><td>—</td><td>Pneumonia, atelectasis, effusion, pneumothorax, COPD</td></tr>
+  <tr><td>PFTs</td><td>Tidal vol ~500 mL; residual vol ↑ in emphysema</td><td>Measures lung volume and capacity</td></tr>
+  <tr><td>Bronchoscopy / Thoracentesis</td><td>—</td><td>INVASIVE — requires consent</td></tr>
+  <tr><td>Sleep Study</td><td>—</td><td>Used to diagnose sleep apnea; overnight or at home</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ═══ SECTION 1 ═══ -->
+<div id="s1" class="panel">
+  <div class="sec-head sh-plum">Cardiovascular — Circulation &amp; Perfusion <span class="lec-tag">Lectures 9 &amp; 10</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives</h4>
+  <p>ANS (sympathetic vs. parasympathetic) · CV assessment (inspection, palpation, auscultation) · Labs &amp; diagnostics · Heart Failure (R &amp; L: etiology, S&amp;S) · PVD 5 P's + T — PAD vs. PVD S&amp;S + NI · Patient teaching · Unit 2 Medications</p>
+</div>
+
+<div class="g4">
+  <div class="card card-plum"><h4>Key Definitions</h4>
+    <p><b class="lbl">Circulation</b> = blood flowing through heart and vessels</p>
+    <p><b class="lbl">Perfusion</b> = O2 reaching capillary beds and tissues</p>
+    <p><b class="lbl">Ischemia</b> = tissue alive, O2-deprived — reversible if treated</p>
+    <p><b class="lbl">Infarction (MI)</b> = tissue DEAD — irreversible</p>
+  </div>
+  <div class="card card-plum"><h4>Conduction System</h4>
+    <p><b class="lbl">SA Node</b> — 60–100 bpm · primary pacemaker · both atria</p>
+    <p><b class="lbl">AV Node</b> — slight delay → if SA fails, AV takes over</p>
+    <p><b class="lbl">Bundle of His</b> → Bundles → <b class="lbl">Purkinje</b> → ventricles</p>
+    <p>Both fail → ventricular conduction &lt;40 bpm</p>
+  </div>
+  <div class="card card-plum"><h4>Blood Flow</h4>
+    <p>Body → Vena Cava → <strong>R. Atrium</strong> → <em>Tricuspid</em> → <strong>R. Ventricle</strong> → <em>Pulmonic</em> → Lungs → Pulm. Vein → <strong>L. Atrium</strong> → <em>Mitral</em> → <strong>L. Ventricle</strong> → <em>Aortic</em> → Body</p>
+    <p><em>Atria RECEIVE · Ventricles PUMP</em></p>
+  </div>
+  <div class="card card-plum"><h4>EKG Waves</h4>
+    <p><b class="lbl">P wave</b> = atrial depolarization → contract</p>
+    <p><b class="lbl">QRS</b> = ventricular depolarization → contract</p>
+    <p><b class="lbl">T wave</b> = ventricular repolarization → relax</p>
+    <p>Flat T = hypokalemia · Tall T = hyperkalemia · Absent P = A-fib</p>
+  </div>
+</div>
+
+<div class="sub sub-plum">ANS — Sympathetic vs. Parasympathetic</div>
+<div class="g2">
+  <div class="card card-plum">
+    <h4>Sympathetic ("Fight or Flight")</h4>
+    <ul>
+      <li>↑ HR + ↑ contractility</li>
+      <li>Neurotransmitters: epinephrine &amp; norepinephrine</li>
+      <li>Beta receptors (atenolol is a beta blocker → blocks this effect)</li>
+      <li>Controls ALL blood vessels — vasoconstriction at rest = vascular tone</li>
+    </ul>
+  </div>
+  <div class="card card-plum">
+    <h4>Parasympathetic ("Rest &amp; Digest")</h4>
+    <ul>
+      <li>↓ HR ONLY via vagus nerve</li>
+      <li>NO effect on contractility</li>
+      <li>NO significant vessel control</li>
+      <li>Neurotransmitter: acetylcholine</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sub sub-plum">Cardiovascular Assessment</div>
+<div class="g3">
+  <div class="card card-plum">
+    <h4>Inspection (LOOK)</h4>
+    <ul>
+      <li>Signs of distress · skin color · breathing effort</li>
+      <li>JVD at 15–45° → right HF or fluid overload</li>
+      <li>Edema · clubbing of fingertips</li>
+      <li>Inspect precordium: size, shape, symmetry, apical impulse</li>
+    </ul>
+  </div>
+  <div class="card card-plum">
+    <h4>Palpation (FEEL)</h4>
+    <ul>
+      <li>Skin temperature &amp; moisture</li>
+      <li>Pulse quality: 0=absent, 1+=thready, 2+=normal, 3+=bounding</li>
+      <li>Pitting edema: 1+=2mm · 2+=4mm · 3+=6mm · 4+=8mm</li>
+      <li>Thrill = vibration felt &nbsp;·&nbsp; Bruit = turbulence heard</li>
+    </ul>
+  </div>
+  <div class="card card-plum">
+    <h4>Auscultation (LISTEN)</h4>
+    <p><b class="lbl">S1 (LUB)</b> = AV valves CLOSE = start of systole</p>
+    <p><b class="lbl">S2 (DUB)</b> = Semilunar valves CLOSE = end of systole</p>
+    <p><b class="lbl">Valve Sites (A P E T M):</b></p>
+    <p>A=2nd R ICS · P=2nd L ICS · E=3rd L ICS · T=4th L ICS · M=5th ICS L MCL</p>
+    <div class="mnem">Adam Was 2nd &amp; Sternly Right · Paul Left Second · Erb Left Third · Tristen Left Fourth · Mirtle Left Fifth</div>
+  </div>
+</div>
+
+<div class="sub sub-plum">Heart Failure — Left vs. Right</div>
+<div class="g2">
+  <div class="band-card bh-plum">
+    <div class="band-head">Left HF — "LEFT = LUNGS" (Most Common)</div>
+    <div class="band-body">
+      <p><b class="lbl">Etiology:</b> LV can't pump → blood backs up into LUNGS → pulmonary congestion</p>
+      <p><b class="lbl">S&amp;S:</b> Cough · SOB/dyspnea · orthopnea · crackles · wheezing · pink frothy sputum · tachypnea · tachycardia · confusion · weakness · fatigue · exercise intolerance · lack of appetite</p>
+      <p><b class="lbl">Key:</b> BNP ↑ = LV stretched = HF severity · EF normal 50–75%</p>
+    </div>
+  </div>
+  <div class="band-card bh-plum">
+    <div class="band-head">Right HF — "RIGHT = REST OF BODY"</div>
+    <div class="band-body">
+      <p><b class="lbl">Etiology:</b> RV can't pump → blood backs up into PERIPHERAL VEINS → systemic congestion (often caused by left HF)</p>
+      <p><b class="lbl">S&amp;S:</b> Peripheral edema · JVD · ascites · weight gain · enlarged liver/spleen · fatigue · weakness · exercise intolerance · lack of appetite</p>
+      <div class="mnem">Right = Rings (edema so rings don't fit)</div>
+    </div>
+  </div>
+</div>
+
+<div class="sub sub-plum">PVD — 5 P's + T &nbsp;·&nbsp; PAD vs. PVD</div>
+<div class="g3">
+  <div class="card card-plum">
+    <h4>5 P's and a T</h4>
+    <p>Pain &nbsp;·&nbsp; Pallor &nbsp;·&nbsp; Pulse</p>
+    <p>Paresthesia &nbsp;·&nbsp; Paralysis</p>
+    <p>Temperature</p>
+  </div>
+  <div class="band-card bh-plum">
+    <div class="band-head">PAD — Peripheral Arterial Disease</div>
+    <div class="band-body">
+      <p><b class="lbl">Problem:</b> Plaque narrows arteries → not enough blood reaching legs (arterial insufficiency)</p>
+      <p><b class="lbl">S&amp;S:</b> Pale/cyanotic · cool · weak/absent pulses · no leg hair · thick toenails · ischemic wounds on toes · <strong>intermittent claudication</strong> (leg pain with walking, relieved by rest)</p>
+      <p><b class="lbl">Nursing:</b> Keep legs <strong>DOWN</strong> — gravity assists arterial flow · daily foot care · smoking cessation · no restrictive clothing</p>
+    </div>
+  </div>
+  <div class="band-card bh-plum">
+    <div class="band-head">PVD — Peripheral Venous Disease</div>
+    <div class="band-body">
+      <p><b class="lbl">Problem:</b> Damaged/incompetent veins → blood POOLS in legs (venous insufficiency)</p>
+      <p><b class="lbl">S&amp;S:</b> Brownish-red discoloration · varicose veins · pitting edema · stasis ulcers on lower leg</p>
+      <p><b class="lbl">Nursing:</b> Keep legs <strong>UP</strong> — gravity drains blood to heart · ambulation · compression stockings · no crossing legs · ankle circles/calf pumps</p>
+    </div>
+  </div>
+</div>
+<div class="mnem">PAD legs DOWN &nbsp;·&nbsp; PVD legs UP</div>
+
+<div class="sub sub-plum">Labs, Diagnostics &amp; Nursing Interventions</div>
+<div class="g2">
+  <div class="ts"><table class="t-plum">
+    <tr><th>Lab/Test</th><th>Normal</th><th>Significance</th></tr>
+    <tr><td>Troponin</td><td>&lt;0.1 ng/mL</td><td>Most specific for MI; rises 2–3 hrs post-MI; stays 1–2 weeks — DRAW FIRST</td></tr>
+    <tr><td>CK-MB</td><td>55–170 U/L</td><td>Rises 3–6 hrs; clears 1–2 days — best for detecting re-infarction</td></tr>
+    <tr><td>BNP</td><td>&lt;100 pg/mL</td><td>LV stretched → elevated = left HF; higher = more severe CHF</td></tr>
+    <tr><td>LDL / HDL</td><td>LDL &lt;100 · HDL &gt;60</td><td>LDL = "bad" (plaque); HDL = "good"; Total chol &lt;200</td></tr>
+    <tr><td>K+</td><td>3.5–5.0 mEq/L</td><td>High or low → arrhythmias; low K+ = ↑ digoxin toxicity</td></tr>
+    <tr><td>PT / INR</td><td>PT 11–12.5 sec · INR 0.8–1.1</td><td>Monitors warfarin (therapeutic INR 2–3)</td></tr>
+    <tr><td>PTT / aPTT</td><td>PTT 60–70 · aPTT 30–40 sec</td><td>Monitors heparin (therapeutic = 1.5–2× normal)</td></tr>
+    <tr><td>Echocardiogram</td><td>EF 50–75%</td><td>EF &lt;40% = systolic HF; evaluates heart structure, valves, function</td></tr>
+  </table></div>
+  <div class="card card-plum">
+    <h4>Nursing Interventions &amp; Patient Teaching</h4>
+    <ul>
+      <li>Monitor VS, I&amp;O, edema · daily weights · O2 as ordered · HOB elevated</li>
+      <li>DASH diet (↓ sodium, ↓ fat) · manage anxiety (SNS ↑ cardiac workload)</li>
+      <li>Activity as tolerated · cluster care · fall precautions with edema</li>
+    </ul>
+    <p><b class="lbl">Patient Teaching:</b></p>
+    <ul>
+      <li>Daily weight — report gain &gt;2 lb/day or 5 lb/week</li>
+      <li>Low-sodium diet · no smoking · medication compliance</li>
+      <li>Foot care for PAD/PVD · compression stockings for PVD</li>
+      <li>Leg exercises/ankle circles</li>
+    </ul>
+    <p><b class="lbl">Nursing Dx:</b> Decreased Cardiac Output · Ineffective Tissue Perfusion · Activity Intolerance · Anxiety · Acute Pain</p>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 2 ═══ -->
+<div id="s2" class="panel">
+  <div class="sec-head sh-rust">ABG &amp; Acid-Base Balance <span class="lec-tag">Lecture 11</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives</h4>
+  <p>3 ways body maintains acid-base balance · Normal values: pH, PaCO2, HCO3− · Analyze ABGs for all 4 disorders (resp. acidosis/alkalosis, met. acidosis/alkalosis) · <em>Compensation NOT required for exam</em></p>
+</div>
+
+<div class="sub sub-rust">3 Ways the Body Maintains Acid-Base Balance</div>
+<div class="g2">
+  <div>
+    <div class="band-card bh-rust">
+      <div class="band-head">1. Buffers — 1st &amp; Fastest</div>
+      <div class="band-body"><p>Act instantly — no organ required. Neutralize acids/bases in blood and tissue.</p><p>Carbonic acid-bicarbonate (90% ECF), phosphate (ICF), protein systems</p></div>
+    </div>
+    <div class="band-card bh-rust">
+      <div class="band-head">2. Lungs — Control CO2 (Minutes)</div>
+      <div class="band-body"><p>Too acidic → breathe fast, blow off CO2 &nbsp;|&nbsp; Too alkaline → breathe slow, retain CO2</p><p>When metabolic is the cause → lungs compensate</p></div>
+    </div>
+    <div class="band-card bh-rust">
+      <div class="band-head">3. Kidneys — Control HCO3− (Days)</div>
+      <div class="band-body"><p>Too acidic → retain HCO3−, excrete H+ into urine</p><p>Too alkaline → excrete HCO3− &nbsp;|&nbsp; When respiratory is the cause → kidneys compensate</p></div>
+    </div>
+  </div>
+  <div class="card card-rust">
+    <h4>Normal ABG Values &nbsp;|&nbsp; pH Scale</h4>
+    <p>
+      <span class="norm norm-rust">pH 7.35–7.45</span>
+      <span class="norm norm-rust">PaCO2 35–45 mmHg</span>
+      <span class="norm norm-rust">HCO3− 22–26 mEq/L</span>
+      <span class="norm norm-rust">PaO2 80–100 mmHg</span>
+    </p>
+    <p>&lt;7.35 = ACIDOSIS &nbsp;·&nbsp; 7.35–7.45 = NORMAL &nbsp;·&nbsp; &gt;7.45 = ALKALOSIS</p>
+    <div class="mnem">CO2 is an ACID — moves OPPOSITE to pH &nbsp;|&nbsp; HCO3− is a BASE — moves SAME as pH</div>
+    <p><b>ROME:</b> Respiratory = Opposite &nbsp;·&nbsp; Metabolic = Equal</p>
+  </div>
+</div>
+
+<div class="sub sub-rust">The 4 Disorders — Side by Side</div>
+<div class="ts"><table class="t-rust">
+  <tr><th></th><th>Resp. Acidosis</th><th>Resp. Alkalosis</th><th>Met. Acidosis</th><th>Met. Alkalosis</th></tr>
+  <tr><td><strong>pH</strong></td><td>↓ &lt;7.35</td><td>↑ &gt;7.45</td><td>↓ &lt;7.35</td><td>↑ &gt;7.45</td></tr>
+  <tr><td><strong>PaCO2</strong></td><td>↑ &gt;45</td><td>↓ &lt;35</td><td>Normal</td><td>Normal</td></tr>
+  <tr><td><strong>HCO3−</strong></td><td>Normal</td><td>Normal</td><td>↓ &lt;22</td><td>↑ &gt;26</td></tr>
+  <tr><td><strong>Core Problem</strong></td><td>Hypoventilation — CO2 retained</td><td>Hyperventilation — CO2 blown off</td><td>Acid buildup or base loss</td><td>Acid loss or base gain</td></tr>
+  <tr><td><strong>Causes</strong></td><td>COPD · opioid OD · apnea · airway obstruction · CHF · pneumonia · opioid-induced resp. depression</td><td>Anxiety · panic attack · pain · sepsis · fever</td><td>Renal failure · DKA · diarrhea (lose HCO3−) · sepsis/lactic acid · hyperkalemia · ASA OD</td><td>Vomiting · gastric suction · diuretics (furosemide) · excessive antacids · excess K+ loss in urine · renal failure to excrete HCO3−</td></tr>
+  <tr><td><strong>Key S/S</strong></td><td>Confusion · ↓ LOC · tachycardia · tachypnea · headache · dizziness · restlessness</td><td>Hyperventilation · tingling/numbness · headache · dizziness · confusion · hypokalemia</td><td><strong>Kussmaul's breathing</strong> · headache · confusion · weakness · peripheral vasodilation · N/V · hyperkalemia</td><td>Hypoventilation · dizziness · tingling of extremities · <strong>hypertonic muscles</strong> · hypokalemia · dehydration</td></tr>
+  <tr><td><strong>TX</strong></td><td>O2 · vent support · naloxone if OD · treat cause</td><td>Slow breathing · rebreather bag · treat pain/anxiety</td><td>Treat cause · possible bicarb order</td><td>Treat cause · K+ replacement · antiemetics</td></tr>
+</table></div>
+<div class="mnem">Kussmaul's = rapid, deep breathing — lungs compensating for metabolic acidosis by blowing off CO2 to raise pH</div>
+
+<div class="sub sub-rust">Tic-Tac-Toe Method — How to Analyze an ABG</div>
+<div class="g2">
+  <div class="card card-rust">
+    <h4>The 3 Steps</h4>
+    <p><strong>Step 1:</strong> Is pH acid (&lt;7.35), normal, or base (&gt;7.45)?</p>
+    <p><strong>Step 2:</strong> Is PaCO2 acid (&gt;45), normal, or base (&lt;35)?</p>
+    <p><strong>Step 3:</strong> Is HCO3− acid (&lt;22), normal, or base (&gt;26)?</p>
+    <p><em>Whichever value matches the pH direction = the CAUSE</em></p>
+    <p>CO2 matches → <strong>Respiratory</strong> &nbsp;|&nbsp; HCO3− matches → <strong>Metabolic</strong></p>
+    <table style="width:auto;margin-top:8px">
+      <tr><th>ACID</th><th>NORM</th><th>BASE</th></tr>
+      <tr><td>pH</td><td>pH</td><td>pH</td></tr>
+      <tr><td>CO2</td><td>CO2</td><td>CO2</td></tr>
+      <tr><td>HCO3</td><td>HCO3</td><td>HCO3</td></tr>
+    </table>
+  </div>
+  <div class="card card-rust">
+    <h4>Clinical Clues</h4>
+    <ul>
+      <li>COPD + altered LOC → <strong>respiratory acidosis</strong></li>
+      <li>CHF/pneumonia, hypoventilating → <strong>respiratory acidosis</strong></li>
+      <li>Anxious patient hyperventilating → <strong>respiratory alkalosis</strong> → tingling</li>
+      <li>Sepsis/fever → <strong>respiratory alkalosis</strong></li>
+      <li>DKA patient breathing rapidly and deeply → Kussmaul's → <strong>metabolic acidosis</strong></li>
+      <li>Severe diarrhea → <strong>metabolic acidosis</strong> (losing HCO3−)</li>
+      <li>Post-op on opioids, hypoventilating → <strong>respiratory acidosis</strong></li>
+      <li>Vomiting/NG suction → losing stomach acid → <strong>metabolic alkalosis</strong></li>
+      <li>Furosemide without K+ replacement → hypokalemia → <strong>metabolic alkalosis</strong></li>
+      <li>ASA overdose → <strong>metabolic acidosis</strong></li>
+    </ul>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 3 ═══ -->
+<div id="s3" class="panel">
+  <div class="sec-head sh-forest">Fluids &amp; Electrolytes <span class="lec-tag">Lecture 11</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives</h4>
+  <p>Fluid compartments (ICF, ECF: interstitial, intravascular, transcellular) · Osmosis &amp; diffusion · 10 S&amp;S of need for fluids · ADH role in fluid balance · Hypovolemia vs. hypervolemia (S&amp;S &amp; NI) · Fluid restriction &amp; increasing interventions</p>
+</div>
+
+<div class="sub sub-forest">Fluid Compartments</div>
+<div class="g2">
+  <div class="card card-forest">
+    <h4>Intracellular Fluid (ICF) — Largest compartment</h4>
+    <p>Inside all body cells</p>
+    <p>Major ions: K+, Mg2+, phosphate−</p>
+    <p><b class="lbl">Third Spacing &#9888;</b> — fluid trapped where body cannot use it: ascites, pericardial effusion, burn blisters, pleural effusion. Circulating volume ↓ even though fluid hasn't left the body.</p>
+  </div>
+  <div class="card card-forest">
+    <h4>Extracellular Fluid (ECF) — 3 Subtypes</h4>
+    <p><b class="lbl">Interstitial</b> — between cells &amp; blood vessels → where edema forms</p>
+    <p><b class="lbl">Intravascular</b> — plasma inside blood vessels · main ions: Na+, Cl−, HCO3−, albumin</p>
+    <p><b class="lbl">Transcellular</b> — CSF, pleural fluid, peritoneal, synovial, digestive juices</p>
+  </div>
+</div>
+
+<div class="sub sub-forest">Movement Mechanisms</div>
+<div class="g4">
+  <div class="card card-forest"><h4>Osmosis</h4><p>Water moves from LOW → HIGH concentration (passive — no ATP)</p><p>Goal: dilute higher solute concentration</p></div>
+  <div class="card card-forest"><h4>Diffusion</h4><p>Solutes move from HIGH → LOW concentration (passive)</p><p>Example: O2/CO2 exchange at alveoli</p></div>
+  <div class="card card-forest"><h4>Filtration</h4><p>Water + particles move from HIGH → LOW pressure (passive)</p><p>Example: arteries → capillaries</p></div>
+  <div class="card card-forest"><h4>Active Transport</h4><p>Electrolytes move LOW → HIGH concentration</p><p>Requires ATP — ONLY energy-requiring mechanism</p></div>
+</div>
+
+<div class="sub sub-forest">IV Fluid Tonicity</div>
+<div class="g3">
+  <div class="band-card bh-forest">
+    <div class="band-head">ISOTONIC — No Fluid Shift</div>
+    <div class="band-body">
+      <p>Same osmolality as blood — stays in ECF</p>
+      <p><b class="lbl">Examples:</b> 0.9% NS, Lactated Ringers (LR)</p>
+      <p>LR has electrolytes — given for whole blood loss from trauma, surgery, GI bleed</p>
+      <p>0.9% NS — used for fluid loss, dehydration, hypovolemia</p>
+      <div class="warn"><strong>&#9888;</strong> Risk of fluid overload — monitor especially in CHF</div>
+    </div>
+  </div>
+  <div class="band-card bh-forest">
+    <div class="band-head">HYPOTONIC — "Hippo" — Cells Swell</div>
+    <div class="band-body">
+      <p>Lower osmolality — water moves INTO cells → cells swell</p>
+      <p><b class="lbl">Examples:</b> 0.45% NS, 0.33% NS, D5W</p>
+      <p>Used for: intracellular dehydration, DKA</p>
+      <div class="warn"><strong>&#9888;</strong> NEVER with ↑ICP, stroke, or head injury — causes cerebral edema / brain swelling</div>
+    </div>
+  </div>
+  <div class="band-card bh-forest">
+    <div class="band-head">HYPERTONIC — Cells Shrink</div>
+    <div class="band-body">
+      <p>Higher osmolality — water OUT of cells → cells shrink</p>
+      <p><b class="lbl">Examples:</b> D5NS, D5 1/2NS, D5LR, D10W, 3% NS</p>
+      <p>Used for: cerebral edema, severe hyponatremia, volume expansion</p>
+      <div class="warn"><strong>&#9888;</strong> Risk hypervolemia · must run SLOW · monitor blood sugar (glucose solutions)</div>
+    </div>
+  </div>
+</div>
+
+<div class="sub sub-forest">Role of ADH in Fluid Balance</div>
+<div class="g2">
+  <div class="card card-forest">
+    <h4>How ADH Works</h4>
+    <p>Low fluid volume or ↓ BP → osmoreceptors in hypothalamus signal → posterior pituitary releases ADH → kidneys RETAIN water → ↑ blood volume → raises BP</p>
+    <p>High volume → ADH inhibited → kidneys release water</p>
+    <p>Also: Renin-Angiotensin-Aldosterone System (RAAS): Low fluid → kidneys release renin → angiotensin II → kidneys hold Na+ and water → ↑ BP · ACE inhibitors block this → ↓ BP</p>
+  </div>
+  <div class="card card-forest">
+    <h4>Clinical Significance</h4>
+    <p><b class="lbl">ADH released:</b> Urine concentrated (dark, small), specific gravity ↑ &gt;1.030</p>
+    <p><b class="lbl">ADH suppressed:</b> Urine dilute (pale, large), specific gravity ↓ &lt;1.002</p>
+    <p><b class="lbl">SIADH:</b> Too much ADH → too much water retained → dilutional hyponatremia → confusion, seizures</p>
+    <p><b class="lbl">Diabetes Insipidus:</b> Too little ADH → massive water loss → dehydration → hypernatremia</p>
+  </div>
+</div>
+
+<div class="sub sub-forest">Hypovolemia vs. Hypervolemia</div>
+<div class="g2">
+  <div class="card card-forest">
+    <h4>Hypovolemia — 10 Signs of Need for Fluids</h4>
+    <ol>
+      <li><strong>Thirst (first sign!)</strong></li>
+      <li>Headache</li>
+      <li>Fatigue</li>
+      <li>Concentrated/decreased urine</li>
+      <li>↑ heart rate &amp; low BP (thready pulse, tachycardia, hypotension)</li>
+      <li>Dry mouth and eyes</li>
+      <li>Lack of coordination</li>
+      <li>Muscle cramps</li>
+      <li>Constipation</li>
+      <li>Extreme cases: weakness, trembling, lack of mental clarity</li>
+    </ol>
+    <p><b class="lbl">Also:</b> Elevated temp · dry mucous membranes · poor skin turgor · capillary refill &gt;3 sec · AMS · elevated BUN &amp; Na+ · elevated Hct · elevated urine specific gravity</p>
+  </div>
+  <div class="card card-forest">
+    <h4>Hypervolemia — Signs &amp; Symptoms</h4>
+    <p><b class="lbl">Causes:</b> Excess fluid/Na+ intake · CHF · renal failure · liver failure · low albumin</p>
+    <ul>
+      <li>Weight gain (rapid)</li>
+      <li>JVD · pitting/dependent edema</li>
+      <li>Crackles · dyspnea · ascites</li>
+      <li>Bounding pulse · hypertension · ↑ RR</li>
+      <li>Mental status changes (low Na+ or hypoxia)</li>
+      <li>Skin pale &amp; cool</li>
+    </ul>
+    <p><b class="lbl">Labs:</b> ↓ BUN, ↓ Hct, ↓ urine specific gravity (&lt;1.002), ↓ Na+ (hemodilution)</p>
+  </div>
+</div>
+
+<div class="sub sub-forest">Nursing Interventions</div>
+<div class="g2">
+  <div class="card card-forest">
+    <h4>To INCREASE Fluid Intake (Hypovolemia)</h4>
+    <ul>
+      <li>Assess and offer fluid preferences</li>
+      <li>Encourage oral fluids · offer choices throughout day</li>
+      <li>IV fluids as ordered (isotonic 0.9% NS)</li>
+      <li>Monitor I&amp;O · daily weights · VS · mental status</li>
+      <li>Mouth care for dry mucous membranes</li>
+      <li>Always have fluids available</li>
+    </ul>
+  </div>
+  <div class="card card-forest">
+    <h4>To RESTRICT Fluid Intake (Hypervolemia)</h4>
+    <ul>
+      <li>Fluid restriction as ordered — measure ALL intake</li>
+      <li>Reserve liquids for <strong>between meals</strong> — NOT with meals</li>
+      <li>Offer ice chips to manage thirst</li>
+      <li>Bring liquids for medications then take away</li>
+      <li><strong>Do NOT leave liquids at the bedside</strong></li>
+      <li>Diuretics as ordered (furosemide) · low-sodium diet</li>
+      <li>Monitor I&amp;O · daily weights · lung sounds · HOB elevated</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ts"><table class="t-forest">
+  <tr><th>Lab Value</th><th>Hypovolemia</th><th>Normal</th><th>Hypervolemia</th></tr>
+  <tr><td>Hematocrit</td><td>↑ Hemoconcentration</td><td>F: 37–47% · M: 42–52%</td><td>↓ Hemodilution</td></tr>
+  <tr><td>BUN</td><td>↑ High</td><td>10–20 mg/dL</td><td>↓ Low</td></tr>
+  <tr><td>Urine Specific Gravity</td><td>↑ &gt;1.030 — concentrated</td><td>1.002–1.030</td><td>↓ &lt;1.002 — dilute</td></tr>
+  <tr><td>Na+</td><td>↑ High — hypernatremia</td><td>135–145 mEq/L</td><td>↓ Low — hyponatremia</td></tr>
+  <tr><td>BP &amp; Pulse</td><td>↓ Hypotension · thready</td><td>~120/80 · 60–100 bpm</td><td>↑ Hypertension · bounding</td></tr>
+</table></div>
+<div class="mnem">Daily weight: Same time, same scale, same gown &nbsp;·&nbsp; Min urine output 30–50 mL/hr &nbsp;·&nbsp; BUN ↑ alone = dehydration &nbsp;·&nbsp; Both BUN + Cr ↑ = suspect renal failure</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 4 ═══ -->
+<div id="s4" class="panel">
+  <div class="sec-head sh-forest">Electrolyte Imbalances Matrix <span class="lec-tag">Lecture 11</span></div>
+  <div class="pg-wide">
+<div class="obj">
+  <h4>&#9745; Know normal values, causes, S&amp;S, and treatment for excess and deficient values of Na+, K+, Ca2+, Mg2+</h4>
+</div>
+
+<div class="ts"><table>
+  <tr>
+    <th>Electrolyte</th><th>Normal</th>
+    <th class="lo">LOW — Causes</th><th class="lo">LOW — S&amp;S</th><th class="lo">LOW — TX</th>
+    <th class="hi">HIGH — Causes</th><th class="hi">HIGH — S&amp;S</th><th class="hi">HIGH — TX</th>
+  </tr>
+  <tr>
+    <td><strong>Na+</strong><br><small>ECF · fluid volume · nerve impulses</small></td>
+    <td>135–145 mEq/L</td>
+    <td class="lo">Diuretics · GI loss · excess water intake · hypotonic fluids · SIADH</td>
+    <td class="lo">AMS/confusion · N/V · weakness · muscle cramps · seizures<br><em>Low Na+ → brain cells SWELL</em></td>
+    <td class="lo">↑ oral Na+ · IV NS · fluid restriction if water overload</td>
+    <td class="hi">Excess Na+ intake · dehydration · profuse sweating · hypertonic tube feeds · diabetes insipidus</td>
+    <td class="hi">Thirst · elevated temp · dry sticky mucous membranes · AMS · seizures<br><em>High Na+ → brain cells SHRINK</em></td>
+    <td class="hi">Restrict Na+ · ↑ water · IV D5W</td>
+  </tr>
+  <tr>
+    <td><strong>K+</strong><br><small>ICF · cardiac rhythm · muscle</small></td>
+    <td>3.5–5.0 mEq/L</td>
+    <td class="lo"><strong>Furosemide (#1 cause!)</strong> · GI loss · vomiting/diarrhea/NG suction · anorexia/bulimia</td>
+    <td class="lo">N/V · muscle weakness · dysrhythmias · paresthesias · <strong>FLAT T on ECG</strong><br><em>Low K+ → ↑ digoxin TOXICITY</em></td>
+    <td class="lo">K+-rich foods · K+ supplements PO/IV · monitor digoxin levels</td>
+    <td class="hi">Renal failure · K+-sparing diuretics · acidosis · hemolyzed sample</td>
+    <td class="hi">Muscle weakness · dysrhythmias · flaccid paralysis · intestinal colic · <strong>TALL T on ECG</strong></td>
+    <td class="hi">Monitor I&amp;O &amp; K+ · restrict K+ foods (↑ Cr patients) · cardiac monitoring</td>
+  </tr>
+  <tr>
+    <td><strong>Ca2+</strong><br><small>Bones · nerve impulses · muscle contraction</small></td>
+    <td>8.5–10.5 mg/dL</td>
+    <td class="lo">Hypoparathyroidism (esp. after thyroid/parathyroid surgery!) · Vit D deficiency · malabsorption · alkalosis · pancreatitis</td>
+    <td class="lo">Muscle cramps · tetany · seizures · cardiac irritability<br>+ <strong>Trousseau's</strong>: BP cuff 3 min → carpopedal spasm<br>+ <strong>Chvostek's</strong>: tap facial nerve → facial twitch</td>
+    <td class="lo">↑ Ca2+ + Vit D · severe → seizure precautions + parenteral calcium</td>
+    <td class="hi">Hyperparathyroidism · malignant bone disease · prolonged immobilization · excess supplementation · thiazide diuretics</td>
+    <td class="hi">N/V · muscle weakness · bradycardia · constipation · kidney stones · polyuria</td>
+    <td class="hi">↑ fluids · ↑ fiber · stop Ca2+ supplements · avoid Ca2+-based antacids</td>
+  </tr>
+  <tr>
+    <td><strong>Mg2+</strong><br><small>Nerve/cardiac electrical · maintains K+</small></td>
+    <td>1.3–2.1 mEq/L</td>
+    <td class="lo">Chronic alcoholism · malabsorption · DKA · prolonged NG suctioning</td>
+    <td class="lo">Neuromuscular irritability · dysrhythmias · disorientation · ↑ sensitivity to digoxin (same risk as low K+)</td>
+    <td class="lo">Mg2+-rich foods (greens, nuts, grains) · avoid alcohol · monitor digoxin</td>
+    <td class="hi">Renal failure · adrenal insufficiency · excess Mg2+ intake (antacids, laxatives)</td>
+    <td class="hi">Hypoactive reflexes · bradycardia · flushing &amp; warmth · hypotension · drowsiness/lethargy</td>
+    <td class="hi">Monitor reflexes · restrict high-Mg foods · avoid Mg2+-based antacids &amp; laxatives</td>
+  </tr>
+</table></div>
+
+<div class="warn"><strong>Both hypokalemia and hyperkalemia → cardiac dysrhythmias — always monitor ECG. Low K+ or low Mg2+ with digoxin = HIGH toxicity risk.</strong></div>
+
+<div class="g4">
+  <div class="card card-forest"><h4>Na+ — Fluid &amp; Brain</h4><p>Low → brain cells SWELL → confusion, seizures</p><p>High → brain cells SHRINK → thirst, AMS</p><p><em>Sodium = salt = water follows salt</em></p></div>
+  <div class="card card-forest"><h4>K+ — Heart Rhythm</h4><p>Low → <strong>FLAT T</strong> · weakness · dysrhythmias</p><p>High → <strong>TALL T</strong> · flaccid paralysis</p><p><strong>Furosemide = #1 cause of hypokalemia</strong></p></div>
+  <div class="card card-forest"><h4>Ca2+ — Bones &amp; Nerves</h4><p>Low → tetany · seizures</p><p>Trousseau's &amp; Chvostek's signs</p><p><strong>Watch after thyroid/parathyroid surgery!</strong></p></div>
+  <div class="card card-forest"><h4>Mg2+ — Electrical</h4><p>Low → neuromuscular irritability · dysrhythmias</p><p>High → hypoactive reflexes · bradycardia</p><p>Both low K+ and low Mg2+ → ↑ digoxin toxicity risk</p></div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 5 ═══ -->
+<div id="s5" class="panel">
+  <div class="sec-head sh-cobalt">IV Therapy &amp; Blood Products <span class="lec-tag">Lecture 12</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives</h4>
+  <p>Peripheral IV therapy definition · IV complications (all 5) + NI · Central IV types (CVC, PICC, Mediport) · Blood product indications · Transfusion time limits · 5 transfusion reaction types + NI</p>
+</div>
+
+<div class="sub sub-cobalt">IV Access — Peripheral vs. Central</div>
+<div class="g2">
+  <div class="band-card bh-cobalt">
+    <div class="band-head">Peripheral IV</div>
+    <div class="band-body">
+      <p>Catheter inserted into peripheral vein (arm/hand) for IV fluid/medication delivery</p>
+      <p><b class="lbl">Gauge:</b> Lower number = bigger lumen (18g &gt; 22g)</p>
+      <p><b class="lbl">Replace:</b> Every 72 hours</p>
+      <p>✓ Easy · brief therapy · widely accessible</p>
+      <p>✗ Cannot use hyperosmolar or irritating solutions · fragile · dislodges easily</p>
+    </div>
+  </div>
+  <div class="band-card bh-cobalt">
+    <div class="band-head">Central Venous Catheter (CVC) — Types</div>
+    <div class="band-body">
+      <p><b class="lbl">Non-tunneled CVC:</b> Subclavian or jugular · MD at bedside · x-ray to verify placement BEFORE use</p>
+      <p><b class="lbl">PICC Line:</b> Antecubital fossa → superior vena cava · long-term · home use · RN assesses site AND catheter length every shift (length change = migration)</p>
+      <p><b class="lbl">Implanted Port (Mediport):</b> Under skin · long-term · accessed with Huber needle ONLY — sterile procedure</p>
+      <p>✓ Hyperosmolar solutions OK · TPN possible &nbsp; ✗ MD insertion + consent + x-ray · ↑ infection risk</p>
+    </div>
+  </div>
+</div>
+
+<div class="sub sub-cobalt">IV Complications — All 5 + Nursing Interventions</div>
+<div class="ts"><table class="t-cobalt">
+  <tr><th>Complication</th><th>Cause</th><th>Signs &amp; Symptoms</th><th>Nursing Intervention</th><th>Compress</th></tr>
+  <tr>
+    <td><strong>Infiltration</strong></td>
+    <td>NON-vesicant fluid leaks into tissue — catheter dislodged or vein penetrated</td>
+    <td>Swelling · pale/cold/hard skin · tender/burning · slow or stopped IV · pump beeping</td>
+    <td>Stop IV · restart above site or other arm · elevate arm</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td><strong>Extravasation</strong></td>
+    <td>VESICANT leaks → tissue injury/necrosis<br><em>Chemo · acyclovir · aminophylline · dopamine · dextrose &gt;10% · IV nitro · TPN</em></td>
+    <td>Same early + LATE: blisters, tissue necrosis, blanching</td>
+    <td>Stop ASAP · call MD · give antidote · cold compress · elevate · document</td>
+    <td>Cold</td>
+  </tr>
+  <tr>
+    <td><strong>Phlebitis</strong></td>
+    <td>Vein inflammation from irritation or infection</td>
+    <td>Redness · pain · warmth · edema · palpable vein cord · fever</td>
+    <td>Stop IV · cold compress · assess circulatory impairment · notify if fever</td>
+    <td>COLD</td>
+  </tr>
+  <tr>
+    <td><strong>Thrombophlebitis</strong></td>
+    <td>Clot + inflammation from untreated phlebitis</td>
+    <td>Same as phlebitis + slow flow · hard cord</td>
+    <td>Stop IV · restart opposite side · ALL new equipment · warm moist compress · call MD</td>
+    <td>WARM</td>
+  </tr>
+  <tr>
+    <td><strong>IV Site Infection</strong></td>
+    <td>Poor aseptic technique or not changed q72hr</td>
+    <td>Redness · swelling · exudate · fever</td>
+    <td>Remove IV · sterile dressing · call MD · antibiotics if ordered · culture site</td>
+    <td>—</td>
+  </tr>
+</table></div>
+<div class="mnem">Phlebitis → COLD compress (inflammation, no clot) &nbsp;|&nbsp; Thrombophlebitis → WARM compress (clot present)</div>
+
+<div class="sub sub-cobalt">Blood Products — Indications for Transfusion</div>
+<div class="g3">
+  <div class="card"><h4>PRBCs</h4><p>Raise Hgb/Hct · restore O2-carrying capacity · severe anemia · significant blood loss/trauma/hemorrhage</p></div>
+  <div class="card"><h4>Platelets</h4><p>Low platelet count · abnormal platelet function · clotting disorders</p></div>
+  <div class="card"><h4>Plasma / Derivatives</h4><p>Clotting factor deficits · immune deficiencies · albumin for low protein · WBCs for infections unresponsive to antibiotics</p></div>
+</div>
+<div class="mnem">IV fluids restore fluid volume ONLY — cannot restore O2-carrying capacity or replace clotting factors. Only blood products can do this.</div>
+
+<div class="sub sub-cobalt">Transfusion — Time Limits &amp; Setup</div>
+<div class="g2">
+  <div class="card card-cobalt">
+    <h4>Pre-Transfusion Setup</h4>
+    <ul>
+      <li>Verify order</li>
+      <li>Consent signed by MD &amp; patient — witnessed</li>
+      <li>Type &amp; cross: valid 72 hrs — 4 blood types: A, B, AB, O — Rh factor: positive or negative</li>
+      <li>VS 5–15 min prior to administration</li>
+      <li>18–20 gauge IV access · IV site must be patent &amp; VS stable</li>
+      <li>ONLY 0.9% NS — dextrose causes RBC lysis</li>
+      <li>Y-tubing · if dextrose running → completely new IV line</li>
+      <li>Pre-meds if ordered: acetaminophen, diphenhydramine</li>
+    </ul>
+  </div>
+  <div class="card card-cobalt">
+    <h4>Time Rules</h4>
+    <p>Initiate within <strong>½ hour</strong> of release from blood bank</p>
+    <p>Infuse in <strong>not less than 2 hours, not more than 4 hours</strong></p>
+    <p>If not done in 4 hrs → stop &amp; waste</p>
+    <p><strong>2-nurse check required — ALWAYS</strong></p>
+    <p>Stay with patient for first <strong>15 minutes</strong> and retake vital signs</p>
+  </div>
+</div>
+
+<div class="sub sub-cobalt">5 Types of Transfusion Reactions</div>
+<div class="warn"><strong>Universal First Step — ALL reactions: STOP transfusion immediately and replace IV with 0.9% Normal Saline. No exceptions. Then identify type and notify MD.</strong></div>
+<div class="ts"><table class="t-cobalt">
+  <tr><th>Reaction</th><th>Cause</th><th>S/S</th><th>Nursing Intervention</th><th>Preventable?</th></tr>
+  <tr>
+    <td><strong>Febrile</strong></td>
+    <td>Sensitivity to WBCs, plasma proteins, platelets</td>
+    <td>Fever · chills · warm flushed skin · aches</td>
+    <td>STOP · NS · notify MD · acetaminophen · treat symptoms</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td><strong>Allergic</strong></td>
+    <td>Allergy to blood transfused</td>
+    <td>Flushing · itching · hives · wheezing · severe = anaphylaxis</td>
+    <td>STOP · NS · antihistamine (mild) · epinephrine if anaphylaxis</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td><strong>Bacterial &#9888;</strong></td>
+    <td>Contaminated blood product</td>
+    <td>Fever · chills · vomiting · diarrhea · hypotension</td>
+    <td>STOP · NS · notify MD · antibiotics as ordered</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td class="emerg"><strong>Hemolytic &#9888;&#9888;</strong></td>
+    <td>Incompatible blood → RBC destruction (1 in 600,000) — WRONG blood to WRONG patient</td>
+    <td class="emerg">Fever · chills · dyspnea · chest pain · tachycardia · hypotension → FATAL</td>
+    <td>STOP IMMEDIATELY · new NS via NEW tubing (not blood tubing) · notify MD STAT · hemolytic protocol · treat shock · send remaining blood + tubing + venous sample + first voided urine to lab</td>
+    <td><strong class="emerg">YES — 2-nurse check</strong></td>
+  </tr>
+  <tr>
+    <td><strong>Circulatory Overload</strong></td>
+    <td>Too much volume or infused too fast</td>
+    <td>Persistent cough · crackles · HTN · distended neck veins</td>
+    <td>SLOW or STOP · sit patient upright · monitor VS · notify MD · anticipate Lasix (furosemide)</td>
+    <td>YES — rate/volume control</td>
+  </tr>
+</table></div>
+<div class="mnem">Hemolytic = most serious AND most preventable. 2-nurse check confirms: right patient · right blood type · expiration date · bag ID. Never rush this check — 99% preventable.</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 6 ═══ -->
+<div id="s6" class="panel">
+  <div class="sec-head sh-slate">Management &amp; Cost Containment <span class="lec-tag">Lecture 12</span></div>
+  <div class="pg">
+<div class="obj">
+  <h4>&#9745; Objectives</h4>
+  <p>List causes of escalating healthcare costs &nbsp;·&nbsp; Discuss ways nurses contribute to cost containment</p>
+</div>
+
+<div class="g2">
+  <div class="card card-slate">
+    <h4>Causes of Escalating Healthcare Costs</h4>
+    <ul>
+      <li>Aging population → more chronic conditions, LTC, specialty care</li>
+      <li>Higher survival rates → costly long-term/intensive care</li>
+      <li>Administrative waste from insurance system complexity</li>
+      <li>Lack of competition — hospital consolidation → unchecked price increases</li>
+      <li>Third-party payers insulate consumers from real cost (they don't see the bill)</li>
+      <li>Rising cost of medical technology and prescriptions</li>
+      <li>Overuse: unnecessary diagnostic tests · longer LOS</li>
+      <li>Cost of supplies, waste of supplies, complications patients experience</li>
+      <li>Cost of personnel</li>
+    </ul>
+    <p>By 2028: $6.2 trillion projected (~$18,000/person). High cost ≠ high quality. US has worst maternal mortality in developed world; infant mortality rate 71% higher than comparable countries.</p>
+  </div>
+  <div class="card card-slate">
+    <h4>Nurses' Role in Cost Containment</h4>
+    <p><b class="lbl">Supplies:</b></p>
+    <ul>
+      <li>Only bring needed supplies into room — unused room supplies must be discarded</li>
+      <li>Scan barcodes timely — capture all charges</li>
+      <li>Avoid unnecessary prepackaged kits</li>
+    </ul>
+    <p><b class="lbl">Practice:</b></p>
+    <ul>
+      <li>Thorough assessments — catch reddened areas early → implement turn schedule → prevent pressure injuries</li>
+      <li>Infection control — CAUTI, VAP = preventable nosocomial infections that add to costs</li>
+      <li>Prioritize using Maslow → ABC → CURE</li>
+      <li>Delegate to UAPs appropriately</li>
+      <li>Cluster cares · document for continuity · update care plans</li>
+      <li>Individualize care based on current patient needs</li>
+    </ul>
+    <div class="mnem"><b>ANA Resource Stewardship Standard:</b> "The registered nurse utilizes appropriate resources to plan, provide, and sustain evidence-based nursing services that are safe, effective, financially responsible, and used judiciously."</div>
+  </div>
+</div>
+
+<div class="sub sub-slate">Shifting Paradigms — Past to Future</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>The Past</th><th>The Future</th></tr>
+  <tr><td>Payment for illness/sick care triggered by visits and procedures</td><td>Payment for prevention, care coordination, and care management</td></tr>
+  <tr><td>Provider-centric — provider as expert</td><td>Patient-centric — patient as partner</td></tr>
+  <tr><td>No accountability for inadequate quality</td><td>Value-based payment asking "How well did patients do?"</td></tr>
+  <tr><td>Nursing not leading or not recognized for contribution</td><td>Nursing finding their voice — active role in shaping healthcare, recognized for value in care coordination</td></tr>
+  <tr><td>Following orders</td><td>Advocating for the patient and family</td></tr>
+  <tr><td>Focus on task</td><td>Focus on excellence and the patient experience</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ═══ SECTION 7 ═══ -->
+<div id="s7" class="panel">
+  <div class="sec-head sh-slate">Unit 2 Medications — Cardiovascular &amp; Anticoagulants <span class="lec-tag">Page 1 of 2</span></div>
+  <div class="pg">
+<div class="sub sub-slate">&#10084; Cardiovascular — Beta Blockers · ACE Inhibitors · Vasodilators · Inotropes · Statins</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>Drug (Trade)</th><th>Classification</th><th>Action</th><th>Key Nursing Points</th></tr>
+  <tr>
+    <td><strong>atenolol</strong><span class="drug-class">Tenormin</span></td>
+    <td>Beta-blocker</td>
+    <td>Blocks norepinephrine &amp; epinephrine at beta receptors → ↓ HR, ↓ cardiac workload; HTN, angina, MI prevention</td>
+    <td>Monitor BP, EKG &amp; pulse · dizziness/orthostatic hypotension → rise slowly</td>
+  </tr>
+  <tr>
+    <td><strong>enalapril</strong><span class="drug-class">Vasotec</span></td>
+    <td>ACE inhibitor — antihypertensive</td>
+    <td>ACE inhibitor → blocks angiotensin II conversion → vasodilation → ↓ BP; used for HTN</td>
+    <td>Monitor BP, BUN, creatinine, electrolytes · SE = <strong>dry cough</strong> · dizziness/hypotension</td>
+  </tr>
+  <tr>
+    <td><strong>nitroglycerin</strong><span class="drug-class">Nitrostat (SL) / Nitro-Dur (patch)</span></td>
+    <td>Vasodilator (nitrate)</td>
+    <td>Potent vasodilator; dilates coronary arteries → ↑ blood flow to ischemic heart; reduces BP; used for angina and HTN emergency</td>
+    <td>Check BP before AND after · patient must SIT before receiving · headache = common SE (should decrease with continuing therapy) · rise slowly — orthostatic hypotension</td>
+  </tr>
+  <tr>
+    <td><strong>digoxin</strong><span class="drug-class">Lanoxin</span></td>
+    <td>Cardiac glycoside — positive inotrope</td>
+    <td>↑ force of cardiac contraction; slows and strengthens heart rate; used in HF and A-fib</td>
+    <td>Hold if apical pulse &lt;60 — check <strong>1 FULL minute</strong> · monitor ECG strip · therapeutic range: <strong>0.5–2 mg/mL</strong> · LOW K+ or LOW Mg2+ → TOXICITY · toxicity: abdominal pain, anorexia, N/V, <strong>yellow/green halos</strong>, bradycardia · monitor K+</td>
+  </tr>
+  <tr>
+    <td><strong>atorvastatin</strong><span class="drug-class">Lipitor</span></td>
+    <td>Statin — lipid-lowering agent</td>
+    <td>Lowers serum cholesterol → ↓ plaque formation in blood vessels; used to prevent CVD</td>
+    <td>Monitor liver enzymes (can cause hepatitis) · monitor serum cholesterol &amp; triglycerides · if muscle pain → check CK immediately — could be rhabdomyolysis (breakdown of muscle fibers → renal failure, death)</td>
+  </tr>
+</table></div>
+
+<div class="sub sub-slate">&#128137; Anticoagulants</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>Drug (Trade)</th><th>Classification</th><th>Action</th><th>Key Nursing Points</th></tr>
+  <tr>
+    <td><strong>heparin sodium</strong></td>
+    <td>Anticoagulant — short-term IV/SQ</td>
+    <td>Inhibits thrombin &amp; Factor Xa → prevents clot formation; used for DVT, PE, A-fib, ACS</td>
+    <td>Monitor PTT or aPTT daily · antidote = <strong>protamine sulfate</strong> · give SQ in abdomen · no IM injections in anticoagulated patients · full bleeding precautions</td>
+  </tr>
+  <tr>
+    <td><strong>enoxaparin</strong><span class="drug-class">Lovenox</span></td>
+    <td>LMWH (SQ) — anticoagulant</td>
+    <td>Low molecular weight heparin — prevents DVT/PE; more convenient than heparin; home/nursing home use</td>
+    <td>Does <strong>NOT require monitoring of serum levels</strong> (major advantage) unless bleeding is assessed · SQ abdomen · full bleeding precautions · teach patients/families self-administration</td>
+  </tr>
+  <tr>
+    <td><strong>warfarin sodium</strong><span class="drug-class">Coumadin</span></td>
+    <td>Anticoagulant — long-term oral</td>
+    <td>Inhibits Vitamin K-dependent clotting factors; used for chronic A-fib, DVT/PE prevention, mechanical valves</td>
+    <td>Monitor PT/INR (therapeutic INR 2–3) · antidote = <strong>Vitamin K</strong> · <strong>teach patient to avoid green leafy vegetables</strong> (contain Vit K — counteracts medication) · watch for bleeding · bleeding precautions</td>
+  </tr>
+</table></div>
+
+<div class="card">
+  <h4>Bleeding Precautions — ALL Anticoagulants</h4>
+  <div class="g2">
+    <div>
+      <p><b class="lbl">Teach patient to avoid:</b></p>
+      <ul>
+        <li>Sharp razors — use electric razor</li>
+        <li>Aspirin and NSAIDs</li>
+        <li>Straining at BM — use stool softener</li>
+        <li>Going barefoot — wear shoes/slippers</li>
+        <li>Contact sports / strenuous activity</li>
+      </ul>
+    </div>
+    <div>
+      <p><b class="lbl">Use:</b> Soft toothbrush · blow nose gently</p>
+      <p><b class="lbl">Nurse:</b> No IM injections · no rectal temps</p>
+      <p><b class="lbl">Report to provider:</b> Bleeding &gt;5 min · hematuria · black/tarry stools · petechiae · new headache · abdominal pain · bruising without injury</p>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 8 ═══ -->
+<div id="s8" class="panel">
+  <div class="sec-head sh-slate">Unit 2 Medications — Diuretics, Respiratory &amp; Endocrine/GI <span class="lec-tag">Page 2 of 2</span></div>
+  <div class="pg">
+<div class="sub sub-slate">&#128167; Diuretics &amp; Electrolyte Supplements</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>Drug (Trade)</th><th>Classification</th><th>Action</th><th>Key Nursing Points</th></tr>
+  <tr>
+    <td><strong>furosemide</strong><span class="drug-class">Lasix</span></td>
+    <td>Loop diuretic — K+-losing</td>
+    <td>Inhibits Na+/K+/Cl− reabsorption in loop of Henle → excretes water, Na+, K+; edema (CHF, renal failure, excess fluid volume)</td>
+    <td>Monitor K+ — <strong>HYPOKALEMIA #1 SE</strong> · monitor BP/pulse before &amp; during · daily weights · I&amp;O · lung sounds · skin turgor · amount/location of edema · IV: give at <strong>20–40 mg/min — faster = OTOTOXICITY</strong> (tinnitus, hearing loss) · give in AM · if on digoxin: low K+ → toxicity · encourage K+-rich foods · SE also includes: dehydration, orthostatic hypotension, photosensitivity, Stevens-Johnson Syndrome</td>
+  </tr>
+  <tr>
+    <td><strong>spironolactone</strong><span class="drug-class">Aldactone</span></td>
+    <td>K+-sparing diuretic</td>
+    <td>Blocks aldosterone → conserves K+, excretes Na+/water; weak diuretic; antihypertensive; conservation of potassium</td>
+    <td>Monitor K+ — causes <strong>HYPERKALEMIA</strong> · avoid salt substitutes (contain K+) · avoid K+-rich foods (avocados, bananas) · I&amp;O · daily weights · monitor BP · give AM · SE: Stevens-Johnson Syndrome</td>
+  </tr>
+  <tr>
+    <td><strong>potassium chloride</strong><span class="drug-class">K-Dur &nbsp; HIGH ALERT &#9888;</span></td>
+    <td>Electrolyte supplement</td>
+    <td>Replaces K+ deficit — especially from furosemide</td>
+    <td>PO: give with food (very irritating to GI) · IV: <strong>MUST be diluted — NEVER IV push</strong> (cardiac arrest) · 20 mEq/100 mL NS over 1 hr · contraindicated in hyperkalemia &amp; severe renal disease · monitor ECG</td>
+  </tr>
+  <tr>
+    <td><strong>calcium carbonate</strong><span class="drug-class">Tums · Os-Cal</span></td>
+    <td>Electrolyte supplement / antacid</td>
+    <td>Replaces Ca2+ deficit; treatment and prevention of hypocalcemia</td>
+    <td>Monitor Trousseau's &amp; Chvostek's · observe for paresthesias, muscle twitching · monitor for hypercalcemia (arrhythmias, kidney stones, constipation) · do NOT give to hypercalcemic patients</td>
+  </tr>
+</table></div>
+
+<div class="sub sub-slate">&#128168; Respiratory Medications</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>Drug (Trade)</th><th>Classification</th><th>Action</th><th>Key Nursing Points</th></tr>
+  <tr>
+    <td><strong>codeine</strong></td>
+    <td>Antitussive — opioid, controlled substance</td>
+    <td>Suppresses cough reflex in medulla</td>
+    <td>Monitor RR and sedation level · SE: sedation, constipation, hypotension · do NOT give with CNS depressants · caution in COPD/OSA</td>
+  </tr>
+  <tr>
+    <td><strong>guaifenesin</strong><span class="drug-class">Mucinex</span></td>
+    <td>Expectorant</td>
+    <td>Thins/loosens mucus → more productive cough — does NOT suppress cough — PROMOTES it</td>
+    <td>Encourage ↑ fluid intake (essential for drug to work) · assess sputum production · give with full glass of water</td>
+  </tr>
+  <tr>
+    <td><strong>prednisone / methylprednisolone</strong><span class="drug-class">Deltasone / Solu-Medrol</span></td>
+    <td>Corticosteroid (systemic)</td>
+    <td>Inhibits and suppresses inflammation · suppresses immune system · severe asthma, COPD exacerbation</td>
+    <td>Monitor blood glucose — <strong>RAISES blood sugar</strong> · SE: HTN, weight gain, moon face, infection risk, oral thrush (fungal), hyperglycemia, mood swings · suppresses immune system</td>
+  </tr>
+  <tr>
+    <td><strong>albuterol / ipratropium</strong><span class="drug-class">Ventolin / Atrovent</span></td>
+    <td>Bronchodilator (beta-2 agonist / anticholinergic)</td>
+    <td>Relaxes bronchial smooth muscle → dilates airways; relieves bronchospasm; asthma, COPD</td>
+    <td>SE: dry mouth · trembling · nervousness · palpitations · tachycardia · muscle cramps · N/V/D</td>
+  </tr>
+</table></div>
+
+<div class="sub sub-slate">&#127922; Endocrine &amp; GI Medications</div>
+<div class="ts"><table class="t-slate">
+  <tr><th>Drug (Trade)</th><th>Classification</th><th>Action</th><th>Key Nursing Points</th></tr>
+  <tr>
+    <td><strong>Humulin R</strong><span class="drug-class">Regular — CLEAR</span></td>
+    <td>Fast-acting insulin</td>
+    <td>↓ blood glucose · onset 30–60 min · peak 2–4 hr · ONLY insulin given IV</td>
+    <td>Monitor blood sugar · ensure food in front of patient for R · watch for hypoglycemia at peak (2–4 hr) · SQ 2 in from umbilicus · if hypoglycemic and awake offer juice</td>
+  </tr>
+  <tr>
+    <td><strong>Humulin N</strong><span class="drug-class">NPH — CLOUDY</span></td>
+    <td>Intermediate-acting insulin (cloudy)</td>
+    <td>↓ blood glucose · onset 2–4 hr · peak 4–10 hr · do NOT give IV</td>
+    <td>Monitor blood sugar · watch for hypoglycemia at peak (4–10 hr — afternoon/evening) · SQ 2 in from umbilicus · if hypoglycemic and awake offer juice</td>
+  </tr>
+  <tr>
+    <td><strong>loperamide</strong><span class="drug-class">Imodium</span></td>
+    <td>Anti-diarrheal</td>
+    <td>Inhibits peristalsis and prolongs transit time → slows bowel movements</td>
+    <td><strong>Do NOT give</strong> with abdominal pain of unknown cause · <strong>Do NOT give for acute infectious diarrhea</strong> (body needs to expel organism — if remains prolonged then consider) · assess stool frequency &amp; consistency · assess for dehydration</td>
+  </tr>
+</table></div>
+
+<div class="g2">
+  <div class="card card-slate">
+    <h4>Corticosteroid Side Effects (from lecture)</h4>
+    <p>HTN &nbsp;·&nbsp; Weight gain &nbsp;·&nbsp; Moon face &nbsp;·&nbsp; Infection risk &nbsp;·&nbsp; Oral thrush (fungal) &nbsp;·&nbsp; Hyperglycemia &nbsp;·&nbsp; Mood swings &nbsp;·&nbsp; Suppresses immune system</p>
+    <p><b class="lbl">Drug chart key point:</b> Roids can raise blood sugar</p>
+  </div>
+  <div class="card card-slate">
+    <h4>Insulin Key Tips</h4>
+    <ul>
+      <li>Humulin R = fast acting — peak 2–4 hr → watch mid-morning for hypoglycemia</li>
+      <li>Humulin N = cloudy — peak 4–10 hr → watch afternoon/evening for hypoglycemia</li>
+      <li>Monitor blood sugars · food must be available for Humulin R</li>
+      <li>SQ 2 in from umbilicus for both</li>
+      <li>If hypoglycemic and awake → offer juice</li>
+    </ul>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION 9 ═══ -->
+<div id="s9" class="panel">
+  <div class="sec-head sh-gold">Lab Values &amp; Diagnostics Reference <span class="lec-tag">NUR 116/118</span></div>
+  <div class="pg-wide">
+<div class="sub sub-gold">Complete Blood Count (CBC)</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal Range</th><th>If HIGH (↑)</th><th>If LOW (↓)</th></tr>
+  <tr><td>WBC</td><td>5,000–10,000/mm³</td><td>Infection, inflammation; &gt;10,000 can indicate infection</td><td>Leukopenia → immunocompromised, unable to fight infection</td></tr>
+  <tr><td>WBC with Differential</td><td>Lymphocytes: 20–40% · Monocytes: 2–8% · Neutrophils: 55–70% · Eosinophils: 1–4% · Basophils: 0.5–1.0%</td><td colspan="2">Measures the percentage of each type of leukocyte in the blood specimen</td></tr>
+  <tr><td>RBC</td><td>M: 4.7–6.1 · F: 4.2–5.4</td><td colspan="2">RBCs contain hemoglobin which binds O2 and carries it from lungs to the rest of the body</td></tr>
+  <tr><td>Hemoglobin (Hgb)</td><td>F: 12–16 · M: 14–18 g/dL</td><td>Polycythemia, dehydration (hemoconcentration)</td><td>Anemia → ↓ O2 delivery → fatigue, dyspnea → indication for PRBC transfusion</td></tr>
+  <tr><td>Hematocrit (Hct)</td><td>F: 37–47% · M: 42–52%</td><td>Hemoconcentration — dehydration</td><td>Anemia, hemodilution (fluid overload), bleeding</td></tr>
+  <tr><td>Platelets (PLT)</td><td>150,000–400,000/mm³</td><td>↑ clot risk (thrombocytosis)</td><td>Thrombocytopenia → ↑ bleeding risk</td></tr>
+</table></div>
+
+<div class="sub sub-gold">Complete Metabolic Panel (CMP / BMP)</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal Range</th><th>If HIGH (↑)</th><th>If LOW (↓)</th></tr>
+  <tr><td>Sodium (Na+)</td><td>135–145 mEq/L</td><td>Hypernatremia → cells shrink → thirst, dry mouth, AMS, seizures</td><td>Hyponatremia → brain cells swell → confusion, seizures</td></tr>
+  <tr><td>Potassium (K+)</td><td>3.5–5.0 mEq/L</td><td>Hyperkalemia → TALL T waves, dysrhythmias, flaccid paralysis</td><td>Hypokalemia → FLAT T waves, muscle weakness, dysrhythmias, ↑ digoxin toxicity</td></tr>
+  <tr><td>Calcium (Ca2+)</td><td>8.5–10.5 mg/dL</td><td>Hypercalcemia → N/V, bradycardia, constipation, kidney stones</td><td>Hypocalcemia → muscle cramps, tetany, seizures, Trousseau's, Chvostek's</td></tr>
+  <tr><td>Magnesium (Mg2+)</td><td>1.3–2.1 mEq/L</td><td>Hypermagnesemia → hypoactive reflexes, bradycardia, flushing, hypotension</td><td>Hypomagnesemia → dysrhythmias, neuromuscular irritability, ↑ digoxin sensitivity</td></tr>
+  <tr><td>Glucose</td><td>70–110 mg/dL</td><td>Hyperglycemia → polyuria, polydipsia · critical in DKA</td><td>Hypoglycemia → shakiness, diaphoresis, confusion, tachycardia</td></tr>
+  <tr><td>BUN</td><td>10–20 mg/dL</td><td>↑ BUN alone = dehydration (kidneys OK) · ↑ BUN + ↑ Cr = suspect renal failure</td><td>Not clinically significant alone</td></tr>
+  <tr><td>Creatinine (Cr)</td><td>0.5–1.3 mg/dL</td><td>Impaired GFR/kidney disease → restrict K+ foods when elevated</td><td>Not clinically significant</td></tr>
+  <tr><td>Albumin</td><td>3.5–5.0 g/dL</td><td>Dehydration (hemoconcentration)</td><td>Malnutrition → impairs wound healing; affects drug binding (warfarin, digoxin)</td></tr>
+  <tr><td>Urine Specific Gravity</td><td>1.002–1.030</td><td>&gt;1.030 = concentrated = hypovolemia/dehydration</td><td>&lt;1.002 = dilute = hypervolemia</td></tr>
+  <tr><td>Hemoglobin A1C</td><td>4–5.9%</td><td>Used to diagnose &amp; monitor diabetes treatment over several months</td><td>—</td></tr>
+  <tr><td>Routine Urinalysis (UA)</td><td>Color: lt. amber–yellow · Clear · Aromatic · pH 5–9 · Protein &lt;20 mg/dL · Glucose: none · Ketones: none · WBC 0–4 · RBC ≤2 · Nitrates: negative</td><td colspan="2">Diagnostic screening test — can detect/monitor kidney issues, urine infection, diabetes, liver disease, nutrition, hydration status</td></tr>
+</table></div>
+
+<div class="sub sub-gold">Cholesterol &amp; Inflammation</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal Range</th><th>Significance</th></tr>
+  <tr><td>Total Cholesterol</td><td>&lt;200 mg/dL</td><td>↑ CVD risk</td></tr>
+  <tr><td>LDL — "bad" cholesterol</td><td>&lt;100 mg/dL</td><td>↑ atherosclerosis/CAD risk — high levels leave fatty deposits on vessel walls</td></tr>
+  <tr><td>HDL — "good" cholesterol</td><td>&gt;60 mg/dL</td><td>Protective against CVD — removes bad cholesterol from blood (higher = better)</td></tr>
+  <tr><td>CRP (C-reactive protein)</td><td>&lt;10 mg/L</td><td>Elevation indicates inflammatory illness; may predict coronary events</td></tr>
+</table></div>
+
+<div class="sub sub-gold">Coagulation</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal Range</th><th>Significance</th></tr>
+  <tr><td>PT / INR</td><td>PT 11–12.5 sec · INR 0.8–1.1</td><td>Monitors extrinsic clotting · monitors <strong>WARFARIN</strong> · therapeutic for warfarin = INR 2–3 · antidote: Vitamin K</td></tr>
+  <tr><td>PTT</td><td>60–70 sec</td><td>Monitors intrinsic clotting · monitors <strong>HEPARIN</strong> · therapeutic = 1.5–2× normal · antidote: Protamine sulfate</td></tr>
+  <tr><td>aPTT</td><td>30–40 sec</td><td>Same as PTT but activator added for additional coagulation factors · monitors HEPARIN</td></tr>
+</table></div>
+
+<div class="sub sub-gold">Cardiac Injury Markers</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal</th><th>Significance</th></tr>
+  <tr><td>Troponin — most specific for MI</td><td>&lt;0.1 ng/mL</td><td>↑ = MI · rises 2–3 hrs post-MI · stays elevated 1–2 WEEKS · <strong>Draw FIRST for suspected MI</strong></td></tr>
+  <tr><td>CK-MB</td><td>55–170 U/L</td><td>↑ = MI · rises 3–6 hrs · clears 1–2 days · <strong>best for detecting re-infarction</strong></td></tr>
+  <tr><td>BNP</td><td>&lt;100 pg/mL</td><td>Released when LV is stretched · ↑ = left heart failure · higher BNP = more severe CHF</td></tr>
+</table></div>
+
+<div class="sub sub-gold">Diagnostics</div>
+<div class="ts"><table class="t-gold">
+  <tr><th>Test</th><th>Normal / Reference</th><th>Significance</th></tr>
+  <tr><td>EKG/ECG</td><td>Normal sinus rhythm</td><td>P = atrial depolarization/contraction · QRS = ventricular depolarization/contraction · T = ventricular repolarization · Flat T = hypokalemia · Tall T = hyperkalemia · Absent P = A-fib</td></tr>
+  <tr><td>Echocardiogram</td><td>EF: 50–75%</td><td>EF &lt;40% = systolic HF · evaluates structure, valves, pumping action · determines cardiac output and ejection fraction</td></tr>
+  <tr><td>SpO2 / Pulse Oximetry</td><td>95–100% (COPD: 88–92%)</td><td>Inaccurate: poor perfusion, nail polish, CO poisoning, severe anemia · COPD target = 88–92% (hypoxic drive)</td></tr>
+  <tr><td>ABGs</td><td>pH 7.35–7.45 · PaCO2 35–45 · HCO3− 22–26 · PaO2 80–100</td><td>Arterial blood; on ice immediately; 5 min pressure after draw</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ═══ SECTION 10: FLASHCARDS ═══ -->
+<div id="s10" class="panel">
+  <div class="sec-head sh-teal">Flashcards <span class="lec-tag" id="fc-deck-label">Loading…</span></div>
+  <div id="fc-wrap">
+    <div class="fc-controls">
+      <select id="fc-filter" onchange="fcFilter()">
+        <option value="">All Lectures</option>
+        <option value="L78">L7–8: Oxygenation</option>
+        <option value="L910">L9–10: Cardiovascular</option>
+        <option value="L11A">L11A: ABG / Acid-Base</option>
+        <option value="L11F">L11F: Fluids &amp; Electrolytes</option>
+        <option value="L12I">L12I: IV Therapy</option>
+        <option value="L12M">L12M: Management</option>
+        <option value="MED">Medications</option>
+        <option value="LAB">Lab Values</option>
+      </select>
+      <button class="fc-ctrl-btn" onclick="fcShuffle()">&#8635; Shuffle</button>
+      <button class="fc-ctrl-btn" onclick="fcRestart()">&#9654; Restart</button>
+    </div>
+    <div class="fc-progress">
+      <span class="fc-progress-label" id="fc-prog-label">Waiting…</span>
+      <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="fc-card-area">
+      <div id="fc-front" class="fc-face fc-front" onclick="fcFlip()">
+        <div class="fc-hint">Tap card to reveal answer</div>
+        <div class="fc-q" id="fc-question">Loading cards…</div>
+      </div>
+      <div id="fc-back" class="fc-face fc-back">
+        <div class="fc-a-head">Answer</div>
+        <div class="fc-a" id="fc-answer"></div>
+      </div>
+      <div class="fc-btns" id="fc-rate-btns" style="display:none">
+        <button class="btn-got" onclick="fcRate('got')">&#10003; Got it</button>
+        <button class="btn-unsure" onclick="fcRate('unsure')">&#126; Unsure</button>
+        <button class="btn-missed" onclick="fcRate('missed')">&#10007; Missed</button>
+      </div>
+    </div>
+    <div id="fc-summary" style="display:none">
+      <h3>&#127881; Session Complete!</h3>
+      <div id="fc-sum-stats"></div>
+      <br>
+      <button class="fc-ctrl-btn" onclick="fcRestart()" style="padding:11px 28px;font-size:14px">Study Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 11: DASHBOARD ═══ -->
+<div id="s11" class="panel">
+  <div class="sec-head sh-cobalt">Mastery Dashboard <span class="lec-tag">Per Objective</span></div>
+  <div id="db-wrap">
+    <div id="db-content">
+      <p style="color:var(--g400);text-align:center;padding:32px">Click Dashboard tab to load your progress…</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TAB NAV ──
+function show(i,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  var panel=document.getElementById('s'+i);
+  if(!panel) return;
+  panel.classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(i===10 && !fcLoaded) fcInit();
+  if(i===11) dbLoad();
+}
+
+// ── SUPABASE REST (no CDN needed) ──
+var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
+var SB_H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+async function sbGet(table,qs){
+  var r=await fetch(SB_URL+'/rest/v1/'+table+'?'+qs,{headers:SB_H});
+  if(!r.ok) throw new Error(table+': '+await r.text());
+  return r.json();
+}
+async function sbInsert(table,body){
+  try{
+    await fetch(SB_URL+'/rest/v1/'+table,{method:'POST',headers:Object.assign({},SB_H,{'Prefer':'return=minimal'}),body:JSON.stringify(body)});
+  }catch(e){}
+}
+function mkUUID(){
+  if(crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:r&0x3|0x8).toString(16);});
+}
+
+// ── FLASHCARD STATE ──
+var fcAllCards=[], fcDeck=[], fcIndex=0;
+var fcSessionId=null, fcCounts={got:0,unsure:0,missed:0};
+var fcFlippedState=false, fcLoaded=false;
+
+async function fcInit(){
+  document.getElementById('fc-question').textContent='Loading cards…';
+  try{
+    var data=await sbGet('flashcards','select=id,question,answer,objective_ids&order=id');
+    fcAllCards=data||[];
+    fcLoaded=true;
+    fcDeck=fcAllCards.slice();
+    document.getElementById('fc-deck-label').textContent=fcAllCards.length+' Cards';
+    fcNewSession();
+  }catch(e){
+    document.getElementById('fc-question').textContent='Error: '+e.message;
+    document.getElementById('fc-deck-label').textContent='Error';
+  }
+}
+
+function fcNewSession(){
+  fcSessionId=mkUUID();
+  fcCounts={got:0,unsure:0,missed:0};
+  fcIndex=0;
+  document.getElementById('fc-summary').style.display='none';
+  document.getElementById('fc-card-area').style.display='block';
+  fcShowCard();
+}
+
+function fcFilter(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  document.getElementById('fc-deck-label').textContent=fcDeck.length+' Cards';
+  fcNewSession();
+}
+
+function fcShuffle(){
+  for(var i=fcDeck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;}
+  fcNewSession();
+}
+
+function fcRestart(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  fcNewSession();
+}
+
+function fcShowCard(){
+  document.getElementById('fc-front').style.display='flex';
+  document.getElementById('fc-back').style.display='none';
+  document.getElementById('fc-rate-btns').style.display='none';
+  fcFlippedState=false;
+  if(!fcDeck.length){
+    document.getElementById('fc-question').textContent='No cards match this filter.';
+    document.getElementById('fc-prog-label').textContent='0 cards';
+    document.getElementById('fc-prog-fill').style.width='0%';
+    return;
+  }
+  var c=fcDeck[fcIndex];
+  document.getElementById('fc-question').textContent=c.question;
+  document.getElementById('fc-answer').textContent=c.answer;
+  document.getElementById('fc-prog-label').textContent='Card '+(fcIndex+1)+' of '+fcDeck.length;
+  document.getElementById('fc-prog-fill').style.width=Math.round(fcIndex/fcDeck.length*100)+'%';
+}
+
+function fcFlip(){
+  if(!fcFlippedState){
+    document.getElementById('fc-front').style.display='none';
+    document.getElementById('fc-back').style.display='block';
+    document.getElementById('fc-rate-btns').style.display='flex';
+    fcFlippedState=true;
+  }
+}
+
+var RESULT_MAP={got:'got_it',unsure:'unsure',missed:'missed'};
+async function fcRate(rating){
+  var c=fcDeck[fcIndex];
+  fcCounts[rating]++;
+  sbInsert('card_attempts',{card_id:c.id,session_id:fcSessionId,result:RESULT_MAP[rating]});
+  fcIndex++;
+  if(fcIndex>=fcDeck.length) fcShowSummary();
+  else fcShowCard();
+}
+
+function fcShowSummary(){
+  document.getElementById('fc-card-area').style.display='none';
+  document.getElementById('fc-prog-label').textContent='Complete! '+fcDeck.length+' cards';
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-sum-stats').innerHTML=
+    '<span class="sum-stat sum-got">&#10003; Got it: '+fcCounts.got+'</span>'+
+    '<span class="sum-stat sum-unsure">~ Unsure: '+fcCounts.unsure+'</span>'+
+    '<span class="sum-stat sum-missed">&#10007; Missed: '+fcCounts.missed+'</span>';
+  document.getElementById('fc-summary').style.display='block';
+}
+
+// ── DASHBOARD ──
+var LECTURE_MAP={
+  L78:{label:'L7\u20138: Oxygenation',color:'#0f766e'},
+  L910:{label:'L9\u201310: Cardiovascular',color:'#7e22ce'},
+  L11A:{label:'L11A: ABG / Acid-Base',color:'#b91c1c'},
+  L11F:{label:'L11F: Fluids & Electrolytes',color:'#15803d'},
+  L12I:{label:'L12I: IV Therapy',color:'#1d4ed8'},
+  L12M:{label:'L12M: Management',color:'#334155'},
+  MED:{label:'Medications',color:'#b45309'},
+  LAB:{label:'Lab Values',color:'#b45309'}
+};
+var dbLoaded=false;
+
+async function dbLoad(){
+  if(dbLoaded) return;
+  dbLoaded=true;
+  var el=document.getElementById('db-content');
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:32px">Loading your progress\u2026</p>';
+  try{
+    var res=await Promise.all([
+      sbGet('flashcards','select=id,objective_ids'),
+      sbGet('objectives','select=id,description'),
+      sbGet('card_attempts','select=card_id,result,created_at&order=created_at.desc')
+    ]);
+    var cards=res[0], objectives=res[1], attempts=res[2];
+    var latest={};
+    for(var a of attempts){if(!latest[a.card_id]) latest[a.card_id]=a;}
+    var groups={};
+    for(var obj of objectives){
+      var prefix=Object.keys(LECTURE_MAP).find(function(p){return obj.id.indexOf(p)===0;})||'OTHER';
+      if(!groups[prefix]) groups[prefix]=[];
+      groups[prefix].push(obj);
+    }
+    var html='';
+    for(var pfx of Object.keys(LECTURE_MAP)){
+      var list=groups[pfx]||[];
+      if(!list.length) continue;
+      var lec=LECTURE_MAP[pfx];
+      html+='<div class="db-lecture-group"><div class="db-lec-head" style="background:'+lec.color+'">'+lec.label+'</div>';
+      for(var o of list){
+        var oc=cards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf(o.id)>=0;});
+        var total=oc.length,got=0,attempted=0;
+        for(var cc of oc){var at=latest[cc.id];if(at){attempted++;if(at.result==='got_it')got++;}}
+        var pct=attempted===0?0:Math.round(got/total*100);
+        var cls=attempted===0?'db-bar-notstarted':pct>=80?'db-green':pct>=50?'db-yellow':'db-red';
+        html+='<div class="db-obj-row '+cls+'"><div class="db-obj-label">'+o.description+'</div>';
+        html+='<div class="db-bar-wrap"><div class="db-bar-bg"><div class="db-bar-fill" style="width:'+pct+'%"></div></div>';
+        html+='<span class="db-bar-pct">'+(attempted===0?'\u2014':pct+'%')+'</span></div></div>';
+      }
+      html+='</div>';
+    }
+    el.innerHTML=html||'<p style="padding:16px;color:#9ca3af">No data yet \u2014 complete some flashcard sessions first.</p>';
+  }catch(e){
+    el.innerHTML='<p style="color:#dc2626;padding:16px">Error: '+e.message+'</p>';
+    dbLoaded=false;
+  }
+}
+</script>
+</body>
 </html>
