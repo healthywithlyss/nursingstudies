@@ -395,6 +395,29 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   font-family:inherit;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
 .qp-btn:hover{opacity:.88}
 @media(max-width:600px){.qp-score{display:none}.qp-meta{display:none}}
+
+/* ── QUIZ SESSION ── */
+.qs-wrap{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+.qs-loading{text-align:center;padding:80px 20px}
+.qs-spinner{width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:qs-spin .7s linear infinite;margin:0 auto 16px}
+@keyframes qs-spin{to{transform:rotate(360deg)}}
+.qs-load-msg{font-size:15px;color:var(--text-muted);line-height:1.7}
+.qs-back-link{display:inline-block;font-size:13px;color:var(--text-muted);
+  cursor:pointer;background:none;border:none;font-family:inherit;padding:0;
+  margin-bottom:20px}
+.qs-back-link:hover{color:var(--accent)}
+.qs-ready{background:var(--surface);border-radius:var(--r-card);
+  padding:32px 28px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow)}
+.qs-ready-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px}
+.qs-ready-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px;line-height:1.6}
+.qs-begin-btn{background:var(--accent);color:#fff;border:none;
+  border-radius:var(--r-btn);padding:13px 36px;font-size:15px;
+  font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.qs-begin-btn:hover{opacity:.88}
+.qs-error{background:#fff1f2;border:1px solid #fecdd3;border-radius:var(--r-card);
+  padding:20px 24px;color:#b91c1c;font-size:14px;line-height:1.7;margin-top:24px}
 </style>
 </head>
 <body>
@@ -976,15 +999,18 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
     <!-- ══════════════ QUIZ PAGE ══════════════ -->
     <div id="page-quiz" class="page">
-      <div class="qp-wrap">
-        <div class="qp-header">
-          <h2 class="qp-title">Quiz</h2>
-          <p class="qp-subtitle">NCLEX-style application questions — select an objective to begin</p>
-        </div>
-        <div id="qp-body">
-          <div style="padding:40px;text-align:center;color:var(--text-muted)">Loading objectives&#8230;</div>
+      <div id="quiz-picker-view">
+        <div class="qp-wrap">
+          <div class="qp-header">
+            <h2 class="qp-title">Quiz</h2>
+            <p class="qp-subtitle">NCLEX-style application questions — select an objective to begin</p>
+          </div>
+          <div id="qp-body">
+            <div style="padding:40px;text-align:center;color:var(--text-muted)">Loading objectives&#8230;</div>
+          </div>
         </div>
       </div>
+      <div id="quiz-session-view" style="display:none"></div>
     </div><!-- /page-quiz -->
 
   </main>
@@ -1842,8 +1868,181 @@ function renderQuizSidebar(){
   ctx.innerHTML=h;
 }
 
+/* ── QUIZ STEP 3: QUESTION LOADER ── */
+var quizCurrentObjId=null;
+var quizCurrentQuestions=[];
+
+var QUIZ_SECTION_MAP={
+  'L78':  ['sec-oxygen'],         'L910': ['sec-cardio'],
+  'L11A': ['sec-abg'],            'L11F': ['sec-fluids','sec-elyte'],
+  'L12I': ['sec-iv'],             'L12M': ['sec-mgmt'],
+  'MED':  ['sec-meds'],           'LAB':  ['sec-labs'],
+  'N116T01':['sec-116-t01'],      'N116T02':['sec-116-t02'],
+  'N116T03':['sec-116-t03'],      'N116T04':['sec-116-t04'],
+  'N116T05':['sec-116-t05'],      'N116T06':['sec-116-t06'],
+  'N116T07':['sec-116-t07'],      'N116T08':['sec-116-t08'],
+  'N116T09':['sec-116-t09'],      'N116T10':['sec-116-t10'],
+  'N116T11':['sec-116-t11'],      'N116T12':['sec-116-t12'],
+  'N116T13':['sec-116-t13']
+};
+
 function startQuiz(objId){
-  showToast('Quiz engine coming soon \u2014 step 3!');
+  quizCurrentObjId=objId;
+  showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+    +'<div class="qs-load-msg">Loading questions\u2026</div></div>');
+  loadQuizForObj(objId);
+}
+
+function showQuizSession(html){
+  document.getElementById('quiz-picker-view').style.display='none';
+  var sv=document.getElementById('quiz-session-view');
+  sv.style.display='';
+  sv.innerHTML='<div class="qs-wrap">'+html+'</div>';
+}
+
+function showQuizPicker(){
+  document.getElementById('quiz-picker-view').style.display='';
+  document.getElementById('quiz-session-view').style.display='none';
+}
+
+function loadQuizForObj(objId){
+  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=eq.'+objId+'&is_targeted=eq.false')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(Array.isArray(data)&&data.length>0){
+        quizCurrentQuestions=data;
+        showQuestionsReady(objId,data.length,false);
+      } else {
+        showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+          +'<div class="qs-load-msg">Generating NCLEX questions with AI\u2026<br>'
+          +'<small style="font-size:12px">This only happens once per objective.</small></div></div>');
+        generateAndSaveQuestions(objId);
+      }
+    })
+    .catch(function(e){showQsError('Error loading questions: '+e.message);});
+}
+
+function generateAndSaveQuestions(objId){
+  var guideText=getStudyGuideText(objId);
+  getFlashcardsForObj(objId)
+    .then(function(cards){
+      if(!cards.length) throw new Error('No flashcards found for this objective.');
+      var flashText=cards.map(function(c,i){
+        return (i+1)+'. Q: '+c.question+'\n   A: '+c.answer;
+      }).join('\n');
+      var og=getObjGroups();
+      var objName=og[objId]||objId;
+      return callGemini(buildGeminiPrompt(objName,guideText,flashText));
+    })
+    .then(function(parsed){
+      if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
+        throw new Error('Gemini returned no questions.');
+      var rows=parsed.questions.map(function(q){
+        return {objective_id:objId,type:q.type,stem:q.stem,
+          options:q.options,correct:q.correct,explanation:q.explanation,
+          fact_tested:q.fact_tested||null,is_targeted:false};
+      });
+      return sbFetch('/rest/v1/quiz_questions',{
+        method:'POST',body:JSON.stringify(rows),
+        headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
+      }).then(function(r){return r.json();})
+        .then(function(saved){
+          var qs=Array.isArray(saved)&&saved.length?saved:rows;
+          quizCurrentQuestions=qs;
+          quizQCounts[objId]=qs.length;
+          showQuestionsReady(objId,qs.length,true);
+        });
+    })
+    .catch(function(e){
+      console.error('generateAndSave:',e);
+      showQsError('Could not generate questions: '+(e.message||'Unknown error'));
+    });
+}
+
+function showQuestionsReady(objId,count,wasGenerated){
+  var og=getObjGroups();
+  var name=og[objId]||objId;
+  var note=wasGenerated?'Questions generated and saved \u2014 they\'ll load instantly next time.'
+    :'Loaded from shared question bank.';
+  showQuizSession(
+    '<button class="qs-back-link" onclick="showQuizPicker()">\u2190 All objectives</button>'
+    +'<div class="qs-ready">'
+    +'<div class="qs-ready-title">'+name+'</div>'
+    +'<div class="qs-ready-sub">'+count+' question'+(count===1?'':'s')+' ready &mdash; '+note+'</div>'
+    +'<button class="qs-begin-btn" onclick="beginQuizSession()">Begin Quiz &rarr;</button>'
+    +'</div>'
+  );
+}
+
+function showQsError(msg){
+  showQuizSession(
+    '<button class="qs-back-link" onclick="showQuizPicker()">\u2190 All objectives</button>'
+    +'<div class="qs-error"><strong>Oops.</strong> '+msg+'</div>'
+  );
+}
+
+function beginQuizSession(){
+  /* Step 4 will wire this — placeholder */
+  showToast('Full quiz UI coming in step 4!');
+}
+
+function getStudyGuideText(objId){
+  var ids=QUIZ_SECTION_MAP[objId]||[];
+  return ids.map(function(id){
+    var el=document.getElementById(id);
+    return el?el.textContent.replace(/\s+/g,' ').trim():'';
+  }).filter(Boolean).join('\n\n');
+}
+
+function getFlashcardsForObj(objId){
+  return sbFetch('/rest/v1/flashcards?select=question,answer,objective_ids&course=eq.'+currentCourse+'&order=id.asc')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)) return [];
+      return data.filter(function(c){
+        var pre=(c.objective_ids&&c.objective_ids.length)
+          ?c.objective_ids[0].replace(/_\d+$/,''):'';
+        return pre===objId;
+      });
+    });
+}
+
+function buildGeminiPrompt(objName,guideText,flashText){
+  return 'You are an NCLEX exam writer for nursing students.\n\n'
+    +'STRICT RULE: Generate questions ONLY based on the study guide content provided. Do not use any outside nursing knowledge.\n\n'
+    +'STUDY GUIDE CONTENT:\n'+(guideText||'(see flashcard facts)')+'\n\n'
+    +'OBJECTIVE: '+objName+'\n\n'
+    +'FLASHCARD FACTS FOR THIS OBJECTIVE:\n'+flashText+'\n\n'
+    +'TASK:\n'
+    +'Generate NCLEX-style application questions covering EVERY distinct fact above (at least 1 question per fact).\n'
+    +'Mix question types:\n'
+    +'- multiple_choice: 4 options, 1 correct\n'
+    +'- select_all: 4-6 options, 2-4 correct\n'
+    +'- priority: "Which action should the nurse take FIRST?"\n'
+    +'- delegation: "Which task can the nurse safely delegate to the UAP?"\n\n'
+    +'Put every question in a clinical scenario. Make distractors plausible.\n'
+    +'Do NOT test anything not in the provided content.\n\n'
+    +'Respond in JSON only — no markdown, no other text:\n'
+    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. text","B. text","C. text","D. text"],"correct":["B"],"explanation":"B is correct because...","fact_tested":"which flashcard fact"}]}';
+}
+
+function callGemini(prompt){
+  return fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{temperature:0.7,maxOutputTokens:8192}
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(!data.candidates||!data.candidates[0])
+      throw new Error('Gemini returned no candidates');
+    var text=data.candidates[0].content.parts[0].text;
+    text=text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    return JSON.parse(text);
+  });
 }
 
 initApp();
