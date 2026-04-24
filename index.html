@@ -462,6 +462,34 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   line-height:1.7;color:var(--text);margin-bottom:4px}
 .qq-expl-label{font-size:11px;font-weight:700;text-transform:uppercase;
   letter-spacing:.06em;margin-bottom:6px}
+
+/* ── QUIZ RESULTS ── */
+.qr-score-card{background:var(--surface);border-radius:var(--r-card);
+  padding:28px;text-align:center;border:1px solid var(--border);
+  box-shadow:var(--shadow);margin-bottom:20px}
+.qr-card-title{font-size:12px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px}
+.qr-obj-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.3}
+.qr-pct{font-size:52px;font-weight:800;line-height:1;margin-bottom:4px}
+.qr-pct.good{color:var(--got)}.qr-pct.mid{color:var(--unsure)}.qr-pct.bad{color:var(--missed)}
+.qr-fraction{font-size:15px;color:var(--text-muted);margin-bottom:14px}
+.qr-tally{display:flex;gap:24px;justify-content:center;font-size:13px;font-weight:600}
+.qr-tally-c{color:var(--got)}.qr-tally-w{color:var(--missed)}
+.qr-missed-label{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px}
+.qr-missed-row{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:12px 16px;margin-bottom:8px}
+.qr-missed-stem{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:5px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qr-missed-answer{font-size:12px;font-weight:600;color:var(--got)}
+.qr-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.qr-btn{flex:1;min-width:110px;padding:12px 14px;border-radius:var(--r-btn);
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  border:1px solid transparent;transition:opacity .15s;text-align:center;line-height:1.3}
+.qr-btn:hover{opacity:.85}
+.qr-btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qr-btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
+.qr-btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border)}
 </style>
 </head>
 <body>
@@ -2177,9 +2205,77 @@ function quizNext(){
   else{quizSessionIdx++;renderQuizQuestion();}
 }
 
+/* ── QUIZ STEP 5: RESULTS SCREEN ── */
 function showQuizResults(){
-  /* Step 5 — placeholder */
-  showToast('Results screen coming in step 5!');
+  var total=quizSessionResults.length;
+  var numCorrect=quizSessionResults.filter(function(r){return r.isCorrect;}).length;
+  var numWrong=total-numCorrect;
+  var pct=total?Math.round(numCorrect/total*100):0;
+  var og=getObjGroups();
+  var name=og[quizCurrentObjId]||quizCurrentObjId;
+  var scoreCls=pct>=80?'good':pct>=60?'mid':'bad';
+  var isPerfect=pct===100;
+
+  /* update in-memory scores so sidebar refreshes */
+  if(!quizScores[quizCurrentObjId]) quizScores[quizCurrentObjId]={correct:0,total:0};
+  quizScores[quizCurrentObjId].correct+=numCorrect;
+  quizScores[quizCurrentObjId].total+=total;
+  renderQuizSidebar();
+
+  /* missed rows */
+  var missed=quizSessionResults.filter(function(r){return !r.isCorrect;});
+  var missedHtml='';
+  if(missed.length){
+    missedHtml='<div class="qr-missed-label">Missed ('+missed.length+')</div>';
+    missed.forEach(function(r){
+      var correctText=r.correct.map(function(letter){
+        var found=letter;
+        (r.question.options||[]).forEach(function(o){if(o.charAt(0)===letter) found=o;});
+        return found;
+      }).join(', ');
+      missedHtml+='<div class="qr-missed-row">'
+        +'<div class="qr-missed-stem">'+escHtml(r.question.stem)+'</div>'
+        +'<div class="qr-missed-answer">\u2192 Correct: '+escHtml(correctText)+'</div>'
+        +'</div>';
+    });
+  }
+
+  /* action buttons */
+  var actionsHtml='<div class="qr-actions">';
+  if(missed.length){
+    actionsHtml+='<button class="qr-btn qr-btn-primary" onclick="startTargetedReview()">'
+      +'Review Missed &mdash; '+missed.length+' question'+(missed.length===1?'':'s')
+      +'</button>';
+  }
+  actionsHtml+='<button class="qr-btn qr-btn-secondary" onclick="retakeFullQuiz()">Retake Quiz</button>'
+    +'<button class="qr-btn qr-btn-ghost" onclick="showQuizPicker()">\u2190 Back</button>'
+    +'</div>';
+
+  showQuizSession(
+    (isPerfect?'<div style="text-align:center;font-size:40px;margin-bottom:4px">\ud83c\udf89</div>':'')
+    +'<div class="qr-score-card">'
+    +'<div class="qr-card-title">Quiz Complete</div>'
+    +'<div class="qr-obj-name">'+escHtml(name)+'</div>'
+    +'<div class="qr-pct '+scoreCls+'">'+pct+'%</div>'
+    +'<div class="qr-fraction">'+numCorrect+' / '+total+' correct</div>'
+    +'<div class="qr-tally">'
+    +'<span class="qr-tally-c">\u2713 Correct: '+numCorrect+'</span>'
+    +'<span class="qr-tally-w">\u2717 Incorrect: '+numWrong+'</span>'
+    +'</div>'
+    +'</div>'
+    +missedHtml
+    +actionsHtml
+  );
+}
+
+function retakeFullQuiz(){
+  /* reload full question set from Supabase and restart */
+  loadQuizForObj(quizCurrentObjId);
+}
+
+function startTargetedReview(){
+  /* Step 6 — placeholder */
+  showToast('Targeted review coming in step 6!');
 }
 
 function getStudyGuideText(objId){
