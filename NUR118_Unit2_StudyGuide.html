@@ -158,17 +158,13 @@ h4{font-size:14px}strong{font-weight:700}
 .fc-progress-bar{height:7px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:5px}
 .fc-progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .3s}
 .fc-progress-label{font-size:12px;color:var(--g400)}
-.flip-scene{width:100%;perspective:1000px;cursor:pointer;margin-bottom:14px;height:240px}
-.flip-card{width:100%;height:240px;position:relative;transform-style:preserve-3d;transition:transform .45s}
-.flip-card.flipped{transform:rotateY(180deg)}
-.flip-front,.flip-back{position:absolute;top:0;left:0;width:100%;height:240px;backface-visibility:hidden;border-radius:var(--r);display:flex;flex-direction:column;justify-content:center;padding:28px 24px}
-.flip-front{background:#fff;border:2px solid var(--g200);box-shadow:var(--sh)}
-.flip-back{background:var(--teal-bg);border:2px solid var(--teal);transform:rotateY(180deg);box-shadow:var(--sh)}
-.flip-hint{font-size:11px;color:var(--g400);text-align:center;margin-bottom:10px}
-.flip-q{font-size:15px;font-weight:600;text-align:center;color:var(--g900);line-height:1.6}
-.flip-a-head{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.flip-a{font-size:14px;color:var(--g700);line-height:1.7}
-.flip-spacer{min-height:230px;display:block}
+.fc-face{border-radius:var(--r);padding:28px 24px;min-height:180px;margin-bottom:12px;cursor:pointer}
+.fc-front{background:#fff;border:2px solid var(--g200);box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:center}
+.fc-back{background:var(--teal-bg);border:2px solid var(--teal);box-shadow:var(--sh);display:none}
+.fc-hint{font-size:11px;color:var(--g400);text-align:center;margin-bottom:10px}
+.fc-q{font-size:15px;font-weight:600;text-align:center;color:var(--g900);line-height:1.6}
+.fc-a-head{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.fc-a{font-size:14px;color:var(--g700);line-height:1.7}
 .fc-btns{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
 .fc-btns button{flex:1;max-width:140px;padding:11px 8px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
 .btn-got{background:#16a34a;color:#fff}.btn-unsure{background:#d97706;color:#fff}.btn-missed{background:#dc2626;color:#fff}
@@ -1473,17 +1469,13 @@ h4{font-size:14px}strong{font-weight:700}
       <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-prog-fill" style="width:0%"></div></div>
     </div>
     <div id="fc-card-area">
-      <div class="flip-scene" id="fc-scene" onclick="fcFlip()">
-        <div class="flip-card" id="fc-card">
-          <div class="flip-front">
-            <div class="flip-hint">Tap card to reveal answer</div>
-            <div class="flip-q" id="fc-question">Click the Flashcards tab to load cards…</div>
-          </div>
-          <div class="flip-back">
-            <div class="flip-a-head">Answer</div>
-            <div class="flip-a" id="fc-answer"></div>
-          </div>
-        </div>
+      <div id="fc-front" class="fc-face fc-front" onclick="fcFlip()">
+        <div class="fc-hint">Tap card to reveal answer</div>
+        <div class="fc-q" id="fc-question">Loading cards…</div>
+      </div>
+      <div id="fc-back" class="fc-face fc-back">
+        <div class="fc-a-head">Answer</div>
+        <div class="fc-a" id="fc-answer"></div>
       </div>
       <div class="fc-btns" id="fc-rate-btns" style="display:none">
         <button class="btn-got" onclick="fcRate('got')">&#10003; Got it</button>
@@ -1593,9 +1585,10 @@ function fcRestart(){
 }
 
 function fcShowCard(){
-  document.getElementById('fc-card').classList.remove('flipped');
-  fcFlippedState=false;
+  document.getElementById('fc-front').style.display='flex';
+  document.getElementById('fc-back').style.display='none';
   document.getElementById('fc-rate-btns').style.display='none';
+  fcFlippedState=false;
   if(!fcDeck.length){
     document.getElementById('fc-question').textContent='No cards match this filter.';
     document.getElementById('fc-prog-label').textContent='0 cards';
@@ -1611,7 +1604,8 @@ function fcShowCard(){
 
 function fcFlip(){
   if(!fcFlippedState){
-    document.getElementById('fc-card').classList.add('flipped');
+    document.getElementById('fc-front').style.display='none';
+    document.getElementById('fc-back').style.display='block';
     document.getElementById('fc-rate-btns').style.display='flex';
     fcFlippedState=true;
   }
