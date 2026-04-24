@@ -190,10 +190,83 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .norm{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:600;margin:2px}
 .norm-rust{background:#fff1f2;color:var(--rust);border:1px solid var(--rust)}
 .drug-class{display:block;font-size:11px;color:#64748b;font-style:italic}
-/* PRACTICE PAGE PLACEHOLDER */
-.placeholder{display:flex;flex-direction:column;align-items:center;
-  justify-content:center;height:100%;min-height:500px;color:var(--text-muted);gap:8px}
-.placeholder h2{font-size:22px;font-weight:700;color:var(--text)}
+/* ── PRACTICE PAGE ── */
+#practice-wrap{display:flex;flex-direction:column;height:100%;padding:20px 20px 0}
+.practice-topbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+#fc-filter{background:#fff;border:1px solid var(--border);color:var(--text);
+  padding:7px 30px 7px 12px;border-radius:var(--r-btn);font-size:13px;
+  font-family:inherit;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  box-shadow:var(--shadow)}
+#fc-filter:focus{outline:2px solid var(--accent)}
+.fc-ctrl-btn{background:#fff;border:1px solid var(--border);color:var(--text-muted);
+  padding:7px 14px;border-radius:var(--r-btn);font-size:13px;font-weight:500;
+  cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;
+  box-shadow:var(--shadow)}
+.fc-ctrl-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.practice-counter{margin-left:auto;font-size:13px;color:var(--text-muted);font-weight:500;white-space:nowrap}
+.practice-progress-wrap{margin-bottom:16px}
+.practice-progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.practice-progress-fill{height:100%;background:var(--accent);border-radius:3px;
+  transition:width .4s ease;width:0%}
+/* split layout */
+.practice-body{display:flex;gap:16px;flex:1;min-height:0;padding-bottom:20px}
+/* card column */
+.card-col{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+.fc-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);
+  padding:32px 28px;display:flex;flex-direction:column;
+  min-height:240px;cursor:pointer;transition:transform .12s,box-shadow .12s;
+  position:relative;user-select:none}
+.fc-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1),0 16px 48px rgba(0,0,0,.08)}
+.fc-card-label{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text-muted);margin-bottom:12px}
+.fc-card-label.is-answer{color:var(--accent)}
+.fc-card-body{flex:1;display:flex;align-items:center;justify-content:center}
+.fc-q-text{font-size:17px;font-weight:600;color:var(--text);line-height:1.5;text-align:center}
+.fc-a-text{font-size:14px;color:var(--text);line-height:1.7;text-align:left;
+  white-space:pre-line;width:100%}
+.fc-flip-hint{font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px}
+.fc-obj-tag{display:inline-block;background:var(--g50);border:1px solid var(--border);
+  border-radius:20px;font-size:11px;padding:2px 8px;color:var(--text-muted);margin-top:12px}
+/* rating buttons */
+.rating-row{display:flex;gap:10px}
+.rating-btn{flex:1;padding:12px 8px;border-radius:var(--r-btn);border:none;
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:opacity .15s,transform .1s;letter-spacing:.01em}
+.rating-btn:active{transform:scale(.97)}
+.rating-btn.got{background:var(--got);color:#fff}
+.rating-btn.unsure{background:var(--unsure);color:#fff}
+.rating-btn.missed{background:var(--missed);color:#fff}
+.rating-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+/* stats column */
+.stats-col{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+.stats-card{background:#fff;border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px}
+.stats-card h4{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px}
+.stat-row{display:flex;align-items:center;gap:10px;padding:6px 0;
+  border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.stat-label{flex:1;font-size:13px;color:var(--text-muted)}
+.stat-val{font-size:15px;font-weight:700;color:var(--text)}
+.obj-list{display:flex;flex-direction:column;gap:6px}
+.obj-bar-row{display:flex;flex-direction:column;gap:3px}
+.obj-bar-label{font-size:11px;color:var(--text-muted);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.obj-bar-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.obj-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
+/* empty / done states */
+.fc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:240px;gap:8px;color:var(--text-muted)}
+.fc-empty svg{width:48px;height:48px;opacity:.3}
+.fc-empty p{font-size:14px;font-weight:500}
+/* mobile practice */
+@media(max-width:767px){
+  #practice-wrap{padding:14px 14px 0}
+  .practice-body{flex-direction:column}
+  .stats-col{width:100%}
+}
 </style>
 </head>
 <body>
@@ -523,9 +596,73 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
     <!-- ══════════════ PRACTICE PAGE ══════════════ -->
     <div id="page-practice" class="page">
-      <div class="placeholder">
-        <h2>Practice</h2>
-        <p>Flashcards coming in next step.</p>
+      <div id="practice-wrap">
+        <!-- top controls -->
+        <div class="practice-topbar">
+          <select id="fc-filter" onchange="fcFilter()">
+            <option value="">All Lectures</option>
+            <option value="L78">L7–8: Oxygenation</option>
+            <option value="L910">L9–10: Cardiovascular</option>
+            <option value="L11A">L11A: ABG / Acid-Base</option>
+            <option value="L11F">L11F: Fluids &amp; Electrolytes</option>
+            <option value="L12I">L12I: IV Therapy</option>
+            <option value="L12M">L12M: Management</option>
+            <option value="MED">Medications</option>
+            <option value="LAB">Lab Values</option>
+          </select>
+          <button class="fc-ctrl-btn" onclick="fcShuffle()">&#8635; Shuffle</button>
+          <button class="fc-ctrl-btn" onclick="fcRestart()">&#9654; Restart</button>
+          <span class="practice-counter" id="fc-counter">— / —</span>
+        </div>
+        <!-- progress bar -->
+        <div class="practice-progress-wrap">
+          <div class="practice-progress-track">
+            <div class="practice-progress-fill" id="fc-prog-fill"></div>
+          </div>
+        </div>
+        <!-- body: card + stats -->
+        <div class="practice-body">
+          <!-- card column -->
+          <div class="card-col">
+            <div class="fc-card" id="fc-card" onclick="fcFlip()">
+              <div class="fc-card-label" id="fc-card-label">Question</div>
+              <div class="fc-card-body">
+                <div class="fc-q-text" id="fc-card-text">Loading cards…</div>
+              </div>
+              <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
+            </div>
+            <div class="rating-row" id="fc-rating-row">
+              <button class="rating-btn got"    onclick="fcRate('got_it')"  id="btn-got"    disabled>&#10003; Got it</button>
+              <button class="rating-btn unsure" onclick="fcRate('unsure')"  id="btn-unsure" disabled>&#8764; Unsure</button>
+              <button class="rating-btn missed" onclick="fcRate('missed')"  id="btn-missed" disabled>&#10005; Missed</button>
+            </div>
+          </div>
+          <!-- stats column -->
+          <div class="stats-col">
+            <div class="stats-card">
+              <h4>Session</h4>
+              <div class="stat-row">
+                <span class="stat-dot" style="background:var(--got)"></span>
+                <span class="stat-label">Got it</span>
+                <span class="stat-val" id="stat-got">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-dot" style="background:var(--unsure)"></span>
+                <span class="stat-label">Unsure</span>
+                <span class="stat-val" id="stat-unsure">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-dot" style="background:var(--missed)"></span>
+                <span class="stat-label">Missed</span>
+                <span class="stat-val" id="stat-missed">0</span>
+              </div>
+            </div>
+            <div class="stats-card" id="obj-stats-card" style="display:none">
+              <h4>By Lecture</h4>
+              <div class="obj-list" id="obj-list"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -617,6 +754,52 @@ function initScrollSpy(){
     var el=document.getElementById(s.id);
     if(el) _spyObserver.observe(el);
   });
+}
+
+/* ── PRACTICE STUBS (wired up in Step 4) ── */
+var fcDeck=[],fcIdx=0,fcFlipped=false,fcStats={got_it:0,unsure:0,missed:0};
+
+function fcFilter(){ showToast('Deck filter coming in Step 4'); }
+function fcShuffle(){ showToast('Shuffle coming in Step 4'); }
+function fcRestart(){ showToast('Restart coming in Step 4'); }
+function fcFlip(){
+  var card=document.getElementById('fc-card');
+  var lbl=document.getElementById('fc-card-label');
+  var hint=document.getElementById('fc-flip-hint');
+  var txt=document.getElementById('fc-card-text');
+  if(!fcFlipped){
+    fcFlipped=true;
+    lbl.textContent='Answer'; lbl.classList.add('is-answer');
+    txt.className='fc-a-text';
+    hint.style.display='none';
+    card.style.background='#f0fdf4';
+    ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+      document.getElementById(id).disabled=false;
+    });
+  }
+}
+function fcRate(result){
+  fcStats[result]=(fcStats[result]||0)+1;
+  document.getElementById('stat-got').textContent=fcStats.got_it||0;
+  document.getElementById('stat-unsure').textContent=fcStats.unsure||0;
+  document.getElementById('stat-missed').textContent=fcStats.missed||0;
+  showToast('Supabase recording coming in Step 4');
+  fcNextCard();
+}
+function fcNextCard(){
+  var lbl=document.getElementById('fc-card-label');
+  var hint=document.getElementById('fc-flip-hint');
+  var txt=document.getElementById('fc-card-text');
+  var card=document.getElementById('fc-card');
+  fcFlipped=false;
+  lbl.textContent='Question'; lbl.classList.remove('is-answer');
+  txt.className='fc-q-text';
+  hint.style.display='';
+  card.style.background='';
+  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+    document.getElementById(id).disabled=true;
+  });
+  document.getElementById('fc-card-text').textContent='Tap shuffle or restart to load cards. Full deck coming in Step 4.';
 }
 
 function onClassChange(sel){
