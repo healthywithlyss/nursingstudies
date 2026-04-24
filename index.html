@@ -210,57 +210,74 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .practice-progress-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .practice-progress-fill{height:100%;background:var(--accent);border-radius:3px;
   transition:width .4s ease;width:0%}
-/* split layout */
+/* split layout — progress LEFT 35%, card RIGHT 65% */
 .practice-body{display:flex;gap:16px;flex:1;min-height:0;padding-bottom:20px}
-/* card column */
-.card-col{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+/* progress panel (left) */
+.progress-col{width:35%;max-width:300px;flex-shrink:0;background:#fff;
+  border-radius:var(--r-card);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;overflow:hidden}
+.prog-top{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.prog-pass-label{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px}
+.prog-stats-row{display:flex;justify-content:space-between;margin-bottom:10px}
+.prog-stat{display:flex;flex-direction:column;align-items:center;flex:1}
+.prog-stat-num{font-size:22px;font-weight:800;line-height:1}
+.prog-stat-lbl{font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;margin-top:3px}
+.prog-stat-lbl.got-lbl{color:var(--got)}
+.prog-stat-lbl.unsure-lbl{color:var(--unsure)}
+.prog-stat-lbl.missed-lbl{color:var(--missed)}
+.prog-deck-info{font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.4}
+.prog-restart-btn{width:100%;background:var(--g50);border:1px solid var(--border);
+  color:var(--text-muted);padding:7px;border-radius:var(--r-btn);font-size:12px;
+  font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.prog-restart-btn:hover{background:var(--border)}
+.prog-obj-head{padding:10px 16px 6px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);
+  border-bottom:1px solid var(--border)}
+.prog-obj-list{flex:1;overflow-y:auto;padding:8px 0;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.prog-obj-list::-webkit-scrollbar{width:4px}
+.prog-obj-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.prog-obj-item{display:flex;flex-direction:column;gap:4px;padding:7px 16px;
+  cursor:pointer;transition:background .12s;border-left:2px solid transparent}
+.prog-obj-item:hover{background:var(--g50)}
+.prog-obj-item.active{background:rgba(79,126,248,.06);border-left-color:var(--accent)}
+.prog-obj-item-top{display:flex;align-items:center;gap:6px}
+.prog-obj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.prog-obj-name{font-size:12px;color:var(--text);flex:1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-obj-count{font-size:10px;color:var(--text-muted);flex-shrink:0}
+.prog-obj-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:14px}
+.prog-obj-fill{height:100%;border-radius:2px;transition:width .4s ease}
+/* card column (right) */
+.card-col{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-header-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .fc-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);
   padding:32px 28px;display:flex;flex-direction:column;
-  min-height:240px;cursor:pointer;transition:transform .12s,box-shadow .12s;
+  min-height:300px;cursor:pointer;transition:transform .12s,box-shadow .12s;
   position:relative;user-select:none}
 .fc-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.1),0 16px 48px rgba(0,0,0,.08)}
 .fc-card-label{font-size:10px;font-weight:700;text-transform:uppercase;
   letter-spacing:.1em;color:var(--text-muted);margin-bottom:12px}
 .fc-card-label.is-answer{color:var(--accent)}
 .fc-card-body{flex:1;display:flex;align-items:center;justify-content:center}
-.fc-q-text{font-size:17px;font-weight:600;color:var(--text);line-height:1.5;text-align:center}
-.fc-a-text{font-size:14px;color:var(--text);line-height:1.7;text-align:left;
+.fc-q-text{font-size:19px;font-weight:500;color:var(--text);line-height:1.5;text-align:center}
+.fc-a-text{font-size:15px;color:var(--text);line-height:1.7;text-align:left;
   white-space:pre-line;width:100%}
 .fc-flip-hint{font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px}
-.fc-obj-tag{display:inline-block;background:var(--g50);border:1px solid var(--border);
-  border-radius:20px;font-size:11px;padding:2px 8px;color:var(--text-muted);margin-top:12px}
 /* rating buttons */
 .rating-row{display:flex;gap:10px}
-.rating-btn{flex:1;padding:12px 8px;border-radius:var(--r-btn);border:none;
-  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
-  transition:opacity .15s,transform .1s;letter-spacing:.01em}
+.rating-btn{flex:1;padding:14px 8px;border-radius:var(--r-btn);border:none;
+  font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:opacity .15s,transform .1s;letter-spacing:.01em;min-height:48px}
 .rating-btn:active{transform:scale(.97)}
 .rating-btn.got{background:var(--got);color:#fff}
 .rating-btn.unsure{background:var(--unsure);color:#fff}
 .rating-btn.missed{background:var(--missed);color:#fff}
 .rating-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
-/* stats column */
-.stats-col{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
-.stats-card{background:#fff;border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px}
-.stats-card h4{font-size:11px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px}
-.stat-row{display:flex;align-items:center;gap:10px;padding:6px 0;
-  border-bottom:1px solid var(--border)}
-.stat-row:last-child{border-bottom:none}
-.stat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.stat-label{flex:1;font-size:13px;color:var(--text-muted)}
-.stat-val{font-size:15px;font-weight:700;color:var(--text)}
-.obj-list{display:flex;flex-direction:column;gap:6px}
-.obj-bar-row{display:flex;flex-direction:column;gap:3px}
-.obj-bar-label{font-size:11px;color:var(--text-muted);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.obj-bar-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.obj-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
-/* empty / done states */
-.fc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:240px;gap:8px;color:var(--text-muted)}
-.fc-empty svg{width:48px;height:48px;opacity:.3}
-.fc-empty p{font-size:14px;font-weight:500}
+/* shuffle toggle */
+.shuffle-on{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
 /* pass summary panel */
 .fc-summary-panel{flex-direction:column;align-items:center;justify-content:center;
   background:#fff;border-radius:16px;box-shadow:var(--shadow);
@@ -291,8 +308,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 /* mobile practice */
 @media(max-width:767px){
   #practice-wrap{padding:14px 14px 0}
-  .practice-body{flex-direction:column}
-  .stats-col{width:100%}
+  .practice-body{flex-direction:column-reverse}
+  .progress-col{width:100%;max-width:none}
+  .prog-obj-list{max-height:200px}
 }
 </style>
 </head>
@@ -624,33 +642,60 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <!-- ══════════════ PRACTICE PAGE ══════════════ -->
     <div id="page-practice" class="page">
       <div id="practice-wrap">
-        <!-- top controls -->
-        <div class="practice-topbar">
-          <select id="fc-filter" onchange="fcFilter()">
-            <option value="">All Lectures</option>
-            <option value="L78">L7–8: Oxygenation</option>
-            <option value="L910">L9–10: Cardiovascular</option>
-            <option value="L11A">L11A: ABG / Acid-Base</option>
-            <option value="L11F">L11F: Fluids &amp; Electrolytes</option>
-            <option value="L12I">L12I: IV Therapy</option>
-            <option value="L12M">L12M: Management</option>
-            <option value="MED">Medications</option>
-            <option value="LAB">Lab Values</option>
-          </select>
-          <button class="fc-ctrl-btn" onclick="fcShuffle()">&#8635; Shuffle</button>
-          <button class="fc-ctrl-btn" onclick="fcRestart()">&#9654; Restart</button>
-          <span class="practice-counter" id="fc-counter">— / —</span>
-        </div>
-        <!-- progress bar -->
-        <div class="practice-progress-wrap">
-          <div class="practice-progress-track">
-            <div class="practice-progress-fill" id="fc-prog-fill"></div>
-          </div>
-        </div>
-        <!-- body: card + stats -->
         <div class="practice-body">
-          <!-- card column -->
+
+          <!-- LEFT: progress panel -->
+          <div class="progress-col">
+            <div class="prog-top">
+              <div class="prog-pass-label" id="prog-pass-label">Loading…</div>
+              <div class="prog-stats-row">
+                <div class="prog-stat">
+                  <span class="prog-stat-num" id="stat-got" style="color:var(--got)">0</span>
+                  <span class="prog-stat-lbl got-lbl">Got it</span>
+                </div>
+                <div class="prog-stat">
+                  <span class="prog-stat-num" id="stat-unsure" style="color:var(--unsure)">0</span>
+                  <span class="prog-stat-lbl unsure-lbl">Unsure</span>
+                </div>
+                <div class="prog-stat">
+                  <span class="prog-stat-num" id="stat-missed" style="color:var(--missed)">0</span>
+                  <span class="prog-stat-lbl missed-lbl">Missed</span>
+                </div>
+              </div>
+              <div class="prog-deck-info" id="prog-deck-info">&nbsp;</div>
+              <button class="prog-restart-btn" onclick="fcRestart()">&#9654; Restart Session</button>
+            </div>
+            <div class="prog-obj-head">By Lecture</div>
+            <div class="prog-obj-list" id="obj-list">
+              <div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">Loading…</div>
+            </div>
+          </div>
+
+          <!-- RIGHT: flashcard area -->
           <div class="card-col">
+            <!-- card header row -->
+            <div class="card-header-row">
+              <select id="fc-filter" onchange="fcFilter()">
+                <option value="">All Cards</option>
+                <option value="L78">L7–8: Oxygenation</option>
+                <option value="L910">L9–10: Cardiovascular</option>
+                <option value="L11A">L11A: ABG / Acid-Base</option>
+                <option value="L11F">L11F: Fluids &amp; Electrolytes</option>
+                <option value="L12I">L12I: IV Therapy</option>
+                <option value="L12M">L12M: Management</option>
+                <option value="MED">Medications</option>
+                <option value="LAB">Lab Values</option>
+              </select>
+              <button class="fc-ctrl-btn" id="shuffle-toggle" onclick="toggleShuffle()">&#8652; Shuffle: Off</button>
+              <span class="practice-counter" id="fc-counter">— / —</span>
+            </div>
+            <!-- progress bar -->
+            <div class="practice-progress-wrap">
+              <div class="practice-progress-track">
+                <div class="practice-progress-fill" id="fc-prog-fill"></div>
+              </div>
+            </div>
+            <!-- card -->
             <div class="fc-card" id="fc-card" onclick="fcFlip()">
               <div class="fc-card-label" id="fc-card-label">Question</div>
               <div class="fc-card-body">
@@ -659,37 +704,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
+            <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
-              <button class="rating-btn got"    onclick="fcRate('got_it')"  id="btn-got"    disabled>&#10003; Got it</button>
-              <button class="rating-btn unsure" onclick="fcRate('unsure')"  id="btn-unsure" disabled>&#8764; Unsure</button>
-              <button class="rating-btn missed" onclick="fcRate('missed')"  id="btn-missed" disabled>&#10005; Missed</button>
+              <button class="rating-btn got"    onclick="fcRate('got_it')" id="btn-got"    disabled>&#10003; Got it</button>
+              <button class="rating-btn unsure" onclick="fcRate('unsure')" id="btn-unsure" disabled>&#8764; Unsure</button>
+              <button class="rating-btn missed" onclick="fcRate('missed')" id="btn-missed" disabled>&#10005; Missed</button>
             </div>
           </div>
-          <!-- stats column -->
-          <div class="stats-col">
-            <div class="stats-card">
-              <h4>Session</h4>
-              <div class="stat-row">
-                <span class="stat-dot" style="background:var(--got)"></span>
-                <span class="stat-label">Got it</span>
-                <span class="stat-val" id="stat-got">0</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-dot" style="background:var(--unsure)"></span>
-                <span class="stat-label">Unsure</span>
-                <span class="stat-val" id="stat-unsure">0</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-dot" style="background:var(--missed)"></span>
-                <span class="stat-label">Missed</span>
-                <span class="stat-val" id="stat-missed">0</span>
-              </div>
-            </div>
-            <div class="stats-card" id="obj-stats-card" style="display:none">
-              <h4>By Lecture</h4>
-              <div class="obj-list" id="obj-list"></div>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
@@ -796,7 +818,15 @@ var fcPass1Results={got_it:[],unsure:[],missed:[]};
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
-var LS_KEY='nur118_fc_v1';
+var fcShuffleOn=false;
+var LS_KEY='nur118_fc_v2';
+
+var OBJ_GROUPS={
+  'L78':'Oxygenation (L7–8)','L910':'Cardiovascular (L9–10)',
+  'L11A':'ABG / Acid-Base','L11F':'Fluids & Electrolytes',
+  'L12I':'IV Therapy','L12M':'Management',
+  'MED':'Medications','LAB':'Lab Values'
+};
 
 function sbFetch(path,opts){
   return fetch(SB_URL+path,Object.assign({headers:SB_HDR},opts));
@@ -848,29 +878,35 @@ function startPass1(cards){
   fcStats={got_it:0,unsure:0,missed:0};
   fcPass1Results={got_it:[],unsure:[],missed:[]};
   fcSessionId='sess-'+Date.now();
-  fcDeck=shuffleArr(cards.slice());
+  fcDeck=fcShuffleOn?shuffleArr(cards.slice()):cards.slice();
   lsClear(); hideSummary(); updateStats(); showCard(0);
   setPassBadge(1);
 }
 
 function fcStartPass2(){
-  var p2Cards=fcAllCards.filter(function(c){
-    return fcPass1Results.unsure.indexOf(c.id)>-1||fcPass1Results.missed.indexOf(c.id)>-1;
-  });
-  if(!p2Cards.length){showFinalSummary();return;}
+  var missed=fcAllCards.filter(function(c){return fcPass1Results.missed.indexOf(c.id)>-1;});
+  var unsure=fcAllCards.filter(function(c){return fcPass1Results.unsure.indexOf(c.id)>-1;});
+  if(!missed.length&&!unsure.length){showFinalSummary();return;}
+  /* missed cards come FIRST, then unsure — drill hardest while focus is highest */
+  var p2Cards=shuffleArr(missed).concat(shuffleArr(unsure));
   fcPass=2; fcIdx=0;
   fcStats={got_it:0,unsure:0,missed:0};
-  fcDeck=shuffleArr(p2Cards);
+  fcDeck=p2Cards;
   hideSummary(); updateStats(); showCard(0);
   setPassBadge(2); lsSave();
 }
 
+var PASS_COLORS=['#4f7ef8','#7e22ce','#15803d','#b45309'];
 function setPassBadge(n){
   var ctr=document.getElementById('fc-counter');
   var badge=ctr.querySelector('.pass-badge');
   if(!badge){badge=document.createElement('span');ctr.appendChild(badge);}
-  badge.className='pass-badge'+(n===2?' p2':'');
+  badge.className='pass-badge';
+  badge.style.background=PASS_COLORS[(n-1)%PASS_COLORS.length];
   badge.textContent='Pass '+n;
+  /* update progress panel pass label */
+  var lbl=document.getElementById('prog-pass-label');
+  if(lbl) lbl.textContent='Pass '+n+(n>1?' \u2014 Reviewing '+fcDeck.length+' cards':'');
 }
 
 /* ── card display ── */
@@ -942,6 +978,74 @@ function updateStats(){
   document.getElementById('stat-got').textContent=fcStats.got_it||0;
   document.getElementById('stat-unsure').textContent=fcStats.unsure||0;
   document.getElementById('stat-missed').textContent=fcStats.missed||0;
+  var info=document.getElementById('prog-deck-info');
+  if(info) info.textContent=fcDeck.length+' card'+(fcDeck.length!==1?'s':'')+' in deck';
+  renderObjBars();
+}
+
+/* ── objective progress bars ── */
+function renderObjBars(){
+  var el=document.getElementById('obj-list');
+  if(!el||!fcAllCards.length) return;
+  /* build per-prefix stats from session results */
+  var groups={};
+  fcAllCards.forEach(function(c){
+    var oids=c.objective_ids||[];
+    var prefix=oids.length?oids[0].replace(/_\d+$/,''):'other';
+    if(!groups[prefix]) groups[prefix]={total:0,got:0,unsure:0,missed:0,ids:[]};
+    groups[prefix].total++; groups[prefix].ids.push(c.id);
+    if(fcPass1Results.got_it.indexOf(c.id)>-1) groups[prefix].got++;
+    else if(fcPass1Results.unsure.indexOf(c.id)>-1) groups[prefix].unsure++;
+    else if(fcPass1Results.missed.indexOf(c.id)>-1) groups[prefix].missed++;
+  });
+  var html='<div class="prog-obj-item'+(fcCurrentFilter===''?' active':'')+'" onclick="fcFilterByObj(\'\')">'
+    +'<div class="prog-obj-item-top">'
+    +'<span class="prog-obj-dot" style="background:var(--accent)"></span>'
+    +'<span class="prog-obj-name">All Cards</span>'
+    +'<span class="prog-obj-count">'+fcAllCards.length+'</span>'
+    +'</div></div>';
+  Object.keys(groups).forEach(function(key){
+    var g=groups[key];
+    var attempted=g.got+g.unsure+g.missed;
+    var pct=g.total?Math.round(g.got/g.total*100):0;
+    var color=attempted===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
+    var label=OBJ_GROUPS[key]||key;
+    var isActive=fcCurrentFilter===key;
+    html+='<div class="prog-obj-item'+(isActive?' active':'')+'" onclick="fcFilterByObj(\''+key+'\')">'
+      +'<div class="prog-obj-item-top">'
+      +'<span class="prog-obj-dot" style="background:'+color+'"></span>'
+      +'<span class="prog-obj-name">'+label+'</span>'
+      +'<span class="prog-obj-count">'+g.got+'/'+g.total+'</span>'
+      +'</div>'
+      +(attempted>0?'<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+function fcFilterByObj(prefix){
+  fcCurrentFilter=prefix;
+  document.getElementById('fc-filter').value=prefix;
+  lsClear(); fetchDeck(prefix);
+}
+
+function toggleShuffle(){
+  fcShuffleOn=!fcShuffleOn;
+  var btn=document.getElementById('shuffle-toggle');
+  if(fcShuffleOn){
+    btn.classList.add('shuffle-on');
+    btn.textContent='\u21d4 Shuffle: On';
+    if(fcDeck.length&&fcIdx<fcDeck.length){
+      for(var i=fcDeck.length-1;i>fcIdx;i--){
+        var j=fcIdx+Math.floor(Math.random()*(i-fcIdx+1));
+        var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;
+      }
+      showCard(fcIdx);
+    }
+  } else {
+    btn.classList.remove('shuffle-on');
+    btn.textContent='\u21b0 Shuffle: Off';
+  }
 }
 
 /* ── summary panels ── */
@@ -1040,7 +1144,7 @@ function fcResume(){
   document.getElementById('fc-filter').value=fcCurrentFilter;
   var banner=document.getElementById('fc-resume-banner');
   if(banner) banner.remove();
-  hideSummary(); updateStats();
+  hideSummary(); updateStats(); renderObjBars();
   if(fcIdx>=fcDeck.length){
     if(fcPass===1) showPass1Summary(); else showFinalSummary();
   } else { showCard(fcIdx); }
@@ -1060,15 +1164,6 @@ function fcFilter(){
   fetchDeck(fcCurrentFilter);
 }
 
-function fcShuffle(){
-  if(!fcDeck.length){fetchDeck(fcCurrentFilter);return;}
-  for(var i=fcDeck.length-1;i>fcIdx;i--){
-    var j=fcIdx+Math.floor(Math.random()*(i-fcIdx+1));
-    var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;
-  }
-  if(fcIdx<fcDeck.length) showCard(fcIdx);
-  showToast('Deck shuffled \u2713');
-}
 
 function fcRestart(){
   lsClear();
