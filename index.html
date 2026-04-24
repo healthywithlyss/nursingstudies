@@ -708,6 +708,7 @@ function goTo(page){
   if(bn) bn.classList.add('active');
   renderCtx(page);
   document.getElementById('main-content').scrollTop=0;
+  if(page==='practice'&&!fcLoaded) loadDeck('');
 }
 
 function renderCtx(page){
@@ -756,50 +757,161 @@ function initScrollSpy(){
   });
 }
 
-/* ── PRACTICE STUBS (wired up in Step 4) ── */
-var fcDeck=[],fcIdx=0,fcFlipped=false,fcStats={got_it:0,unsure:0,missed:0};
+/* ── PRACTICE — STEP 4 ── */
+var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
+var SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-function fcFilter(){ showToast('Deck filter coming in Step 4'); }
-function fcShuffle(){ showToast('Shuffle coming in Step 4'); }
-function fcRestart(){ showToast('Restart coming in Step 4'); }
-function fcFlip(){
-  var card=document.getElementById('fc-card');
-  var lbl=document.getElementById('fc-card-label');
-  var hint=document.getElementById('fc-flip-hint');
-  var txt=document.getElementById('fc-card-text');
-  if(!fcFlipped){
-    fcFlipped=true;
-    lbl.textContent='Answer'; lbl.classList.add('is-answer');
-    txt.className='fc-a-text';
-    hint.style.display='none';
-    card.style.background='#f0fdf4';
-    ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
-      document.getElementById(id).disabled=false;
+var fcDeck=[],fcIdx=0,fcFlipped=false;
+var fcStats={got_it:0,unsure:0,missed:0};
+var fcSessionId='sess-'+Date.now();
+var fcCurrentFilter='';
+var fcLoaded=false;
+
+function sbFetch(path,opts){
+  return fetch(SB_URL+path,Object.assign({headers:SB_HDR},opts));
+}
+
+function loadDeck(filter){
+  fcSetLoading(true);
+  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc';
+  if(filter) url+='&objective_ids=cs.%7B'+filter+'%7D';
+  sbFetch(url)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      fcLoaded=true;
+      if(!Array.isArray(data)||data.length===0){
+        fcSetEmpty('No cards found for this filter.'); return;
+      }
+      fcDeck=data; fcIdx=0;
+      fcStats={got_it:0,unsure:0,missed:0};
+      updateStats();
+      showCard(0);
+    })
+    .catch(function(e){
+      console.error(e);
+      fcSetEmpty('Could not load cards — check connection.');
     });
-  }
 }
-function fcRate(result){
-  fcStats[result]=(fcStats[result]||0)+1;
-  document.getElementById('stat-got').textContent=fcStats.got_it||0;
-  document.getElementById('stat-unsure').textContent=fcStats.unsure||0;
-  document.getElementById('stat-missed').textContent=fcStats.missed||0;
-  showToast('Supabase recording coming in Step 4');
-  fcNextCard();
-}
-function fcNextCard(){
+
+function fcSetLoading(on){
+  var txt=document.getElementById('fc-card-text');
   var lbl=document.getElementById('fc-card-label');
   var hint=document.getElementById('fc-flip-hint');
-  var txt=document.getElementById('fc-card-text');
   var card=document.getElementById('fc-card');
+  lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
+  txt.className='fc-q-text'; card.style.background='';
+  hint.style.display=''; hint.textContent='Tap card to reveal answer';
+  txt.textContent=on?'Loading cards\u2026':'';
+  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+    document.getElementById(id).disabled=true;
+  });
+}
+
+function fcSetEmpty(msg){
+  document.getElementById('fc-card-text').textContent=msg;
+  document.getElementById('fc-counter').textContent='0 / 0';
+  document.getElementById('fc-prog-fill').style.width='0%';
+}
+
+function showCard(idx){
+  if(idx>=fcDeck.length){fcDone();return;}
   fcFlipped=false;
-  lbl.textContent='Question'; lbl.classList.remove('is-answer');
-  txt.className='fc-q-text';
-  hint.style.display='';
+  var c=fcDeck[idx];
+  var card=document.getElementById('fc-card');
+  var lbl=document.getElementById('fc-card-label');
+  var txt=document.getElementById('fc-card-text');
+  var hint=document.getElementById('fc-flip-hint');
+  lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
+  txt.className='fc-q-text'; txt.textContent=c.question;
+  hint.style.display=''; hint.textContent='Tap card to reveal answer';
   card.style.background='';
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
-  document.getElementById('fc-card-text').textContent='Tap shuffle or restart to load cards. Full deck coming in Step 4.';
+  var total=fcDeck.length;
+  document.getElementById('fc-counter').textContent=idx+1+' / '+total;
+  document.getElementById('fc-prog-fill').style.width=(idx/total*100).toFixed(1)+'%';
+}
+
+function fcFlip(){
+  if(fcFlipped||!fcDeck.length||fcIdx>=fcDeck.length) return;
+  fcFlipped=true;
+  var c=fcDeck[fcIdx];
+  var card=document.getElementById('fc-card');
+  var lbl=document.getElementById('fc-card-label');
+  var txt=document.getElementById('fc-card-text');
+  var hint=document.getElementById('fc-flip-hint');
+  lbl.textContent='Answer'; lbl.classList.add('is-answer');
+  txt.className='fc-a-text'; txt.textContent=c.answer;
+  hint.style.display='none';
+  card.style.background='#f0fdf4';
+  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+    document.getElementById(id).disabled=false;
+  });
+}
+
+function fcRate(result){
+  if(!fcDeck.length||fcIdx>=fcDeck.length) return;
+  var c=fcDeck[fcIdx];
+  fcStats[result]=(fcStats[result]||0)+1;
+  updateStats();
+  sbFetch('/rest/v1/card_attempts',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'return=minimal'},SB_HDR),
+    body:JSON.stringify({card_id:c.id,result:result,session_id:fcSessionId})
+  }).catch(function(e){console.warn('attempt log:',e);});
+  fcIdx++;
+  showCard(fcIdx);
+}
+
+function updateStats(){
+  document.getElementById('stat-got').textContent=fcStats.got_it||0;
+  document.getElementById('stat-unsure').textContent=fcStats.unsure||0;
+  document.getElementById('stat-missed').textContent=fcStats.missed||0;
+}
+
+function fcFilter(){
+  fcCurrentFilter=document.getElementById('fc-filter').value;
+  fcSessionId='sess-'+Date.now();
+  loadDeck(fcCurrentFilter);
+}
+
+function fcShuffle(){
+  if(!fcDeck.length){loadDeck(fcCurrentFilter);return;}
+  for(var i=fcDeck.length-1;i>fcIdx;i--){
+    var j=fcIdx+Math.floor(Math.random()*(i-fcIdx+1));
+    var tmp=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=tmp;
+  }
+  showCard(fcIdx);
+  showToast('Deck shuffled \u2713');
+}
+
+function fcRestart(){
+  fcIdx=0; fcStats={got_it:0,unsure:0,missed:0};
+  fcSessionId='sess-'+Date.now();
+  updateStats();
+  if(fcDeck.length){showCard(0);}else{loadDeck(fcCurrentFilter);}
+}
+
+function fcDone(){
+  var total=fcDeck.length;
+  var pct=total?Math.round(fcStats.got_it/total*100):0;
+  var lbl=document.getElementById('fc-card-label');
+  var txt=document.getElementById('fc-card-text');
+  var hint=document.getElementById('fc-flip-hint');
+  var card=document.getElementById('fc-card');
+  lbl.textContent='Complete \u2713'; lbl.style.color='var(--got)';
+  txt.className='fc-q-text';
+  txt.textContent='\u2713 '+fcStats.got_it+' got it \u00b7 \u007e '+fcStats.unsure+' unsure \u00b7 \u2715 '+fcStats.missed+' missed\n\n'+pct+'% mastered \u2014 press Restart to go again.';
+  txt.style.whiteSpace='pre-line';
+  hint.style.display='none';
+  card.style.background='#f0fdf4';
+  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+    document.getElementById(id).disabled=true;
+  });
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-counter').textContent=total+' / '+total;
 }
 
 function onClassChange(sel){
