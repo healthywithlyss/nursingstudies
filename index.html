@@ -305,12 +305,31 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   padding:11px 16px;display:flex;align-items:center;gap:10px;
   margin-bottom:12px;font-size:13px;color:var(--text);flex-wrap:wrap}
 .resume-banner span{flex:1;min-width:120px}
+.mob-prog-toggle{display:none}
 /* mobile practice */
 @media(max-width:767px){
-  #practice-wrap{padding:14px 14px 0}
-  .practice-body{flex-direction:column-reverse}
-  .progress-col{width:100%;max-width:none}
-  .prog-obj-list{max-height:200px}
+  #practice-wrap{padding:10px 10px 0}
+  .practice-body{flex-direction:column;gap:10px;padding-bottom:12px}
+  .progress-col{width:100%;max-width:none;overflow:hidden;
+    transition:max-height .3s ease;max-height:52px}
+  .progress-col.mob-open{max-height:700px}
+  .mob-prog-toggle{display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;cursor:pointer;font-weight:700;font-size:14px;color:var(--text);
+    user-select:none;background:#fff;border-radius:var(--r-card)}
+  .mob-prog-toggle .mob-arrow{font-size:12px;transition:transform .25s;color:var(--text-muted)}
+  .progress-col.mob-open .mob-arrow{transform:rotate(180deg)}
+  .card-col{gap:10px}
+  .fc-card{padding:20px 16px;min-height:260px}
+  .fc-q-text{font-size:17px!important}
+  .fc-a-text{font-size:14px!important}
+  .card-header-row{gap:8px}
+  .card-header-row select{flex:1;min-width:0;font-size:13px}
+  #shuffle-toggle{font-size:12px;padding:7px 10px;white-space:nowrap}
+  #fc-counter{font-size:12px}
+  .rating-row{gap:8px}
+  .rating-btn{padding:13px 4px;font-size:13px}
+  .prog-obj-list{max-height:220px}
+  .fc-summary-panel{padding:16px}
 }
 </style>
 </head>
@@ -645,7 +664,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
         <div class="practice-body">
 
           <!-- LEFT: progress panel -->
-          <div class="progress-col">
+          <div class="progress-col" id="progress-col">
+            <div class="mob-prog-toggle" onclick="toggleMobProgress()">
+              <span>&#128202; Progress</span><span class="mob-arrow">&#9660;</span>
+            </div>
             <div class="prog-top">
               <div class="prog-pass-label" id="prog-pass-label">Loading…</div>
               <div class="prog-stats-row">
@@ -1087,6 +1109,11 @@ function fcFilterByObj(prefix){
   fcCurrentFilter=prefix;
   document.getElementById('fc-filter').value=prefix;
   lsClear(); fetchDeck(prefix);
+}
+
+function toggleMobProgress(){
+  var col=document.getElementById('progress-col');
+  if(col) col.classList.toggle('mob-open');
 }
 
 function toggleShuffle(){
