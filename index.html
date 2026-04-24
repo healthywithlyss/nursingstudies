@@ -267,6 +267,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-a-text{font-size:15px;color:var(--text);line-height:1.7;text-align:left;
   white-space:pre-line;width:100%}
 .fc-flip-hint{font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px}
+/* history badge — top-right of card, shows prior result */
+.fc-history{position:absolute;top:14px;right:16px;
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+  opacity:0;transition:opacity .2s;pointer-events:none}
+.fc-history.show{opacity:1}
+.fc-history.got{background:#dcfce7;color:var(--got)}
+.fc-history.unsure{background:#fef9c3;color:#b45309}
+.fc-history.missed{background:#fee2e2;color:var(--missed)}
 /* rating buttons */
 .rating-row{display:flex;gap:10px}
 .rating-btn{flex:1;padding:14px 8px;border-radius:var(--r-btn);border:none;
@@ -769,6 +777,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <!-- card -->
             <div class="fc-card" id="fc-card" onclick="fcFlip()">
               <div class="fc-card-label" id="fc-card-label">Question</div>
+              <div class="fc-history" id="fc-history"></div>
               <div class="fc-card-body">
                 <div class="fc-q-text" id="fc-card-text">Loading cards…</div>
               </div>
@@ -1181,6 +1190,8 @@ function resetCardShell(){
   lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
   document.getElementById('fc-card-text').className='fc-q-text';
   card.style.background=''; hint.style.display='';
+  var hist=document.getElementById('fc-history');
+  if(hist){hist.className='fc-history';hist.textContent='';}
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
@@ -1194,6 +1205,15 @@ function showCard(idx){
   var c=fcDeck[idx];
   resetCardShell();
   document.getElementById('fc-card-text').textContent=c.question;
+  /* show prior result from Supabase history */
+  var prior=fcMasteryMap[c.id];
+  var hist=document.getElementById('fc-history');
+  if(hist&&prior){
+    var LABELS={got_it:'\u2713 Got it',unsure:'\u2248 Unsure',missed:'\u2717 Missed'};
+    var CLASSES={got_it:'got',unsure:'unsure',missed:'missed'};
+    hist.className='fc-history '+CLASSES[prior]+' show';
+    hist.textContent='Previously: '+LABELS[prior];
+  }
   var total=fcDeck.length;
   document.getElementById('fc-counter').textContent=(idx+1)+' / '+total;
   setPassBadge(fcPass);
