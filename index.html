@@ -261,6 +261,33 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   min-height:240px;gap:8px;color:var(--text-muted)}
 .fc-empty svg{width:48px;height:48px;opacity:.3}
 .fc-empty p{font-size:14px;font-weight:500}
+/* pass summary panel */
+.fc-summary-panel{flex-direction:column;align-items:center;justify-content:center;
+  background:#fff;border-radius:16px;box-shadow:var(--shadow);
+  padding:36px 28px;min-height:240px;gap:16px;text-align:center}
+.fcs-title{font-size:20px;font-weight:800;color:var(--text)}
+.fcs-stats{display:flex;flex-direction:column;gap:0;width:100%;max-width:260px}
+.fcs-row{display:flex;align-items:center;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--border)}
+.fcs-row:last-child{border-bottom:none}
+.fcs-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.fcs-label{flex:1;font-size:13px;color:var(--text-muted);text-align:left}
+.fcs-val{font-size:17px;font-weight:800;color:var(--text)}
+.fcs-sub{font-size:13px;color:var(--text-muted)}
+.fcs-btn{background:var(--accent);color:#fff;border:none;padding:12px 32px;
+  border-radius:var(--r-btn);font-size:14px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:opacity .15s;margin-top:4px}
+.fcs-btn:hover{opacity:.88}
+/* pass badge in counter */
+.pass-badge{display:inline-block;background:var(--accent);color:#fff;
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+  vertical-align:middle;margin-left:6px}
+.pass-badge.p2{background:var(--unsure)}
+/* resume banner */
+.resume-banner{background:#fff;border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:11px 16px;display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;font-size:13px;color:var(--text);flex-wrap:wrap}
+.resume-banner span{flex:1;min-width:120px}
 /* mobile practice */
 @media(max-width:767px){
   #practice-wrap{padding:14px 14px 0}
@@ -631,6 +658,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               </div>
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
             </div>
+            <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
             <div class="rating-row" id="fc-rating-row">
               <button class="rating-btn got"    onclick="fcRate('got_it')"  id="btn-got"    disabled>&#10003; Got it</button>
               <button class="rating-btn unsure" onclick="fcRate('unsure')"  id="btn-unsure" disabled>&#8764; Unsure</button>
@@ -708,7 +736,7 @@ function goTo(page){
   if(bn) bn.classList.add('active');
   renderCtx(page);
   document.getElementById('main-content').scrollTop=0;
-  if(page==='practice'&&!fcLoaded) loadDeck('');
+  if(page==='practice') initPractice();
 }
 
 function renderCtx(page){
@@ -757,80 +785,127 @@ function initScrollSpy(){
   });
 }
 
-/* ── PRACTICE — STEP 4 ── */
+/* ── PRACTICE — STEP 5 ── */
 var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
 var SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-var fcDeck=[],fcIdx=0,fcFlipped=false;
+var fcDeck=[],fcAllCards=[],fcIdx=0,fcFlipped=false,fcPass=1;
 var fcStats={got_it:0,unsure:0,missed:0};
+var fcPass1Results={got_it:[],unsure:[],missed:[]};
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
+var LS_KEY='nur118_fc_v1';
 
 function sbFetch(path,opts){
   return fetch(SB_URL+path,Object.assign({headers:SB_HDR},opts));
 }
 
-function loadDeck(filter){
-  fcSetLoading(true);
+/* ── localStorage helpers ── */
+function lsSave(){
+  try{localStorage.setItem(LS_KEY,JSON.stringify({
+    allCards:fcAllCards,deck:fcDeck,idx:fcIdx,pass:fcPass,
+    stats:fcStats,p1r:fcPass1Results,
+    sessionId:fcSessionId,filter:fcCurrentFilter
+  }));}catch(e){}
+}
+function lsLoad(){
+  try{var s=localStorage.getItem(LS_KEY);return s?JSON.parse(s):null;}
+  catch(e){return null;}
+}
+function lsClear(){try{localStorage.removeItem(LS_KEY);}catch(e){}}
+
+/* ── init ── */
+function initPractice(){
+  if(fcLoaded) return;
+  var saved=lsLoad();
+  if(saved&&Array.isArray(saved.allCards)&&saved.allCards.length){
+    showResumeBanner(saved);
+  } else {
+    fetchDeck('');
+  }
+}
+
+function fetchDeck(filter){
+  fcSetLoading();
   var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc';
   if(filter) url+='&objective_ids=cs.%7B'+filter+'%7D';
   sbFetch(url)
     .then(function(r){return r.json();})
     .then(function(data){
       fcLoaded=true;
-      if(!Array.isArray(data)||data.length===0){
-        fcSetEmpty('No cards found for this filter.'); return;
-      }
-      fcDeck=data; fcIdx=0;
-      fcStats={got_it:0,unsure:0,missed:0};
-      updateStats();
-      showCard(0);
+      if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found for this filter.');return;}
+      fcAllCards=data;
+      startPass1(data);
     })
-    .catch(function(e){
-      console.error(e);
-      fcSetEmpty('Could not load cards — check connection.');
-    });
+    .catch(function(e){console.error(e);fcSetEmpty('Could not load cards — check connection.');});
 }
 
-function fcSetLoading(on){
-  var txt=document.getElementById('fc-card-text');
-  var lbl=document.getElementById('fc-card-label');
-  var hint=document.getElementById('fc-flip-hint');
-  var card=document.getElementById('fc-card');
-  lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
-  txt.className='fc-q-text'; card.style.background='';
-  hint.style.display=''; hint.textContent='Tap card to reveal answer';
-  txt.textContent=on?'Loading cards\u2026':'';
-  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
-    document.getElementById(id).disabled=true;
+/* ── pass management ── */
+function startPass1(cards){
+  fcPass=1; fcIdx=0;
+  fcStats={got_it:0,unsure:0,missed:0};
+  fcPass1Results={got_it:[],unsure:[],missed:[]};
+  fcSessionId='sess-'+Date.now();
+  fcDeck=shuffleArr(cards.slice());
+  lsClear(); hideSummary(); updateStats(); showCard(0);
+  setPassBadge(1);
+}
+
+function fcStartPass2(){
+  var p2Cards=fcAllCards.filter(function(c){
+    return fcPass1Results.unsure.indexOf(c.id)>-1||fcPass1Results.missed.indexOf(c.id)>-1;
   });
+  if(!p2Cards.length){showFinalSummary();return;}
+  fcPass=2; fcIdx=0;
+  fcStats={got_it:0,unsure:0,missed:0};
+  fcDeck=shuffleArr(p2Cards);
+  hideSummary(); updateStats(); showCard(0);
+  setPassBadge(2); lsSave();
 }
 
+function setPassBadge(n){
+  var ctr=document.getElementById('fc-counter');
+  var badge=ctr.querySelector('.pass-badge');
+  if(!badge){badge=document.createElement('span');ctr.appendChild(badge);}
+  badge.className='pass-badge'+(n===2?' p2':'');
+  badge.textContent='Pass '+n;
+}
+
+/* ── card display ── */
+function fcSetLoading(){
+  resetCardShell(); document.getElementById('fc-card-text').textContent='Loading cards\u2026';
+  hideSummary();
+}
 function fcSetEmpty(msg){
-  document.getElementById('fc-card-text').textContent=msg;
+  resetCardShell(); document.getElementById('fc-card-text').textContent=msg;
   document.getElementById('fc-counter').textContent='0 / 0';
   document.getElementById('fc-prog-fill').style.width='0%';
 }
-
-function showCard(idx){
-  if(idx>=fcDeck.length){fcDone();return;}
-  fcFlipped=false;
-  var c=fcDeck[idx];
-  var card=document.getElementById('fc-card');
+function resetCardShell(){
   var lbl=document.getElementById('fc-card-label');
-  var txt=document.getElementById('fc-card-text');
   var hint=document.getElementById('fc-flip-hint');
+  var card=document.getElementById('fc-card');
   lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
-  txt.className='fc-q-text'; txt.textContent=c.question;
-  hint.style.display=''; hint.textContent='Tap card to reveal answer';
-  card.style.background='';
+  document.getElementById('fc-card-text').className='fc-q-text';
+  card.style.background=''; hint.style.display='';
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
+}
+
+function showCard(idx){
+  if(idx>=fcDeck.length){
+    if(fcPass===1) showPass1Summary(); else showFinalSummary(); return;
+  }
+  fcFlipped=false;
+  var c=fcDeck[idx];
+  resetCardShell();
+  document.getElementById('fc-card-text').textContent=c.question;
   var total=fcDeck.length;
-  document.getElementById('fc-counter').textContent=idx+1+' / '+total;
+  document.getElementById('fc-counter').textContent=(idx+1)+' / '+total;
+  setPassBadge(fcPass);
   document.getElementById('fc-prog-fill').style.width=(idx/total*100).toFixed(1)+'%';
 }
 
@@ -838,14 +913,12 @@ function fcFlip(){
   if(fcFlipped||!fcDeck.length||fcIdx>=fcDeck.length) return;
   fcFlipped=true;
   var c=fcDeck[fcIdx];
-  var card=document.getElementById('fc-card');
-  var lbl=document.getElementById('fc-card-label');
-  var txt=document.getElementById('fc-card-text');
-  var hint=document.getElementById('fc-flip-hint');
-  lbl.textContent='Answer'; lbl.classList.add('is-answer');
-  txt.className='fc-a-text'; txt.textContent=c.answer;
-  hint.style.display='none';
-  card.style.background='#f0fdf4';
+  document.getElementById('fc-card-label').textContent='Answer';
+  document.getElementById('fc-card-label').classList.add('is-answer');
+  document.getElementById('fc-card-text').className='fc-a-text';
+  document.getElementById('fc-card-text').textContent=c.answer;
+  document.getElementById('fc-flip-hint').style.display='none';
+  document.getElementById('fc-card').style.background='#f0fdf4';
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=false;
   });
@@ -855,14 +928,14 @@ function fcRate(result){
   if(!fcDeck.length||fcIdx>=fcDeck.length) return;
   var c=fcDeck[fcIdx];
   fcStats[result]=(fcStats[result]||0)+1;
+  if(fcPass===1) fcPass1Results[result].push(c.id);
   updateStats();
   sbFetch('/rest/v1/card_attempts',{
     method:'POST',
     headers:Object.assign({'Prefer':'return=minimal'},SB_HDR),
     body:JSON.stringify({card_id:c.id,result:result,session_id:fcSessionId})
-  }).catch(function(e){console.warn('attempt log:',e);});
-  fcIdx++;
-  showCard(fcIdx);
+  }).catch(function(e){console.warn('attempt:',e);});
+  fcIdx++; lsSave(); showCard(fcIdx);
 }
 
 function updateStats(){
@@ -871,47 +944,144 @@ function updateStats(){
   document.getElementById('stat-missed').textContent=fcStats.missed||0;
 }
 
+/* ── summary panels ── */
+function showPass1Summary(){
+  var u=fcPass1Results.unsure.length,m=fcPass1Results.missed.length,p2=u+m;
+  var total=fcDeck.length;
+  renderSummary({
+    title:'Pass 1 Complete \u2713',
+    rows:[
+      {color:'var(--got)',   label:'Got it', val:fcPass1Results.got_it.length},
+      {color:'var(--unsure)',label:'Unsure', val:u},
+      {color:'var(--missed)',label:'Missed', val:m}
+    ],
+    sub: p2>0 ? p2+' card'+(p2>1?'s':'')+' coming back for Pass 2'
+              : 'Perfect score! No cards to review.',
+    btnLabel: p2>0 ? 'Start Pass 2 \u2192' : 'Done \u2714',
+    btnFn: 'fcStartPass2()'
+  });
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-counter').textContent=total+' / '+total;
+  setPassBadge(1);
+}
+
+function showFinalSummary(){
+  var total=fcAllCards.length||fcDeck.length;
+  var mastered=fcPass===1
+    ? fcPass1Results.got_it.length
+    : fcPass1Results.got_it.length+fcStats.got_it;
+  var pct=total?Math.round(mastered/total*100):0;
+  renderSummary({
+    title:'Session Complete \uD83C\uDF89',
+    rows:[
+      {color:'var(--got)',   label:'Mastered', val:mastered+' / '+total},
+      {color: pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)',
+       label:'Score', val:pct+'%'}
+    ],
+    sub: pct>=80?'Great work \u2014 you\u2019ve got this!'
+       : pct>=50?'Good effort \u2014 try another round.'
+               : 'Keep going \u2014 practice makes perfect.',
+    btnLabel:'Restart \u21BB',
+    btnFn:'fcRestart()'
+  });
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-counter').textContent=total+' / '+total;
+  lsClear();
+}
+
+function renderSummary(opts){
+  document.getElementById('fc-card').style.display='none';
+  document.getElementById('fc-rating-row').style.display='none';
+  var rows=opts.rows.map(function(r){
+    return '<div class="fcs-row">'
+      +'<span class="fcs-dot" style="background:'+r.color+'"></span>'
+      +'<span class="fcs-label">'+r.label+'</span>'
+      +'<span class="fcs-val">'+r.val+'</span></div>';
+  }).join('');
+  document.getElementById('fc-summary').innerHTML=
+    '<div class="fcs-title">'+opts.title+'</div>'
+    +'<div class="fcs-stats">'+rows+'</div>'
+    +'<div class="fcs-sub">'+opts.sub+'</div>'
+    +'<button class="fcs-btn" onclick="'+opts.btnFn+'">'+opts.btnLabel+'</button>';
+  document.getElementById('fc-summary').style.display='flex';
+}
+
+function hideSummary(){
+  document.getElementById('fc-card').style.display='';
+  document.getElementById('fc-rating-row').style.display='';
+  document.getElementById('fc-summary').style.display='none';
+}
+
+/* ── resume banner ── */
+function showResumeBanner(saved){
+  fcLoaded=true;
+  var wrap=document.getElementById('practice-wrap');
+  var existing=document.getElementById('fc-resume-banner');
+  if(existing) existing.remove();
+  var div=document.createElement('div');
+  div.id='fc-resume-banner'; div.className='resume-banner';
+  var p=saved.pass||1, i=saved.idx||0, total=(saved.deck||[]).length;
+  div.innerHTML='<span>Resume Pass '+p+' \u2014 card '+(i+1)+' of '+total+'</span>'
+    +'<button class="fc-ctrl-btn" onclick="fcResume()">Resume</button>'
+    +'<button class="fc-ctrl-btn" onclick="fcFreshStart()">Start Fresh</button>';
+  wrap.insertBefore(div,wrap.firstChild);
+}
+
+function fcResume(){
+  var saved=lsLoad();
+  if(!saved){fcFreshStart();return;}
+  fcAllCards=saved.allCards||[]; fcDeck=saved.deck||[];
+  fcIdx=saved.idx||0; fcPass=saved.pass||1;
+  fcStats=saved.stats||{got_it:0,unsure:0,missed:0};
+  fcPass1Results=saved.p1r||{got_it:[],unsure:[],missed:[]};
+  fcSessionId=saved.sessionId||'sess-'+Date.now();
+  fcCurrentFilter=saved.filter||'';
+  fcLoaded=true;
+  document.getElementById('fc-filter').value=fcCurrentFilter;
+  var banner=document.getElementById('fc-resume-banner');
+  if(banner) banner.remove();
+  hideSummary(); updateStats();
+  if(fcIdx>=fcDeck.length){
+    if(fcPass===1) showPass1Summary(); else showFinalSummary();
+  } else { showCard(fcIdx); }
+}
+
+function fcFreshStart(){
+  lsClear();
+  var banner=document.getElementById('fc-resume-banner');
+  if(banner) banner.remove();
+  fetchDeck(fcCurrentFilter);
+}
+
+/* ── controls ── */
 function fcFilter(){
   fcCurrentFilter=document.getElementById('fc-filter').value;
-  fcSessionId='sess-'+Date.now();
-  loadDeck(fcCurrentFilter);
+  lsClear(); var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
+  fetchDeck(fcCurrentFilter);
 }
 
 function fcShuffle(){
-  if(!fcDeck.length){loadDeck(fcCurrentFilter);return;}
+  if(!fcDeck.length){fetchDeck(fcCurrentFilter);return;}
   for(var i=fcDeck.length-1;i>fcIdx;i--){
     var j=fcIdx+Math.floor(Math.random()*(i-fcIdx+1));
-    var tmp=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=tmp;
+    var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;
   }
-  showCard(fcIdx);
+  if(fcIdx<fcDeck.length) showCard(fcIdx);
   showToast('Deck shuffled \u2713');
 }
 
 function fcRestart(){
-  fcIdx=0; fcStats={got_it:0,unsure:0,missed:0};
-  fcSessionId='sess-'+Date.now();
-  updateStats();
-  if(fcDeck.length){showCard(0);}else{loadDeck(fcCurrentFilter);}
+  lsClear();
+  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
+  if(fcAllCards.length) startPass1(fcAllCards); else fetchDeck(fcCurrentFilter);
 }
 
-function fcDone(){
-  var total=fcDeck.length;
-  var pct=total?Math.round(fcStats.got_it/total*100):0;
-  var lbl=document.getElementById('fc-card-label');
-  var txt=document.getElementById('fc-card-text');
-  var hint=document.getElementById('fc-flip-hint');
-  var card=document.getElementById('fc-card');
-  lbl.textContent='Complete \u2713'; lbl.style.color='var(--got)';
-  txt.className='fc-q-text';
-  txt.textContent='\u2713 '+fcStats.got_it+' got it \u00b7 \u007e '+fcStats.unsure+' unsure \u00b7 \u2715 '+fcStats.missed+' missed\n\n'+pct+'% mastered \u2014 press Restart to go again.';
-  txt.style.whiteSpace='pre-line';
-  hint.style.display='none';
-  card.style.background='#f0fdf4';
-  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
-    document.getElementById(id).disabled=true;
-  });
-  document.getElementById('fc-prog-fill').style.width='100%';
-  document.getElementById('fc-counter').textContent=total+' / '+total;
+function shuffleArr(arr){
+  for(var i=arr.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=arr[i];arr[i]=arr[j];arr[j]=t;
+  }
+  return arr;
 }
 
 function onClassChange(sel){
