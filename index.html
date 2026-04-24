@@ -418,6 +418,50 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qs-begin-btn:hover{opacity:.88}
 .qs-error{background:#fff1f2;border:1px solid #fecdd3;border-radius:var(--r-card);
   padding:20px 24px;color:#b91c1c;font-size:14px;line-height:1.7;margin-top:24px}
+
+/* ── QUIZ QUESTION UI ── */
+.qq-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.qq-back{background:none;border:none;cursor:pointer;font-size:13px;
+  color:var(--text-muted);font-family:inherit;padding:0;flex-shrink:0}
+.qq-back:hover{color:var(--accent)}
+.qq-type-badge{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.qq-progress-text{font-size:13px;color:var(--text-muted);margin-left:auto;white-space:nowrap}
+.qq-prog-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.qq-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.qq-stem{font-size:16px;font-weight:500;color:var(--text);line-height:1.7;
+  margin-bottom:20px;padding:20px 22px;background:var(--surface);
+  border-radius:var(--r-card);border:1px solid var(--border);box-shadow:var(--shadow)}
+.qq-type-label{font-size:12px;font-weight:600;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.qq-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.qq-opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--r-card);
+  cursor:pointer;transition:border-color .15s,background .15s;font-size:14px;
+  line-height:1.5;text-align:left;font-family:inherit;color:var(--text);width:100%}
+.qq-opt:hover:not([disabled]){border-color:var(--accent);background:#f5f8ff}
+.qq-opt.selected{border-color:var(--accent);background:#eff3ff}
+.qq-opt.correct{border-color:var(--got)!important;background:#f0fdf4!important;color:#166534!important;cursor:default}
+.qq-opt.wrong{border-color:var(--missed)!important;background:#fff1f2!important;color:#991b1b!important;cursor:default}
+.qq-opt.missed{border-color:var(--got)!important;background:#f0fdf4!important;color:#166534!important;opacity:.65;cursor:default}
+.qq-opt[disabled]{cursor:default}
+.qq-opt-letter{width:24px;height:24px;border-radius:50%;border:2px solid currentColor;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  flex-shrink:0;margin-top:1px}
+.qq-submit{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;
+  border-radius:var(--r-btn);font-size:15px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:opacity .15s;margin-bottom:12px}
+.qq-submit:disabled{opacity:.3;cursor:default}
+.qq-submit:not([disabled]):hover{opacity:.88}
+.qq-next{display:none;width:100%;padding:14px;background:var(--text);color:#fff;border:none;
+  border-radius:var(--r-btn);font-size:15px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:opacity .15s;margin-bottom:12px}
+.qq-next:hover{opacity:.85}
+.qq-explanation{display:none;background:#f8fafc;border:1px solid var(--border);
+  border-radius:var(--r-card);padding:16px 20px;font-size:14px;
+  line-height:1.7;color:var(--text);margin-bottom:4px}
+.qq-expl-label{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -1981,9 +2025,161 @@ function showQsError(msg){
   );
 }
 
+/* ── QUIZ STEP 4: QUESTION DISPLAY ── */
+var quizSessionIdx=0;
+var quizSessionSelected=[];
+var quizSessionSubmitted=false;
+var quizSessionResults=[];
+var quizSessionId='';
+
+var QQ_TYPE_LABEL={
+  multiple_choice:'Multiple Choice',
+  select_all:'Select All That Apply',
+  priority:'Priority',
+  delegation:'Delegation'
+};
+var QQ_TYPE_STYLE={
+  multiple_choice:'background:var(--cobalt-bg);color:var(--cobalt)',
+  select_all:'background:var(--plum-bg);color:var(--plum)',
+  priority:'background:#fffbeb;color:var(--gold)',
+  delegation:'background:var(--teal-bg);color:var(--teal)'
+};
+
 function beginQuizSession(){
-  /* Step 4 will wire this — placeholder */
-  showToast('Full quiz UI coming in step 4!');
+  quizSessionIdx=0;
+  quizSessionSelected=[];
+  quizSessionSubmitted=false;
+  quizSessionResults=[];
+  quizSessionId='qsess-'+Date.now();
+  quizCurrentQuestions=shuffleArr(quizCurrentQuestions.slice());
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  var q=quizCurrentQuestions[quizSessionIdx];
+  var total=quizCurrentQuestions.length;
+  var pct=Math.round((quizSessionIdx/total)*100);
+  var typeLbl=QQ_TYPE_LABEL[q.type]||q.type;
+  var typeStyle=QQ_TYPE_STYLE[q.type]||'';
+  var isSelectAll=q.type==='select_all';
+  var opts=Array.isArray(q.options)?q.options:[];
+
+  var optHtml='';
+  opts.forEach(function(opt){
+    var letter=opt.charAt(0);
+    var dotPos=opt.indexOf('. ');
+    var text=dotPos>-1?opt.slice(dotPos+2):opt.slice(3);
+    optHtml+='<button class="qq-opt" data-letter="'+letter
+      +'" onclick="selectQuizOption(this,\''+letter+'\')">'
+      +'<span class="qq-opt-letter">'+letter+'</span>'
+      +'<span>'+escHtml(text)+'</span>'
+      +'</button>';
+  });
+
+  showQuizSession(
+    '<div class="qq-header">'
+    +'<button class="qq-back" onclick="showQuizPicker()">\u2190 Objectives</button>'
+    +'<span class="qq-type-badge" style="'+typeStyle+'">'+typeLbl+'</span>'
+    +'<span class="qq-progress-text">'+( quizSessionIdx+1)+' / '+total+'</span>'
+    +'</div>'
+    +'<div class="qq-prog-bar"><div class="qq-prog-fill" style="width:'+pct+'%"></div></div>'
+    +'<div class="qq-stem">'+escHtml(q.stem)+'</div>'
+    +(isSelectAll?'<div class="qq-type-label">Select all that apply</div>':'')
+    +'<div class="qq-options">'+optHtml+'</div>'
+    +'<button class="qq-submit" id="qq-submit" onclick="submitQuizAnswer()" disabled>Submit</button>'
+    +'<button class="qq-next" id="qq-next" onclick="quizNext()">Next</button>'
+    +'<div class="qq-explanation" id="qq-explanation"></div>'
+  );
+  quizSessionSelected=[];
+  quizSessionSubmitted=false;
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectQuizOption(el,letter){
+  if(quizSessionSubmitted) return;
+  var q=quizCurrentQuestions[quizSessionIdx];
+  var isSelectAll=q.type==='select_all';
+  if(isSelectAll){
+    var i=quizSessionSelected.indexOf(letter);
+    if(i>-1){quizSessionSelected.splice(i,1);el.classList.remove('selected');}
+    else{quizSessionSelected.push(letter);el.classList.add('selected');}
+  } else {
+    document.querySelectorAll('.qq-opt').forEach(function(o){o.classList.remove('selected');});
+    quizSessionSelected=[letter];
+    el.classList.add('selected');
+  }
+  var sub=document.getElementById('qq-submit');
+  if(sub) sub.disabled=quizSessionSelected.length===0;
+}
+
+function isAnswerCorrect(selected,correct,type){
+  if(type==='select_all')
+    return selected.slice().sort().join(',')===correct.slice().sort().join(',');
+  return selected.length===1&&correct.indexOf(selected[0])>-1;
+}
+
+function submitQuizAnswer(){
+  if(quizSessionSubmitted) return;
+  quizSessionSubmitted=true;
+  var q=quizCurrentQuestions[quizSessionIdx];
+  var correct=Array.isArray(q.correct)?q.correct:[q.correct];
+  var ok=isAnswerCorrect(quizSessionSelected,correct,q.type);
+
+  quizSessionResults.push({question:q,selected:quizSessionSelected.slice(),correct:correct,isCorrect:ok});
+
+  /* save attempt */
+  if(currentUser&&q.id){
+    sbFetch('/rest/v1/quiz_attempts',{
+      method:'POST',
+      body:JSON.stringify({user_id:currentUser.id,question_id:q.id,
+        objective_id:quizCurrentObjId,user_answer:quizSessionSelected,
+        is_correct:ok,session_id:quizSessionId}),
+      headers:getAuthHdr()
+    }).catch(function(e){console.warn('save attempt:',e);});
+  }
+
+  /* colour options */
+  document.querySelectorAll('.qq-opt').forEach(function(btn){
+    btn.disabled=true;
+    var lt=btn.dataset.letter;
+    var wasSel=quizSessionSelected.indexOf(lt)>-1;
+    var isCorr=correct.indexOf(lt)>-1;
+    btn.classList.remove('selected');
+    if(isCorr&&wasSel) btn.classList.add('correct');
+    else if(!isCorr&&wasSel) btn.classList.add('wrong');
+    else if(isCorr&&!wasSel) btn.classList.add('missed');
+  });
+
+  /* explanation */
+  var expl=document.getElementById('qq-explanation');
+  var iconStyle=ok?'color:var(--got)':'color:var(--missed)';
+  var iconText=ok?'\u2713 Correct!':'\u2717 Incorrect';
+  expl.style.display='block';
+  expl.innerHTML='<div class="qq-expl-label" style="'+iconStyle+'">'+iconText+'</div>'+escHtml(q.explanation);
+
+  /* swap buttons */
+  var sub=document.getElementById('qq-submit');
+  if(sub) sub.style.display='none';
+  var nxt=document.getElementById('qq-next');
+  if(nxt){
+    nxt.style.display='block';
+    var isLast=quizSessionIdx>=quizCurrentQuestions.length-1;
+    nxt.textContent=isLast?'See Results':'Next Question \u2192';
+  }
+}
+
+function quizNext(){
+  var isLast=quizSessionIdx>=quizCurrentQuestions.length-1;
+  if(isLast) showQuizResults();
+  else{quizSessionIdx++;renderQuizQuestion();}
+}
+
+function showQuizResults(){
+  /* Step 5 — placeholder */
+  showToast('Results screen coming in step 5!');
 }
 
 function getStudyGuideText(objId){
