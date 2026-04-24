@@ -394,7 +394,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;
   font-family:inherit;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
 .qp-btn:hover{opacity:.88}
-@media(max-width:600px){.qp-score{display:none}.qp-meta{display:none}}
+/* dual-score layout */
+.qp-info{flex:1;min-width:0}
+.qp-dual{font-size:12px;color:var(--text-muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.qp-dual-score{font-weight:600}
+.qp-dual-score.good{color:var(--got)}.qp-dual-score.mid{color:var(--unsure)}.qp-dual-score.bad{color:var(--missed)}.qp-dual-score.none{color:var(--text-muted)}
+.qp-insight{font-size:11px;color:var(--plum);font-style:italic}
+.qp-sep{color:var(--border)}
+@media(max-width:600px){.qp-insight{display:none}.qp-btn{padding:7px 10px;font-size:11px}}
 
 /* ── QUIZ SESSION ── */
 .qs-wrap{max-width:680px;margin:0 auto;padding:28px 20px 80px}
@@ -1844,11 +1851,17 @@ function switchCourse(course){
   lsClear();
   /* re-render sidebar for current page */
   renderCtx(currentPage);
+  /* reset quiz state for new course */
+  quizLoaded=false; quizQCounts={}; quizScores={};
+  quizFcCards=[]; quizFcMastery={};
+  showQuizPicker();
   /* if on practice page, reload cards for new course */
   if(currentPage==='practice'){
     loadMastery();
     fetchDeck('');
   }
+  /* if on quiz page, reload objectives for new course */
+  if(currentPage==='quiz') initQuiz();
 }
 
 function showToast(msg){
@@ -1861,8 +1874,10 @@ function showToast(msg){
    QUIZ SYSTEM
 ══════════════════════════════════════════ */
 var quizLoaded=false;
-var quizQCounts={}; /* objective_id → question count */
-var quizScores={};  /* objective_id → {correct, total} */
+var quizQCounts={};   /* objective_id → question count */
+var quizScores={};    /* objective_id → {correct, total} from quiz_attempts */
+var quizFcCards=[];   /* [{id, objective_ids}] for current course */
+var quizFcMastery={}; /* card_id → last result from card_attempts */
 
 function initQuiz(){
   if(quizLoaded) return;
@@ -1892,10 +1907,38 @@ function initQuiz(){
     }).catch(function(e){console.warn('quiz scores:',e);});
   }
 
-  Promise.all([p1,p2]).then(function(){
+  /* p3: flashcard metadata for dual-score dashboard */
+  var p3=sbFetch('/rest/v1/flashcards?select=id,objective_ids&course=eq.'+currentCourse)
+    .then(function(r){return r.json();})
+    .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
+    .catch(function(e){console.warn('quiz fc cards:',e);});
+
+  /* p4: card_attempts for flashcard mastery pct */
+  var p4=Promise.resolve();
+  if(currentUser){
+    p4=sbFetch('/rest/v1/card_attempts?select=card_id,result&user_id=eq.'+currentUser.id+'&order=id.asc')
+      .then(function(r){return r.json();})
+      .then(function(data){
+        quizFcMastery={};
+        if(Array.isArray(data)) data.forEach(function(a){quizFcMastery[a.card_id]=a.result;});
+      }).catch(function(e){console.warn('quiz fc mastery:',e);});
+  }
+
+  Promise.all([p1,p2,p3,p4]).then(function(){
     renderQuizPicker();
     renderQuizSidebar();
   });
+}
+
+function getQuizFcPct(objId){
+  var cards=quizFcCards.filter(function(c){
+    var pre=(c.objective_ids&&c.objective_ids.length)
+      ?c.objective_ids[0].replace(/_\d+$/,''):'';
+    return pre===objId;
+  });
+  if(!cards.length) return -1;
+  var got=cards.filter(function(c){return quizFcMastery[c.id]==='got_it';}).length;
+  return Math.round(got/cards.length*100);
 }
 
 function renderQuizPicker(){
@@ -1905,17 +1948,32 @@ function renderQuizPicker(){
   var h='';
   Object.keys(og).forEach(function(key){
     var cnt=quizQCounts[key]||0;
+    /* quiz mastery */
     var sc=quizScores[key];
-    var pct=sc?Math.round(sc.correct/sc.total*100):-1;
-    var dotCls=sc?(pct>=80?'good':pct>=50?'mid':'bad'):'';
-    var scoreCls=sc?(pct>=80?'good':pct>=50?'mid':'bad'):'none';
-    var scoreText=sc?sc.correct+'/'+sc.total+' ('+pct+'%)':'Not attempted';
+    var qPct=sc?Math.round(sc.correct/sc.total*100):-1;
+    var dotCls=sc?(qPct>=80?'good':qPct>=50?'mid':'bad'):'';
+    var qCls=sc?(qPct>=80?'good':qPct>=50?'mid':'bad'):'none';
+    var qText=sc?sc.correct+'/'+sc.total+' ('+qPct+'%)':'Not attempted';
+    /* flashcard mastery */
+    var fcPct=getQuizFcPct(key);
+    var fcCls=fcPct<0?'none':(fcPct>=80?'good':fcPct>=50?'mid':'bad');
+    var fcText=fcPct>=0?fcPct+'%':'–';
+    /* insight: high cards, low quiz */
+    var insight=(fcPct>=70&&(qPct<60||qPct===-1))
+      ?'<span class="qp-insight">\u2191 knows facts \u2014 practice application</span>':'';
+    var btnLabel=cnt?'Start Quiz ('+cnt+')':'Generate Quiz';
     h+='<div class="qp-row">'
       +'<span class="qp-dot '+dotCls+'"></span>'
-      +'<span class="qp-name">'+og[key]+'</span>'
-      +'<span class="qp-meta">'+cnt+' question'+(cnt===1?'':'s')+'</span>'
-      +'<span class="qp-score '+scoreCls+'">'+scoreText+'</span>'
-      +'<button class="qp-btn" onclick="startQuiz(\''+key+'\')">Start Quiz</button>'
+      +'<div class="qp-info">'
+      +'<div class="qp-name">'+og[key]+'</div>'
+      +'<div class="qp-dual">'
+      +'<span class="qp-dual-score '+fcCls+'">\ud83c\udccf Cards: '+fcText+'</span>'
+      +'<span class="qp-sep">\u00b7</span>'
+      +'<span class="qp-dual-score '+qCls+'">\ud83d\udcdd Quiz: '+qText+'</span>'
+      +insight
+      +'</div>'
+      +'</div>'
+      +'<button class="qp-btn" onclick="startQuiz(\''+key+'\')">'+btnLabel+'</button>'
       +'</div>';
   });
   body.innerHTML=h||'<div style="padding:40px;text-align:center;color:var(--text-muted)">No objectives found.</div>';
@@ -1923,21 +1981,26 @@ function renderQuizPicker(){
 
 function renderQuizSidebar(){
   var ctx=document.getElementById('sidebar-context');
-  if(!ctx) return;
+  if(!ctx||currentPage!=='quiz') return;
   var og=getObjGroups();
-  var h='<div class="ctx-label">Objectives</div>';
+  var h='<div class="ctx-label">Quiz Mastery</div>';
   Object.keys(og).forEach(function(key){
     var sc=quizScores[key];
     var pct=sc?Math.round(sc.correct/sc.total*100):-1;
     var dotColor=sc?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
-    var label=sc?sc.correct+'/'+sc.total:'–';
-    h+='<button class="section-link" onclick="goTo(\'quiz\')">'
+    var label=sc?pct+'%':'–';
+    h+='<button class="section-link" onclick="startQuizFromSidebar(\''+key+'\')">'
       +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
       +'<span class="sl-text">'+og[key]+'</span>'
       +'<span class="sl-sub">'+label+'</span>'
       +'</button>';
   });
   ctx.innerHTML=h;
+}
+
+function startQuizFromSidebar(key){
+  if(currentPage!=='quiz') goTo('quiz');
+  startQuiz(key);
 }
 
 /* ── QUIZ STEP 3: QUESTION LOADER ── */
