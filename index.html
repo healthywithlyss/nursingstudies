@@ -1959,6 +1959,7 @@ var QUIZ_SECTION_MAP={
 };
 
 function startQuiz(objId){
+  quizIsTargeted=false;
   quizCurrentObjId=objId;
   showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
     +'<div class="qs-load-msg">Loading questions\u2026</div></div>');
@@ -2059,6 +2060,8 @@ var quizSessionSelected=[];
 var quizSessionSubmitted=false;
 var quizSessionResults=[];
 var quizSessionId='';
+var quizIsTargeted=false;
+var quizMissedResults=[];
 
 var QQ_TYPE_LABEL={
   multiple_choice:'Multiple Choice',
@@ -2201,8 +2204,10 @@ function submitQuizAnswer(){
 
 function quizNext(){
   var isLast=quizSessionIdx>=quizCurrentQuestions.length-1;
-  if(isLast) showQuizResults();
-  else{quizSessionIdx++;renderQuizQuestion();}
+  if(isLast){
+    if(quizIsTargeted) showTargetedResults();
+    else showQuizResults();
+  } else {quizSessionIdx++;renderQuizQuestion();}
 }
 
 /* ── QUIZ STEP 5: RESULTS SCREEN ── */
@@ -2269,13 +2274,126 @@ function showQuizResults(){
 }
 
 function retakeFullQuiz(){
-  /* reload full question set from Supabase and restart */
+  quizIsTargeted=false;
   loadQuizForObj(quizCurrentObjId);
 }
 
+/* ── QUIZ STEP 6: TARGETED FOLLOW-UP ── */
 function startTargetedReview(){
-  /* Step 6 — placeholder */
-  showToast('Targeted review coming in step 6!');
+  quizIsTargeted=true;
+  quizMissedResults=quizSessionResults.filter(function(r){return !r.isCorrect;});
+  if(!quizMissedResults.length){showQuizPicker();return;}
+  showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+    +'<div class="qs-load-msg">Loading targeted questions\u2026</div></div>');
+  loadTargetedQuestions();
+}
+
+function loadTargetedQuestions(){
+  var facts=quizMissedResults.map(function(r){return r.question.fact_tested;}).filter(Boolean);
+  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=eq.'+quizCurrentObjId+'&is_targeted=eq.true')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var existing=Array.isArray(data)?data:[];
+      /* keep only questions whose fact_tested overlaps the missed facts */
+      var relevant=facts.length
+        ? existing.filter(function(q){return facts.indexOf(q.fact_tested)>-1;})
+        : existing;
+      /* need at least as many questions as missed facts */
+      if(relevant.length>=quizMissedResults.length){
+        quizCurrentQuestions=relevant;
+        beginQuizSession();
+      } else {
+        showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+          +'<div class="qs-load-msg">Generating targeted questions\u2026<br>'
+          +'<small style="font-size:12px">Focusing on what you missed.</small></div></div>');
+        generateTargetedQuestions();
+      }
+    })
+    .catch(function(e){showQsError('Error loading targeted questions: '+e.message);});
+}
+
+function generateTargetedQuestions(){
+  var guideText=getStudyGuideText(quizCurrentObjId);
+  var missedFacts=quizMissedResults.map(function(r){
+    var correctText=r.correct.map(function(letter){
+      var found=letter;
+      (r.question.options||[]).forEach(function(o){if(o.charAt(0)===letter) found=o;});
+      return found;
+    }).join(', ');
+    return 'Question: '+r.question.stem
+      +'\nCorrect answer: '+correctText
+      +'\nExplanation: '+r.question.explanation;
+  }).join('\n\n---\n\n');
+
+  callGemini(buildTargetedPrompt(guideText,missedFacts))
+    .then(function(parsed){
+      if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
+        throw new Error('Gemini returned no targeted questions.');
+      var rows=parsed.questions.map(function(q){
+        return {objective_id:quizCurrentObjId,type:q.type,stem:q.stem,
+          options:q.options,correct:q.correct,explanation:q.explanation,
+          fact_tested:q.fact_tested||null,is_targeted:true};
+      });
+      return sbFetch('/rest/v1/quiz_questions',{
+        method:'POST',body:JSON.stringify(rows),
+        headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
+      }).then(function(r){return r.json();})
+        .then(function(saved){
+          quizCurrentQuestions=Array.isArray(saved)&&saved.length?saved:rows;
+          beginQuizSession();
+        });
+    })
+    .catch(function(e){
+      console.error('generateTargeted:',e);
+      showQsError('Could not generate targeted questions: '+(e.message||'Unknown error'));
+    });
+}
+
+function buildTargetedPrompt(guideText,missedFacts){
+  return 'You are an NCLEX exam writer for nursing students.\n\n'
+    +'STRICT RULE: Use ONLY the study guide content provided. No outside facts.\n\n'
+    +'STUDY GUIDE CONTENT:\n'+(guideText||'(see missed facts below)')+'\n\n'
+    +'The student got these questions wrong:\nMISSED FACTS:\n'+missedFacts+'\n\n'
+    +'TASK:\n'
+    +'Generate new questions targeting ONLY these missed facts.\n'
+    +'Each missed fact should appear in at least 2 new questions.\n'
+    +'Use different clinical scenarios than the original questions.\n'
+    +'Use different question types than the ones the student got wrong.\n\n'
+    +'Same JSON format:\n'
+    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. text","B. text","C. text","D. text"],"correct":["B"],"explanation":"B is correct because...","fact_tested":"which flashcard fact"}]}';
+}
+
+function showTargetedResults(){
+  var total=quizSessionResults.length;
+  var numCorrect=quizSessionResults.filter(function(r){return r.isCorrect;}).length;
+  var pct=total?Math.round(numCorrect/total*100):0;
+  var isPerfect=pct===100;
+  var scoreCls=pct>=80?'good':pct>=60?'mid':'bad';
+  var stillMissed=quizSessionResults.filter(function(r){return !r.isCorrect;});
+
+  /* persist scores */
+  if(!quizScores[quizCurrentObjId]) quizScores[quizCurrentObjId]={correct:0,total:0};
+  quizScores[quizCurrentObjId].correct+=numCorrect;
+  quizScores[quizCurrentObjId].total+=total;
+  renderQuizSidebar();
+
+  var actionsHtml='<div class="qr-actions">';
+  if(!isPerfect&&stillMissed.length)
+    actionsHtml+='<button class="qr-btn qr-btn-primary" onclick="startTargetedReview()">Another Round</button>';
+  actionsHtml+='<button class="qr-btn qr-btn-secondary" onclick="retakeFullQuiz()">Full Quiz</button>'
+    +'<button class="qr-btn qr-btn-ghost" onclick="showQuizPicker()">\u2190 Back</button>'
+    +'</div>';
+
+  showQuizSession(
+    (isPerfect?'<div style="text-align:center;font-size:40px;margin-bottom:4px">\ud83c\udf89</div>':'')
+    +'<div class="qr-score-card">'
+    +'<div class="qr-card-title">Targeted Review Complete</div>'
+    +'<div class="qr-pct '+scoreCls+'">'+pct+'%</div>'
+    +'<div class="qr-fraction">'+numCorrect+' / '+total+' correct'
+    +(isPerfect?' \u2014 All correct! \u2713':'')+'</div>'
+    +'</div>'
+    +actionsHtml
+  );
 }
 
 function getStudyGuideText(objId){
