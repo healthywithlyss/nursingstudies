@@ -775,9 +775,67 @@ function renderCtx(page){
     ctx.innerHTML=h;
     initScrollSpy();
   } else {
+    renderSidebarObjList();
+  }
+}
+
+function renderSidebarObjList(){
+  var ctx=document.getElementById('sidebar-context');
+  if(!ctx||currentPage!=='practice') return;
+
+  if(!fcAllCards.length){
     ctx.innerHTML='<div class="ctx-label">Objectives</div>'
       +'<div style="padding:12px 16px;color:rgba(255,255,255,.3);font-size:12px">Loading\u2026</div>';
+    return;
   }
+
+  /* build per-prefix mastery stats from session results */
+  var groups={};
+  fcAllCards.forEach(function(c){
+    var prefix=(c.objective_ids&&c.objective_ids.length)
+      ? c.objective_ids[0].replace(/_\d+$/,'') : 'other';
+    if(!groups[prefix]) groups[prefix]={total:0,got:0,attempted:0};
+    groups[prefix].total++;
+    if(fcPass1Results.got_it.indexOf(c.id)>-1){groups[prefix].got++;groups[prefix].attempted++;}
+    else if(fcPass1Results.unsure.indexOf(c.id)>-1) groups[prefix].attempted++;
+    else if(fcPass1Results.missed.indexOf(c.id)>-1) groups[prefix].attempted++;
+  });
+
+  var h='<div class="ctx-label">Objectives</div>';
+
+  /* All Cards */
+  var allActive=fcCurrentFilter===''?' active':'';
+  h+='<button class="section-link'+allActive+'" onclick="goToAndFilter(\'\')">'
+    +'<span class="dot" style="opacity:1;background:var(--accent)"></span>'
+    +'<span class="sl-text">All Cards</span>'
+    +'<span class="sl-sub">'+fcAllCards.length+'</span>'
+    +'</button>';
+
+  /* Per-lecture rows in spec order */
+  Object.keys(OBJ_GROUPS).forEach(function(key){
+    var g=groups[key]; if(!g) return;
+    var pct=g.total?Math.round(g.got/g.total*100):0;
+    var dotColor=g.attempted===0?'rgba(255,255,255,.18)'
+      :pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
+    var isActive=fcCurrentFilter===key?' active':'';
+    h+='<button class="section-link'+isActive+'" onclick="goToAndFilter(\''+key+'\')">'
+      +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
+      +'<span class="sl-text">'+OBJ_GROUPS[key]+'</span>'
+      +'<span class="sl-sub">'+g.got+'/'+g.total+'</span>'
+      +'</button>';
+  });
+
+  ctx.innerHTML=h;
+
+  /* sidebar footer: session counter */
+  var rated=fcPass1Results.got_it.length+fcPass1Results.unsure.length+fcPass1Results.missed.length;
+  var footer=document.getElementById('session-counter');
+  if(footer) footer.textContent=rated>0?'Session: '+rated+' rated':'';
+}
+
+function goToAndFilter(key){
+  if(currentPage!=='practice') goTo('practice');
+  else fcFilterByObj(key);
 }
 
 function scrollToSec(id){
@@ -868,6 +926,7 @@ function fetchDeck(filter){
       if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found for this filter.');return;}
       fcAllCards=data;
       startPass1(data);
+      renderSidebarObjList();
     })
     .catch(function(e){console.error(e);fcSetEmpty('Could not load cards — check connection.');});
 }
@@ -981,6 +1040,7 @@ function updateStats(){
   var info=document.getElementById('prog-deck-info');
   if(info) info.textContent=fcDeck.length+' card'+(fcDeck.length!==1?'s':'')+' in deck';
   renderObjBars();
+  renderSidebarObjList();
 }
 
 /* ── objective progress bars ── */
