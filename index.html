@@ -860,16 +860,16 @@ function renderSidebarObjList(){
     return;
   }
 
-  /* build per-prefix mastery stats from session results */
+  /* build per-prefix mastery stats from Supabase-backed fcMasteryMap */
   var groups={};
   fcAllCards.forEach(function(c){
     var prefix=(c.objective_ids&&c.objective_ids.length)
       ? c.objective_ids[0].replace(/_\d+$/,'') : 'other';
     if(!groups[prefix]) groups[prefix]={total:0,got:0,attempted:0};
     groups[prefix].total++;
-    if(fcPass1Results.got_it.indexOf(c.id)>-1){groups[prefix].got++;groups[prefix].attempted++;}
-    else if(fcPass1Results.unsure.indexOf(c.id)>-1) groups[prefix].attempted++;
-    else if(fcPass1Results.missed.indexOf(c.id)>-1) groups[prefix].attempted++;
+    var r=fcMasteryMap[c.id];
+    if(r==='got_it'){groups[prefix].got++;groups[prefix].attempted++;}
+    else if(r==='unsure'||r==='missed') groups[prefix].attempted++;
   });
 
   var h='<div class="ctx-label">Objectives</div>';
@@ -898,10 +898,10 @@ function renderSidebarObjList(){
 
   ctx.innerHTML=h;
 
-  /* sidebar footer: session counter */
-  var rated=fcPass1Results.got_it.length+fcPass1Results.unsure.length+fcPass1Results.missed.length;
+  /* sidebar footer: lifetime cards rated */
+  var rated=Object.keys(fcMasteryMap).length;
   var footer=document.getElementById('session-counter');
-  if(footer) footer.textContent=rated>0?'Session: '+rated+' rated':'';
+  if(footer) footer.textContent=rated>0?rated+' cards rated':'';
 }
 
 function goToAndFilter(key){
@@ -1044,6 +1044,7 @@ var fcDeck=[],fcAllCards=[],fcIdx=0,fcFlipped=false,fcPass=1;
 var fcStats={got_it:0,unsure:0,missed:0};
 var fcPass1Results={got_it:[],unsure:[],missed:[]};
 var fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
+var fcMasteryMap={};   /* card_id → most-recent result across all sessions */
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
@@ -1079,9 +1080,25 @@ function lsLoad(){
 }
 function lsClear(){try{localStorage.removeItem(getLsKey());}catch(e){}}
 
+/* ── mastery loading ── */
+function loadMastery(){
+  if(!currentUser) return;
+  sbFetch('/rest/v1/card_attempts?select=card_id,result&user_id=eq.'+currentUser.id+'&order=id.asc')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)) return;
+      /* walk ascending — last write per card_id = most recent attempt */
+      data.forEach(function(a){ fcMasteryMap[a.card_id]=a.result; });
+      renderObjBars();
+      renderSidebarObjList();
+    })
+    .catch(function(e){console.warn('mastery load:',e);});
+}
+
 /* ── init ── */
 function initPractice(){
   if(fcLoaded) return;
+  loadMastery();
   var saved=lsLoad();
   if(saved&&Array.isArray(saved.allCards)&&saved.allCards.length){
     showResumeBanner(saved);
@@ -1204,6 +1221,7 @@ function fcRate(result){
   fcStats[result]=(fcStats[result]||0)+1;
   if(fcPass===1) fcPass1Results[result].push(c.id);
   fcCurrentPassResults[result].push(c.id);
+  fcMasteryMap[c.id]=result;   /* optimistic live update */
   updateStats();
   sbFetch('/rest/v1/card_attempts',{
     method:'POST',
@@ -1237,9 +1255,10 @@ function renderObjBars(){
     var prefix=oids.length?oids[0].replace(/_\d+$/,''):'other';
     if(!groups[prefix]) groups[prefix]={total:0,got:0,unsure:0,missed:0,ids:[]};
     groups[prefix].total++; groups[prefix].ids.push(c.id);
-    if(fcPass1Results.got_it.indexOf(c.id)>-1) groups[prefix].got++;
-    else if(fcPass1Results.unsure.indexOf(c.id)>-1) groups[prefix].unsure++;
-    else if(fcPass1Results.missed.indexOf(c.id)>-1) groups[prefix].missed++;
+    var r=fcMasteryMap[c.id];
+    if(r==='got_it') groups[prefix].got++;
+    else if(r==='unsure') groups[prefix].unsure++;
+    else if(r==='missed') groups[prefix].missed++;
   });
   var html='<div class="prog-obj-item'+(fcCurrentFilter===''?' active':'')+'" onclick="fcFilterByObj(\'\')">'
     +'<div class="prog-obj-item-top">'
