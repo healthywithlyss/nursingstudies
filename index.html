@@ -372,6 +372,29 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .prog-obj-list{max-height:220px}
   .fc-summary-panel{padding:16px}
 }
+
+/* ── QUIZ PICKER ── */
+.qp-wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px}
+.qp-header{margin-bottom:24px}
+.qp-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
+.qp-subtitle{font-size:14px;color:var(--text-muted)}
+.qp-row{display:flex;align-items:center;gap:12px;background:var(--surface);
+  border-radius:var(--r-card);padding:14px 16px;margin-bottom:8px;
+  border:1px solid var(--border);box-shadow:var(--shadow)}
+.qp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  background:rgba(0,0,0,.12)}
+.qp-dot.good{background:var(--got)}
+.qp-dot.mid{background:var(--unsure)}
+.qp-dot.bad{background:var(--missed)}
+.qp-name{flex:1;font-size:14px;font-weight:600;color:var(--text)}
+.qp-meta{font-size:12px;color:var(--text-muted);white-space:nowrap}
+.qp-score{font-size:12px;font-weight:600;white-space:nowrap;min-width:90px;text-align:right}
+.qp-score.good{color:var(--got)}.qp-score.mid{color:var(--unsure)}.qp-score.bad{color:var(--missed)}.qp-score.none{color:var(--text-muted)}
+.qp-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--r-btn);
+  padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+.qp-btn:hover{opacity:.88}
+@media(max-width:600px){.qp-score{display:none}.qp-meta{display:none}}
 </style>
 </head>
 <body>
@@ -416,6 +439,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-practice" onclick="goTo('practice')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 2v4M8 2v4M2 10h20"/></svg>
         Practice
+      </button>
+      <button class="nav-item" id="nav-quiz" onclick="goTo('quiz')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Quiz
       </button>
     </nav>
     <div class="sidebar-divider"></div>
@@ -947,6 +974,19 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       </div>
     </div>
 
+    <!-- ══════════════ QUIZ PAGE ══════════════ -->
+    <div id="page-quiz" class="page">
+      <div class="qp-wrap">
+        <div class="qp-header">
+          <h2 class="qp-title">Quiz</h2>
+          <p class="qp-subtitle">NCLEX-style application questions — select an objective to begin</p>
+        </div>
+        <div id="qp-body">
+          <div style="padding:40px;text-align:center;color:var(--text-muted)">Loading objectives&#8230;</div>
+        </div>
+      </div>
+    </div><!-- /page-quiz -->
+
   </main>
 </div>
 
@@ -958,6 +998,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-practice" onclick="goTo('practice')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 2v4M8 2v4M2 10h20"/></svg>
     Practice
+  </button>
+  <button class="bnav-btn" id="bnav-quiz" onclick="goTo('quiz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Quiz
   </button>
 </div>
 
@@ -1006,6 +1050,7 @@ function goTo(page){
   renderCtx(page);
   document.getElementById('main-content').scrollTop=0;
   if(page==='practice') initPractice();
+  if(page==='quiz') initQuiz();
 }
 
 function renderCtx(page){
@@ -1021,6 +1066,8 @@ function renderCtx(page){
     });
     ctx.innerHTML=h;
     initScrollSpy();
+  } else if(page==='quiz'){
+    renderQuizSidebar();
   } else {
     renderSidebarObjList();
   }
@@ -1710,6 +1757,93 @@ function showToast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+/* ══════════════════════════════════════════
+   QUIZ SYSTEM
+══════════════════════════════════════════ */
+var quizLoaded=false;
+var quizQCounts={}; /* objective_id → question count */
+var quizScores={};  /* objective_id → {correct, total} */
+
+function initQuiz(){
+  if(quizLoaded) return;
+  quizLoaded=true; /* mark early to prevent double-load */
+  var og=getObjGroups();
+  var keys=Object.keys(og);
+  /* Supabase: count questions per objective for this course's keys */
+  var qUrl='/rest/v1/quiz_questions?select=objective_id'
+    +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')';
+  var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
+    quizQCounts={};
+    if(Array.isArray(data)) data.forEach(function(q){
+      quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
+    });
+  }).catch(function(e){console.warn('quiz counts:',e);});
+
+  var p2=Promise.resolve();
+  if(currentUser){
+    var aUrl='/rest/v1/quiz_attempts?select=objective_id,is_correct&user_id=eq.'+currentUser.id;
+    p2=sbFetch(aUrl).then(function(r){return r.json();}).then(function(data){
+      quizScores={};
+      if(Array.isArray(data)) data.forEach(function(a){
+        if(!quizScores[a.objective_id]) quizScores[a.objective_id]={correct:0,total:0};
+        quizScores[a.objective_id].total++;
+        if(a.is_correct) quizScores[a.objective_id].correct++;
+      });
+    }).catch(function(e){console.warn('quiz scores:',e);});
+  }
+
+  Promise.all([p1,p2]).then(function(){
+    renderQuizPicker();
+    renderQuizSidebar();
+  });
+}
+
+function renderQuizPicker(){
+  var body=document.getElementById('qp-body');
+  if(!body) return;
+  var og=getObjGroups();
+  var h='';
+  Object.keys(og).forEach(function(key){
+    var cnt=quizQCounts[key]||0;
+    var sc=quizScores[key];
+    var pct=sc?Math.round(sc.correct/sc.total*100):-1;
+    var dotCls=sc?(pct>=80?'good':pct>=50?'mid':'bad'):'';
+    var scoreCls=sc?(pct>=80?'good':pct>=50?'mid':'bad'):'none';
+    var scoreText=sc?sc.correct+'/'+sc.total+' ('+pct+'%)':'Not attempted';
+    h+='<div class="qp-row">'
+      +'<span class="qp-dot '+dotCls+'"></span>'
+      +'<span class="qp-name">'+og[key]+'</span>'
+      +'<span class="qp-meta">'+cnt+' question'+(cnt===1?'':'s')+'</span>'
+      +'<span class="qp-score '+scoreCls+'">'+scoreText+'</span>'
+      +'<button class="qp-btn" onclick="startQuiz(\''+key+'\')">Start Quiz</button>'
+      +'</div>';
+  });
+  body.innerHTML=h||'<div style="padding:40px;text-align:center;color:var(--text-muted)">No objectives found.</div>';
+}
+
+function renderQuizSidebar(){
+  var ctx=document.getElementById('sidebar-context');
+  if(!ctx) return;
+  var og=getObjGroups();
+  var h='<div class="ctx-label">Objectives</div>';
+  Object.keys(og).forEach(function(key){
+    var sc=quizScores[key];
+    var pct=sc?Math.round(sc.correct/sc.total*100):-1;
+    var dotColor=sc?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
+    var label=sc?sc.correct+'/'+sc.total:'–';
+    h+='<button class="section-link" onclick="goTo(\'quiz\')">'
+      +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
+      +'<span class="sl-text">'+og[key]+'</span>'
+      +'<span class="sl-sub">'+label+'</span>'
+      +'</button>';
+  });
+  ctx.innerHTML=h;
+}
+
+function startQuiz(objId){
+  showToast('Quiz engine coming soon \u2014 step 3!');
 }
 
 initApp();
