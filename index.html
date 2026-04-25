@@ -1409,9 +1409,16 @@ async function initApp(){
   }
   sb.auth.onAuthStateChange(function(event,session){
     if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session){
+      var prevUserId=currentUser?currentUser.id:null;
       currentUser=session.user;
       currentToken=session.access_token;
-      fcLoaded=false;fcAllCards=[];fcDeck=[];
+      /* Only reset practice state when the user actually changes.
+         TOKEN_REFRESHED fires every ~hour for the same user — resetting
+         fcDeck/fcLoaded there would silently break ongoing card sessions
+         because fcRate() guards on !fcDeck.length and returns early. */
+      if(prevUserId!==session.user.id){
+        fcLoaded=false;fcAllCards=[];fcDeck=[];
+      }
       showApp();
     } else if(event==='PASSWORD_RECOVERY'){
       /* user clicked reset link — show auth screen so they can set new password */
@@ -1662,8 +1669,12 @@ function startPass1(cards){
 
 function fcStartNextPass(){
   var src=fcPass===1?fcPass1Results:fcCurrentPassResults;
-  var missed=fcAllCards.filter(function(c){return src.missed.indexOf(c.id)>-1;});
-  var unsure=fcAllCards.filter(function(c){return src.unsure.indexOf(c.id)>-1;});
+  /* Always exclude already-mastered cards from the next pass — they may be
+     in src.unsure/missed from a resumed session that pre-populated the arrays
+     with old data, or from a card that got mastered mid-pass. */
+  function notMastered(c){ return !(fcMasteryData[c.id]&&fcMasteryData[c.id].is_mastered); }
+  var missed=fcAllCards.filter(function(c){return src.missed.indexOf(c.id)>-1;}).filter(notMastered);
+  var unsure=fcAllCards.filter(function(c){return src.unsure.indexOf(c.id)>-1;}).filter(notMastered);
   if(!missed.length&&!unsure.length){showFinalSummary();return;}
   /* missed cards always come FIRST regardless of shuffle */
   var mArr=fcShuffleOn?shuffleArr(missed.slice()):missed;
@@ -1723,10 +1734,11 @@ function showCard(idx){
   var c=fcDeck[idx];
   resetCardShell();
   document.getElementById('fc-card-text').textContent=c.question;
-  /* show prior result from Supabase history */
+  /* show prior result badge only on Pass 2+ — Pass 1 is a clean slate
+     even if fcMasteryMap has data from previous sessions */
   var prior=fcMasteryMap[c.id];
   var hist=document.getElementById('fc-history');
-  if(hist&&prior){
+  if(hist&&prior&&fcPass>1){
     var LABELS={got_it:'\u2713 Got it',unsure:'\u2248 Unsure',missed:'\u2717 Missed'};
     var CLASSES={got_it:'got',unsure:'unsure',missed:'missed'};
     hist.className='fc-history '+CLASSES[prior]+' show';
@@ -1807,7 +1819,16 @@ function fcRate(result){
   if(result==='got_it'&&!newMastery.is_mastered) passResult='unsure';
   fcLastAction.passResult=passResult; /* save for undo */
 
-  if(fcPass===1) fcPass1Results[passResult].push(c.id);
+  if(fcPass===1){
+    /* Remove from every bucket first so a card never lives in two buckets
+       simultaneously (critical on resume, where old session IDs pre-populate
+       fcPass1Results and re-rating would otherwise create duplicates). */
+    ['got_it','unsure','missed'].forEach(function(b){
+      var i=fcPass1Results[b].indexOf(c.id);
+      if(i>-1) fcPass1Results[b].splice(i,1);
+    });
+    fcPass1Results[passResult].push(c.id);
+  }
   fcCurrentPassResults[passResult].push(c.id);
 
   updateStats();
