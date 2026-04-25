@@ -272,11 +272,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-history.got{background:#dcfce7;color:var(--got)}
 .fc-history.unsure{background:#fef9c3;color:#b45309}
 .fc-history.missed{background:#fee2e2;color:var(--missed)}
-/* mastery streak indicator — bottom of card */
-.fc-streak{display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
-  font-size:12px;font-weight:600;color:var(--got);letter-spacing:2px;
-  background:#dcfce7;border-radius:20px;padding:3px 12px;white-space:nowrap}
-.fc-streak.show{display:block}
+/* mastery streak indicator — below rating buttons */
+.fc-streak{display:none;font-size:12px;font-weight:600;color:var(--got);letter-spacing:1px;
+  background:#dcfce7;border-radius:20px;padding:3px 14px;white-space:nowrap;
+  display:inline-block;opacity:0}
+.fc-streak.show{display:inline-block;opacity:1}
 /* rating buttons */
 .rating-row{display:flex;gap:10px}
 .rating-btn{flex:1;padding:14px 8px;border-radius:var(--r-btn);border:none;
@@ -1081,7 +1081,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
                 <div class="fc-q-text" id="fc-card-text">Loading cards…</div>
               </div>
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
-              <div class="fc-streak" id="fc-streak"></div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
             <!-- rating buttons -->
@@ -1090,7 +1089,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <button class="rating-btn unsure" onclick="fcRate('unsure')" id="btn-unsure" disabled>&#8764; Unsure</button>
               <button class="rating-btn missed" onclick="fcRate('missed')" id="btn-missed" disabled>&#10005; Missed</button>
             </div>
-            <div style="text-align:center;margin-top:6px">
+            <!-- mastery streak indicator — sits below buttons, outside the card -->
+            <div style="text-align:center;min-height:24px;margin-top:6px">
+              <div class="fc-streak" id="fc-streak"></div>
+            </div>
+            <div style="text-align:center;margin-top:2px">
               <button id="fc-undo-btn" onclick="fcUndo()" style="display:none;background:none;border:none;
                 color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px 10px;
                 border-radius:6px;transition:background .15s"
@@ -1696,7 +1699,7 @@ function resetCardShell(){
   var hist=document.getElementById('fc-history');
   if(hist){hist.className='fc-history';hist.textContent='';}
   var streak=document.getElementById('fc-streak');
-  if(streak){streak.className='fc-streak';}
+  if(streak){streak.className='fc-streak';streak.style.background='';streak.style.color='';}
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
