@@ -401,6 +401,45 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   cursor:pointer;font-family:inherit;transition:opacity .15s;letter-spacing:.01em}
 .qb-start-btn:hover{opacity:.88}
 .qb-start-btn:disabled{opacity:.45;cursor:not-allowed}
+.qb-avail{font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center;
+  min-height:16px}
+
+/* ── QUESTION BANK ── */
+.qbank-section{margin-top:28px}
+.qbank-header{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.qbank-header-left{}
+.qbank-title{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-muted);margin-bottom:3px}
+.qbank-total{font-size:13px;color:var(--text);font-weight:600}
+.qbank-search{flex:1;min-width:160px;max-width:280px;padding:8px 12px;
+  border:1px solid var(--border);border-radius:var(--r-btn);
+  font-size:13px;font-family:inherit;background:var(--surface);
+  color:var(--text);outline:none}
+.qbank-search:focus{border-color:var(--accent);outline:2px solid rgba(79,126,248,.15)}
+.qbank-list{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);overflow:hidden}
+.qbank-row{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-bottom:1px solid var(--border);transition:background .1s;cursor:default}
+.qbank-row:last-child{border-bottom:none}
+.qbank-row:hover{background:var(--g50)}
+.qbank-stem{flex:1;font-size:13px;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.qbank-badges{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qbank-type{font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.qbank-type.mc{background:#eff6ff;color:var(--cobalt)}
+.qbank-type.sa{background:#f0fdfa;color:var(--teal)}
+.qbank-type.pr{background:var(--plum-bg);color:var(--plum)}
+.qbank-obj{font-size:11px;color:var(--text-muted);white-space:nowrap;
+  max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.qbank-acc{font-size:11px;font-weight:600;white-space:nowrap;min-width:36px;text-align:right}
+.qbank-acc.good{color:var(--got)}
+.qbank-acc.mid{color:var(--unsure)}
+.qbank-acc.bad{color:var(--missed)}
+.qbank-empty{padding:32px;text-align:center;color:var(--text-muted);font-size:13px}
+@media(max-width:540px){.qbank-obj{display:none}.qbank-search{max-width:100%;width:100%}
+  .qbank-header{flex-direction:column;align-items:flex-start}}
 
 /* trouble spots banner */
 .qp-trouble{background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-card);
@@ -1140,10 +1179,25 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <button class="qb-start-btn" id="qb-start-btn" onclick="startQuizFromBuilder()">
               Start Quiz
             </button>
+            <!-- available question count line, updated by updateBuilderSlider() -->
+            <div class="qb-avail" id="qb-avail"></div>
           </div>
 
-          <!-- body: rendered by renderQuizBuilder() — available count line, etc. -->
-          <div id="qp-body"></div>
+          <!-- question bank section, rendered by renderQuizBank() -->
+          <div class="qbank-section" id="qbank-section">
+            <div class="qbank-header">
+              <div class="qbank-header-left">
+                <div class="qbank-title">Question Bank</div>
+                <div class="qbank-total" id="qbank-total">Loading&hellip;</div>
+              </div>
+              <input class="qbank-search" id="qbank-search" type="search"
+                placeholder="Search questions&hellip;"
+                oninput="renderQuizBank()">
+            </div>
+            <div class="qbank-list" id="qbank-list">
+              <div class="qbank-empty">Loading questions&hellip;</div>
+            </div>
+          </div>
         </div>
       </div>
       <div id="quiz-session-view" style="display:none"></div>
@@ -2247,7 +2301,7 @@ function switchCourse(course){
   /* reset quiz state for new course */
   quizLoaded=false; quizQCounts={}; quizScores={};
   quizFcCards=[]; quizMasteryData={};
-  quizCardMasteryData={}; quizCourseQuestionIds=[]; quizQuestionObjMap={};
+  quizCardMasteryData={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
   troubleCardIds=[]; troubleQuestionIds=[];
   showQuizPicker();
   /* if on practice page, reload cards for new course */
@@ -2276,6 +2330,7 @@ var quizMasteryData={}; /* question_id → {consecutive_correct,is_mastered,...}
 var quizCardMasteryData={}; /* card_id → full card_mastery row (for trouble detection) */
 var quizCourseQuestionIds=[]; /* all question IDs for current course */
 var quizQuestionObjMap={}; /* question_id → objective_id */
+var quizBankQuestions=[]; /* lightweight rows: {id, objective_id, stem, type} */
 var troubleCardIds=[];   /* card IDs user consistently struggles with */
 var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
 
@@ -2292,15 +2347,18 @@ function initQuiz(){
   quizLoaded=true; /* mark early to prevent double-load */
   var og=getObjGroups();
   var keys=Object.keys(og);
-  /* p1: question IDs, counts and objective map — static, load once */
-  var qUrl='/rest/v1/quiz_questions?select=id,objective_id'
-    +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')';
+  /* p1: lightweight question list for counts, bank display, and obj map — static, load once */
+  var qUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type'
+    +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')&is_targeted=eq.false'
+    +'&order=objective_id.asc,id.asc';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
-    quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={};
+    quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
     if(Array.isArray(data)) data.forEach(function(q){
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
       quizCourseQuestionIds.push(q.id);
       quizQuestionObjMap[q.id]=q.objective_id;
+      quizBankQuestions.push({id:q.id,objective_id:q.objective_id,
+        stem:q.stem||'',type:q.type||'multiple_choice'});
     });
   }).catch(function(e){console.warn('quiz counts:',e);});
 
@@ -2463,16 +2521,14 @@ function updateBuilderSlider(){
   var slider=document.getElementById('qb-count-slider');
   var display=document.getElementById('qb-count-display');
   var btn=document.getElementById('qb-start-btn');
-  var body=document.getElementById('qp-body');
+  var avail=document.getElementById('qb-avail');
 
   if(slider){
     var maxVal=Math.max(5,available);
     slider.max=maxVal;
     slider.min=Math.min(5,available);
-    /* clamp current value to new bounds */
     var cur=parseInt(slider.value,10)||20;
     var clamped=Math.min(Math.max(cur,parseInt(slider.min,10)),maxVal);
-    /* default to 20 or max if less */
     if(cur===20||cur>maxVal) clamped=Math.min(20,maxVal);
     slider.value=clamped;
     if(display) display.textContent=clamped;
@@ -2480,18 +2536,83 @@ function updateBuilderSlider(){
 
   if(btn) btn.disabled=available===0;
 
-  /* available count line in body */
-  if(body){
+  /* small available-count hint below the Start button */
+  if(avail){
     if(available>0){
-      var label=filter?(getObjGroups()[filter]||filter)+' section':'all sections';
-      body.innerHTML='<div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">'
-        +'<strong style="color:var(--text)">'+available+'</strong> question'+(available!==1?'s':'')+' available in '+label
-        +'</div>';
+      avail.textContent=available+' question'+(available!==1?'s':'')+' available';
     } else if(quizLoaded){
-      body.innerHTML='<div style="font-size:13px;color:var(--text-muted)">'
-        +'No questions yet — click <strong>Start Quiz</strong> to generate them with AI.</div>';
+      avail.textContent='No questions yet — Start Quiz to generate with AI';
+    } else {
+      avail.textContent='';
     }
   }
+
+  /* refresh the bank list to match the new filter */
+  renderQuizBank();
+}
+
+/* renders the scrollable question bank list below the builder */
+function renderQuizBank(){
+  var sel=document.getElementById('qb-filter');
+  var searchEl=document.getElementById('qbank-search');
+  var listEl=document.getElementById('qbank-list');
+  var totalEl=document.getElementById('qbank-total');
+  if(!listEl) return;
+
+  var filter=sel?sel.value:'';
+  var query=(searchEl?searchEl.value:'').toLowerCase().trim();
+  var og=getObjGroups();
+
+  /* filter the bank */
+  var rows=quizBankQuestions.filter(function(q){
+    if(filter&&q.objective_id!==filter) return false;
+    if(query&&q.stem.toLowerCase().indexOf(query)===-1) return false;
+    return true;
+  });
+
+  if(totalEl){
+    var section=filter?(og[filter]||filter):'all sections';
+    totalEl.textContent=rows.length+' question'+(rows.length!==1?'s':'')+' \u2014 '+section;
+  }
+
+  if(!rows.length){
+    listEl.innerHTML='<div class="qbank-empty">'
+      +(quizBankQuestions.length===0?'No questions loaded yet. Start a quiz to generate questions with AI.'
+        :'No questions match your search.')
+      +'</div>';
+    return;
+  }
+
+  /* type badge helper */
+  var TYPE_LABELS={'multiple_choice':'MC','select_all':'SA','priority':'Priority'};
+  var TYPE_CLS={'multiple_choice':'mc','select_all':'sa','priority':'pr'};
+
+  var html='';
+  rows.forEach(function(q){
+    var acc='';
+    var m=quizMasteryData[q.id];
+    if(m&&(m.total_attempts||0)>0){
+      var pct=Math.round((m.total_correct||0)/m.total_attempts*100);
+      var cls=pct>=80?'good':pct>=60?'mid':'bad';
+      acc='<span class="qbank-acc '+cls+'">'+pct+'%</span>';
+    }
+    var objLabel=og[q.objective_id]||q.objective_id||'';
+    /* shorten long objective labels for the badge */
+    var shortLabel=objLabel.replace(/ \(.*\)/,'').replace(/&amp;/,'&');
+    var typeLbl=TYPE_LABELS[q.type]||'MC';
+    var typeCls=TYPE_CLS[q.type]||'mc';
+    /* truncate stem to ~120 chars */
+    var stemText=q.stem.length>120?q.stem.slice(0,118)+'\u2026':q.stem;
+    html+='<div class="qbank-row">'
+      +'<span class="qbank-stem" title="'+q.stem.replace(/"/g,'&quot;')+'">'+stemText+'</span>'
+      +'<div class="qbank-badges">'
+      +'<span class="qbank-type '+typeCls+'">'+typeLbl+'</span>'
+      +'<span class="qbank-obj">'+shortLabel+'</span>'
+      +acc
+      +'</div>'
+      +'</div>';
+  });
+  listEl.innerHTML=html;
 }
 
 /* launches a quiz from the builder — reads filter + count, hands off to loader */
@@ -2720,6 +2841,15 @@ function generateAndSaveQuestions(objId){
           var qs=Array.isArray(saved)&&saved.length?saved:rows;
           quizCurrentQuestions=qs;
           quizQCounts[objId]=qs.length;
+          /* update bank so newly-generated questions appear immediately */
+          qs.forEach(function(q){
+            if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
+              quizBankQuestions.push({id:q.id,objective_id:q.objective_id||objId,
+                stem:q.stem||'',type:q.type||'multiple_choice'});
+              quizCourseQuestionIds.push(q.id);
+              quizQuestionObjMap[q.id]=q.objective_id||objId;
+            }
+          });
           showQuestionsReady(objId,qs.length,true);
         });
     })
@@ -3197,6 +3327,15 @@ function backgroundGenerateForObj(objId){
           .then(function(saved){
             var qs=Array.isArray(saved)&&saved.length?saved:rows;
             quizQCounts[objId]=qs.length;
+            /* push into bank so the list reflects newly generated questions */
+            qs.forEach(function(q){
+              if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
+                quizBankQuestions.push({id:q.id,objective_id:q.objective_id||objId,
+                  stem:q.stem||'',type:q.type||'multiple_choice'});
+                quizCourseQuestionIds.push(q.id);
+                quizQuestionObjMap[q.id]=q.objective_id||objId;
+              }
+            });
             resolve(qs.length);
           });
       })
