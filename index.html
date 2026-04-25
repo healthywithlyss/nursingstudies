@@ -2500,21 +2500,45 @@ function buildGeminiPrompt(objName,guideText,flashText){
 }
 
 function callGemini(prompt){
-  return fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY,{
+  var model='gemini-2.0-flash';
+  var url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+GEMINI_API_KEY;
+  return fetch(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.7,maxOutputTokens:8192}
+      generationConfig:{temperature:0.7,maxOutputTokens:8192},
+      safetySettings:[
+        {category:'HARM_CATEGORY_HARASSMENT',        threshold:'BLOCK_ONLY_HIGH'},
+        {category:'HARM_CATEGORY_HATE_SPEECH',       threshold:'BLOCK_ONLY_HIGH'},
+        {category:'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold:'BLOCK_ONLY_HIGH'},
+        {category:'HARM_CATEGORY_DANGEROUS_CONTENT', threshold:'BLOCK_ONLY_HIGH'}
+      ]
     })
   })
   .then(function(r){return r.json();})
   .then(function(data){
+    /* surface API-level errors */
+    if(data.error) throw new Error('Gemini API error '+data.error.code+': '+data.error.message);
+    /* check for safety / recitation block */
+    var fb=data.promptFeedback;
+    if(fb&&fb.blockReason) throw new Error('Gemini blocked prompt: '+fb.blockReason);
     if(!data.candidates||!data.candidates[0])
-      throw new Error('Gemini returned no candidates');
-    var text=data.candidates[0].content.parts[0].text;
-    text=text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-    return JSON.parse(text);
+      throw new Error('Gemini returned no candidates (full response logged to console)');
+    var cand=data.candidates[0];
+    if(cand.finishReason&&cand.finishReason!=='STOP'&&cand.finishReason!=='MAX_TOKENS')
+      throw new Error('Gemini stopped early: '+cand.finishReason);
+    if(!cand.content||!cand.content.parts||!cand.content.parts[0])
+      throw new Error('Gemini candidate has no content');
+    var text=cand.content.parts[0].text;
+    /* strip any markdown fences Gemini sometimes adds */
+    text=text.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    try{
+      return JSON.parse(text);
+    }catch(e){
+      console.error('Gemini JSON parse failed. Raw text:\n',text);
+      throw new Error('Gemini returned invalid JSON — see console for raw output');
+    }
   });
 }
 
