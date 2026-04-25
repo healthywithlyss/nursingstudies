@@ -272,6 +272,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-history.got{background:#dcfce7;color:var(--got)}
 .fc-history.unsure{background:#fef9c3;color:#b45309}
 .fc-history.missed{background:#fee2e2;color:var(--missed)}
+/* mastery streak indicator — bottom of card */
+.fc-streak{display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  font-size:12px;font-weight:600;color:var(--got);letter-spacing:2px;
+  background:#dcfce7;border-radius:20px;padding:3px 12px;white-space:nowrap}
+.fc-streak.show{display:block}
 /* rating buttons */
 .rating-row{display:flex;gap:10px}
 .rating-btn{flex:1;padding:14px 8px;border-radius:var(--r-btn);border:none;
@@ -1061,6 +1066,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
                 <div class="fc-q-text" id="fc-card-text">Loading cards…</div>
               </div>
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
+              <div class="fc-streak" id="fc-streak"></div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
             <!-- rating buttons -->
@@ -1192,11 +1198,13 @@ function renderSidebarObjList(){
   fcAllCards.forEach(function(c){
     var prefix=(c.objective_ids&&c.objective_ids.length)
       ? c.objective_ids[0].replace(/_\d+$/,'') : 'other';
-    if(!groups[prefix]) groups[prefix]={total:0,got:0,attempted:0};
+    if(!groups[prefix]) groups[prefix]={total:0,mastered:0,attempted:0};
     groups[prefix].total++;
-    var r=fcMasteryMap[c.id];
-    if(r==='got_it'){groups[prefix].got++;groups[prefix].attempted++;}
-    else if(r==='unsure'||r==='missed') groups[prefix].attempted++;
+    var md=fcMasteryData[c.id];
+    if(md){
+      groups[prefix].attempted++;
+      if(md.is_mastered) groups[prefix].mastered++;
+    }
   });
 
   var h='<div class="ctx-label">Objectives</div>';
@@ -1213,14 +1221,14 @@ function renderSidebarObjList(){
   var og=getObjGroups();
   Object.keys(og).forEach(function(key){
     var g=groups[key]; if(!g) return;
-    var pct=g.total?Math.round(g.got/g.total*100):0;
+    var pct=g.total?Math.round(g.mastered/g.total*100):0;
     var dotColor=g.attempted===0?'rgba(255,255,255,.18)'
       :pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
     var isActive=fcCurrentFilter===key?' active':'';
     h+='<button class="section-link'+isActive+'" onclick="goToAndFilter(\''+key+'\')">'
       +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
       +'<span class="sl-text">'+og[key]+'</span>'
-      +'<span class="sl-sub">'+g.got+'/'+g.total+'</span>'
+      +'<span class="sl-sub">'+g.mastered+'/'+g.total+'</span>'
       +'</button>';
   });
 
@@ -1387,7 +1395,8 @@ var fcDeck=[],fcAllCards=[],fcIdx=0,fcFlipped=false,fcPass=1;
 var fcStats={got_it:0,unsure:0,missed:0};
 var fcPass1Results={got_it:[],unsure:[],missed:[]};
 var fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-var fcMasteryMap={};   /* card_id → most-recent result across all sessions */
+var fcMasteryMap={};   /* card_id → last_result string (for "Previously" badge) */
+var fcMasteryData={};  /* card_id → full mastery row {consecutive_correct,total_correct,total_attempts,is_mastered} */
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
@@ -1444,16 +1453,39 @@ function lsClear(){try{localStorage.removeItem(getLsKey());}catch(e){}}
 /* ── mastery loading ── */
 function loadMastery(){
   if(!currentUser) return;
-  sbFetch('/rest/v1/card_attempts?select=card_id,result&user_id=eq.'+currentUser.id+'&order=id.asc')
+  sbFetch('/rest/v1/card_mastery?select=card_id,consecutive_correct,total_correct,total_attempts,is_mastered,last_result&user_id=eq.'+currentUser.id)
     .then(function(r){return r.json();})
     .then(function(data){
       if(!Array.isArray(data)) return;
-      /* walk ascending — last write per card_id = most recent attempt */
-      data.forEach(function(a){ fcMasteryMap[a.card_id]=a.result; });
+      fcMasteryData={};
+      data.forEach(function(m){
+        fcMasteryData[m.card_id]=m;
+        fcMasteryMap[m.card_id]=m.last_result; /* for "Previously" badge */
+      });
       renderObjBars();
       renderSidebarObjList();
     })
     .catch(function(e){console.warn('mastery load:',e);});
+}
+
+/* ── mastery computation ── */
+function computeNewMastery(cardId, result){
+  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
+  var cc=result==='got_it'?(ex.consecutive_correct||0)+1:0;
+  var tc=(ex.total_correct||0)+(result==='got_it'?1:0);
+  var ta=(ex.total_attempts||0)+1;
+  return {card_id:cardId,consecutive_correct:cc,total_correct:tc,
+    total_attempts:ta,is_mastered:cc>=3,last_result:result,
+    last_attempted_at:new Date().toISOString()};
+}
+
+function upsertCardMastery(masteryRow){
+  if(!currentUser) return;
+  sbFetch('/rest/v1/card_mastery',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
+    body:JSON.stringify(Object.assign({user_id:currentUser.id},masteryRow))
+  }).catch(function(e){console.warn('card_mastery upsert:',e);});
 }
 
 /* ── init ── */
@@ -1551,6 +1583,8 @@ function resetCardShell(){
   card.style.background=''; hint.style.display='';
   var hist=document.getElementById('fc-history');
   if(hist){hist.className='fc-history';hist.textContent='';}
+  var streak=document.getElementById('fc-streak');
+  if(streak){streak.className='fc-streak';}
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
@@ -1573,6 +1607,21 @@ function showCard(idx){
     hist.className='fc-history '+CLASSES[prior]+' show';
     hist.textContent='Previously: '+LABELS[prior];
   }
+  /* mastery streak dots — show existing streak before this rating */
+  var streakEl=document.getElementById('fc-streak');
+  if(streakEl){
+    var md=fcMasteryData[c.id];
+    var cc=md?md.consecutive_correct:0;
+    if(cc>0&&cc<3){
+      var dots='';
+      for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
+      streakEl.textContent=dots+' '+cc+'/3 toward mastery';
+      streakEl.className='fc-streak show';
+    } else {
+      streakEl.className='fc-streak';
+    }
+  }
+
   var total=fcDeck.length;
   document.getElementById('fc-counter').textContent=(idx+1)+' / '+total;
   setPassBadge(fcPass);
@@ -1597,19 +1646,36 @@ function fcFlip(){
 function fcRate(result){
   if(!fcDeck.length||fcIdx>=fcDeck.length) return;
   var c=fcDeck[fcIdx];
+
+  /* compute new mastery synchronously from in-memory data */
+  var newMastery=computeNewMastery(c.id,result);
+  fcMasteryData[c.id]=newMastery;
+  fcMasteryMap[c.id]=result; /* for "Previously" badge */
+
+  /* stats display always reflects the actual button tapped */
   fcStats[result]=(fcStats[result]||0)+1;
-  if(fcPass===1) fcPass1Results[result].push(c.id);
-  fcCurrentPassResults[result].push(c.id);
-  fcMasteryMap[c.id]=result;   /* optimistic live update */
+
+  /* pass management: only retire a card when truly mastered (3 consecutive)
+     if user tapped "got it" but streak < 3 → treat as unsure so card stays in deck */
+  var passResult=result;
+  if(result==='got_it'&&!newMastery.is_mastered) passResult='unsure';
+
+  if(fcPass===1) fcPass1Results[passResult].push(c.id);
+  fcCurrentPassResults[passResult].push(c.id);
+
   updateStats();
+
+  /* async: write raw attempt log */
   sbFetch('/rest/v1/card_attempts',{
     method:'POST',
     headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr()),
-    body:JSON.stringify({
-      card_id:c.id,result:result,session_id:fcSessionId,
-      user_id:currentUser?currentUser.id:null
-    })
+    body:JSON.stringify({card_id:c.id,result:result,session_id:fcSessionId,
+      user_id:currentUser?currentUser.id:null})
   }).catch(function(e){console.warn('attempt:',e);});
+
+  /* async: upsert mastery row with streak */
+  upsertCardMastery(newMastery);
+
   fcIdx++; lsSave(); showCard(fcIdx);
 }
 
@@ -1627,17 +1693,18 @@ function updateStats(){
 function renderObjBars(){
   var el=document.getElementById('obj-list');
   if(!el||!fcAllCards.length) return;
-  /* build per-prefix stats from session results */
+  /* build per-prefix stats using card_mastery data */
   var groups={};
   fcAllCards.forEach(function(c){
     var oids=c.objective_ids||[];
     var prefix=oids.length?oids[0].replace(/_\d+$/,''):'other';
-    if(!groups[prefix]) groups[prefix]={total:0,got:0,unsure:0,missed:0,ids:[]};
+    if(!groups[prefix]) groups[prefix]={total:0,mastered:0,attempted:0,ids:[]};
     groups[prefix].total++; groups[prefix].ids.push(c.id);
-    var r=fcMasteryMap[c.id];
-    if(r==='got_it') groups[prefix].got++;
-    else if(r==='unsure') groups[prefix].unsure++;
-    else if(r==='missed') groups[prefix].missed++;
+    var md=fcMasteryData[c.id];
+    if(md){
+      groups[prefix].attempted++;
+      if(md.is_mastered) groups[prefix].mastered++;
+    }
   });
   var html='<div class="prog-obj-item'+(fcCurrentFilter===''?' active':'')+'" onclick="fcFilterByObj(\'\')">'
     +'<div class="prog-obj-item-top">'
@@ -1647,18 +1714,17 @@ function renderObjBars(){
     +'</div></div>';
   Object.keys(groups).forEach(function(key){
     var g=groups[key];
-    var attempted=g.got+g.unsure+g.missed;
-    var pct=g.total?Math.round(g.got/g.total*100):0;
-    var color=attempted===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
+    var pct=g.total?Math.round(g.mastered/g.total*100):0;
+    var color=g.attempted===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
     var label=getObjGroups()[key]||key;
     var isActive=fcCurrentFilter===key;
     html+='<div class="prog-obj-item'+(isActive?' active':'')+'" onclick="fcFilterByObj(\''+key+'\')">'
       +'<div class="prog-obj-item-top">'
       +'<span class="prog-obj-dot" style="background:'+color+'"></span>'
       +'<span class="prog-obj-name">'+label+'</span>'
-      +'<span class="prog-obj-count">'+g.got+'/'+g.total+'</span>'
+      +'<span class="prog-obj-count">'+g.mastered+'/'+g.total+' mastered</span>'
       +'</div>'
-      +(attempted>0?'<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
+      +(g.attempted>0?'<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
       +'</div>';
   });
   el.innerHTML=html;
@@ -1879,7 +1945,7 @@ function switchCourse(course){
   fcStats={got_it:0,unsure:0,missed:0};
   fcPass1Results={got_it:[],unsure:[],missed:[]};
   fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-  fcMasteryMap={}; fcCurrentFilter='';
+  fcMasteryMap={}; fcMasteryData={}; fcCurrentFilter='';
   lsClear();
   /* re-render sidebar for current page */
   renderCtx(currentPage);
