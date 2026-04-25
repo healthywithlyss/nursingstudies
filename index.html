@@ -2228,11 +2228,19 @@ var troubleCardIds=[];   /* card IDs user consistently struggles with */
 var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
 
 function initQuiz(){
-  if(quizLoaded) return;
+  if(quizLoaded){
+    /* static data already cached — just refresh the mastery tables and re-render */
+    loadQuizMastery(function(){
+      computeTroubleSpots();
+      renderQuizPicker();
+      renderQuizSidebar();
+    });
+    return;
+  }
   quizLoaded=true; /* mark early to prevent double-load */
   var og=getObjGroups();
   var keys=Object.keys(og);
-  /* Supabase: count questions per objective for this course's keys */
+  /* p1: question IDs, counts and objective map — static, load once */
   var qUrl='/rest/v1/quiz_questions?select=id,objective_id'
     +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
@@ -2244,6 +2252,7 @@ function initQuiz(){
     });
   }).catch(function(e){console.warn('quiz counts:',e);});
 
+  /* p2: quiz_attempts aggregate scores — used by quizScores for post-session rendering */
   var p2=Promise.resolve();
   if(currentUser){
     var aUrl='/rest/v1/quiz_attempts?select=objective_id,is_correct&user_id=eq.'+currentUser.id;
@@ -2257,14 +2266,25 @@ function initQuiz(){
     }).catch(function(e){console.warn('quiz scores:',e);});
   }
 
-  /* p3: flashcard metadata for dual-score dashboard */
+  /* p3: flashcard metadata — static, load once */
   var p3=sbFetch('/rest/v1/flashcards?select=id,objective_ids&course=eq.'+currentCourse)
     .then(function(r){return r.json();})
     .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
     .catch(function(e){console.warn('quiz fc cards:',e);});
 
-  /* p5: question mastery for this user */
-  var p5=Promise.resolve();
+  Promise.all([p1,p2,p3]).then(function(){
+    loadQuizMastery(function(){
+      computeTroubleSpots();
+      renderQuizPicker();
+      renderQuizSidebar();
+      preGenerateAllQuestions();
+    });
+  });
+}
+
+/* load/refresh mastery tables — called on every quiz page visit */
+function loadQuizMastery(cb){
+  var p5=Promise.resolve(), p6=Promise.resolve();
   if(currentUser){
     p5=sbFetch('/rest/v1/question_mastery?select=question_id,consecutive_correct,total_correct,total_attempts,is_mastered&user_id=eq.'+currentUser.id)
       .then(function(r){return r.json();})
@@ -2272,11 +2292,6 @@ function initQuiz(){
         quizMasteryData={};
         if(Array.isArray(data)) data.forEach(function(m){ quizMasteryData[m.question_id]=m; });
       }).catch(function(e){console.warn('quiz mastery:',e);});
-  }
-
-  /* p6: full card_mastery for trouble detection */
-  var p6=Promise.resolve();
-  if(currentUser){
     p6=sbFetch('/rest/v1/card_mastery?select=card_id,total_correct,total_attempts,is_mastered&user_id=eq.'+currentUser.id)
       .then(function(r){return r.json();})
       .then(function(data){
@@ -2284,13 +2299,7 @@ function initQuiz(){
         if(Array.isArray(data)) data.forEach(function(m){quizCardMasteryData[m.card_id]=m;});
       }).catch(function(e){console.warn('quiz card mastery:',e);});
   }
-
-  Promise.all([p1,p2,p3,p5,p6]).then(function(){
-    computeTroubleSpots();
-    renderQuizPicker();
-    renderQuizSidebar();
-    preGenerateAllQuestions();
-  });
+  Promise.all([p5,p6]).then(cb);
 }
 
 function computeTroubleSpots(){
@@ -2325,14 +2334,15 @@ function getQuizFcPct(objId){
 function getQuizQMastery(objId){
   var total=quizQCounts[objId]||0;
   if(!total) return null; /* no questions for this objective */
-  var mastered=0;
+  var mastered=0, attempted=0;
   Object.keys(quizQuestionObjMap).forEach(function(qid){
     if(quizQuestionObjMap[qid]===objId){
       var m=quizMasteryData[qid];
+      if(m&&(m.total_attempts||0)>0) attempted++;
       if(m&&m.is_mastered) mastered++;
     }
   });
-  return {mastered:mastered,total:total};
+  return {mastered:mastered,total:total,attempted:attempted};
 }
 
 function renderQuizPicker(){
@@ -2362,18 +2372,20 @@ function renderQuizPicker(){
 
   Object.keys(og).forEach(function(key){
     var cnt=quizQCounts[key]||0;
-    /* quiz mastery — uses question_mastery table (persistent, 2 consecutive = mastered) */
-    var qm=getQuizQMastery(key);
-    var qPct=qm?Math.round(qm.mastered/qm.total*100):-1;
-    var dotCls=qm?(qPct>=80?'good':qPct>=50?'mid':'bad'):'';
-    var qCls=qm?(qPct>=80?'good':qPct>=50?'mid':'bad'):'none';
-    var qText=qm?qm.mastered+'/'+qm.total+' mastered ('+qPct+'%)':'Not attempted';
     /* flashcard mastery — uses card_mastery table (persistent, 3 consecutive = mastered) */
     var fcPct=getQuizFcPct(key);
     var fcCls=fcPct<0?'none':(fcPct>=80?'good':fcPct>=50?'mid':'bad');
     var fcText=fcPct>=0?fcPct+'%':'–';
-    /* insight: high card mastery, low quiz mastery */
-    var insight=(fcPct>=70&&(qPct<60||qPct===-1))
+    /* quiz mastery — uses question_mastery table (persistent, 2 consecutive = mastered) */
+    var qm=getQuizQMastery(key);
+    var quizAttempted=qm&&qm.attempted>0;
+    var qPct=quizAttempted?Math.round(qm.mastered/qm.total*100):-1;
+    var qCls=quizAttempted?(qPct>=80?'good':qPct>=50?'mid':'bad'):'none';
+    var qText=quizAttempted?qm.mastered+'/'+qm.total+' mastered ('+qPct+'%)':'Not attempted';
+    /* dot color: reflect card mastery (what the user has built up) */
+    var dotCls=fcPct<0?'':(fcPct>=80?'good':fcPct>=50?'mid':'bad');
+    /* insight: only when quiz has been attempted AND card mastery far outpaces quiz mastery */
+    var insight=(fcPct>=70&&quizAttempted&&qPct<60)
       ?'<span class="qp-insight">\u2191 knows facts \u2014 practice application</span>':'';
     var btnLabel=cnt?'Start Quiz ('+cnt+')':'Generate Quiz';
     h+='<div class="qp-row">'
@@ -2401,9 +2413,10 @@ function renderQuizSidebar(){
   Object.keys(og).forEach(function(key){
     /* use persistent question_mastery data — mastered questions / total */
     var qm=getQuizQMastery(key);
-    var pct=qm?Math.round(qm.mastered/qm.total*100):-1;
-    var dotColor=qm?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
-    var label=qm?qm.mastered+'/'+qm.total:'–';
+    var quizAttempted=qm&&qm.attempted>0;
+    var pct=quizAttempted?Math.round(qm.mastered/qm.total*100):-1;
+    var dotColor=quizAttempted?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
+    var label=quizAttempted?qm.mastered+'/'+qm.total:'–';
     h+='<button class="section-link" onclick="startQuizFromSidebar(\''+key+'\')">'
       +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
       +'<span class="sl-text">'+og[key]+'</span>'
