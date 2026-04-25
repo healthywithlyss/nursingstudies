@@ -404,6 +404,21 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qp-insight{font-size:11px;color:var(--plum);font-style:italic}
 .qp-sep{color:var(--border)}
 @media(max-width:600px){.qp-insight{display:none}.qp-btn{padding:7px 10px;font-size:11px}}
+/* trouble spots banner */
+.qp-trouble{background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-card);
+  padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;
+  gap:12px;flex-wrap:wrap}
+.qp-trouble-icon{font-size:22px;flex-shrink:0}
+.qp-trouble-info{flex:1;min-width:0}
+.qp-trouble-title{font-size:14px;font-weight:700;color:#9a3412}
+.qp-trouble-sub{font-size:12px;color:#c2410c;margin-top:2px}
+.qp-trouble-btns{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.qp-trouble-btn{background:#ea580c;color:#fff;border:none;border-radius:var(--r-btn);
+  padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;
+  font-family:inherit;white-space:nowrap;transition:opacity .15s}
+.qp-trouble-btn:hover{opacity:.88}
+.qp-trouble-btn.secondary{background:transparent;border:1px solid #ea580c;color:#ea580c}
+.qp-trouble-btn.secondary:hover{background:#fff7ed}
 
 /* ── QUIZ SESSION ── */
 .qs-wrap{max-width:680px;margin:0 auto;padding:28px 20px 80px}
@@ -1410,6 +1425,7 @@ var fcLastAction=null; /* {idx,cardId,result,passResult,prevMastery,prevMasteryM
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
+var fcPendingIds=null; /* if set, initPractice starts a focused deck with these card IDs */
 var fcShuffleOn=false;
 
 function getLsKey(){return 'nursestudy_'+(currentUser?currentUser.id:'anon');}
@@ -1545,6 +1561,7 @@ function initPractice(){
   var masteryDone=false, sessionData=null, sessionChecked=false;
   function maybeStart(){
     if(!masteryDone||!sessionChecked) return;
+    if(fcPendingIds){ var ids=fcPendingIds; fcPendingIds=null; startPracticeWithIds(ids); return; }
     if(sessionData){
       showResumeBanner(sessionData);
       /* pre-load all cards in background so Resume is instant */
@@ -2126,6 +2143,8 @@ function switchCourse(course){
   /* reset quiz state for new course */
   quizLoaded=false; quizQCounts={}; quizScores={};
   quizFcCards=[]; quizFcMastery={}; quizMasteryData={};
+  quizCardMasteryData={}; quizCourseQuestionIds=[];
+  troubleCardIds=[]; troubleQuestionIds=[];
   showQuizPicker();
   /* if on practice page, reload cards for new course */
   if(currentPage==='practice'){
@@ -2151,6 +2170,10 @@ var quizScores={};     /* objective_id → {correct, total} from quiz_attempts *
 var quizFcCards=[];    /* [{id, objective_ids}] for current course */
 var quizFcMastery={};  /* card_id → last result from card_attempts */
 var quizMasteryData={}; /* question_id → {consecutive_correct,is_mastered,...} */
+var quizCardMasteryData={}; /* card_id → full card_mastery row (for trouble detection) */
+var quizCourseQuestionIds=[]; /* all question IDs for current course */
+var troubleCardIds=[];   /* card IDs user consistently struggles with */
+var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
 
 function initQuiz(){
   if(quizLoaded) return;
@@ -2158,12 +2181,13 @@ function initQuiz(){
   var og=getObjGroups();
   var keys=Object.keys(og);
   /* Supabase: count questions per objective for this course's keys */
-  var qUrl='/rest/v1/quiz_questions?select=objective_id'
+  var qUrl='/rest/v1/quiz_questions?select=id,objective_id'
     +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
-    quizQCounts={};
+    quizQCounts={}; quizCourseQuestionIds=[];
     if(Array.isArray(data)) data.forEach(function(q){
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
+      quizCourseQuestionIds.push(q.id);
     });
   }).catch(function(e){console.warn('quiz counts:',e);});
 
@@ -2208,10 +2232,39 @@ function initQuiz(){
       }).catch(function(e){console.warn('quiz mastery:',e);});
   }
 
-  Promise.all([p1,p2,p3,p4,p5]).then(function(){
+  /* p6: full card_mastery for trouble detection */
+  var p6=Promise.resolve();
+  if(currentUser){
+    p6=sbFetch('/rest/v1/card_mastery?select=card_id,total_correct,total_attempts,is_mastered&user_id=eq.'+currentUser.id)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        quizCardMasteryData={};
+        if(Array.isArray(data)) data.forEach(function(m){quizCardMasteryData[m.card_id]=m;});
+      }).catch(function(e){console.warn('quiz card mastery:',e);});
+  }
+
+  Promise.all([p1,p2,p3,p4,p5,p6]).then(function(){
+    computeTroubleSpots();
     renderQuizPicker();
     renderQuizSidebar();
     preGenerateAllQuestions();
+  });
+}
+
+function computeTroubleSpots(){
+  /* Trouble flashcards: ≥2 wrong attempts total AND not yet mastered */
+  troubleCardIds=quizFcCards.filter(function(c){
+    var m=quizCardMasteryData[c.id];
+    return m && !m.is_mastered && (m.total_attempts - m.total_correct) >= 2;
+  }).map(function(c){return c.id;});
+
+  /* Trouble questions: ≥2 wrong attempts total AND not yet mastered */
+  troubleQuestionIds=[];
+  quizCourseQuestionIds.forEach(function(qid){
+    var m=quizMasteryData[qid];
+    if(m && !m.is_mastered && (m.total_attempts - m.total_correct) >= 2){
+      troubleQuestionIds.push(qid);
+    }
   });
 }
 
@@ -2231,6 +2284,26 @@ function renderQuizPicker(){
   if(!body) return;
   var og=getObjGroups();
   var h='';
+
+  /* ── Trouble Spots banner ── */
+  var totalTrouble=troubleCardIds.length+troubleQuestionIds.length;
+  if(totalTrouble>0 && currentUser){
+    var parts=[];
+    if(troubleCardIds.length) parts.push(troubleCardIds.length+' flashcard'+(troubleCardIds.length!==1?'s':''));
+    if(troubleQuestionIds.length) parts.push(troubleQuestionIds.length+' quiz question'+(troubleQuestionIds.length!==1?'s':''));
+    h+='<div class="qp-trouble">'
+      +'<span class="qp-trouble-icon">⚠️</span>'
+      +'<div class="qp-trouble-info">'
+      +'<div class="qp-trouble-title">Trouble Spots</div>'
+      +'<div class="qp-trouble-sub">'+parts.join(' · ')+' — you\'ve missed these repeatedly</div>'
+      +'</div>'
+      +'<div class="qp-trouble-btns">'
+      +(troubleCardIds.length?'<button class="qp-trouble-btn" onclick="startTroubleCardsReview()">📋 Flashcards</button>':'')
+      +(troubleQuestionIds.length?'<button class="qp-trouble-btn'+(troubleCardIds.length?' secondary':'')+'" onclick="startTroubleQuizReview()">📝 Questions</button>':'')
+      +'</div>'
+      +'</div>';
+  }
+
   Object.keys(og).forEach(function(key){
     var cnt=quizQCounts[key]||0;
     /* quiz mastery */
@@ -2286,6 +2359,75 @@ function renderQuizSidebar(){
 function startQuizFromSidebar(key){
   if(currentPage!=='quiz') goTo('quiz');
   startQuiz(key);
+}
+
+/* ── TROUBLE SPOTS REVIEW ── */
+function startTroubleCardsReview(){
+  if(fcLoaded){
+    /* practice page already initialised — inject deck directly */
+    goTo('practice');
+    startPracticeWithIds(troubleCardIds);
+  } else {
+    /* practice not loaded yet — set pending flag, initPractice() will handle it */
+    fcPendingIds=troubleCardIds.slice();
+    goTo('practice');
+  }
+}
+
+function startPracticeWithIds(ids){
+  if(!ids||!ids.length) return;
+  fcCurrentFilter='__trouble__';
+  clearSessionState();
+  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
+  function beginDeck(){
+    var cards=fcAllCards.filter(function(c){ return ids.indexOf(c.id)>-1; });
+    if(cards.length){
+      startPass1(cards);
+      var info=document.getElementById('prog-deck-info');
+      if(info) info.textContent=cards.length+' trouble spot'+(cards.length!==1?'s':'');
+    } else {
+      fcSetEmpty('No trouble cards found.');
+    }
+    renderObjBars(); renderSidebarObjList();
+  }
+  if(fcAllCards.length){ beginDeck(); return; }
+  fcSetLoading();
+  sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(Array.isArray(data)){ fcAllCards=data; fcLoaded=true; }
+      beginDeck();
+    })
+    .catch(function(){ fcSetEmpty('Could not load cards.'); });
+}
+
+function startTroubleQuizReview(){
+  if(!troubleQuestionIds.length) return;
+  quizIsTargeted=false;
+  quizCurrentObjId='trouble';
+  showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+    +'<div class="qs-load-msg">Loading trouble questions\u2026</div></div>');
+  var idList=troubleQuestionIds.join(',');
+  sbFetch('/rest/v1/quiz_questions?select=*&id=in.('+encodeURIComponent(idList)+')')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)||!data.length){ showQsError('No trouble questions found.'); return; }
+      /* shuffle */
+      for(var i=data.length-1;i>0;i--){
+        var j=Math.floor(Math.random()*(i+1));
+        var tmp=data[i]; data[i]=data[j]; data[j]=tmp;
+      }
+      quizCurrentQuestions=data;
+      showQuizSession(
+        '<button class="qs-back-link" onclick="showQuizPicker()">\u2190 All objectives</button>'
+        +'<div class="qs-ready">'
+        +'<div class="qs-ready-title">\u26a0\ufe0f Trouble Spots</div>'
+        +'<div class="qs-ready-sub">'+data.length+' question'+(data.length===1?'':'s')+' you\'ve missed before &mdash; let\'s fix that.</div>'
+        +'<button class="qs-begin-btn" onclick="beginQuizSession()">Begin Quiz \u2192</button>'
+        +'</div>'
+      );
+    })
+    .catch(function(e){ showQsError('Error loading trouble questions: '+(e.message||e)); });
 }
 
 /* ── QUIZ STEP 3: QUESTION LOADER ── */
