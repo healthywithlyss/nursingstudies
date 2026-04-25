@@ -1075,6 +1075,15 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <button class="rating-btn unsure" onclick="fcRate('unsure')" id="btn-unsure" disabled>&#8764; Unsure</button>
               <button class="rating-btn missed" onclick="fcRate('missed')" id="btn-missed" disabled>&#10005; Missed</button>
             </div>
+            <div style="text-align:center;margin-top:6px">
+              <button id="fc-undo-btn" onclick="fcUndo()" style="display:none;background:none;border:none;
+                color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px 10px;
+                border-radius:6px;transition:background .15s"
+                onmouseover="this.style.background='var(--g50)'"
+                onmouseout="this.style.background='none'">
+                &#8592; Undo last rating
+              </button>
+            </div>
           </div>
 
         </div>
@@ -1397,6 +1406,7 @@ var fcPass1Results={got_it:[],unsure:[],missed:[]};
 var fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
 var fcMasteryMap={};   /* card_id → last_result string (for "Previously" badge) */
 var fcMasteryData={};  /* card_id → full mastery row {consecutive_correct,total_correct,total_attempts,is_mastered} */
+var fcLastAction=null; /* {idx,cardId,result,passResult,prevMastery,prevMasteryMap} — for undo */
 var fcSessionId='sess-'+Date.now();
 var fcCurrentFilter='';
 var fcLoaded=false;
@@ -1592,6 +1602,9 @@ function startPass1(cards){
   fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
   fcSessionId='sess-'+Date.now();
   fcDeck=fcShuffleOn?shuffleArr(cards.slice()):cards.slice();
+  fcLastAction=null;
+  var undoBtn=document.getElementById('fc-undo-btn');
+  if(undoBtn) undoBtn.style.display='none';
   clearSessionState(); hideSummary(); updateStats(); showCard(0);
   setPassBadge(1);
 }
@@ -1708,6 +1721,13 @@ function fcRate(result){
   if(!fcDeck.length||fcIdx>=fcDeck.length) return;
   var c=fcDeck[fcIdx];
 
+  /* save snapshot for undo BEFORE mutating anything */
+  fcLastAction={
+    idx:fcIdx, cardId:c.id, result:result,
+    prevMastery:fcMasteryData[c.id]?Object.assign({},fcMasteryData[c.id]):null,
+    prevMasteryMap:fcMasteryMap[c.id]
+  };
+
   /* compute new mastery synchronously from in-memory data */
   var newMastery=computeNewMastery(c.id,result);
   fcMasteryData[c.id]=newMastery;
@@ -1720,6 +1740,7 @@ function fcRate(result){
      if user tapped "got it" but streak < 3 → treat as unsure so card stays in deck */
   var passResult=result;
   if(result==='got_it'&&!newMastery.is_mastered) passResult='unsure';
+  fcLastAction.passResult=passResult; /* save for undo */
 
   if(fcPass===1) fcPass1Results[passResult].push(c.id);
   fcCurrentPassResults[passResult].push(c.id);
@@ -1738,6 +1759,41 @@ function fcRate(result){
   upsertCardMastery(newMastery);
 
   fcIdx++; saveSessionState(); showCard(fcIdx);
+  /* show undo button after rating */
+  var undoBtn=document.getElementById('fc-undo-btn');
+  if(undoBtn) undoBtn.style.display='';
+}
+
+function fcUndo(){
+  if(!fcLastAction) return;
+  var a=fcLastAction;
+  fcLastAction=null; /* only one undo allowed */
+
+  /* hide undo button */
+  var undoBtn=document.getElementById('fc-undo-btn');
+  if(undoBtn) undoBtn.style.display='none';
+
+  /* revert idx */
+  fcIdx=a.idx;
+
+  /* revert pass results — remove the card ID we just pushed */
+  function removeId(arr,id){ var i=arr.indexOf(id); if(i>-1) arr.splice(i,1); }
+  removeId(fcCurrentPassResults[a.passResult],a.cardId);
+  if(fcPass===1) removeId(fcPass1Results[a.passResult],a.cardId);
+
+  /* revert stats counter */
+  if(fcStats[a.result]>0) fcStats[a.result]--;
+
+  /* revert mastery in memory */
+  if(a.prevMastery) fcMasteryData[a.cardId]=a.prevMastery;
+  else delete fcMasteryData[a.cardId];
+  if(a.prevMasteryMap!==undefined) fcMasteryMap[a.cardId]=a.prevMasteryMap;
+  else delete fcMasteryMap[a.cardId];
+
+  /* re-upsert previous mastery to Supabase (overwrite the rating we're undoing) */
+  if(a.prevMastery) upsertCardMastery(a.prevMastery);
+
+  updateStats(); saveSessionState(); showCard(fcIdx);
 }
 
 function updateStats(){
