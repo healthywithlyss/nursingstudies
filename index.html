@@ -233,9 +233,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   color:var(--text-muted);padding:7px;border-radius:var(--r-btn);font-size:12px;
   font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
 .prog-restart-btn:hover{background:var(--border)}
-.prog-obj-head{padding:10px 16px 6px;font-size:10px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);
-  border-bottom:1px solid var(--border)}
 .prog-obj-list{flex:1;overflow-y:auto;padding:8px 0;
   scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .prog-obj-list::-webkit-scrollbar{width:4px}
@@ -1035,7 +1032,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <div class="prog-deck-info" id="prog-deck-info">&nbsp;</div>
               <button class="prog-restart-btn" onclick="fcRestart()">&#9654; Restart Session</button>
             </div>
-            <div class="prog-obj-head">By Lecture</div>
             <div class="prog-obj-list" id="obj-list">
               <div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">Loading…</div>
             </div>
@@ -1455,15 +1451,22 @@ function initPractice(){
 
 function fetchDeck(filter){
   fcSetLoading();
+  /* Always fetch ALL cards for the course — filtering is done client-side in fcFilterByObj */
   var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse;
-  if(filter) url+='&objective_ids=cs.%7B'+filter+'%7D';
   sbFetch(url)
     .then(function(r){return r.json();})
     .then(function(data){
       fcLoaded=true;
-      if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found for this filter.');return;}
+      if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found — add some cards first.');return;}
       fcAllCards=data;
-      startPass1(data);
+      /* apply any active filter client-side */
+      var deck=filter?data.filter(function(c){
+        var pre=(c.objective_ids&&c.objective_ids.length)
+          ?c.objective_ids[0].replace(/_\d+$/,''):'other';
+        return pre===filter;
+      }):data;
+      if(!deck.length) deck=data; /* fallback: show all if filter matches nothing */
+      startPass1(deck);
       renderSidebarObjList();
     })
     .catch(function(e){console.error(e);fcSetEmpty('Could not load cards — check connection.');});
@@ -1644,7 +1647,18 @@ function renderObjBars(){
 
 function fcFilterByObj(prefix){
   fcCurrentFilter=prefix;
-  lsClear(); fetchDeck(prefix);
+  lsClear();
+  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
+  if(!fcAllCards.length){ fetchDeck(''); return; }
+  var filtered=prefix===''?fcAllCards:fcAllCards.filter(function(c){
+    var pre=(c.objective_ids&&c.objective_ids.length)
+      ?c.objective_ids[0].replace(/_\d+$/,''):'other';
+    return pre===prefix;
+  });
+  if(filtered.length){ startPass1(filtered); }
+  else { fcSetEmpty('No cards found for "'+prefix+'"'); }
+  renderObjBars();
+  renderSidebarObjList();
 }
 
 function toggleMobProgress(){
@@ -1926,6 +1940,7 @@ function initQuiz(){
   Promise.all([p1,p2,p3,p4]).then(function(){
     renderQuizPicker();
     renderQuizSidebar();
+    preGenerateAllQuestions(); /* silently generate any missing objectives */
   });
 }
 
@@ -2490,6 +2505,86 @@ function buildGeminiPrompt(objName,guideText,flashText){
     +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
 }
 
+/* ── Background pre-generation of ALL quiz questions ── */
+function backgroundGenerateForObj(objId){
+  return new Promise(function(resolve,reject){
+    var guideText=getStudyGuideText(objId);
+    getFlashcardsForObj(objId)
+      .then(function(cards){
+        if(!cards.length) throw new Error('No flashcards for '+objId);
+        var flashText=cards.map(function(c,i){
+          return (i+1)+'. Q: '+c.question+'\n   A: '+c.answer;
+        }).join('\n');
+        var og=getObjGroups();
+        var objName=og[objId]||objId;
+        return callGemini(buildGeminiPrompt(objName,guideText,flashText));
+      })
+      .then(function(parsed){
+        if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
+          throw new Error('No questions returned');
+        var rows=parsed.questions.map(function(q){
+          return {objective_id:objId,type:q.type,stem:q.stem,
+            options:q.options,correct:q.correct,explanation:q.explanation,
+            fact_tested:q.fact_tested||null,is_targeted:false};
+        });
+        return sbFetch('/rest/v1/quiz_questions',{
+          method:'POST',body:JSON.stringify(rows),
+          headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
+        }).then(function(r){return r.json();})
+          .then(function(saved){
+            var qs=Array.isArray(saved)&&saved.length?saved:rows;
+            quizQCounts[objId]=qs.length;
+            resolve(qs.length);
+          });
+      })
+      .catch(function(e){ reject(e); });
+  });
+}
+
+function preGenerateAllQuestions(){
+  var og=getObjGroups();
+  var missing=Object.keys(og).filter(function(k){ return !(quizQCounts[k]>0); });
+  if(!missing.length) return;
+
+  /* inject a status bar above qp-body */
+  var body=document.getElementById('qp-body');
+  if(!body) return;
+  var bar=document.createElement('div');
+  bar.id='qp-gen-status';
+  bar.style.cssText='margin:0 0 14px 0;padding:10px 16px;background:var(--card-bg);'
+    +'border:1px solid var(--border);border-radius:8px;font-size:13px;'
+    +'color:var(--text-muted);display:flex;align-items:center;gap:10px;';
+  bar.innerHTML='<div class="qs-spinner" style="width:16px;height:16px;margin:0"></div>'
+    +'<span>Generating questions — <strong id="qp-gen-left">'+missing.length+'</strong> objectives remaining…</span>';
+  body.parentNode.insertBefore(bar,body);
+
+  var remaining=missing.slice();
+  function genNext(){
+    if(!remaining.length){
+      var s=document.getElementById('qp-gen-status');
+      if(s) s.innerHTML='<span>✅ All questions ready.</span>';
+      setTimeout(function(){ var s2=document.getElementById('qp-gen-status'); if(s2) s2.remove(); },3000);
+      renderQuizPicker();
+      return;
+    }
+    var objId=remaining.shift();
+    backgroundGenerateForObj(objId)
+      .then(function(){ /* success — update counter and picker */
+        var lbl=document.getElementById('qp-gen-left');
+        if(lbl) lbl.textContent=remaining.length;
+        renderQuizPicker();
+        genNext();
+      })
+      .catch(function(e){
+        console.warn('preGen failed for '+objId+':',e);
+        var lbl=document.getElementById('qp-gen-left');
+        if(lbl) lbl.textContent=remaining.length;
+        genNext(); /* keep going even if one fails */
+      });
+  }
+  genNext();
+}
+
 function callGemini(prompt){
   /* Call our Edge Function — key lives server-side, never in client code */
   return fetch(SB_URL+'/functions/v1/generate-quiz',{
@@ -2499,7 +2594,7 @@ function callGemini(prompt){
   })
   .then(function(r){return r.json();})
   .then(function(data){
-    if(data.error) throw new Error('Gemini error: '+data.error);
+    if(data.error) throw new Error('Gemini error: '+(typeof data.error==='object'?JSON.stringify(data.error):data.error));
     var fb=data.promptFeedback;
     if(fb&&fb.blockReason) throw new Error('Prompt blocked: '+fb.blockReason);
     if(!data.candidates||!data.candidates[0])
