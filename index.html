@@ -1629,7 +1629,7 @@ function renderObjBars(){
     var attempted=g.got+g.unsure+g.missed;
     var pct=g.total?Math.round(g.got/g.total*100):0;
     var color=attempted===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
-    var label=OBJ_GROUPS[key]||key;
+    var label=getObjGroups()[key]||key;
     var isActive=fcCurrentFilter===key;
     html+='<div class="prog-obj-item'+(isActive?' active':'')+'" onclick="fcFilterByObj(\''+key+'\')">'
       +'<div class="prog-obj-item-top">'
