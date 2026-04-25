@@ -2631,6 +2631,30 @@ function startQuizFromBuilder(){
 }
 
 /* starts a quiz drawing from all objectives for the current course */
+/* ── smart deck selection: wrong-answer questions first, fill rest randomly ──
+   pool: array of full question objects (with .id)
+   count: how many to select
+   Returns a new array of `count` questions, wrong-history questions front-loaded. */
+function buildQuizDeck(pool, count){
+  var wrong=[], other=[];
+  pool.forEach(function(q){
+    var m=quizMasteryData[q.id];
+    /* "wrong" = has at least one incorrect attempt on record */
+    var hasWrong=m&&(m.total_attempts||0)>(m.total_correct||0);
+    if(hasWrong) wrong.push(q); else other.push(q);
+  });
+  /* shuffle each group independently */
+  function shuffle(a){
+    for(var i=a.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  shuffle(wrong); shuffle(other);
+  return wrong.concat(other).slice(0, count);
+}
+
 function startQuizAll(count){
   quizCurrentObjId='all';
   showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
@@ -2645,14 +2669,10 @@ function startQuizAll(count){
         showQsError('No questions found. Use a specific section to generate questions first.');
         return;
       }
-      /* shuffle and take first N */
-      for(var i=data.length-1;i>0;i--){
-        var j=Math.floor(Math.random()*(i+1));
-        var tmp=data[i]; data[i]=data[j]; data[j]=tmp;
-      }
-      var pool=data.slice(0,count||20);
-      quizCurrentQuestions=pool;
-      showQuestionsReady('all',pool.length,false);
+      var deck=buildQuizDeck(data, count||20);
+      quizCurrentQuestions=deck;
+      /* pass deck directly — showQuestionsReady won't re-slice since count already applied */
+      showQuestionsReady('all', deck.length, false);
     })
     .catch(function(e){showQsError('Error loading questions: '+(e.message||e));});
 }
@@ -2862,28 +2882,36 @@ function generateAndSaveQuestions(objId){
 function showQuestionsReady(objId,count,wasGenerated){
   var og=getObjGroups();
   var name=objId==='all'?'All Sections':(og[objId]||objId);
-  var note=wasGenerated?'Questions generated and saved \u2014 they\'ll load instantly next time.'
-    :'Loaded from question bank.';
 
-  /* apply builder count limit — shuffle then slice to requested N */
+  /* apply builder count limit using smart selection (wrong-first) */
   var requested=quizBuilderCount||20;
   if(quizCurrentQuestions.length>requested){
-    /* shuffle */
-    var arr=quizCurrentQuestions.slice();
-    for(var i=arr.length-1;i>0;i--){
-      var j=Math.floor(Math.random()*(i+1));
-      var tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
-    }
-    quizCurrentQuestions=arr.slice(0,requested);
-    count=requested;
+    quizCurrentQuestions=buildQuizDeck(quizCurrentQuestions, requested);
+    count=quizCurrentQuestions.length;
+  }
+
+  /* count how many selected questions have prior wrong attempts */
+  var wrongCount=quizCurrentQuestions.filter(function(q){
+    var m=quizMasteryData[q.id];
+    return m&&(m.total_attempts||0)>(m.total_correct||0);
+  }).length;
+
+  var note=wasGenerated?'Questions generated and saved \u2014 they\'ll load instantly next time.'
+    :'Loaded from question bank.';
+  var priorityNote='';
+  if(wrongCount>0){
+    priorityNote='<div style="font-size:12px;color:var(--unsure);margin-top:6px">'
+      +'\u26a0\ufe0f '+wrongCount+' question'+(wrongCount!==1?'s':'')+' you\'ve answered incorrectly before — front-loaded'
+      +'</div>';
   }
 
   showQuizSession(
     '<button class="qs-back-link" onclick="showQuizPicker()">\u2190 Quiz Builder</button>'
     +'<div class="qs-ready">'
     +'<div class="qs-ready-title">'+name+'</div>'
-    +'<div class="qs-ready-sub">'+count+' question'+(count===1?'':'s')+' ready &mdash; '+note+'</div>'
-    +'<button class="qs-begin-btn" onclick="beginQuizSession()">Begin Quiz &rarr;</button>'
+    +'<div class="qs-ready-sub">'+count+' question'+(count===1?'':'s')+' &mdash; '+note+'</div>'
+    +priorityNote
+    +'<button class="qs-begin-btn" onclick="beginQuizSession()" style="margin-top:20px">Begin Quiz &rarr;</button>'
     +'</div>'
   );
 }
