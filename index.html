@@ -2143,14 +2143,12 @@ var quizMissedResults=[];
 var QQ_TYPE_LABEL={
   multiple_choice:'Multiple Choice',
   select_all:'Select All That Apply',
-  priority:'Priority',
-  delegation:'Delegation'
+  priority:'Priority'
 };
 var QQ_TYPE_STYLE={
   multiple_choice:'background:var(--cobalt-bg);color:var(--cobalt)',
   select_all:'background:var(--plum-bg);color:var(--plum)',
-  priority:'background:#fffbeb;color:var(--gold)',
-  delegation:'background:var(--teal-bg);color:var(--teal)'
+  priority:'background:#fffbeb;color:var(--gold)'
 };
 
 function beginQuizSession(){
@@ -2493,15 +2491,21 @@ function getFlashcardsForObj(objId){
 }
 
 function buildGeminiPrompt(objName,guideText,flashText){
-  return 'NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
+  return 'You are an NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
     +'STUDY GUIDE:\n'+(guideText||'(see facts below)')+'\n\n'
     +'OBJECTIVE: '+objName+'\n\n'
     +'FACTS:\n'+flashText+'\n\n'
-    +'Generate exactly 10 NCLEX application questions. Mix types:\n'
-    +'multiple_choice (4 opts, 1 correct), select_all (4-5 opts, 2-3 correct), '
-    +'priority (nurse first action), delegation (UAP task).\n'
-    +'Clinical scenario for each. Plausible distractors. Only test facts listed above.\n\n'
-    +'JSON only — no markdown:\n'
+    +'Generate exactly 10 NCLEX application questions using these types ONLY:\n'
+    +'  • multiple_choice — 4 options, 1 correct answer\n'
+    +'  • select_all — 4-5 options, 2-3 correct answers\n'
+    +'  • priority — nurse\'s first/priority action (ONLY use when objective involves clinical decision-making or nursing interventions)\n\n'
+    +'RULES:\n'
+    +'- Only generate question types that are relevant to the objective content.\n'
+    +'- Do NOT use priority framing for definition-based, anatomy, or vocabulary objectives.\n'
+    +'- Do NOT generate delegation questions under any circumstances.\n'
+    +'- Every question must be a clinical scenario with plausible distractors.\n'
+    +'- Only test facts explicitly listed above — no outside knowledge.\n\n'
+    +'Return valid JSON only — no markdown, no extra text:\n'
     +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
 }
 
