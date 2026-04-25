@@ -1268,7 +1268,6 @@ function initScrollSpy(){
 /* ── SUPABASE + AUTH ── */
 var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
-var GEMINI_API_KEY='AIzaSyCTcgpIlt2Gg39AaE9di4LhaEW1F3-Hsfw';
 var SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
 var _sb=null;
@@ -2492,44 +2491,30 @@ function buildGeminiPrompt(objName,guideText,flashText){
 }
 
 function callGemini(prompt){
-  var model='gemini-2.0-flash';
-  var url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+GEMINI_API_KEY;
-  return fetch(url,{
+  /* Call our Edge Function — key lives server-side, never in client code */
+  return fetch(SB_URL+'/functions/v1/generate-quiz',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.7,maxOutputTokens:2048},
-      safetySettings:[
-        {category:'HARM_CATEGORY_HARASSMENT',        threshold:'BLOCK_ONLY_HIGH'},
-        {category:'HARM_CATEGORY_HATE_SPEECH',       threshold:'BLOCK_ONLY_HIGH'},
-        {category:'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold:'BLOCK_ONLY_HIGH'},
-        {category:'HARM_CATEGORY_DANGEROUS_CONTENT', threshold:'BLOCK_ONLY_HIGH'}
-      ]
-    })
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+    body:JSON.stringify({prompt:prompt})
   })
   .then(function(r){return r.json();})
   .then(function(data){
-    /* surface API-level errors */
-    if(data.error) throw new Error('Gemini API error '+data.error.code+': '+data.error.message);
-    /* check for safety / recitation block */
+    if(data.error) throw new Error('Gemini error: '+data.error);
     var fb=data.promptFeedback;
-    if(fb&&fb.blockReason) throw new Error('Gemini blocked prompt: '+fb.blockReason);
+    if(fb&&fb.blockReason) throw new Error('Prompt blocked: '+fb.blockReason);
     if(!data.candidates||!data.candidates[0])
-      throw new Error('Gemini returned no candidates (full response logged to console)');
+      throw new Error('No candidates returned — check Edge Function logs');
     var cand=data.candidates[0];
     if(cand.finishReason&&cand.finishReason!=='STOP'&&cand.finishReason!=='MAX_TOKENS')
       throw new Error('Gemini stopped early: '+cand.finishReason);
     if(!cand.content||!cand.content.parts||!cand.content.parts[0])
-      throw new Error('Gemini candidate has no content');
+      throw new Error('Candidate has no content');
     var text=cand.content.parts[0].text;
-    /* strip any markdown fences Gemini sometimes adds */
     text=text.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-    try{
-      return JSON.parse(text);
-    }catch(e){
-      console.error('Gemini JSON parse failed. Raw text:\n',text);
-      throw new Error('Gemini returned invalid JSON — see console for raw output');
+    try{ return JSON.parse(text); }
+    catch(e){
+      console.error('Gemini JSON parse failed:\n',text);
+      throw new Error('Gemini returned invalid JSON — see console');
     }
   });
 }
