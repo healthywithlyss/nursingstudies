@@ -1516,7 +1516,7 @@ function lsClear(){}
 /* ── mastery loading ── */
 function loadMastery(onDone){
   if(!currentUser){if(onDone) onDone(); return;}
-  sbFetch('/rest/v1/card_mastery?select=card_id,consecutive_correct,total_correct,total_attempts,is_mastered,last_result&user_id=eq.'+currentUser.id)
+  sbFetch('/rest/v1/card_mastery?select=card_id,consecutive_correct,total_correct,total_attempts,is_mastered,missed_lock,last_result&user_id=eq.'+currentUser.id)
     .then(function(r){return r.json();})
     .then(function(data){
       if(Array.isArray(data)){
@@ -1534,18 +1534,35 @@ function loadMastery(onDone){
 }
 
 /* ── mastery computation ── */
+/* Mastery rules:
+   1. Got it on FIRST ever attempt → mastered immediately
+   2. Was unsure (never missed) → 3 consecutive got_it required
+   3. Was missed → must get "unsure" once to unlock, THEN 3 consecutive got_it
+   missed_lock tracks rule 3: true = still needs an unsure before streak counts */
 function computeNewMastery(cardId, result){
-  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
-  var cc=result==='got_it'?(ex.consecutive_correct||0)+1:0;
+  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false,missed_lock:false};
   var tc=(ex.total_correct||0)+(result==='got_it'?1:0);
   var ta=(ex.total_attempts||0)+1;
-  /* Rule: got it on very first attempt → mastered immediately (you know it cold).
-     Any card seen before (was ever unsure or missed) → 3 consecutive correct required. */
   var firstAttempt=(ex.total_attempts||0)===0;
-  var mastered=result==='got_it'&&(firstAttempt||cc>=3);
+
+  /* update missed_lock */
+  var missedLock=ex.missed_lock||false;
+  if(result==='missed'){
+    missedLock=true;          /* card missed → lock it */
+  } else if(result==='unsure'&&missedLock){
+    missedLock=false;         /* unsure after miss → unlock, streak can now count */
+  }
+  /* got_it while locked keeps the lock (can't bypass unsure step) */
+
+  /* consecutive streak: only increments on got_it AND not locked */
+  var cc=(result==='got_it'&&!missedLock)?(ex.consecutive_correct||0)+1:0;
+
+  /* mastery: immediate on first attempt, OR 3-streak once unlocked */
+  var mastered=result==='got_it'&&!missedLock&&(firstAttempt||cc>=3);
+
   return {card_id:cardId,consecutive_correct:cc,total_correct:tc,
-    total_attempts:ta,is_mastered:mastered,last_result:result,
-    last_attempted_at:new Date().toISOString()};
+    total_attempts:ta,is_mastered:mastered,missed_lock:missedLock,
+    last_result:result,last_attempted_at:new Date().toISOString()};
 }
 
 function upsertCardMastery(masteryRow){
@@ -1707,15 +1724,25 @@ function showCard(idx){
   if(streakEl){
     var md=fcMasteryData[c.id];
     var cc=md?md.consecutive_correct:0;
-    /* only show streak dots when card needs 3 consecutive (has prior attempts) */
-    var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
-    if(needsStreak){
-      var dots='';
-      for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
-      streakEl.textContent=dots+' '+cc+'/3 to master';
+    var isLocked=md&&md.missed_lock;
+    if(isLocked){
+      /* missed-locked: user needs to rate unsure before streak counts */
+      streakEl.textContent='\u26a0\ufe0f Rate \u201eUnsure\u201c to unlock streak';
       streakEl.className='fc-streak show';
+      streakEl.style.background='#fee2e2'; streakEl.style.color='#b91c1c';
     } else {
-      streakEl.className='fc-streak';
+      /* only show streak dots when card needs 3 consecutive (has prior attempts) */
+      var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
+      if(needsStreak){
+        var dots='';
+        for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
+        streakEl.textContent=dots+' '+cc+'/3 to master';
+        streakEl.style.background=''; streakEl.style.color='';
+        streakEl.className='fc-streak show';
+      } else {
+        streakEl.style.background=''; streakEl.style.color='';
+        streakEl.className='fc-streak';
+      }
     }
   }
 
