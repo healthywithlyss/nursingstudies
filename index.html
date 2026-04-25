@@ -445,6 +445,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qbank-acc.mid{color:var(--unsure)}
 .qbank-acc.bad{color:var(--missed)}
 .qbank-empty{padding:32px;text-align:center;color:var(--text-muted);font-size:13px}
+.qbank-regen-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);
+  padding:6px 12px;border-radius:var(--r-btn);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;
+  white-space:nowrap;flex-shrink:0}
+.qbank-regen-btn:hover{background:var(--cobalt-bg);border-color:var(--cobalt);color:var(--cobalt)}
+.qbank-regen-btn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:540px){.qbank-obj{display:none}.qbank-search{max-width:100%;width:100%}
   .qbank-header{flex-direction:column;align-items:flex-start}}
 
@@ -1204,6 +1210,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <input class="qbank-search" id="qbank-search" type="search"
                 placeholder="Search questions&hellip;"
                 oninput="renderQuizBank()">
+              <button class="qbank-regen-btn" id="qbank-regen-btn"
+                onclick="regenerateAllQuestions()"
+                title="Generate new questions for all sections using the updated prompt — adds on top of existing questions">
+                + Generate New
+              </button>
             </div>
             <div class="qbank-list" id="qbank-list">
               <div class="qbank-empty">Loading questions&hellip;</div>
@@ -3485,6 +3496,59 @@ function preGenerateAllQuestions(){
         var lbl=document.getElementById('qp-gen-left');
         if(lbl) lbl.textContent=remaining.length;
         genNext(); /* keep going even if one fails */
+      });
+  }
+  genNext();
+}
+
+/* ── Regenerate ALL sections (append on top of existing) ── */
+function regenerateAllQuestions(){
+  var og=getObjGroups();
+  var allObjs=Object.keys(og);
+  if(!allObjs.length) return;
+
+  /* disable button while running */
+  var regenBtn=document.getElementById('qbank-regen-btn');
+  if(regenBtn) regenBtn.disabled=true;
+
+  var bar=document.getElementById('qb-gen-status');
+  if(bar){
+    bar.innerHTML='<div class="qb-gen-bar"><div class="qs-spinner"></div>'
+      +'<span>Generating new questions — <strong id="qp-gen-left">'+allObjs.length+'</strong> section'
+      +(allObjs.length!==1?'s':'')+' remaining\u2026</span></div>';
+    bar.style.display='';
+  }
+
+  var remaining=allObjs.slice();
+  function genNext(){
+    if(!remaining.length){
+      var b=document.getElementById('qb-gen-status');
+      if(b){
+        b.innerHTML='<div class="qb-gen-bar" style="border-color:#bbf7d0;background:#f0fdf4;color:var(--forest)">'
+          +'<span>✅ New questions added to all sections.</span></div>';
+        setTimeout(function(){
+          var b2=document.getElementById('qb-gen-status');
+          if(b2){ b2.style.display='none'; b2.innerHTML=''; }
+        },3000);
+      }
+      var rb=document.getElementById('qbank-regen-btn');
+      if(rb) rb.disabled=false;
+      renderQuizBuilder();
+      renderQuizBank();
+      return;
+    }
+    var objId=remaining.shift();
+    backgroundGenerateForObj(objId)
+      .then(function(){
+        var lbl=document.getElementById('qp-gen-left');
+        if(lbl) lbl.textContent=remaining.length;
+        genNext();
+      })
+      .catch(function(e){
+        console.warn('regen failed for '+objId+':',e);
+        var lbl=document.getElementById('qp-gen-left');
+        if(lbl) lbl.textContent=remaining.length;
+        genNext();
       });
   }
   genNext();
