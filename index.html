@@ -540,8 +540,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px}
 .qr-missed-row{background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r-card);padding:12px 16px;margin-bottom:8px}
-.qr-missed-stem{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:5px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qr-missed-stem{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:5px}
+.qr-missed-explanation{font-size:12px;color:var(--text-muted);line-height:1.5;
+  margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
 .qr-missed-answer{font-size:12px;font-weight:600;color:var(--got)}
 .qr-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
 .qr-btn{flex:1;min-width:110px;padding:12px 14px;border-radius:var(--r-btn);
@@ -3119,20 +3120,23 @@ function showQuizResults(){
   quizScores[quizCurrentObjId].total+=total;
   renderQuizSidebar();
 
-  /* missed rows */
+  /* missed rows — full stem + correct answer + explanation */
   var missed=quizSessionResults.filter(function(r){return !r.isCorrect;});
   var missedHtml='';
   if(missed.length){
     missedHtml='<div class="qr-missed-label">Missed ('+missed.length+')</div>';
     missed.forEach(function(r){
-      var correctText=r.correct.map(function(letter){
+      var correctText=(r.correct||[]).map(function(letter){
         var found=letter;
         (r.question.options||[]).forEach(function(o){if(o.charAt(0)===letter) found=o;});
         return found;
-      }).join(', ');
+      }).join('; ');
+      var expl=r.question.explanation
+        ?'<div class="qr-missed-explanation">'+escHtml(r.question.explanation)+'</div>':'';
       missedHtml+='<div class="qr-missed-row">'
         +'<div class="qr-missed-stem">'+escHtml(r.question.stem)+'</div>'
-        +'<div class="qr-missed-answer">\u2192 Correct: '+escHtml(correctText)+'</div>'
+        +'<div class="qr-missed-answer">\u2713 '+escHtml(correctText)+'</div>'
+        +expl
         +'</div>';
     });
   }
@@ -3140,12 +3144,13 @@ function showQuizResults(){
   /* action buttons */
   var actionsHtml='<div class="qr-actions">';
   if(missed.length){
-    actionsHtml+='<button class="qr-btn qr-btn-primary" onclick="startTargetedReview()">'
-      +'Review Missed &mdash; '+missed.length+' question'+(missed.length===1?'':'s')
+    actionsHtml+='<button class="qr-btn qr-btn-primary" onclick="retakeMissedQuestions()">'
+      +'\u21ba Retake missed &mdash; '+missed.length+' question'+(missed.length===1?'':'s')
       +'</button>';
   }
-  actionsHtml+='<button class="qr-btn qr-btn-secondary" onclick="retakeFullQuiz()">Retake Quiz</button>'
-    +'<button class="qr-btn qr-btn-ghost" onclick="showQuizPicker()">\u2190 Back</button>'
+  actionsHtml+='<button class="qr-btn '+(missed.length?'qr-btn-secondary':'qr-btn-primary')+'" onclick="showQuizPicker()">'
+    +'\ud83d\uddd2\ufe0f New Quiz'
+    +'</button>'
     +'</div>';
 
   showQuizSession(
@@ -3168,6 +3173,25 @@ function showQuizResults(){
 function retakeFullQuiz(){
   quizIsTargeted=false;
   loadQuizForObj(quizCurrentObjId);
+}
+
+/* Retake missed: re-queue the exact question objects the user got wrong this session.
+   No network call — the full question data is already in quizSessionResults. */
+function retakeMissedQuestions(){
+  var missedQs=quizSessionResults
+    .filter(function(r){return !r.isCorrect;})
+    .map(function(r){return r.question;});
+  if(!missedQs.length){showQuizPicker();return;}
+  /* shuffle so it's not in the same order */
+  for(var i=missedQs.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=missedQs[i]; missedQs[i]=missedQs[j]; missedQs[j]=t;
+  }
+  quizCurrentQuestions=missedQs;
+  quizBuilderCount=missedQs.length; /* slider should match this count */
+  quizIsTargeted=false;
+  /* go straight to session — no ready screen needed, user just saw the list */
+  beginQuizSession();
 }
 
 /* ── QUIZ STEP 6: TARGETED FOLLOW-UP ── */
