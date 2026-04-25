@@ -1573,8 +1573,12 @@ function fetchDeck(filter){
           ?c.objective_ids[0].replace(/_\d+$/,''):'other';
         return pre===filter;
       }):data;
-      if(!deck.length) deck=data; /* fallback: show all if filter matches nothing */
-      startPass1(deck);
+      if(!deck.length) deck=data;
+      /* skip already-mastered cards — only show what still needs work */
+      var unmastered=deck.filter(function(c){
+        var md=fcMasteryData[c.id]; return !md||!md.is_mastered;
+      });
+      startPass1(unmastered.length?unmastered:deck);
       renderSidebarObjList();
     })
     .catch(function(e){console.error(e);fcSetEmpty('Could not load cards — check connection.');});
@@ -1792,13 +1796,33 @@ function fcFilterByObj(prefix){
   clearSessionState();
   var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
   if(!fcAllCards.length){ fetchDeck(''); return; }
+
   var filtered=prefix===''?fcAllCards:fcAllCards.filter(function(c){
     var pre=(c.objective_ids&&c.objective_ids.length)
       ?c.objective_ids[0].replace(/_\d+$/,''):'other';
     return pre===prefix;
   });
-  if(filtered.length){ startPass1(filtered); }
-  else { fcSetEmpty('No cards found for "'+prefix+'"'); }
+
+  /* only show cards still needing work — not yet mastered */
+  var needsWork=filtered.filter(function(c){
+    var md=fcMasteryData[c.id];
+    return !md||!md.is_mastered;
+  });
+
+  if(needsWork.length){
+    startPass1(needsWork);
+  } else if(filtered.length){
+    /* all mastered — show a completion message with option to review anyway */
+    fcSetEmpty('\u2705 All cards in this section are mastered!');
+    var info=document.getElementById('prog-deck-info');
+    if(info) info.innerHTML='<button class="fc-ctrl-btn" style="margin-top:8px" '
+      +'onclick="startPass1(fcAllCards.filter(function(c){'
+      +'var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\\d+$/,\'\'):\'other\';'
+      +'return \''+prefix+'\''+'===\'\'||pre===\''+prefix+'\';}))">'
+      +'\u21ba Review all '+filtered.length+' cards anyway</button>';
+  } else {
+    fcSetEmpty('No cards found.');
+  }
   renderObjBars();
   renderSidebarObjList();
 }
@@ -2045,7 +2069,7 @@ function switchCourse(course){
   renderCtx(currentPage);
   /* reset quiz state for new course */
   quizLoaded=false; quizQCounts={}; quizScores={};
-  quizFcCards=[]; quizFcMastery={};
+  quizFcCards=[]; quizFcMastery={}; quizMasteryData={};
   showQuizPicker();
   /* if on practice page, reload cards for new course */
   if(currentPage==='practice'){
@@ -2066,10 +2090,11 @@ function showToast(msg){
    QUIZ SYSTEM
 ══════════════════════════════════════════ */
 var quizLoaded=false;
-var quizQCounts={};   /* objective_id → question count */
-var quizScores={};    /* objective_id → {correct, total} from quiz_attempts */
-var quizFcCards=[];   /* [{id, objective_ids}] for current course */
-var quizFcMastery={}; /* card_id → last result from card_attempts */
+var quizQCounts={};    /* objective_id → question count */
+var quizScores={};     /* objective_id → {correct, total} from quiz_attempts */
+var quizFcCards=[];    /* [{id, objective_ids}] for current course */
+var quizFcMastery={};  /* card_id → last result from card_attempts */
+var quizMasteryData={}; /* question_id → {consecutive_correct,is_mastered,...} */
 
 function initQuiz(){
   if(quizLoaded) return;
@@ -2116,10 +2141,21 @@ function initQuiz(){
       }).catch(function(e){console.warn('quiz fc mastery:',e);});
   }
 
-  Promise.all([p1,p2,p3,p4]).then(function(){
+  /* p5: question mastery for this user */
+  var p5=Promise.resolve();
+  if(currentUser){
+    p5=sbFetch('/rest/v1/question_mastery?select=question_id,consecutive_correct,total_correct,total_attempts,is_mastered&user_id=eq.'+currentUser.id)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        quizMasteryData={};
+        if(Array.isArray(data)) data.forEach(function(m){ quizMasteryData[m.question_id]=m; });
+      }).catch(function(e){console.warn('quiz mastery:',e);});
+  }
+
+  Promise.all([p1,p2,p3,p4,p5]).then(function(){
     renderQuizPicker();
     renderQuizSidebar();
-    preGenerateAllQuestions(); /* silently generate any missing objectives */
+    preGenerateAllQuestions();
   });
 }
 
@@ -2406,6 +2442,26 @@ function isAnswerCorrect(selected,correct,type){
   return selected.length===1&&correct.indexOf(selected[0])>-1;
 }
 
+/* ── question mastery (2 consecutive correct = mastered) ── */
+function computeQuizMastery(questionId, isCorrect){
+  var ex=quizMasteryData[questionId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
+  var cc=isCorrect?(ex.consecutive_correct||0)+1:0;
+  var tc=(ex.total_correct||0)+(isCorrect?1:0);
+  var ta=(ex.total_attempts||0)+1;
+  return {question_id:questionId,consecutive_correct:cc,total_correct:tc,
+    total_attempts:ta,is_mastered:cc>=2,last_result:isCorrect,
+    last_attempted_at:new Date().toISOString()};
+}
+
+function upsertQuestionMastery(row){
+  if(!currentUser) return;
+  sbFetch('/rest/v1/question_mastery',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
+    body:JSON.stringify(Object.assign({user_id:currentUser.id},row))
+  }).catch(function(e){console.warn('question_mastery upsert:',e);});
+}
+
 function submitQuizAnswer(){
   if(quizSessionSubmitted) return;
   quizSessionSubmitted=true;
@@ -2415,8 +2471,8 @@ function submitQuizAnswer(){
 
   quizSessionResults.push({question:q,selected:quizSessionSelected.slice(),correct:correct,isCorrect:ok});
 
-  /* save attempt */
   if(currentUser&&q.id){
+    /* save raw attempt log */
     sbFetch('/rest/v1/quiz_attempts',{
       method:'POST',
       body:JSON.stringify({user_id:currentUser.id,question_id:q.id,
@@ -2424,6 +2480,11 @@ function submitQuizAnswer(){
         is_correct:ok,session_id:quizSessionId}),
       headers:getAuthHdr()
     }).catch(function(e){console.warn('save attempt:',e);});
+
+    /* upsert question mastery (2 consecutive correct = mastered) */
+    var newMastery=computeQuizMastery(q.id,ok);
+    quizMasteryData[q.id]=newMastery;
+    upsertQuestionMastery(newMastery);
   }
 
   /* colour options */
