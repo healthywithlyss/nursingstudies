@@ -273,9 +273,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-history.unsure{background:#fef9c3;color:#b45309}
 .fc-history.missed{background:#fee2e2;color:var(--missed)}
 /* mastery streak indicator — below rating buttons */
-.fc-streak{display:none;font-size:12px;font-weight:600;color:var(--got);letter-spacing:1px;
+.fc-streak{font-size:12px;font-weight:600;color:var(--got);letter-spacing:1px;
   background:#dcfce7;border-radius:20px;padding:3px 14px;white-space:nowrap;
-  display:inline-block;opacity:0}
+  display:none;opacity:0}
 .fc-streak.show{display:inline-block;opacity:1}
 /* rating buttons */
 .rating-row{display:flex;gap:10px}
@@ -1695,7 +1695,7 @@ function fcSetLoading(){
   hideSummary();
 }
 function fcSetEmpty(msg){
-  resetCardShell(); document.getElementById('fc-card-text').textContent=msg;
+  hideSummary(); resetCardShell(); document.getElementById('fc-card-text').textContent=msg;
   document.getElementById('fc-counter').textContent='0 / 0';
   document.getElementById('fc-prog-fill').style.width='0%';
 }
@@ -1716,10 +1716,10 @@ function resetCardShell(){
 }
 
 function showCard(idx){
+  fcFlipped=false;
   if(idx>=fcDeck.length){
     if(fcPass===1) showPass1Summary(); else showPassNSummary(); return;
   }
-  fcFlipped=false;
   var c=fcDeck[idx];
   resetCardShell();
   document.getElementById('fc-card-text').textContent=c.question;
@@ -1780,8 +1780,10 @@ function fcFlip(){
   });
 }
 
+var fcRating=false; /* guard against double-tap */
 function fcRate(result){
-  if(!fcDeck.length||fcIdx>=fcDeck.length) return;
+  if(fcRating||!fcDeck.length||fcIdx>=fcDeck.length) return;
+  fcRating=true; setTimeout(function(){fcRating=false;},400);
   var c=fcDeck[fcIdx];
 
   /* save snapshot for undo BEFORE mutating anything */
@@ -2192,8 +2194,8 @@ function switchCourse(course){
   renderCtx(currentPage);
   /* reset quiz state for new course */
   quizLoaded=false; quizQCounts={}; quizScores={};
-  quizFcCards=[]; quizFcMastery={}; quizMasteryData={};
-  quizCardMasteryData={}; quizCourseQuestionIds=[];
+  quizFcCards=[]; quizMasteryData={};
+  quizCardMasteryData={}; quizCourseQuestionIds=[]; quizQuestionObjMap={};
   troubleCardIds=[]; troubleQuestionIds=[];
   showQuizPicker();
   /* if on practice page, reload cards for new course */
@@ -2216,12 +2218,12 @@ function showToast(msg){
 ══════════════════════════════════════════ */
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
-var quizScores={};     /* objective_id → {correct, total} from quiz_attempts */
+var quizScores={};     /* objective_id → {correct, total} from quiz_attempts (session scores) */
 var quizFcCards=[];    /* [{id, objective_ids}] for current course */
-var quizFcMastery={};  /* card_id → last result from card_attempts */
 var quizMasteryData={}; /* question_id → {consecutive_correct,is_mastered,...} */
 var quizCardMasteryData={}; /* card_id → full card_mastery row (for trouble detection) */
 var quizCourseQuestionIds=[]; /* all question IDs for current course */
+var quizQuestionObjMap={}; /* question_id → objective_id */
 var troubleCardIds=[];   /* card IDs user consistently struggles with */
 var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
 
@@ -2234,10 +2236,11 @@ function initQuiz(){
   var qUrl='/rest/v1/quiz_questions?select=id,objective_id'
     +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
-    quizQCounts={}; quizCourseQuestionIds=[];
+    quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={};
     if(Array.isArray(data)) data.forEach(function(q){
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
       quizCourseQuestionIds.push(q.id);
+      quizQuestionObjMap[q.id]=q.objective_id;
     });
   }).catch(function(e){console.warn('quiz counts:',e);});
 
@@ -2259,17 +2262,6 @@ function initQuiz(){
     .then(function(r){return r.json();})
     .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
     .catch(function(e){console.warn('quiz fc cards:',e);});
-
-  /* p4: card_attempts for flashcard mastery pct */
-  var p4=Promise.resolve();
-  if(currentUser){
-    p4=sbFetch('/rest/v1/card_attempts?select=card_id,result&user_id=eq.'+currentUser.id+'&order=id.asc')
-      .then(function(r){return r.json();})
-      .then(function(data){
-        quizFcMastery={};
-        if(Array.isArray(data)) data.forEach(function(a){quizFcMastery[a.card_id]=a.result;});
-      }).catch(function(e){console.warn('quiz fc mastery:',e);});
-  }
 
   /* p5: question mastery for this user */
   var p5=Promise.resolve();
@@ -2293,7 +2285,7 @@ function initQuiz(){
       }).catch(function(e){console.warn('quiz card mastery:',e);});
   }
 
-  Promise.all([p1,p2,p3,p4,p5,p6]).then(function(){
+  Promise.all([p1,p2,p3,p5,p6]).then(function(){
     computeTroubleSpots();
     renderQuizPicker();
     renderQuizSidebar();
@@ -2325,8 +2317,22 @@ function getQuizFcPct(objId){
     return pre===objId;
   });
   if(!cards.length) return -1;
-  var got=cards.filter(function(c){return quizFcMastery[c.id]==='got_it';}).length;
+  var got=cards.filter(function(c){return quizCardMasteryData[c.id]&&quizCardMasteryData[c.id].is_mastered;}).length;
   return Math.round(got/cards.length*100);
+}
+
+/* per-objective question mastery from question_mastery table */
+function getQuizQMastery(objId){
+  var total=quizQCounts[objId]||0;
+  if(!total) return null; /* no questions for this objective */
+  var mastered=0;
+  Object.keys(quizQuestionObjMap).forEach(function(qid){
+    if(quizQuestionObjMap[qid]===objId){
+      var m=quizMasteryData[qid];
+      if(m&&m.is_mastered) mastered++;
+    }
+  });
+  return {mastered:mastered,total:total};
 }
 
 function renderQuizPicker(){
@@ -2356,17 +2362,17 @@ function renderQuizPicker(){
 
   Object.keys(og).forEach(function(key){
     var cnt=quizQCounts[key]||0;
-    /* quiz mastery */
-    var sc=quizScores[key];
-    var qPct=sc?Math.round(sc.correct/sc.total*100):-1;
-    var dotCls=sc?(qPct>=80?'good':qPct>=50?'mid':'bad'):'';
-    var qCls=sc?(qPct>=80?'good':qPct>=50?'mid':'bad'):'none';
-    var qText=sc?sc.correct+'/'+sc.total+' ('+qPct+'%)':'Not attempted';
-    /* flashcard mastery */
+    /* quiz mastery — uses question_mastery table (persistent, 2 consecutive = mastered) */
+    var qm=getQuizQMastery(key);
+    var qPct=qm?Math.round(qm.mastered/qm.total*100):-1;
+    var dotCls=qm?(qPct>=80?'good':qPct>=50?'mid':'bad'):'';
+    var qCls=qm?(qPct>=80?'good':qPct>=50?'mid':'bad'):'none';
+    var qText=qm?qm.mastered+'/'+qm.total+' mastered ('+qPct+'%)':'Not attempted';
+    /* flashcard mastery — uses card_mastery table (persistent, 3 consecutive = mastered) */
     var fcPct=getQuizFcPct(key);
     var fcCls=fcPct<0?'none':(fcPct>=80?'good':fcPct>=50?'mid':'bad');
     var fcText=fcPct>=0?fcPct+'%':'–';
-    /* insight: high cards, low quiz */
+    /* insight: high card mastery, low quiz mastery */
     var insight=(fcPct>=70&&(qPct<60||qPct===-1))
       ?'<span class="qp-insight">\u2191 knows facts \u2014 practice application</span>':'';
     var btnLabel=cnt?'Start Quiz ('+cnt+')':'Generate Quiz';
@@ -2393,10 +2399,11 @@ function renderQuizSidebar(){
   var og=getObjGroups();
   var h='<div class="ctx-label">Quiz Mastery</div>';
   Object.keys(og).forEach(function(key){
-    var sc=quizScores[key];
-    var pct=sc?Math.round(sc.correct/sc.total*100):-1;
-    var dotColor=sc?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
-    var label=sc?pct+'%':'–';
+    /* use persistent question_mastery data — mastered questions / total */
+    var qm=getQuizQMastery(key);
+    var pct=qm?Math.round(qm.mastered/qm.total*100):-1;
+    var dotColor=qm?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
+    var label=qm?qm.mastered+'/'+qm.total:'–';
     h+='<button class="section-link" onclick="startQuizFromSidebar(\''+key+'\')">'
       +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
       +'<span class="sl-text">'+og[key]+'</span>'
