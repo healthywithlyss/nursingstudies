@@ -1539,8 +1539,12 @@ function computeNewMastery(cardId, result){
   var cc=result==='got_it'?(ex.consecutive_correct||0)+1:0;
   var tc=(ex.total_correct||0)+(result==='got_it'?1:0);
   var ta=(ex.total_attempts||0)+1;
+  /* Rule: got it on very first attempt → mastered immediately (you know it cold).
+     Any card seen before (was ever unsure or missed) → 3 consecutive correct required. */
+  var firstAttempt=(ex.total_attempts||0)===0;
+  var mastered=result==='got_it'&&(firstAttempt||cc>=3);
   return {card_id:cardId,consecutive_correct:cc,total_correct:tc,
-    total_attempts:ta,is_mastered:cc>=3,last_result:result,
+    total_attempts:ta,is_mastered:mastered,last_result:result,
     last_attempted_at:new Date().toISOString()};
 }
 
@@ -1703,10 +1707,12 @@ function showCard(idx){
   if(streakEl){
     var md=fcMasteryData[c.id];
     var cc=md?md.consecutive_correct:0;
-    if(cc>0&&cc<3){
+    /* only show streak dots when card needs 3 consecutive (has prior attempts) */
+    var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
+    if(needsStreak){
       var dots='';
       for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
-      streakEl.textContent=dots+' '+cc+'/3 toward mastery';
+      streakEl.textContent=dots+' '+cc+'/3 to master';
       streakEl.className='fc-streak show';
     } else {
       streakEl.className='fc-streak';
@@ -1753,8 +1759,8 @@ function fcRate(result){
   /* stats display always reflects the actual button tapped */
   fcStats[result]=(fcStats[result]||0)+1;
 
-  /* pass management: only retire a card when truly mastered (3 consecutive)
-     if user tapped "got it" but streak < 3 → treat as unsure so card stays in deck */
+  /* pass management: retire card only when mastered (first-attempt got_it OR 3 consecutive)
+     if "got it" but not yet mastered (needs more reps) → treat as unsure so it stays in deck */
   var passResult=result;
   if(result==='got_it'&&!newMastery.is_mastered) passResult='unsure';
   fcLastAction.passResult=passResult; /* save for undo */
@@ -2028,29 +2034,21 @@ function hideSummary(){
 }
 
 /* ── resume banner ── */
+/* Auto-resume: called when session data exists — no click required */
 function showResumeBanner(sess){
-  fcLoaded=true;
-  var wrap=document.getElementById('practice-wrap');
-  var existing=document.getElementById('fc-resume-banner');
-  if(existing) existing.remove();
-  var div=document.createElement('div');
-  div.id='fc-resume-banner'; div.className='resume-banner';
-  var remaining=(sess.unsure_ids||[]).length+(sess.missed_ids||[]).length;
-  var og=getObjGroups();
-  var filterLabel=(!sess.deck_filter||sess.deck_filter==='all')
-    ?'All Cards':(og[sess.deck_filter]||sess.deck_filter);
-  div.innerHTML='<span>Pass '+(sess.pass_number||1)+' in progress \u2014 '
-    +remaining+' card'+(remaining!==1?'s':'')+' left to review ('+filterLabel+')</span>'
-    +'<button class="fc-ctrl-btn" onclick="fcResume()">Resume</button>'
-    +'<button class="fc-ctrl-btn" onclick="fcFreshStart()">Start Fresh</button>';
-  wrap.insertBefore(div,wrap.firstChild);
-  div._sess=sess; /* stash for fcResume */
+  /* skip the "click to resume" banner — just resume silently */
+  fcResume(sess);
 }
 
-function fcResume(){
-  var banner=document.getElementById('fc-resume-banner');
-  var sess=banner&&banner._sess;
+function fcResume(sess){
+  /* accept sess directly (auto-resume) or read from legacy banner element */
+  if(!sess){
+    var banner=document.getElementById('fc-resume-banner');
+    sess=banner&&banner._sess;
+  }
   if(!sess){fcFreshStart();return;}
+  var existing=document.getElementById('fc-resume-banner');
+  if(existing) existing.remove();
 
   fcSetLoading();
   var filter=(!sess.deck_filter||sess.deck_filter==='all')?'':sess.deck_filter;
@@ -2070,13 +2068,16 @@ function fcResume(){
       .map(function(id){return cardById[id];})
       .filter(function(c){return c&&!(fcMasteryData[c.id]&&fcMasteryData[c.id].is_mastered);});
 
-    if(banner) banner.remove();
-
     fcPass=sess.pass_number||1;
     fcPass1Results={got_it:sess.got_it_ids||[],
       unsure:sess.unsure_ids||[],missed:sess.missed_ids||[]};
     fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-    fcStats={got_it:0,unsure:0,missed:0};
+    /* restore stat counts from saved pass results */
+    fcStats={
+      got_it:(sess.got_it_ids||[]).length,
+      unsure:(sess.unsure_ids||[]).length,
+      missed:(sess.missed_ids||[]).length
+    };
     fcSessionId='sess-'+Date.now();
 
     if(!reviewDeck.length){
@@ -2094,6 +2095,13 @@ function fcResume(){
       hideSummary(); updateStats(); showCard(0);
       setPassBadge(fcPass);
       renderSidebarObjList();
+      /* show small non-blocking "picked up where you left off" notice */
+      var info=document.getElementById('prog-deck-info');
+      if(info) info.innerHTML=reviewDeck.length+' card'+(reviewDeck.length!==1?'s':'')+' remaining'
+        +' &nbsp;<button onclick="fcFreshStart()" style="background:none;border:none;'
+        +'color:var(--text-muted);font-size:11px;cursor:pointer;text-decoration:underline;'
+        +'padding:0;font-family:inherit">Start Fresh</button>';
+      showToast('\u21a9 Picked up where you left off');
     }
   }).catch(function(e){console.error(e);fcFreshStart();});
 }
