@@ -2413,17 +2413,13 @@ function generateTargetedQuestions(){
 }
 
 function buildTargetedPrompt(guideText,missedFacts){
-  return 'You are an NCLEX exam writer for nursing students.\n\n'
-    +'STRICT RULE: Use ONLY the study guide content provided. No outside facts.\n\n'
-    +'STUDY GUIDE CONTENT:\n'+(guideText||'(see missed facts below)')+'\n\n'
-    +'The student got these questions wrong:\nMISSED FACTS:\n'+missedFacts+'\n\n'
-    +'TASK:\n'
-    +'Generate new questions targeting ONLY these missed facts.\n'
-    +'Each missed fact should appear in at least 2 new questions.\n'
-    +'Use different clinical scenarios than the original questions.\n'
-    +'Use different question types than the ones the student got wrong.\n\n'
-    +'Same JSON format:\n'
-    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. text","B. text","C. text","D. text"],"correct":["B"],"explanation":"B is correct because...","fact_tested":"which flashcard fact"}]}';
+  return 'NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
+    +'STUDY GUIDE:\n'+(guideText||'(see missed facts below)')+'\n\n'
+    +'MISSED FACTS (student got these wrong):\n'+missedFacts+'\n\n'
+    +'Generate 2 new questions per missed fact using different scenarios and question types.\n'
+    +'Max 8 questions total. Clinical scenarios only. Only test the missed facts above.\n\n'
+    +'JSON only — no markdown:\n'
+    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
 }
 
 function showTargetedResults(){
@@ -2461,10 +2457,12 @@ function showTargetedResults(){
 
 function getStudyGuideText(objId){
   var ids=QUIZ_SECTION_MAP[objId]||[];
-  return ids.map(function(id){
+  var text=ids.map(function(id){
     var el=document.getElementById(id);
     return el?el.textContent.replace(/\s+/g,' ').trim():'';
   }).filter(Boolean).join('\n\n');
+  /* cap at 1500 chars to keep input tokens low — flashcards carry the detail */
+  return text.length>1500?text.slice(0,1500)+'…':text;
 }
 
 function getFlashcardsForObj(objId){
@@ -2481,22 +2479,16 @@ function getFlashcardsForObj(objId){
 }
 
 function buildGeminiPrompt(objName,guideText,flashText){
-  return 'You are an NCLEX exam writer for nursing students.\n\n'
-    +'STRICT RULE: Generate questions ONLY based on the study guide content provided. Do not use any outside nursing knowledge.\n\n'
-    +'STUDY GUIDE CONTENT:\n'+(guideText||'(see flashcard facts)')+'\n\n'
+  return 'NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
+    +'STUDY GUIDE:\n'+(guideText||'(see facts below)')+'\n\n'
     +'OBJECTIVE: '+objName+'\n\n'
-    +'FLASHCARD FACTS FOR THIS OBJECTIVE:\n'+flashText+'\n\n'
-    +'TASK:\n'
-    +'Generate NCLEX-style application questions covering EVERY distinct fact above (at least 1 question per fact).\n'
-    +'Mix question types:\n'
-    +'- multiple_choice: 4 options, 1 correct\n'
-    +'- select_all: 4-6 options, 2-4 correct\n'
-    +'- priority: "Which action should the nurse take FIRST?"\n'
-    +'- delegation: "Which task can the nurse safely delegate to the UAP?"\n\n'
-    +'Put every question in a clinical scenario. Make distractors plausible.\n'
-    +'Do NOT test anything not in the provided content.\n\n'
-    +'Respond in JSON only — no markdown, no other text:\n'
-    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. text","B. text","C. text","D. text"],"correct":["B"],"explanation":"B is correct because...","fact_tested":"which flashcard fact"}]}';
+    +'FACTS:\n'+flashText+'\n\n'
+    +'Generate exactly 10 NCLEX application questions. Mix types:\n'
+    +'multiple_choice (4 opts, 1 correct), select_all (4-5 opts, 2-3 correct), '
+    +'priority (nurse first action), delegation (UAP task).\n'
+    +'Clinical scenario for each. Plausible distractors. Only test facts listed above.\n\n'
+    +'JSON only — no markdown:\n'
+    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
 }
 
 function callGemini(prompt){
@@ -2507,7 +2499,7 @@ function callGemini(prompt){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.7,maxOutputTokens:8192},
+      generationConfig:{temperature:0.7,maxOutputTokens:2048},
       safetySettings:[
         {category:'HARM_CATEGORY_HARASSMENT',        threshold:'BLOCK_ONLY_HIGH'},
         {category:'HARM_CATEGORY_HATE_SPEECH',       threshold:'BLOCK_ONLY_HIGH'},
