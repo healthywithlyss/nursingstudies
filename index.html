@@ -1555,33 +1555,24 @@ function loadMastery(onDone){
 
 /* ── mastery computation ── */
 /* Mastery rules:
-   1. Got it on FIRST ever attempt → mastered immediately
-   2. Was unsure (never missed) → 3 consecutive got_it required
-   3. Was missed → must get "unsure" once to unlock, THEN 3 consecutive got_it
-   missed_lock tracks rule 3: true = still needs an unsure before streak counts */
+   1. Got it on FIRST ever attempt (total_attempts===0) → mastered immediately, retired.
+   2. Card ever seen before (any prior Unsure/Missed/Got-it-not-mastered) → needs
+      3 consecutive Got its. Unsure or Missed at any point resets the streak to 0.
+   missed_lock is no longer used; always written as false for DB compatibility. */
 function computeNewMastery(cardId, result){
-  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false,missed_lock:false};
+  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
   var tc=(ex.total_correct||0)+(result==='got_it'?1:0);
   var ta=(ex.total_attempts||0)+1;
   var firstAttempt=(ex.total_attempts||0)===0;
 
-  /* update missed_lock */
-  var missedLock=ex.missed_lock||false;
-  if(result==='missed'){
-    missedLock=true;          /* card missed → lock it */
-  } else if(result==='unsure'&&missedLock){
-    missedLock=false;         /* unsure after miss → unlock, streak can now count */
-  }
-  /* got_it while locked keeps the lock (can't bypass unsure step) */
+  /* streak: increments on Got it, resets to 0 on Unsure or Missed */
+  var cc=result==='got_it'?(ex.consecutive_correct||0)+1:0;
 
-  /* consecutive streak: only increments on got_it AND not locked */
-  var cc=(result==='got_it'&&!missedLock)?(ex.consecutive_correct||0)+1:0;
-
-  /* mastery: immediate on first attempt, OR 3-streak once unlocked */
-  var mastered=result==='got_it'&&!missedLock&&(firstAttempt||cc>=3);
+  /* mastery: first-attempt Got it → immediate; otherwise 3 consecutive Got its */
+  var mastered=result==='got_it'&&(firstAttempt||cc>=3);
 
   return {card_id:cardId,consecutive_correct:cc,total_correct:tc,
-    total_attempts:ta,is_mastered:mastered,missed_lock:missedLock,
+    total_attempts:ta,is_mastered:mastered,missed_lock:false,
     last_result:result,last_attempted_at:new Date().toISOString()};
 }
 
@@ -1744,30 +1735,25 @@ function showCard(idx){
     hist.className='fc-history '+CLASSES[prior]+' show';
     hist.textContent='Previously: '+LABELS[prior];
   }
-  /* mastery streak dots — show existing streak before this rating */
+  /* mastery streak dots — only shown on cards with prior Unsure/Missed history
+     (total_attempts>0 + not first attempt) where a streak is building toward 3 */
   var streakEl=document.getElementById('fc-streak');
   if(streakEl){
     var md=fcMasteryData[c.id];
-    var cc=md?md.consecutive_correct:0;
-    var isLocked=md&&md.missed_lock;
-    if(isLocked){
-      /* missed-locked: user needs to rate unsure before streak counts */
-      streakEl.textContent='\u26a0\ufe0f Rate \u201eUnsure\u201c to unlock streak';
+    var cc=md?(md.consecutive_correct||0):0;
+    /* Show ● ○ ○ / ● ● ○ only when: card has been seen before AND
+       has at least one streak going AND hasn't reached mastery threshold yet.
+       Never shows on first-attempt cards (total_attempts===0 → md undefined or 0). */
+    var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
+    if(needsStreak){
+      var dots='';
+      for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
+      streakEl.textContent=dots+' '+cc+'/3 to master';
+      streakEl.style.background=''; streakEl.style.color='';
       streakEl.className='fc-streak show';
-      streakEl.style.background='#fee2e2'; streakEl.style.color='#b91c1c';
     } else {
-      /* only show streak dots when card needs 3 consecutive (has prior attempts) */
-      var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
-      if(needsStreak){
-        var dots='';
-        for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
-        streakEl.textContent=dots+' '+cc+'/3 to master';
-        streakEl.style.background=''; streakEl.style.color='';
-        streakEl.className='fc-streak show';
-      } else {
-        streakEl.style.background=''; streakEl.style.color='';
-        streakEl.className='fc-streak';
-      }
+      streakEl.style.background=''; streakEl.style.color='';
+      streakEl.className='fc-streak';
     }
   }
 
@@ -1883,13 +1869,14 @@ function fcUndo(){
 }
 
 function updateStats(){
+  /* Update the three counters synchronously so they're always current */
   document.getElementById('stat-got').textContent=fcStats.got_it||0;
   document.getElementById('stat-unsure').textContent=fcStats.unsure||0;
   document.getElementById('stat-missed').textContent=fcStats.missed||0;
   var info=document.getElementById('prog-deck-info');
   if(info) info.textContent=fcDeck.length+' card'+(fcDeck.length!==1?'s':'')+' in deck';
-  renderObjBars();
-  renderSidebarObjList();
+  /* Defer the heavier sidebar/bar re-renders so the counter paint isn't blocked */
+  setTimeout(function(){ renderObjBars(); renderSidebarObjList(); },0);
 }
 
 /* ── objective progress bars ── */
