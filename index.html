@@ -403,6 +403,13 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qb-start-btn:disabled{opacity:.45;cursor:not-allowed}
 .qb-avail{font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center;
   min-height:16px}
+/* generation progress bar */
+.qb-gen-bar{background:var(--cobalt-bg);border:1px solid #bfdbfe;border-radius:var(--r-card);
+  padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+  font-size:13px;color:var(--cobalt)}
+.qb-gen-bar .qs-spinner{width:16px;height:16px;border-color:#bfdbfe;
+  border-top-color:var(--cobalt);flex-shrink:0;margin:0}
+.qb-gen-bar strong{color:var(--cobalt)}
 
 /* ── QUESTION BANK ── */
 .qbank-section{margin-top:28px}
@@ -1183,6 +1190,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <!-- available question count line, updated by updateBuilderSlider() -->
             <div class="qb-avail" id="qb-avail"></div>
           </div>
+
+          <!-- generation progress bar — shown/hidden by preGenerateAllQuestions() -->
+          <div id="qb-gen-status" style="display:none"></div>
 
           <!-- question bank section, rendered by renderQuizBank() -->
           <div class="qbank-section" id="qbank-section">
@@ -3332,22 +3342,26 @@ function getFlashcardsForObj(objId){
 }
 
 function buildGeminiPrompt(objName,guideText,flashText){
-  return 'You are an NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
-    +'STUDY GUIDE:\n'+(guideText||'(see facts below)')+'\n\n'
-    +'OBJECTIVE: '+objName+'\n\n'
-    +'FACTS:\n'+flashText+'\n\n'
-    +'Generate exactly 10 NCLEX application questions using these types ONLY:\n'
-    +'  • multiple_choice — 4 options, 1 correct answer\n'
-    +'  • select_all — 4-5 options, 2-3 correct answers\n'
-    +'  • priority — nurse\'s first/priority action (ONLY use when objective involves clinical decision-making or nursing interventions)\n\n'
-    +'RULES:\n'
-    +'- Only generate question types that are relevant to the objective content.\n'
-    +'- Do NOT use priority framing for definition-based, anatomy, or vocabulary objectives.\n'
-    +'- Do NOT generate delegation questions under any circumstances.\n'
-    +'- Every question must be a clinical scenario with plausible distractors.\n'
-    +'- Only test facts explicitly listed above — no outside knowledge.\n\n'
-    +'Return valid JSON only — no markdown, no extra text:\n'
-    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
+  return 'You are an NCLEX exam writer for nursing students.\n\n'
+    +'STRICT RULE: Use ONLY the content below. No outside facts.\n\n'
+    +'STUDY GUIDE CONTENT:\n'+(guideText||'(not available — use flashcard facts only)')+'\n\n'
+    +'FLASHCARD FACTS FOR THIS OBJECTIVE ('+objName+'):\n'+flashText+'\n\n'
+    +'Generate NCLEX-style questions covering EVERY distinct fact above.\n'
+    +'Minimum 1 question per fact — more for complex facts.\n'
+    +'Use clinical patient scenarios.\n'
+    +'Mix types: multiple_choice, select_all, priority.\n'
+    +'Do NOT use delegation questions for clinical/assessment objectives.\n'
+    +'Make distractors plausible — common mistakes, not obvious wrong answers.\n\n'
+    +'Respond in JSON only — no markdown, no extra text:\n'
+    +'{"questions":[{'
+    +'"type":"multiple_choice",'
+    +'"stem":"A nurse is caring for...",'
+    +'"options":["A. text","B. text","C. text","D. text"],'
+    +'"correct":["B"],'
+    +'"explanation":"explanation from study guide only",'
+    +'"fact_tested":"which flashcard fact this covers",'
+    +'"objective_id":"'+objName+'"'
+    +'}]}';
 }
 
 /* ── Background pre-generation of ALL quiz questions ── */
@@ -3400,30 +3414,35 @@ function preGenerateAllQuestions(){
   var missing=Object.keys(og).filter(function(k){ return !(quizQCounts[k]>0); });
   if(!missing.length) return;
 
-  /* inject a status bar above qp-body */
-  var body=document.getElementById('qp-body');
-  if(!body) return;
-  var bar=document.createElement('div');
-  bar.id='qp-gen-status';
-  bar.style.cssText='margin:0 0 14px 0;padding:10px 16px;background:var(--card-bg);'
-    +'border:1px solid var(--border);border-radius:8px;font-size:13px;'
-    +'color:var(--text-muted);display:flex;align-items:center;gap:10px;';
-  bar.innerHTML='<div class="qs-spinner" style="width:16px;height:16px;margin:0"></div>'
-    +'<span>Generating questions — <strong id="qp-gen-left">'+missing.length+'</strong> objectives remaining…</span>';
-  body.parentNode.insertBefore(bar,body);
+  /* show the dedicated status bar that lives between builder and bank */
+  var bar=document.getElementById('qb-gen-status');
+  if(bar){
+    bar.innerHTML='<div class="qb-gen-bar"><div class="qs-spinner"></div>'
+      +'<span>Generating questions — <strong id="qp-gen-left">'+missing.length+'</strong> section'
+      +(missing.length!==1?'s':'')+' remaining\u2026</span></div>';
+    bar.style.display='';
+  }
 
   var remaining=missing.slice();
   function genNext(){
     if(!remaining.length){
-      var s=document.getElementById('qp-gen-status');
-      if(s) s.innerHTML='<span>✅ All questions ready.</span>';
-      setTimeout(function(){ var s2=document.getElementById('qp-gen-status'); if(s2) s2.remove(); },3000);
+      /* all done — swap to a success message then hide */
+      var b=document.getElementById('qb-gen-status');
+      if(b){
+        b.innerHTML='<div class="qb-gen-bar" style="border-color:#bbf7d0;background:#f0fdf4;color:var(--forest)">'
+          +'<span>✅ All questions ready.</span></div>';
+        setTimeout(function(){
+          var b2=document.getElementById('qb-gen-status');
+          if(b2){ b2.style.display='none'; b2.innerHTML=''; }
+        },3000);
+      }
       renderQuizBuilder();
+      renderQuizBank();
       return;
     }
     var objId=remaining.shift();
     backgroundGenerateForObj(objId)
-      .then(function(){ /* success — update counter and picker */
+      .then(function(){
         var lbl=document.getElementById('qp-gen-left');
         if(lbl) lbl.textContent=remaining.length;
         renderQuizBuilder();
