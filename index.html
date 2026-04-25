@@ -1086,6 +1086,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
         </div>
       </div>
       <div id="quiz-session-view" style="display:none"></div>
+      <!-- TEMP DEBUG — remove after model is confirmed -->
+      <div style="padding:8px 16px">
+        <button onclick="debugListModels()" style="font-size:11px;padding:4px 10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;cursor:pointer;color:#64748b">
+          🔍 Debug: list available Gemini models (check console)
+        </button>
+      </div>
     </div><!-- /page-quiz -->
 
   </main>
@@ -2612,6 +2618,28 @@ function callGemini(prompt){
       throw new Error('Gemini returned invalid JSON — see console');
     }
   });
+}
+
+/* TEMP DEBUG — remove after model confirmed */
+function debugListModels(){
+  console.log('Fetching available Gemini models via edge function…');
+  fetch(SB_URL+'/functions/v1/generate-quiz',{
+    method:'POST',
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+    body:JSON.stringify({action:'listModels'})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    console.log('=== AVAILABLE GEMINI MODELS ===');
+    if(data.models){
+      data.models.forEach(function(m){
+        console.log(m.name, '|', m.displayName, '| methods:', (m.supportedGenerationMethods||[]).join(', '));
+      });
+    } else {
+      console.log('Unexpected response:', JSON.stringify(data,null,2));
+    }
+  })
+  .catch(function(e){ console.error('debugListModels error:',e); });
 }
 
 initApp();
