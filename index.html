@@ -511,6 +511,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <input type="password" id="auth-password" class="auth-input" placeholder="Password" autocomplete="current-password">
     <button class="auth-submit" id="auth-submit" onclick="handleAuthSubmit()">Log In</button>
     <div id="auth-msg" class="auth-msg"></div>
+    <div id="forgot-wrap" style="text-align:center;margin-top:-4px">
+      <button onclick="handleForgotPassword()" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;padding:0;text-decoration:underline">Forgot password?</button>
+    </div>
   </div>
 </div>
 
@@ -1307,7 +1310,7 @@ async function handleAuthSubmit(){
   if(authMode==='signup'){
     var r=await sb.auth.signUp({email:email,password:pwd});
     if(r.error){setAuthMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Sign Up';}
-    else{setAuthMsg('Check your email to confirm your account.','ok');btn.disabled=false;btn.textContent='Sign Up';}
+    else{setAuthMsg('Account created! Check your email and click the confirmation link, then log in here.','ok');btn.disabled=false;btn.textContent='Sign Up';}
   } else {
     var r=await sb.auth.signInWithPassword({email:email,password:pwd});
     if(r.error){setAuthMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Log In';}
@@ -1317,6 +1320,17 @@ async function handleAuthSubmit(){
 
 async function handleSignOut(){
   await getSb().auth.signOut();
+}
+
+async function handleForgotPassword(){
+  var email=document.getElementById('auth-email').value.trim();
+  if(!email){setAuthMsg('Enter your email address first.','err');return;}
+  var sb=getSb();
+  var r=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo: window.location.href
+  });
+  if(r.error) setAuthMsg(r.error.message,'err');
+  else setAuthMsg('Password reset email sent — check your inbox.','ok');
 }
 
 function showAuthScreen(){
@@ -1349,12 +1363,17 @@ async function initApp(){
     showAuthScreen();
   }
   sb.auth.onAuthStateChange(function(event,session){
-    if(event==='SIGNED_IN'&&session){
+    if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session){
       currentUser=session.user;
       currentToken=session.access_token;
-      /* reset practice state on new login */
       fcLoaded=false;fcAllCards=[];fcDeck=[];
       showApp();
+    } else if(event==='PASSWORD_RECOVERY'){
+      /* user clicked reset link — show auth screen so they can set new password */
+      showAuthScreen();
+      setAuthMode('login');
+      setAuthMsg('Enter a new password below to reset your account.','ok');
+      document.getElementById('auth-password').focus();
     } else if(event==='SIGNED_OUT'){
       currentUser=null;currentToken=null;
       fcLoaded=false;fcAllCards=[];fcDeck=[];
