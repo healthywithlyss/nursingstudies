@@ -220,6 +220,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .prog-top{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
 .prog-pass-label{font-size:10px;font-weight:700;text-transform:uppercase;
   letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px}
+.prog-mastery-label{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text-muted);margin-bottom:4px}
+.prog-mastery-num{font-size:26px;font-weight:800;color:var(--got);line-height:1;margin-bottom:10px;
+  font-variant-numeric:tabular-nums}
+.prog-mastery-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.prog-mastery-fill{height:100%;background:var(--got);border-radius:3px;transition:width .4s ease;width:0%}
 .prog-stats-row{display:flex;justify-content:space-between;margin-bottom:10px}
 .prog-stat{display:flex;flex-direction:column;align-items:center;flex:1}
 .prog-stat-num{font-size:22px;font-weight:800;line-height:1}
@@ -1088,23 +1094,13 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <span>&#128202; Progress</span><span class="mob-arrow">&#9660;</span>
             </div>
             <div class="prog-top">
-              <div class="prog-pass-label" id="prog-pass-label">Loading…</div>
-              <div class="prog-stats-row">
-                <div class="prog-stat">
-                  <span class="prog-stat-num" id="stat-got" style="color:var(--got)">0</span>
-                  <span class="prog-stat-lbl got-lbl">Got it</span>
-                </div>
-                <div class="prog-stat">
-                  <span class="prog-stat-num" id="stat-unsure" style="color:var(--unsure)">0</span>
-                  <span class="prog-stat-lbl unsure-lbl">Unsure</span>
-                </div>
-                <div class="prog-stat">
-                  <span class="prog-stat-num" id="stat-missed" style="color:var(--missed)">0</span>
-                  <span class="prog-stat-lbl missed-lbl">Missed</span>
-                </div>
+              <div class="prog-mastery-label">Mastered</div>
+              <div class="prog-mastery-num" id="prog-mastery-num">0 / 0</div>
+              <div class="prog-mastery-track">
+                <div class="prog-mastery-fill" id="prog-mastery-fill"></div>
               </div>
               <div class="prog-deck-info" id="prog-deck-info">&nbsp;</div>
-              <button class="prog-restart-btn" onclick="fcRestart()">&#9654; Restart Session</button>
+              <button class="prog-restart-btn" onclick="fcRestart()">&#8635; Restart Session</button>
             </div>
             <div class="prog-obj-list" id="obj-list">
               <div style="padding:12px 16px;font-size:12px;color:var(--text-muted)">Loading…</div>
@@ -1321,24 +1317,21 @@ function renderSidebarObjList(){
     return;
   }
 
-  /* build per-prefix mastery stats from Supabase-backed fcMasteryMap */
+  /* build per-prefix mastery stats from current session state */
   var groups={};
   fcAllCards.forEach(function(c){
     var prefix=(c.objective_ids&&c.objective_ids.length)
       ? c.objective_ids[0].replace(/_\d+$/,'') : 'other';
-    if(!groups[prefix]) groups[prefix]={total:0,mastered:0,attempted:0};
+    if(!groups[prefix]) groups[prefix]={total:0,mastered:0};
     groups[prefix].total++;
-    var md=fcMasteryData[c.id];
-    if(md){
-      groups[prefix].attempted++;
-      if(md.is_mastered) groups[prefix].mastered++;
-    }
+    if(sess&&sess.cardState&&(sess.cardState[c.id]||{}).status==='mastered') groups[prefix].mastered++;
   });
 
   var h='<div class="ctx-label">Objectives</div>';
+  var filter=sess?sess.deckFilter:'';
 
   /* All Cards */
-  var allActive=fcCurrentFilter===''?' active':'';
+  var allActive=filter===''?' active':'';
   h+='<button class="section-link'+allActive+'" onclick="goToAndFilter(\'\')">'
     +'<span class="dot" style="opacity:1;background:var(--accent)"></span>'
     +'<span class="sl-text">All Cards</span>'
@@ -1350,9 +1343,9 @@ function renderSidebarObjList(){
   Object.keys(og).forEach(function(key){
     var g=groups[key]; if(!g) return;
     var pct=g.total?Math.round(g.mastered/g.total*100):0;
-    var dotColor=g.attempted===0?'rgba(255,255,255,.18)'
+    var dotColor=g.mastered===0?'rgba(255,255,255,.18)'
       :pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
-    var isActive=fcCurrentFilter===key?' active':'';
+    var isActive=filter===key?' active':'';
     h+='<button class="section-link'+isActive+'" onclick="goToAndFilter(\''+key+'\')">'
       +'<span class="dot" style="opacity:1;background:'+dotColor+'"></span>'
       +'<span class="sl-text">'+og[key]+'</span>'
@@ -1361,11 +1354,8 @@ function renderSidebarObjList(){
   });
 
   ctx.innerHTML=h;
-
-  /* sidebar footer: lifetime cards rated */
-  var rated=Object.keys(fcMasteryMap).length;
   var footer=document.getElementById('session-counter');
-  if(footer) footer.textContent=rated>0?rated+' cards rated':'';
+  if(footer) footer.textContent='';
 }
 
 function goToAndFilter(key){
@@ -1515,10 +1505,10 @@ async function initApp(){
       currentToken=session.access_token;
       /* Only reset practice state when the user actually changes.
          TOKEN_REFRESHED fires every ~hour for the same user — resetting
-         fcDeck/fcLoaded there would silently break ongoing card sessions
-         because fcRate() guards on !fcDeck.length and returns early. */
+         reloading fcLoaded/sess there would silently break ongoing card sessions. */
       if(prevUserId!==session.user.id){
-        fcLoaded=false;fcAllCards=[];fcDeck=[];
+        fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
+        sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
       }
       showApp();
     } else if(event==='PASSWORD_RECOVERY'){
@@ -1529,31 +1519,35 @@ async function initApp(){
       document.getElementById('auth-password').focus();
     } else if(event==='SIGNED_OUT'){
       currentUser=null;currentToken=null;
-      fcLoaded=false;fcAllCards=[];fcDeck=[];
+      fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
+      sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
       showAuthScreen();
     }
   });
 }
 
-/* ── PRACTICE ── */
-var fcDeck=[],fcAllCards=[],fcIdx=0,fcFlipped=false,fcPass=1;
-/* fcStats removed — counters derived from fcMasteryData + fcCurrentPassResults in updateStats() */
-var fcPass1Results={got_it:[],unsure:[],missed:[]};
-var fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-var fcMasteryMap={};   /* card_id → last_result string (for "Previously" badge) */
-var fcMasteryData={};  /* card_id → full mastery row {consecutive_correct,total_correct,total_attempts,is_mastered} */
-var fcLastAction=null; /* {idx,cardId,result,passResult,prevMastery,prevMasteryMap} — for undo */
-var fcSessionId='sess-'+Date.now();
-var fcCurrentFilter='';
+/* ═══════════════════════════════════════════════════════════
+   PRACTICE — complete rewrite
+   Single source of truth: sess.cardState
+   No passes, no separate counters — everything derived.
+═══════════════════════════════════════════════════════════ */
+
+/* ── Session state ── */
+var sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
+/* cardState entry: {status:'unseen'|'active'|'mastered', firstAttempt:null|result,
+                     consecutiveCorrect:0, lastResult:null|result} */
+
+/* ── Global helpers ── */
+var fcAllCards=[];    /* all cards for course — never mutated */
 var fcLoaded=false;
-var fcPendingIds=null; /* if set, initPractice starts a focused deck with these card IDs */
+var fcPendingIds=null;
 var fcShuffleOn=false;
-var _pendingSess=null; /* set when resume prompt is shown; buttons read it */
-
-function getLsKey(){return 'nursestudy_'+(currentUser?currentUser.id:'anon');}
-
-/* back-compat alias */
-var LS_KEY='nur118_fc_v2';
+var fcFlipped=false;
+var fcCurrentCard=null;
+var fcLastAction=null; /* {cardId, result, prevCs, prevCyclePos} */
+var fcRating=false;
+var fcCycleQueue=[];   /* ordered card list for current cycle */
+var fcCyclePos=0;      /* position within fcCycleQueue */
 
 var currentCourse='NUR118';
 
@@ -1584,423 +1578,329 @@ function sbFetch(path,opts){
   return fetch(SB_URL+path,Object.assign({headers:getAuthHdr()},opts));
 }
 
-/* ── localStorage session persistence ── */
-function lsKey(){return 'nursestudy_session_'+(currentUser?currentUser.id:'anon');}
-function lsSave(data){try{localStorage.setItem(lsKey(),JSON.stringify(data));}catch(e){console.warn('lsSave:',e);}}
-function lsLoad(){try{var v=localStorage.getItem(lsKey());return v?JSON.parse(v):null;}catch(e){return null;}}
-function lsClear(){try{localStorage.removeItem(lsKey());}catch(e){}}
-
-function saveSessionState(){
-  if(!currentUser) return;
-  var p1=fcPass1Results||{got_it:[],unsure:[],missed:[]};
-  var cp=fcCurrentPassResults||{got_it:[],unsure:[],missed:[]};
-  function uniq(a){return a.filter(function(v,i){return a.indexOf(v)===i;});}
-  lsSave({
-    pass_number:fcPass,
-    deck_filter:fcCurrentFilter||'all',
-    got_it_ids:uniq(p1.got_it.concat(cp.got_it)),
-    unsure_ids:uniq(p1.unsure.concat(cp.unsure)),
-    missed_ids:uniq(p1.missed.concat(cp.missed)),
-    updated_at:new Date().toISOString()
-  });
+/* ── localStorage ── */
+function lsKey(filter){
+  var f=(filter===undefined?sess.deckFilter:filter)||'all';
+  return 'nursestudy_session_'+(currentUser?currentUser.id:'anon')+'_'+f;
+}
+function lsSave(){
+  try{localStorage.setItem(lsKey(),JSON.stringify({cardState:sess.cardState,sessionId:sess.sessionId}));}
+  catch(e){console.warn('lsSave:',e);}
+}
+function lsLoad(filter){
+  try{var v=localStorage.getItem(lsKey(filter));return v?JSON.parse(v):null;}catch(e){return null;}
+}
+function lsClear(filter){
+  try{localStorage.removeItem(lsKey(filter!==undefined?filter:sess.deckFilter));}catch(e){}
 }
 
-function clearSessionState(){
-  lsClear();
-  _pendingSess=null;
+/* ── mastery computation (session-local) ── */
+/* Rules:
+   First time seeing card (firstAttempt===null):
+     Got it  → mastered immediately (status='mastered')
+     Unsure/Missed → status='active', consecutiveCorrect=0
+   Card seen before (firstAttempt already set):
+     Got it  → consecutiveCorrect+1; if >=3 → mastered
+     Unsure/Missed → consecutiveCorrect=0, stay active */
+function computeCardState(cardId,result){
+  var cs=sess.cardState[cardId]||{status:'unseen',firstAttempt:null,consecutiveCorrect:0,lastResult:null};
+  var n={status:cs.status,firstAttempt:cs.firstAttempt,
+         consecutiveCorrect:cs.consecutiveCorrect,lastResult:result};
+  if(cs.firstAttempt===null){
+    n.firstAttempt=result;
+    if(result==='got_it'){n.status='mastered';n.consecutiveCorrect=1;}
+    else{n.status='active';n.consecutiveCorrect=0;}
+  } else {
+    if(result==='got_it'){
+      n.consecutiveCorrect=cs.consecutiveCorrect+1;
+      n.status=n.consecutiveCorrect>=3?'mastered':'active';
+    } else {
+      n.consecutiveCorrect=0;n.status='active';
+    }
+  }
+  return n;
 }
 
-function loadSessionFromSupabase(onSession, onFresh){
-  /* now reads from localStorage synchronously */
-  var s=lsLoad();
-  if(!s){onFresh();return;}
-  var hasReview=(s.unsure_ids&&s.unsure_ids.length)||(s.missed_ids&&s.missed_ids.length);
-  if(hasReview) onSession(s); else {lsClear();onFresh();}
+function getMasteredCount(){
+  if(!sess||!sess.cards) return 0;
+  return sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status==='mastered';}).length;
 }
 
-/* ── mastery loading ── */
-function loadMastery(onDone){
-  if(!currentUser){if(onDone) onDone(); return;}
-  sbFetch('/rest/v1/card_mastery?select=card_id,consecutive_correct,total_correct,total_attempts,is_mastered,missed_lock,last_result&user_id=eq.'+currentUser.id)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(Array.isArray(data)){
-        fcMasteryData={};
-        data.forEach(function(m){
-          fcMasteryData[m.card_id]=m;
-          fcMasteryMap[m.card_id]=m.last_result;
-        });
-        renderObjBars();
-        renderSidebarObjList();
-      }
-      if(onDone) onDone();
-    })
-    .catch(function(e){console.warn('mastery load:',e); if(onDone) onDone();});
-}
-
-/* ── mastery computation ── */
-/* Mastery rules:
-   1. Got it on FIRST ever attempt (total_attempts===0) → mastered immediately, retired.
-   2. Card ever seen before (any prior Unsure/Missed/Got-it-not-mastered) → needs
-      3 consecutive Got its. Unsure or Missed at any point resets the streak to 0.
-   missed_lock is no longer used; always written as false for DB compatibility. */
-function computeNewMastery(cardId, result){
-  var ex=fcMasteryData[cardId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
-  var tc=(ex.total_correct||0)+(result==='got_it'?1:0);
-  var ta=(ex.total_attempts||0)+1;
-  var firstAttempt=(ex.total_attempts||0)===0;
-
-  /* streak: increments on Got it, resets to 0 on Unsure or Missed */
-  var cc=result==='got_it'?(ex.consecutive_correct||0)+1:0;
-
-  /* mastery: first-attempt Got it → immediate; otherwise 3 consecutive Got its */
-  var mastered=result==='got_it'&&(firstAttempt||cc>=3);
-
-  return {card_id:cardId,consecutive_correct:cc,total_correct:tc,
-    total_attempts:ta,is_mastered:mastered,missed_lock:false,
-    last_result:result,last_attempted_at:new Date().toISOString()};
-}
-
-function upsertCardMastery(masteryRow){
+/* ── Supabase write (fire-and-forget analytics) ── */
+function upsertCardMastery(cardId,cs){
   if(!currentUser) return;
   sbFetch('/rest/v1/card_mastery',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
-    body:JSON.stringify(Object.assign({user_id:currentUser.id},masteryRow))
-  }).catch(function(e){console.warn('card_mastery upsert:',e);});
+    body:JSON.stringify({
+      user_id:currentUser.id,card_id:cardId,
+      consecutive_correct:cs.consecutiveCorrect,
+      is_mastered:cs.status==='mastered',
+      last_result:cs.lastResult,missed_lock:false,
+      last_attempted_at:new Date().toISOString()
+    })
+  }).catch(function(e){console.warn('card_mastery:',e);});
 }
 
-/* ── init ── */
+/* ── Cycle management ── */
+function buildCycle(){
+  var active=sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status!=='mastered';});
+  if(!active.length){showCompletionScreen();return false;}
+  if(fcShuffleOn){
+    var missed=active.filter(function(c){return(sess.cardState[c.id]||{}).lastResult==='missed';});
+    var unsure=active.filter(function(c){
+      var r=(sess.cardState[c.id]||{}).lastResult;return r&&r!=='missed'&&r!=='unseen';
+    });
+    var other=active.filter(function(c){
+      var s=sess.cardState[c.id]||{};return s.lastResult!=='missed'&&(!s.lastResult||s.lastResult==='unseen');
+    });
+    fcCycleQueue=shuffleArr(missed.slice()).concat(shuffleArr(unsure.slice())).concat(shuffleArr(other.slice()));
+  } else {
+    fcCycleQueue=active.slice();
+  }
+  fcCyclePos=0;
+  return true;
+}
+
+/* ── Init ── */
 function initPractice(){
   if(fcLoaded) return;
   fcSetLoading();
-  /* load mastery + session in parallel, then decide what to show */
-  var masteryDone=false, sessionData=null, sessionChecked=false;
-  function maybeStart(){
-    if(!masteryDone||!sessionChecked) return;
-    if(fcPendingIds){ var ids=fcPendingIds; fcPendingIds=null; startPracticeWithIds(ids); return; }
-    if(sessionData){
-      showResumeBanner(sessionData);
-      /* pre-load all cards in background so Resume is instant */
-      if(!fcAllCards.length) fetchDeckSilent();
-    } else {
-      fetchDeck('');
-    }
-  }
-  loadMastery(function(){masteryDone=true; maybeStart();});
-  loadSessionFromSupabase(
-    function(s){sessionData=s; sessionChecked=true; maybeStart();},
-    function(){sessionChecked=true; maybeStart();}
-  );
-}
-
-function fetchDeckSilent(){
-  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse;
-  sbFetch(url).then(function(r){return r.json();}).then(function(data){
-    if(Array.isArray(data)&&data.length){ fcAllCards=data; fcLoaded=true; renderSidebarObjList(); }
-  }).catch(function(){});
-}
-
-function fetchDeck(filter){
-  fcSetLoading();
-  /* Always fetch ALL cards for the course — filtering is done client-side in fcFilterByObj */
   var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse;
   sbFetch(url)
     .then(function(r){return r.json();})
     .then(function(data){
-      fcLoaded=true;
-      if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found — add some cards first.');return;}
-      fcAllCards=data;
-      /* apply any active filter client-side */
-      var deck=filter?data.filter(function(c){
-        var pre=(c.objective_ids&&c.objective_ids.length)
-          ?c.objective_ids[0].replace(/_\d+$/,''):'other';
-        return pre===filter;
-      }):data;
-      if(!deck.length) deck=data;
-      /* skip already-mastered cards — only show what still needs work */
-      var unmastered=deck.filter(function(c){
-        var md=fcMasteryData[c.id]; return !md||!md.is_mastered;
-      });
-      startPass1(unmastered.length?unmastered:deck);
+      if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found.');return;}
+      fcAllCards=data; fcLoaded=true;
       renderSidebarObjList();
+      if(fcPendingIds){var ids=fcPendingIds;fcPendingIds=null;startSessionWithIds(ids);return;}
+      startSessionForFilter('');
     })
     .catch(function(e){console.error(e);fcSetEmpty('Could not load cards — check connection.');});
 }
 
-/* ── pass management ── */
-function startPass1(cards){
-  fcPass=1; fcIdx=0;
-  fcPass1Results={got_it:[],unsure:[],missed:[]};
-  fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-  fcSessionId='sess-'+Date.now();
-  fcDeck=fcShuffleOn?shuffleArr(cards.slice()):cards.slice();
-  fcLastAction=null;
-  var undoBtn=document.getElementById('fc-undo-btn');
-  if(undoBtn) undoBtn.style.display='none';
-  clearSessionState(); hideSummary(); updateStats(); showCard(0);
-  setPassBadge(1);
+function startSessionForFilter(filter){
+  filter=filter||'';
+  var cards=filter?fcAllCards.filter(function(c){
+    var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
+    return pre===filter;
+  }):fcAllCards;
+  if(!cards.length) cards=fcAllCards;
+
+  var saved=lsLoad(filter||'all');
+  if(saved&&saved.cardState){
+    var mastered=0;
+    cards.forEach(function(c){if((saved.cardState[c.id]||{}).status==='mastered') mastered++;});
+    if(mastered<cards.length){showResumePrompt(cards,saved,filter);return;}
+    else{lsClear(filter||'all');}
+  }
+  startSession(cards,filter);
 }
 
-function fcStartNextPass(){
-  var src=fcPass===1?fcPass1Results:fcCurrentPassResults;
-  /* Always exclude already-mastered cards from the next pass — they may be
-     in src.unsure/missed from a resumed session that pre-populated the arrays
-     with old data, or from a card that got mastered mid-pass. */
-  function notMastered(c){ return !(fcMasteryData[c.id]&&fcMasteryData[c.id].is_mastered); }
-  var missed=fcAllCards.filter(function(c){return src.missed.indexOf(c.id)>-1;}).filter(notMastered);
-  var unsure=fcAllCards.filter(function(c){return src.unsure.indexOf(c.id)>-1;}).filter(notMastered);
-  if(!missed.length&&!unsure.length){showFinalSummary();return;}
-  /* missed cards always come FIRST regardless of shuffle */
-  var mArr=fcShuffleOn?shuffleArr(missed.slice()):missed;
-  var uArr=fcShuffleOn?shuffleArr(unsure.slice()):unsure;
-  fcPass++; fcIdx=0;
-  fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-  fcDeck=mArr.concat(uArr);
-  hideSummary(); updateStats(); showCard(0);
-  setPassBadge(fcPass); saveSessionState();
+function startSession(cards,filter){
+  sess.deckFilter=filter||'';
+  sess.totalCards=cards.length;
+  sess.cards=cards;
+  sess.cardState={};
+  sess.sessionId='sess-'+(currentUser?currentUser.id:'anon')+'_'+(filter||'all')+'_'+Date.now();
+  cards.forEach(function(c){
+    sess.cardState[c.id]={status:'unseen',firstAttempt:null,consecutiveCorrect:0,lastResult:null};
+  });
+  fcLastAction=null;fcRating=false;
+  var ub=document.getElementById('fc-undo-btn');if(ub) ub.style.display='none';
+  hideSummary();
+  if(!buildCycle()) return;
+  updateStats();showCurrentCard();
 }
 
-var PASS_COLORS=['#4f7ef8','#7e22ce','#15803d','#b45309'];
-function setPassBadge(n){
-  /* Bug 3 fix: no pass number shown in counter or panel label */
-  var lbl=document.getElementById('prog-pass-label');
-  if(lbl) lbl.textContent='';
+function resumeSession(cards,saved,filter){
+  sess.deckFilter=filter||'';
+  sess.totalCards=cards.length;
+  sess.cards=cards;
+  sess.cardState=saved.cardState||{};
+  sess.sessionId=saved.sessionId||'sess-'+Date.now();
+  cards.forEach(function(c){
+    if(!sess.cardState[c.id]) sess.cardState[c.id]={status:'unseen',firstAttempt:null,consecutiveCorrect:0,lastResult:null};
+  });
+  fcLastAction=null;fcRating=false;
+  var ub=document.getElementById('fc-undo-btn');if(ub) ub.style.display='none';
+  hideSummary();
+  if(!buildCycle()) return;
+  updateStats();showCurrentCard();
+  showToast('\u21a9 Resumed \u2014 '+getMasteredCount()+' / '+sess.totalCards+' mastered');
 }
 
-/* ── card display ── */
+function startSessionWithIds(ids){
+  if(!ids||!ids.length) return;
+  var cards=fcAllCards.filter(function(c){return ids.indexOf(c.id)>-1;});
+  if(!cards.length){fcSetEmpty('No cards found.');return;}
+  startSession(cards,'__trouble__');
+}
+
+/* ── Card display ── */
 function fcSetLoading(){
-  resetCardShell(); document.getElementById('fc-card-text').textContent='Loading cards\u2026';
+  resetCardShell();
+  document.getElementById('fc-card-text').textContent='Loading cards\u2026';
   hideSummary();
 }
 function fcSetEmpty(msg){
-  hideSummary(); resetCardShell(); document.getElementById('fc-card-text').textContent=msg;
-  document.getElementById('fc-counter').textContent='0 / 0';
+  hideSummary();resetCardShell();
+  document.getElementById('fc-card-text').textContent=msg;
+  document.getElementById('fc-counter').textContent='0 remaining';
   document.getElementById('fc-prog-fill').style.width='0%';
 }
 function resetCardShell(){
   var lbl=document.getElementById('fc-card-label');
   var hint=document.getElementById('fc-flip-hint');
   var card=document.getElementById('fc-card');
-  lbl.textContent='Question'; lbl.classList.remove('is-answer'); lbl.style.color='';
+  lbl.textContent='Question';lbl.classList.remove('is-answer');lbl.style.color='';
   document.getElementById('fc-card-text').className='fc-q-text';
-  card.style.background=''; hint.style.display='';
+  card.style.background='';hint.style.display='';
   var hist=document.getElementById('fc-history');
   if(hist){hist.className='fc-history';hist.textContent='';}
   var streak=document.getElementById('fc-streak');
-  if(streak){streak.className='fc-streak';streak.style.background='';streak.style.color='';}
+  if(streak){streak.className='fc-streak';}
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
 }
 
-function showCard(idx){
-  fcFlipped=false;
-  if(idx>=fcDeck.length){
-    if(fcPass===1) showPass1Summary(); else showPassNSummary(); return;
+function showCurrentCard(){
+  /* skip any cards that got mastered since cycle was built */
+  while(fcCyclePos<fcCycleQueue.length&&
+        (sess.cardState[fcCycleQueue[fcCyclePos].id]||{}).status==='mastered'){
+    fcCyclePos++;
   }
-  var c=fcDeck[idx];
+  if(fcCyclePos>=fcCycleQueue.length){
+    if(!buildCycle()) return; /* all mastered → completion screen */
+  }
+  var c=fcCycleQueue[fcCyclePos];
+  fcCurrentCard=c;
+  fcFlipped=false;
   resetCardShell();
   document.getElementById('fc-card-text').textContent=c.question;
-  /* show prior result badge only on Pass 2+ — Pass 1 is a clean slate
-     even if fcMasteryMap has data from previous sessions */
-  var prior=fcMasteryMap[c.id];
+
+  var cs=sess.cardState[c.id]||{};
+
+  /* "Previously" badge — only when card has been seen */
   var hist=document.getElementById('fc-history');
-  if(hist&&prior&&fcPass>1){
+  if(hist&&cs.firstAttempt!==null){
     var LABELS={got_it:'\u2713 Got it',unsure:'\u2248 Unsure',missed:'\u2717 Missed'};
     var CLASSES={got_it:'got',unsure:'unsure',missed:'missed'};
-    hist.className='fc-history '+CLASSES[prior]+' show';
-    hist.textContent='Previously: '+LABELS[prior];
+    var lr=cs.lastResult;
+    hist.className='fc-history '+(CLASSES[lr]||'')+' show';
+    hist.textContent='Previously: '+(LABELS[lr]||lr);
   }
-  /* mastery streak dots — only shown on cards with prior Unsure/Missed history
-     (total_attempts>0 + not first attempt) where a streak is building toward 3 */
+
+  /* Streak dots ● ● ○ — only for cards building toward 3 consecutive */
   var streakEl=document.getElementById('fc-streak');
   if(streakEl){
-    var md=fcMasteryData[c.id];
-    var cc=md?(md.consecutive_correct||0):0;
-    /* Show ● ○ ○ / ● ● ○ only when: card has been seen before AND
-       has at least one streak going AND hasn't reached mastery threshold yet.
-       Never shows on first-attempt cards (total_attempts===0 → md undefined or 0). */
-    var needsStreak=md&&(md.total_attempts||0)>0&&cc>0&&cc<3;
+    var cc=cs.consecutiveCorrect||0;
+    var needsStreak=cs.firstAttempt!==null&&cc>0&&cc<3;
     if(needsStreak){
       var dots='';
-      for(var di=0;di<3;di++) dots+=(di<cc?'●':'○');
+      for(var di=0;di<3;di++) dots+=(di<cc?'\u25cf':'\u25cb');
       streakEl.textContent=dots+' '+cc+'/3 to master';
-      streakEl.style.background=''; streakEl.style.color='';
       streakEl.className='fc-streak show';
     } else {
-      streakEl.style.background=''; streakEl.style.color='';
       streakEl.className='fc-streak';
     }
   }
 
-  var total=fcDeck.length;
-  document.getElementById('fc-counter').textContent=(idx+1)+' / '+total;
-  document.getElementById('fc-prog-fill').style.width=(idx/total*100).toFixed(1)+'%';
-  /* Bug 4 fix: rating buttons are available immediately — flip is optional */
+  /* Counter: active cards remaining */
+  var activeLeft=sess.totalCards-getMasteredCount();
+  document.getElementById('fc-counter').textContent=activeLeft+' remaining';
+  /* Progress bar: mastery progress */
+  var mastered=getMasteredCount();
+  document.getElementById('fc-prog-fill').style.width=
+    (sess.totalCards?(mastered/sess.totalCards*100).toFixed(1):0)+'%';
+  /* Enable buttons — always, no flip required */
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=false;
   });
 }
 
 function fcFlip(){
-  if(fcFlipped||!fcDeck.length||fcIdx>=fcDeck.length) return;
+  if(fcFlipped||!fcCurrentCard) return;
   fcFlipped=true;
-  var c=fcDeck[fcIdx];
+  var c=fcCurrentCard;
   document.getElementById('fc-card-label').textContent='Answer';
   document.getElementById('fc-card-label').classList.add('is-answer');
   document.getElementById('fc-card-text').className='fc-a-text';
   document.getElementById('fc-card-text').textContent=c.answer;
   document.getElementById('fc-flip-hint').style.display='none';
   document.getElementById('fc-card').style.background='#f0fdf4';
-  /* buttons already enabled — nothing extra needed */
 }
 
-var fcRating=false; /* guard against double-tap */
 function fcRate(result){
-  if(fcRating||!fcDeck.length||fcIdx>=fcDeck.length) return;
-  fcRating=true; setTimeout(function(){fcRating=false;},400);
-  var c=fcDeck[fcIdx];
+  if(fcRating||!fcCurrentCard) return;
+  fcRating=true;setTimeout(function(){fcRating=false;},400);
+  var c=fcCurrentCard;
+  var prevCs=sess.cardState[c.id]?Object.assign({},sess.cardState[c.id]):null;
+  var prevCyclePos=fcCyclePos;
 
-  /* save snapshot for undo BEFORE mutating anything */
-  fcLastAction={
-    idx:fcIdx, cardId:c.id, result:result,
-    prevMastery:fcMasteryData[c.id]?Object.assign({},fcMasteryData[c.id]):null,
-    prevMasteryMap:fcMasteryMap[c.id]
-  };
+  var newCs=computeCardState(c.id,result);
+  sess.cardState[c.id]=newCs;
 
-  /* compute new mastery synchronously from in-memory data */
-  var newMastery=computeNewMastery(c.id,result);
-  fcMasteryData[c.id]=newMastery;
-  fcMasteryMap[c.id]=result; /* for "Previously" badge */
+  fcLastAction={cardId:c.id,result:result,prevCs:prevCs,prevCyclePos:prevCyclePos};
 
-  /* pass management: retire card only when mastered (first-attempt got_it OR 3 consecutive)
-     if "got it" but not yet mastered (needs more reps) → treat as unsure so it stays in deck */
-  var passResult=result;
-  if(result==='got_it'&&!newMastery.is_mastered) passResult='unsure';
-  fcLastAction.passResult=passResult; /* save for undo */
-  fcLastAction.cardObj=c;             /* save card object for undo-splice */
-  fcLastAction.wasSpliced=false;
+  /* always advance in cycle */
+  fcCyclePos++;
 
-  if(fcPass===1){
-    /* Remove from every bucket first so a card never lives in two buckets
-       simultaneously (critical on resume, where old session IDs pre-populate
-       fcPass1Results and re-rating would otherwise create duplicates). */
-    ['got_it','unsure','missed'].forEach(function(b){
-      var i=fcPass1Results[b].indexOf(c.id);
-      if(i>-1) fcPass1Results[b].splice(i,1);
-    });
-    fcPass1Results[passResult].push(c.id);
-  }
-  fcCurrentPassResults[passResult].push(c.id);
+  lsSave();
 
-  /* Bug 2 fix: splice mastered cards out of the live deck immediately so they
-     never resurface within this pass. Don't advance fcIdx — the card that was
-     at idx+1 is now at idx after the splice. */
-  if(newMastery.is_mastered){
-    fcDeck.splice(fcIdx,1);
-    fcLastAction.wasSpliced=true;
-    /* fcIdx stays the same — next card is now at the same position */
-  } else {
-    fcIdx++;
+  /* Supabase (fire and forget) */
+  if(currentUser){
+    sbFetch('/rest/v1/card_attempts',{
+      method:'POST',
+      headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr()),
+      body:JSON.stringify({card_id:c.id,result:result,session_id:sess.sessionId,user_id:currentUser.id})
+    }).catch(function(e){console.warn('attempt:',e);});
+    upsertCardMastery(c.id,newCs);
   }
 
   updateStats();
-
-  /* async: write raw attempt log */
-  sbFetch('/rest/v1/card_attempts',{
-    method:'POST',
-    headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr()),
-    body:JSON.stringify({card_id:c.id,result:result,session_id:fcSessionId,
-      user_id:currentUser?currentUser.id:null})
-  }).catch(function(e){console.warn('attempt:',e);});
-
-  /* async: upsert mastery row with streak */
-  upsertCardMastery(newMastery);
-
-  saveSessionState(); showCard(fcIdx);
-  /* show undo button after rating */
-  var undoBtn=document.getElementById('fc-undo-btn');
-  if(undoBtn) undoBtn.style.display='';
+  var ub=document.getElementById('fc-undo-btn');if(ub) ub.style.display='';
+  showCurrentCard();
 }
 
 function fcUndo(){
   if(!fcLastAction) return;
-  var a=fcLastAction;
-  fcLastAction=null; /* only one undo allowed */
-
-  /* hide undo button */
-  var undoBtn=document.getElementById('fc-undo-btn');
-  if(undoBtn) undoBtn.style.display='none';
-
-  /* revert idx */
-  fcIdx=a.idx;
-
-  /* Bug 2 fix: if the card was spliced out when mastered, restore it to the deck */
-  if(a.wasSpliced && a.cardObj){
-    fcDeck.splice(a.idx, 0, a.cardObj);
-  }
-
-  /* revert pass results — remove the card ID we just pushed */
-  function removeId(arr,id){ var i=arr.indexOf(id); if(i>-1) arr.splice(i,1); }
-  removeId(fcCurrentPassResults[a.passResult],a.cardId);
-  if(fcPass===1) removeId(fcPass1Results[a.passResult],a.cardId);
-
-  /* revert mastery in memory */
-  if(a.prevMastery) fcMasteryData[a.cardId]=a.prevMastery;
-  else delete fcMasteryData[a.cardId];
-  if(a.prevMasteryMap!==undefined) fcMasteryMap[a.cardId]=a.prevMasteryMap;
-  else delete fcMasteryMap[a.cardId];
-
-  /* re-upsert previous mastery to Supabase (overwrite the rating we're undoing) */
-  if(a.prevMastery) upsertCardMastery(a.prevMastery);
-
-  updateStats(); saveSessionState(); showCard(fcIdx);
+  var a=fcLastAction;fcLastAction=null;
+  var ub=document.getElementById('fc-undo-btn');if(ub) ub.style.display='none';
+  if(a.prevCs) sess.cardState[a.cardId]=a.prevCs;
+  else sess.cardState[a.cardId]={status:'unseen',firstAttempt:null,consecutiveCorrect:0,lastResult:null};
+  fcCyclePos=a.prevCyclePos;
+  lsSave();updateStats();showCurrentCard();
 }
 
+/* ── Stats ── */
 function updateStats(){
-  /* Single source of truth: derive counter values from fcMasteryData using
-     the card IDs tracked in the current-pass results (same source the sidebar uses).
-     passResult buckets: got_it = mastered, unsure = needs more reps, missed = missed */
-  var passR=fcCurrentPassResults||{got_it:[],unsure:[],missed:[]};
-  /* Count raw button presses: got_it bucket = mastered cards (tapped Got it + mastered).
-     Cards that were tapped Got it but aren't mastered yet land in the unsure bucket.
-     To recover the raw tap counts we inspect fcMasteryData.last_result for each rated card. */
-  var got=0,unsure=0,missed=0;
-  var allRated=passR.got_it.concat(passR.unsure).concat(passR.missed);
-  allRated.forEach(function(id){
-    var r=(fcMasteryData[id]&&fcMasteryData[id].last_result)||null;
-    if(r==='got_it') got++;
-    else if(r==='unsure') unsure++;
-    else if(r==='missed') missed++;
-  });
-  document.getElementById('stat-got').textContent=got;
-  document.getElementById('stat-unsure').textContent=unsure;
-  document.getElementById('stat-missed').textContent=missed;
+  var mastered=getMasteredCount();
+  var total=sess.totalCards||0;
+  var numEl=document.getElementById('prog-mastery-num');
+  if(numEl) numEl.textContent=mastered+' / '+total;
+  var fillEl=document.getElementById('prog-mastery-fill');
+  if(fillEl) fillEl.style.width=(total?(mastered/total*100).toFixed(1):0)+'%';
   var info=document.getElementById('prog-deck-info');
-  if(info) info.textContent=fcDeck.length+' card'+(fcDeck.length!==1?'s':'')+' in deck';
-  /* Render sidebar synchronously — same data source (fcMasteryData) as counters above */
-  renderObjBars(); renderSidebarObjList();
+  if(info){var rem=total-mastered;info.textContent=rem+' card'+(rem!==1?'s':'')+' remaining';}
+  renderObjBars();renderSidebarObjList();
 }
 
-/* ── objective progress bars ── */
+/* ── Objective progress bars ── */
 function renderObjBars(){
   var el=document.getElementById('obj-list');
   if(!el||!fcAllCards.length) return;
-  /* build per-prefix stats using card_mastery data */
+  var og=getObjGroups();
   var groups={};
   fcAllCards.forEach(function(c){
-    var oids=c.objective_ids||[];
-    var prefix=oids.length?oids[0].replace(/_\d+$/,''):'other';
-    if(!groups[prefix]) groups[prefix]={total:0,mastered:0,attempted:0,ids:[]};
-    groups[prefix].total++; groups[prefix].ids.push(c.id);
-    var md=fcMasteryData[c.id];
-    if(md){
-      groups[prefix].attempted++;
-      if(md.is_mastered) groups[prefix].mastered++;
-    }
+    var prefix=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
+    if(!groups[prefix]) groups[prefix]={total:0,mastered:0};
+    groups[prefix].total++;
+    if(sess&&sess.cardState&&(sess.cardState[c.id]||{}).status==='mastered') groups[prefix].mastered++;
   });
-  var html='<div class="prog-obj-item'+(fcCurrentFilter===''?' active':'')+'" onclick="fcFilterByObj(\'\')">'
+  var filter=sess?sess.deckFilter:'';
+  var html='<div class="prog-obj-item'+(filter===''?' active':'')+'" onclick="fcFilterByObj(\'\')">'
     +'<div class="prog-obj-item-top">'
     +'<span class="prog-obj-dot" style="background:var(--accent)"></span>'
     +'<span class="prog-obj-name">All Cards</span>'
@@ -2009,54 +1909,24 @@ function renderObjBars(){
   Object.keys(groups).forEach(function(key){
     var g=groups[key];
     var pct=g.total?Math.round(g.mastered/g.total*100):0;
-    var color=g.attempted===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
-    var label=getObjGroups()[key]||key;
-    var isActive=fcCurrentFilter===key;
+    var color=g.mastered===0?'#94a3b8':pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)';
+    var label=og[key]||key;
+    var isActive=filter===key;
     html+='<div class="prog-obj-item'+(isActive?' active':'')+'" onclick="fcFilterByObj(\''+key+'\')">'
       +'<div class="prog-obj-item-top">'
       +'<span class="prog-obj-dot" style="background:'+color+'"></span>'
       +'<span class="prog-obj-name">'+label+'</span>'
-      +'<span class="prog-obj-count">'+g.mastered+'/'+g.total+' mastered</span>'
+      +'<span class="prog-obj-count">'+g.mastered+'/'+g.total+'</span>'
       +'</div>'
-      +(g.attempted>0?'<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
+      +(g.mastered>0?'<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
       +'</div>';
   });
   el.innerHTML=html;
 }
 
 function fcFilterByObj(prefix){
-  fcCurrentFilter=prefix;
-  clearSessionState();
-  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
-  if(!fcAllCards.length){ fetchDeck(''); return; }
-
-  var filtered=prefix===''?fcAllCards:fcAllCards.filter(function(c){
-    var pre=(c.objective_ids&&c.objective_ids.length)
-      ?c.objective_ids[0].replace(/_\d+$/,''):'other';
-    return pre===prefix;
-  });
-
-  /* only show cards still needing work — not yet mastered */
-  var needsWork=filtered.filter(function(c){
-    var md=fcMasteryData[c.id];
-    return !md||!md.is_mastered;
-  });
-
-  if(needsWork.length){
-    startPass1(needsWork);
-  } else if(filtered.length){
-    /* all mastered — show a completion message with option to review anyway */
-    fcSetEmpty('\u2705 All cards in this section are mastered!');
-    var info=document.getElementById('prog-deck-info');
-    if(info) info.innerHTML='<button class="fc-ctrl-btn" style="margin-top:8px" '
-      +'onclick="startPass1(fcAllCards.filter(function(c){'
-      +'var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\\d+$/,\'\'):\'other\';'
-      +'return \''+prefix+'\''+'===\'\'||pre===\''+prefix+'\';}))">'
-      +'\u21ba Review all '+filtered.length+' cards anyway</button>';
-  } else {
-    fcSetEmpty('No cards found.');
-  }
-  renderObjBars();
+  if(!fcAllCards.length) return;
+  startSessionForFilter(prefix||'');
   renderSidebarObjList();
 }
 
@@ -2071,113 +1941,66 @@ function toggleShuffle(){
   if(fcShuffleOn){
     btn.classList.add('shuffle-on');
     btn.textContent='\u21d4 Shuffle: On';
-    if(fcDeck.length&&fcIdx<fcDeck.length){
-      for(var i=fcDeck.length-1;i>fcIdx;i--){
-        var j=fcIdx+Math.floor(Math.random()*(i-fcIdx+1));
-        var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;
-      }
-      showCard(fcIdx);
-    }
+    /* rebuild cycle with new shuffle order */
+    if(sess&&sess.cards) buildCycle();
   } else {
     btn.classList.remove('shuffle-on');
     btn.textContent='\u21b0 Shuffle: Off';
+    if(sess&&sess.cards) buildCycle();
   }
 }
 
-/* ── summary panels ── */
-function showPass1Summary(){
-  var u=fcPass1Results.unsure.length,m=fcPass1Results.missed.length,p2=u+m;
-  var total=fcDeck.length;
-  var btns=p2>0
-    ?[{label:'Start Pass 2 \u2014 '+p2+' card'+(p2>1?'s':''),fn:'fcStartNextPass()'},
-      {label:'Reset',fn:'fcRestart()',ghost:true},
-      {label:'Study Guide',fn:"goTo('study')",ghost:true}]
-    :[{label:'\uD83C\uDF89 All Done!',fn:'fcRestart()'},
-      {label:'Study Guide',fn:"goTo('study')",ghost:true}];
-  renderSummary({
-    title:'Pass 1 Complete \u2713',
-    rows:[
-      {color:'var(--got)',   label:'Got it', val:fcPass1Results.got_it.length},
-      {color:'var(--unsure)',label:'Unsure', val:u},
-      {color:'var(--missed)',label:'Missed', val:m}
-    ],
-    sub: p2>0 ? p2+' card'+(p2>1?'s':'')+' coming back for Pass 2'
-              : 'Perfect score \u2014 no cards to review!',
-    btns: btns
-  });
-  document.getElementById('fc-prog-fill').style.width='100%';
-  document.getElementById('fc-counter').textContent=total+' / '+total;
-  setPassBadge(1);
-}
-
-function showPassNSummary(){
-  var u=fcCurrentPassResults.unsure.length,m=fcCurrentPassResults.missed.length,next=u+m;
-  if(!next){showFinalSummary();return;}
-  var total=fcDeck.length;
-  var nextPass=fcPass+1;
-  renderSummary({
-    title:'Pass '+fcPass+' Complete \u2713',
-    rows:[
-      {color:'var(--got)',   label:'Got it', val:fcCurrentPassResults.got_it.length},
-      {color:'var(--unsure)',label:'Unsure', val:u},
-      {color:'var(--missed)',label:'Missed', val:m}
-    ],
-    sub: next+' card'+(next>1?'s':'')+' coming back for Pass '+nextPass,
-    btns:[
-      {label:'Start Pass '+nextPass+' \u2014 '+next+' card'+(next>1?'s':''),fn:'fcStartNextPass()'},
-      {label:'Reset',fn:'fcRestart()',ghost:true},
-      {label:'Study Guide',fn:"goTo('study')",ghost:true}
-    ]
-  });
-  document.getElementById('fc-prog-fill').style.width='100%';
-  document.getElementById('fc-counter').textContent=total+' / '+total;
-  setPassBadge(fcPass); saveSessionState();
-}
-
-function showFinalSummary(){
-  var total=fcAllCards.length||fcDeck.length;
-  /* Count all mastered cards from fcMasteryData — authoritative single source */
-  var mastered=Object.keys(fcMasteryData).filter(function(k){return fcMasteryData[k]&&fcMasteryData[k].is_mastered;}).length;
-  var pct=total?Math.round(mastered/total*100):0;
-  renderSummary({
-    title:'\uD83C\uDF89 All cards mastered!',
-    rows:[
-      {color:'var(--got)',   label:'Mastered', val:mastered+' / '+total},
-      {color: pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)',
-       label:'Score', val:pct+'%'}
-    ],
-    sub: pct>=80?'Great work \u2014 you\u2019ve got this!'
-       : pct>=50?'Good effort \u2014 try another round.'
-               : 'Keep going \u2014 practice makes perfect.',
-    btns:[
-      {label:'Start over',fn:'fcRestart()'},
-      {label:'Go study something else',fn:"goTo('study')",ghost:true}
-    ]
-  });
-  document.getElementById('fc-prog-fill').style.width='100%';
-  document.getElementById('fc-counter').textContent=total+' / '+total;
-  clearSessionState(); /* session complete — wipe so next visit starts fresh */
-}
-
-function renderSummary(opts){
+/* ── Completion screen ── */
+function showCompletionScreen(){
+  var total=sess.totalCards;
+  lsClear(sess.deckFilter||'all');
   document.getElementById('fc-card').style.display='none';
   document.getElementById('fc-rating-row').style.display='none';
-  var rows=opts.rows.map(function(r){
-    return '<div class="fcs-row">'
-      +'<span class="fcs-dot" style="background:'+r.color+'"></span>'
-      +'<span class="fcs-label">'+r.label+'</span>'
-      +'<span class="fcs-val">'+r.val+'</span></div>';
-  }).join('');
-  var btns=opts.btns||[{label:opts.btnLabel,fn:opts.btnFn}];
-  var btnHtml=btns.map(function(b){
-    return '<button class="fcs-btn'+(b.ghost?' ghost':'')+'" onclick="'+b.fn+'">'+b.label+'</button>';
-  }).join('');
   document.getElementById('fc-summary').innerHTML=
-    '<div class="fcs-title">'+opts.title+'</div>'
-    +'<div class="fcs-stats">'+rows+'</div>'
-    +'<div class="fcs-sub">'+opts.sub+'</div>'
-    +'<div class="fcs-btns">'+btnHtml+'</div>';
+    '<div style="text-align:center;padding:36px 24px 32px">'
+    +'<div style="font-size:40px;margin-bottom:12px">\uD83C\uDF89</div>'
+    +'<div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px">All '+total+' cards mastered!</div>'
+    +'<div style="font-size:15px;color:var(--text-muted);margin-bottom:32px">Great work \u2014 you\u2019ve got this!</div>'
+    +'<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'
+    +'<button onclick="fcRestart()" class="fcs-btn">Start Over \u2014 same deck</button>'
+    +'<button onclick="goTo(\'study\')" class="fcs-btn ghost">Study Guide</button>'
+    +'</div></div>';
   document.getElementById('fc-summary').style.display='flex';
+  document.getElementById('fc-counter').textContent='0 remaining';
+  document.getElementById('fc-prog-fill').style.width='100%';
+  var numEl=document.getElementById('prog-mastery-num');if(numEl) numEl.textContent=total+' / '+total;
+  var fillEl=document.getElementById('prog-mastery-fill');if(fillEl) fillEl.style.width='100%';
+}
+
+/* ── Resume prompt ── */
+function showResumePrompt(cards,saved,filter){
+  var mastered=0;
+  cards.forEach(function(c){if((saved.cardState[c.id]||{}).status==='mastered') mastered++;});
+  var remaining=cards.length-mastered;
+  window._pendingResume={cards:cards,saved:saved,filter:filter};
+  /* temporarily set sess so renderObjBars/sidebar work */
+  sess.deckFilter=filter||'';
+  sess.totalCards=cards.length;
+  sess.cards=cards;
+  sess.cardState=saved.cardState||{};
+  document.getElementById('fc-card').style.display='none';
+  document.getElementById('fc-rating-row').style.display='none';
+  document.getElementById('fc-summary').innerHTML=
+    '<div style="text-align:center;padding:32px 24px 28px">'
+    +'<div style="font-size:28px;margin-bottom:12px">\uD83D\uDCDA</div>'
+    +'<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Continue where you left off?</div>'
+    +'<div style="font-size:26px;font-weight:800;color:var(--got);margin-bottom:4px">'+mastered+' / '+cards.length+' mastered</div>'
+    +'<div style="font-size:13px;color:var(--text-muted);margin-bottom:28px">'+remaining+' card'+(remaining!==1?'s':'')+' still to go</div>'
+    +'<div style="display:flex;gap:12px;justify-content:center">'
+    +'<button onclick="fcResumeConfirm()" class="fcs-btn">Continue</button>'
+    +'<button onclick="fcFreshStart()" class="fcs-btn ghost">Start Fresh</button>'
+    +'</div></div>';
+  document.getElementById('fc-summary').style.display='block';
+  document.getElementById('fc-counter').textContent=mastered+' / '+cards.length;
+  document.getElementById('fc-prog-fill').style.width=(cards.length?(mastered/cards.length*100).toFixed(1):0)+'%';
+  var numEl=document.getElementById('prog-mastery-num');if(numEl) numEl.textContent=mastered+' / '+cards.length;
+  var fillEl=document.getElementById('prog-mastery-fill');if(fillEl) fillEl.style.width=(cards.length?(mastered/cards.length*100).toFixed(1):0)+'%';
+  renderObjBars();renderSidebarObjList();
 }
 
 function hideSummary(){
@@ -2186,109 +2009,24 @@ function hideSummary(){
   document.getElementById('fc-summary').style.display='none';
 }
 
-/* ── resume prompt ── */
-function showResumeBanner(sess){
-  _pendingSess=sess;
-  /* compute remaining review cards */
-  var remaining=(sess.unsure_ids?sess.unsure_ids.length:0)
-               +(sess.missed_ids?sess.missed_ids.length:0);
-  var passNum=sess.pass_number||1;
-  var html='<div style="text-align:center;padding:32px 24px 28px">'
-    +'<div style="font-size:28px;margin-bottom:12px">&#128218;</div>'
-    +'<div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Continue where you left off?</div>'
-    +'<div style="font-size:14px;color:var(--text-muted);margin-bottom:28px">'
-    +'Pass '+passNum+' &nbsp;&bull;&nbsp; '+remaining+' card'+(remaining!==1?'s':'')+' to review'
-    +'</div>'
-    +'<div style="display:flex;gap:12px;justify-content:center">'
-    +'<button onclick="fcResume()" style="background:var(--accent);color:#fff;border:none;'
-    +'padding:10px 28px;border-radius:var(--r-btn);font-size:14px;font-weight:600;'
-    +'cursor:pointer;font-family:inherit;transition:opacity .15s" '
-    +'onmouseover="this.style.opacity=\'.85\'" onmouseout="this.style.opacity=\'1\'">Continue</button>'
-    +'<button onclick="fcFreshStart()" style="background:var(--g50);color:var(--text-muted);'
-    +'border:1px solid var(--border);padding:10px 28px;border-radius:var(--r-btn);'
-    +'font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s" '
-    +'onmouseover="this.style.background=\'var(--g200)\'" onmouseout="this.style.background=\'var(--g50)\'">Start Fresh</button>'
-    +'</div></div>';
-  var summary=document.getElementById('fc-summary');
-  summary.innerHTML=html;
-  summary.style.display='block';
-  document.getElementById('fc-card').style.display='none';
-  document.getElementById('fc-rating-row').style.display='none';
-  document.getElementById('fc-counter').textContent='— / —';
-  document.getElementById('fc-prog-fill').style.width='0%';
-}
-
-function fcResume(sess){
-  /* accept sess directly (auto-resume) or read from legacy banner element */
-  if(!sess) sess=_pendingSess;
-  if(!sess){fcFreshStart();return;}
-  _pendingSess=null;
-  var existing=document.getElementById('fc-resume-banner');
-  if(existing) existing.remove();
-
-  fcSetLoading();
-  var filter=(!sess.deck_filter||sess.deck_filter==='all')?'':sess.deck_filter;
-  fcCurrentFilter=filter;
-
-  /* fetch all cards, then reconstruct review deck */
-  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse;
-  sbFetch(url).then(function(r){return r.json();}).then(function(cards){
-    if(!Array.isArray(cards)||!cards.length){fcFreshStart();return;}
-    fcAllCards=cards; fcLoaded=true;
-    var cardById={};
-    cards.forEach(function(c){cardById[c.id]=c;});
-
-    /* build review deck: unsure first, then missed — skip mastered cards */
-    var reviewIds=(sess.unsure_ids||[]).concat(sess.missed_ids||[]);
-    var reviewDeck=reviewIds
-      .map(function(id){return cardById[id];})
-      .filter(function(c){return c&&!(fcMasteryData[c.id]&&fcMasteryData[c.id].is_mastered);});
-
-    fcPass=sess.pass_number||1;
-    fcPass1Results={got_it:sess.got_it_ids||[],
-      unsure:sess.unsure_ids||[],missed:sess.missed_ids||[]};
-    fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-    /* counters now derived from fcMasteryData in updateStats — no fcStats to restore */
-    fcSessionId='sess-'+Date.now();
-
-    if(!reviewDeck.length){
-      /* nothing left to review — treat as fresh start */
-      clearSessionState();
-      var deck=filter?cards.filter(function(c){
-        var pre=(c.objective_ids&&c.objective_ids.length)
-          ?c.objective_ids[0].replace(/_\d+$/,''):'other';
-        return pre===filter;
-      }):cards;
-      startPass1(deck.length?deck:cards);
-    } else {
-      fcDeck=fcShuffleOn?shuffleArr(reviewDeck.slice()):reviewDeck;
-      fcIdx=0;
-      hideSummary(); updateStats(); showCard(0);
-      setPassBadge(fcPass);
-      renderSidebarObjList();
-      /* show small non-blocking "picked up where you left off" notice */
-      var info=document.getElementById('prog-deck-info');
-      if(info) info.innerHTML=reviewDeck.length+' card'+(reviewDeck.length!==1?'s':'')+' remaining'
-        +' &nbsp;<button onclick="fcFreshStart()" style="background:none;border:none;'
-        +'color:var(--text-muted);font-size:11px;cursor:pointer;text-decoration:underline;'
-        +'padding:0;font-family:inherit">Start Fresh</button>';
-      showToast('\u21a9 Picked up where you left off');
-    }
-  }).catch(function(e){console.error(e);fcFreshStart();});
+function fcResumeConfirm(){
+  var p=window._pendingResume;
+  if(!p){fcFreshStart();return;}
+  window._pendingResume=null;
+  resumeSession(p.cards,p.saved,p.filter);
 }
 
 function fcFreshStart(){
-  clearSessionState();
-  var banner=document.getElementById('fc-resume-banner');
-  if(banner) banner.remove();
-  fetchDeck(fcCurrentFilter);
+  window._pendingResume=null;
+  lsClear(sess.deckFilter||'all');
+  startSessionForFilter(sess.deckFilter||'');
 }
 
-/* ── controls ── */
 function fcRestart(){
-  clearSessionState();
-  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
-  if(fcAllCards.length) startPass1(fcAllCards); else fetchDeck(fcCurrentFilter);
+  window._pendingResume=null;
+  lsClear(sess.deckFilter||'all');
+  if(!fcAllCards.length){fcLoaded=false;initPractice();return;}
+  startSessionForFilter(sess.deckFilter||'');
 }
 
 function shuffleArr(arr){
@@ -2302,36 +2040,26 @@ function shuffleArr(arr){
 function switchCourse(course){
   currentCourse=course;
   localStorage.setItem('nur_course',course);
-  /* update tab active states */
   ['NUR118','NUR116'].forEach(function(c){
     var t=document.getElementById('tab-'+c);
     if(t) t.classList.toggle('active',c===course);
   });
-  /* toggle study guide divs */
   var s118=document.getElementById('sg-nur118');
   var s116=document.getElementById('sg-nur116');
   if(s118) s118.style.display=(course==='NUR118'?'':'none');
   if(s116) s116.style.display=(course==='NUR116'?'':'none');
-  /* reset all practice state */
-  fcLoaded=false; fcAllCards=[]; fcDeck=[]; fcIdx=0; fcPass=1;
-  fcPass1Results={got_it:[],unsure:[],missed:[]};
-  fcCurrentPassResults={got_it:[],unsure:[],missed:[]};
-  fcMasteryMap={}; fcMasteryData={}; fcCurrentFilter='';
-  clearSessionState();
-  /* re-render sidebar for current page */
+  /* reset practice state */
+  fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
+  sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
+  window._pendingResume=null;
   renderCtx(currentPage);
-  /* reset quiz state for new course */
-  quizLoaded=false; quizQCounts={}; quizScores={};
-  quizFcCards=[]; quizMasteryData={};
-  quizCardMasteryData={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
-  troubleCardIds=[]; troubleQuestionIds=[];
+  /* reset quiz state */
+  quizLoaded=false;quizQCounts={};quizScores={};
+  quizFcCards=[];quizMasteryData={};
+  quizCardMasteryData={};quizCourseQuestionIds=[];quizQuestionObjMap={};quizBankQuestions=[];
+  troubleCardIds=[];troubleQuestionIds=[];
   showQuizPicker();
-  /* if on practice page, reload cards for new course */
-  if(currentPage==='practice'){
-    loadMastery();
-    fetchDeck('');
-  }
-  /* if on quiz page, reload objectives for new course */
+  if(currentPage==='practice') initPractice();
   if(currentPage==='quiz') initQuiz();
 }
 
@@ -2732,41 +2460,12 @@ function startQuizFromSidebar(key){
 /* ── TROUBLE SPOTS REVIEW ── */
 function startTroubleCardsReview(){
   if(fcLoaded){
-    /* practice page already initialised — inject deck directly */
     goTo('practice');
-    startPracticeWithIds(troubleCardIds);
+    startSessionWithIds(troubleCardIds);
   } else {
-    /* practice not loaded yet — set pending flag, initPractice() will handle it */
     fcPendingIds=troubleCardIds.slice();
     goTo('practice');
   }
-}
-
-function startPracticeWithIds(ids){
-  if(!ids||!ids.length) return;
-  fcCurrentFilter='__trouble__';
-  clearSessionState();
-  var b=document.getElementById('fc-resume-banner'); if(b) b.remove();
-  function beginDeck(){
-    var cards=fcAllCards.filter(function(c){ return ids.indexOf(c.id)>-1; });
-    if(cards.length){
-      startPass1(cards);
-      var info=document.getElementById('prog-deck-info');
-      if(info) info.textContent=cards.length+' trouble spot'+(cards.length!==1?'s':'');
-    } else {
-      fcSetEmpty('No trouble cards found.');
-    }
-    renderObjBars(); renderSidebarObjList();
-  }
-  if(fcAllCards.length){ beginDeck(); return; }
-  fcSetLoading();
-  sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(Array.isArray(data)){ fcAllCards=data; fcLoaded=true; }
-      beginDeck();
-    })
-    .catch(function(){ fcSetEmpty('Could not load cards.'); });
 }
 
 function startTroubleQuizReview(){
