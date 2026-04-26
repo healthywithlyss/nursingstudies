@@ -292,6 +292,45 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-history.got{background:#dcfce7;color:var(--got)}
 .fc-history.unsure{background:#fef9c3;color:#b45309}
 .fc-history.missed{background:#fee2e2;color:var(--missed)}
+/* ── Admin card edit ── */
+#fc-edit-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.85);
+  border:1px solid var(--border);border-radius:6px;padding:4px 7px;cursor:pointer;
+  font-size:13px;display:none;z-index:10;transition:background .15s}
+#fc-edit-btn:hover{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+#fc-add-btn{position:fixed;bottom:86px;right:24px;width:44px;height:44px;
+  border-radius:50%;background:#334155;color:#fff;border:none;
+  font-size:22px;line-height:1;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.25);
+  display:none;align-items:center;justify-content:center;z-index:500;
+  transition:transform .15s,box-shadow .15s}
+#fc-add-btn:hover{transform:scale(1.08);box-shadow:0 5px 16px rgba(0,0,0,.3)}
+/* Modal overlay */
+#card-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:600;display:none;align-items:center;justify-content:center}
+#card-modal-overlay.open{display:flex}
+.card-modal{background:#fff;border-radius:16px;padding:28px 28px 24px;
+  width:520px;max-width:94vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 12px 48px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:16px}
+.card-modal h3{font-size:17px;font-weight:700;color:var(--text);margin:0}
+.cm-field{display:flex;flex-direction:column;gap:5px}
+.cm-field label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+.cm-field textarea,.cm-field input{border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;font-size:14px;font-family:inherit;resize:vertical;
+  outline:none;color:var(--text);transition:border-color .15s;line-height:1.5}
+.cm-field textarea:focus,.cm-field input:focus{border-color:var(--accent)}
+.cm-field textarea{min-height:72px}
+.cm-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.cm-btn-save{background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:background .15s}
+.cm-btn-save:hover{background:#3d6ef6}
+.cm-btn-delete{background:#fee2e2;color:var(--missed);border:1px solid #fca5a5;
+  border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:background .15s}
+.cm-btn-delete:hover{background:#fecaca}
+.cm-btn-cancel{background:none;border:1px solid var(--border);color:var(--text-muted);
+  border-radius:8px;padding:9px 16px;font-size:14px;cursor:pointer;font-family:inherit;
+  transition:background .15s;margin-left:auto}
+.cm-btn-cancel:hover{background:var(--g50)}
 /* ── AI Chat bubble (admin-only, Practice page) ── */
 #ai-chat-btn{position:fixed;bottom:24px;right:24px;width:52px;height:52px;
   border-radius:50%;background:var(--accent);color:#fff;border:none;
@@ -1185,6 +1224,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             </div>
             <!-- card -->
             <div class="fc-card" id="fc-card" onclick="fcFlip()">
+              <button id="fc-edit-btn" onclick="event.stopPropagation();showEditModal()" title="Edit card">✏️</button>
               <div class="fc-card-label" id="fc-card-label">Question</div>
               <div class="fc-history" id="fc-history"></div>
               <div class="fc-card-body">
@@ -1300,6 +1340,33 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     Quiz
   </button>
+</div>
+
+<!-- Admin: floating + button to add new card (Practice page) -->
+<button id="fc-add-btn" onclick="showAddModal()" title="Add new card">+</button>
+
+<!-- Admin: card edit/add modal -->
+<div id="card-modal-overlay" onclick="if(event.target===this)closeCardModal()">
+  <div class="card-modal">
+    <h3 id="cm-title">Edit Card</h3>
+    <div class="cm-field">
+      <label>Question</label>
+      <textarea id="cm-question" rows="3" placeholder="Question text…"></textarea>
+    </div>
+    <div class="cm-field">
+      <label>Answer</label>
+      <textarea id="cm-answer" rows="4" placeholder="Answer text…"></textarea>
+    </div>
+    <div class="cm-field">
+      <label>Why? (explanation — optional)</label>
+      <textarea id="cm-explanation" rows="3" placeholder="Brief explanation shown in the Why? toggle…"></textarea>
+    </div>
+    <div class="cm-btns">
+      <button class="cm-btn-save" onclick="saveCard()">💾 Save</button>
+      <button class="cm-btn-delete" id="cm-delete-btn" onclick="deleteCard()">🗑 Delete</button>
+      <button class="cm-btn-cancel" onclick="closeCardModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- AI Chat bubble — admin-only, shown on Practice page -->
@@ -1860,6 +1927,8 @@ function resetCardShell(){
   if(streak){streak.className='fc-streak';}
   var why=document.getElementById('fc-why-wrap');
   if(why) why.remove();
+  var editBtn=document.getElementById('fc-edit-btn');
+  if(editBtn) editBtn.style.display='none';
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
@@ -1880,6 +1949,9 @@ function showCurrentCard(){
   fcFlipped=false;
   resetCardShell();
   document.getElementById('fc-card-text').textContent=c.question;
+  /* Show pencil for admins */
+  var editBtn=document.getElementById('fc-edit-btn');
+  if(editBtn) editBtn.style.display=isAdmin?'block':'none';
 
   var cs=sess.cardState[c.id]||{};
 
@@ -3455,6 +3527,7 @@ function updateAiChatBtnVisibility(){
   if(!btn) return;
   btn.style.display=(isAdmin&&currentPage==='practice')?'flex':'none';
   if(!(isAdmin&&currentPage==='practice')) aiChatClose();
+  updateCardEditBtnVisibility();
 }
 
 var aiChatPanelOpen=false;
@@ -3543,6 +3616,160 @@ function aiQuickExplain(){
   if(!aiChatPanelOpen) toggleAiChat();
   var question='Can you explain why the answer to this card is correct and how to remember it for the NCLEX?';
   aiChatSend(question);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN CARD EDITOR — edit, add, delete flashcards
+═══════════════════════════════════════════════════════════ */
+
+var cmEditingCardId=null; /* null = add mode, number = edit mode */
+
+function requireAdmin(){
+  if(!isAdmin){alert('Admin access required.');return false;}
+  return true;
+}
+
+function updateCardEditBtnVisibility(){
+  var btn=document.getElementById('fc-edit-btn');
+  var addBtn=document.getElementById('fc-add-btn');
+  if(btn) btn.style.display=isAdmin?'block':'none';
+  if(addBtn) addBtn.style.display=(isAdmin&&currentPage==='practice')?'flex':'none';
+}
+
+function showEditModal(){
+  if(!requireAdmin()) return;
+  var c=fcCurrentCard;
+  if(!c) return;
+  cmEditingCardId=c.id;
+  document.getElementById('cm-title').textContent='Edit Card';
+  document.getElementById('cm-question').value=c.question||'';
+  document.getElementById('cm-answer').value=c.answer||'';
+  document.getElementById('cm-explanation').value=c.explanation||'';
+  document.getElementById('cm-delete-btn').style.display='';
+  document.getElementById('card-modal-overlay').classList.add('open');
+}
+
+function showAddModal(){
+  if(!requireAdmin()) return;
+  cmEditingCardId=null;
+  document.getElementById('cm-title').textContent='Add New Card';
+  document.getElementById('cm-question').value='';
+  document.getElementById('cm-answer').value='';
+  document.getElementById('cm-explanation').value='';
+  document.getElementById('cm-delete-btn').style.display='none';
+  document.getElementById('card-modal-overlay').classList.add('open');
+}
+
+function closeCardModal(){
+  document.getElementById('card-modal-overlay').classList.remove('open');
+}
+
+function saveCard(){
+  if(!requireAdmin()) return;
+  var q=document.getElementById('cm-question').value.trim();
+  var a=document.getElementById('cm-answer').value.trim();
+  var expl=document.getElementById('cm-explanation').value.trim();
+  if(!q||!a){alert('Question and Answer are required.');return;}
+
+  var btn=document.querySelector('.cm-btn-save');
+  btn.disabled=true;btn.textContent='Saving…';
+
+  if(cmEditingCardId){
+    /* UPDATE existing card */
+    fetch(SB_URL+'/rest/v1/flashcards?id=eq.'+cmEditingCardId,{
+      method:'PATCH',
+      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=minimal'},getAuthHdr()),
+      body:JSON.stringify({question:q,answer:a,explanation:expl||null})
+    })
+    .then(function(r){
+      if(!r.ok) return r.text().then(function(t){throw new Error(t);});
+      /* Update in-memory card */
+      var card=fcAllCards.find(function(c){return c.id===cmEditingCardId;});
+      if(card){card.question=q;card.answer=a;card.explanation=expl||null;}
+      if(fcCurrentCard&&fcCurrentCard.id===cmEditingCardId){
+        fcCurrentCard.question=q;fcCurrentCard.answer=a;fcCurrentCard.explanation=expl||null;
+      }
+      closeCardModal();
+      /* Re-render card if currently shown */
+      if(fcCurrentCard&&fcCurrentCard.id===cmEditingCardId){
+        var lbl=document.getElementById('fc-card-label');
+        if(lbl&&lbl.classList.contains('is-answer')){
+          document.getElementById('fc-card-text').textContent=a;
+        } else {
+          document.getElementById('fc-card-text').textContent=q;
+        }
+      }
+      showToast('Card updated ✓');
+    })
+    .catch(function(e){alert('Save failed: '+e.message);})
+    .finally(function(){btn.disabled=false;btn.textContent='💾 Save';});
+  } else {
+    /* INSERT new card */
+    var objIds=fcCurrentCard?fcCurrentCard.objective_ids:[];
+    fetch(SB_URL+'/rest/v1/flashcards',{
+      method:'POST',
+      headers:Object.assign({'Content-Type':'application/json','Prefer':'return=representation'},getAuthHdr()),
+      body:JSON.stringify({question:q,answer:a,explanation:expl||null,
+                           course:currentCourse,objective_ids:objIds})
+    })
+    .then(function(r){
+      if(!r.ok) return r.text().then(function(t){throw new Error(t);});
+      return r.json();
+    })
+    .then(function(rows){
+      var newCard=Array.isArray(rows)?rows[0]:rows;
+      if(newCard){
+        fcAllCards.push(newCard);
+        sess.totalCards=fcAllCards.length;
+      }
+      closeCardModal();
+      showToast('Card added ✓');
+    })
+    .catch(function(e){alert('Add failed: '+e.message);})
+    .finally(function(){btn.disabled=false;btn.textContent='💾 Save';});
+  }
+}
+
+function deleteCard(){
+  if(!requireAdmin()) return;
+  if(!cmEditingCardId) return;
+  if(!confirm('Delete this card permanently? This cannot be undone.')) return;
+
+  var btn=document.getElementById('cm-delete-btn');
+  btn.disabled=true;btn.textContent='Deleting…';
+
+  /* Delete mastery data first, then the card */
+  fetch(SB_URL+'/rest/v1/card_mastery?card_id=eq.'+cmEditingCardId,{
+    method:'DELETE',headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr())
+  })
+  .then(function(){
+    return fetch(SB_URL+'/rest/v1/card_attempts?card_id=eq.'+cmEditingCardId,{
+      method:'DELETE',headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr())
+    });
+  })
+  .then(function(){
+    return fetch(SB_URL+'/rest/v1/flashcards?id=eq.'+cmEditingCardId,{
+      method:'DELETE',headers:Object.assign({'Prefer':'return=minimal'},getAuthHdr())
+    });
+  })
+  .then(function(r){
+    if(!r.ok) return r.text().then(function(t){throw new Error(t);});
+    /* Remove from in-memory arrays */
+    var idx=fcAllCards.findIndex(function(c){return c.id===cmEditingCardId;});
+    if(idx!==-1) fcAllCards.splice(idx,1);
+    fcCycleQueue=fcCycleQueue.filter(function(c){return c.id!==cmEditingCardId;});
+    sess.totalCards=fcAllCards.length;
+    closeCardModal();
+    showToast('Card deleted');
+    /* Advance to next card */
+    if(fcCurrentCard&&fcCurrentCard.id===cmEditingCardId){
+      fcCurrentCard=null;
+      if(fcCyclePos>=fcCycleQueue.length) fcCyclePos=Math.max(0,fcCycleQueue.length-1);
+      showCurrentCard();
+    }
+  })
+  .catch(function(e){alert('Delete failed: '+e.message);})
+  .finally(function(){btn.disabled=false;btn.textContent='🗑 Delete';});
 }
 
 
