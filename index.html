@@ -577,56 +577,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qb-start-btn:disabled{opacity:.45;cursor:not-allowed}
 .qb-avail{font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center;
   min-height:16px}
-/* generation progress bar */
-.qb-gen-bar{background:var(--cobalt-bg);border:1px solid #bfdbfe;border-radius:var(--r-card);
-  padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;
-  font-size:13px;color:var(--cobalt)}
-.qb-gen-bar .qs-spinner{width:16px;height:16px;border-color:#bfdbfe;
-  border-top-color:var(--cobalt);flex-shrink:0;margin:0}
-.qb-gen-bar strong{color:var(--cobalt)}
-
-/* ── QUESTION BANK ── */
-.qbank-section{margin-top:28px}
-.qbank-header{display:flex;align-items:center;justify-content:space-between;
-  gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.qbank-header-left{}
-.qbank-title{font-size:10px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--text-muted);margin-bottom:3px}
-.qbank-total{font-size:13px;color:var(--text);font-weight:600}
-.qbank-search{flex:1;min-width:160px;max-width:280px;padding:8px 12px;
-  border:1px solid var(--border);border-radius:var(--r-btn);
-  font-size:13px;font-family:inherit;background:var(--surface);
-  color:var(--text);outline:none}
-.qbank-search:focus{border-color:var(--accent);outline:2px solid rgba(79,126,248,.15)}
-.qbank-list{background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r-card);overflow:hidden}
-.qbank-row{display:flex;align-items:center;gap:10px;padding:11px 14px;
-  border-bottom:1px solid var(--border);transition:background .1s;cursor:default}
-.qbank-row:last-child{border-bottom:none}
-.qbank-row:hover{background:var(--g50)}
-.qbank-stem{flex:1;font-size:13px;color:var(--text);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.qbank-badges{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.qbank-type{font-size:10px;font-weight:700;padding:2px 7px;
-  border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
-.qbank-type.mc{background:#eff6ff;color:var(--cobalt)}
-.qbank-type.sa{background:#f0fdfa;color:var(--teal)}
-.qbank-type.pr{background:var(--plum-bg);color:var(--plum)}
-.qbank-obj{font-size:11px;color:var(--text-muted);white-space:nowrap;
-  max-width:120px;overflow:hidden;text-overflow:ellipsis}
-.qbank-acc{font-size:11px;font-weight:600;white-space:nowrap;min-width:36px;text-align:right}
-.qbank-acc.good{color:var(--got)}
-.qbank-acc.mid{color:var(--unsure)}
-.qbank-acc.bad{color:var(--missed)}
-.qbank-empty{padding:32px;text-align:center;color:var(--text-muted);font-size:13px}
-.qbank-regen-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);
-  padding:6px 12px;border-radius:var(--r-btn);font-size:12px;font-weight:600;
-  cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;
-  white-space:nowrap;flex-shrink:0}
-.qbank-regen-btn:hover{background:var(--cobalt-bg);border-color:var(--cobalt);color:var(--cobalt)}
-.qbank-regen-btn:disabled{opacity:.45;cursor:not-allowed}
-@media(max-width:540px){.qbank-obj{display:none}.qbank-search{max-width:100%;width:100%}
-  .qbank-header{flex-direction:column;align-items:flex-start}}
 
 /* trouble spots banner */
 .qp-trouble{background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-card);
@@ -1394,29 +1344,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <div class="qb-avail" id="qb-avail"></div>
           </div>
 
-          <!-- generation progress bar — shown/hidden by preGenerateAllQuestions() -->
-          <div id="qb-gen-status" style="display:none"></div>
-
-          <!-- question bank section hidden per Fix 4 — data still loads, list just not shown -->
-          <div class="qbank-section" id="qbank-section" style="display:none">
-            <div class="qbank-header">
-              <div class="qbank-header-left">
-                <div class="qbank-title">Question Bank</div>
-                <div class="qbank-total" id="qbank-total">Loading&hellip;</div>
-              </div>
-              <input class="qbank-search" id="qbank-search" type="search"
-                placeholder="Search questions&hellip;"
-                oninput="renderQuizBank()">
-              <button class="qbank-regen-btn" id="qbank-regen-btn"
-                onclick="regenerateAllQuestions()"
-                title="Generate new questions for all sections using the updated prompt — adds on top of existing questions">
-                + Generate New
-              </button>
-            </div>
-            <div class="qbank-list" id="qbank-list">
-              <div class="qbank-empty">Loading questions&hellip;</div>
-            </div>
-          </div>
         </div>
       </div>
       <div id="quiz-session-view" style="display:none"></div>
@@ -2845,7 +2772,6 @@ function initQuiz(){
       computeTroubleSpots();
       renderQuizBuilder();
       renderQuizSidebar();
-      preGenerateAllQuestions();
     });
   });
 }
@@ -2999,78 +2925,12 @@ function updateBuilderSlider(){
     if(available>0){
       avail.textContent=available+' question'+(available!==1?'s':'')+' available';
     } else if(quizLoaded){
-      avail.textContent='No questions yet — Start Quiz to generate with AI';
+      avail.textContent='No questions found for this section';
     } else {
       avail.textContent='';
     }
   }
 
-  /* refresh the bank list to match the new filter */
-  renderQuizBank();
-}
-
-/* renders the scrollable question bank list below the builder */
-function renderQuizBank(){
-  var sel=document.getElementById('qb-filter');
-  var searchEl=document.getElementById('qbank-search');
-  var listEl=document.getElementById('qbank-list');
-  var totalEl=document.getElementById('qbank-total');
-  if(!listEl) return;
-
-  var filter=sel?sel.value:'';
-  var query=(searchEl?searchEl.value:'').toLowerCase().trim();
-  var og=getObjGroups();
-
-  /* filter the bank */
-  var rows=quizBankQuestions.filter(function(q){
-    if(filter&&!isInSection(q.objective_id,filter)) return false;
-    if(query&&q.stem.toLowerCase().indexOf(query)===-1) return false;
-    return true;
-  });
-
-  if(totalEl){
-    var section=filter?(og[filter]||filter):'all sections';
-    totalEl.textContent=rows.length+' question'+(rows.length!==1?'s':'')+' \u2014 '+section;
-  }
-
-  if(!rows.length){
-    listEl.innerHTML='<div class="qbank-empty">'
-      +(quizBankQuestions.length===0?'No questions loaded yet. Start a quiz to generate questions with AI.'
-        :'No questions match your search.')
-      +'</div>';
-    return;
-  }
-
-  /* type badge helper */
-  var TYPE_LABELS={'multiple_choice':'MC','select_all':'SA','priority':'Priority'};
-  var TYPE_CLS={'multiple_choice':'mc','select_all':'sa','priority':'pr'};
-
-  var html='';
-  rows.forEach(function(q){
-    var acc='';
-    var m=quizMasteryData[q.id];
-    if(m&&(m.total_attempts||0)>0){
-      var pct=Math.round((m.total_correct||0)/m.total_attempts*100);
-      var cls=pct>=80?'good':pct>=60?'mid':'bad';
-      acc='<span class="qbank-acc '+cls+'">'+pct+'%</span>';
-    }
-    var objLabel=og[q.objective_id]||q.objective_id||'';
-    /* shorten long objective labels for the badge */
-    var shortLabel=objLabel.replace(/ \(.*\)/,'').replace(/&amp;/,'&');
-    var typeLbl=TYPE_LABELS[q.type]||'MC';
-    var typeCls=TYPE_CLS[q.type]||'mc';
-    /* truncate stem to ~120 chars */
-    var stemText=q.stem.length>120?q.stem.slice(0,118)+'\u2026':q.stem;
-    html+='<div class="qbank-row">'
-      +'<span class="qbank-stem" title="'+q.stem.replace(/"/g,'&quot;')+'">'+stemText+'</span>'
-      +'<div class="qbank-badges">'
-      +'<span class="qbank-type '+typeCls+'">'+typeLbl+'</span>'
-      +'<span class="qbank-obj">'+shortLabel+'</span>'
-      +acc
-      +'</div>'
-      +'</div>';
-  });
-  listEl.innerHTML=html;
 }
 
 /* launches a quiz from the builder — reads filter + count, hands off to loader */
@@ -3253,67 +3113,16 @@ function loadQuizForObj(objId){
     .then(function(data){
       if(Array.isArray(data)&&data.length>0){
         quizCurrentQuestions=data;
-        showQuestionsReady(objId,data.length,false);
+        showQuestionsReady(objId,data.length);
       } else {
-        showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
-          +'<div class="qs-load-msg">Generating NCLEX questions with AI\u2026<br>'
-          +'<small style="font-size:12px">This only happens once per objective.</small></div></div>');
-        generateAndSaveQuestions(objId);
+        showQsError('No questions found for this section. The question bank may still be loading.');
       }
     })
     .catch(function(e){showQsError('Error loading questions: '+e.message);});
 }
 
-function generateAndSaveQuestions(objId){
-  var guideText=getStudyGuideText(objId);
-  getFlashcardsForObj(objId)
-    .then(function(cards){
-      if(!cards.length) throw new Error('No flashcards found for this objective.');
-      var flashText=cards.map(function(c,i){
-        return (i+1)+'. Q: '+c.question+'\n   A: '+c.answer;
-      }).join('\n');
-      var og=getObjGroups();
-      var objName=og[objId]||objId;
-      return callGemini(buildGeminiPrompt(objName,guideText,flashText));
-    })
-    .then(function(parsed){
-      if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
-        throw new Error('Gemini returned no questions.');
-      var rows=parsed.questions.map(function(q){
-        return {objective_id:objId,type:q.type,stem:q.stem,
-          options:q.options,correct:q.correct,explanation:q.explanation,
-          fact_tested:q.fact_tested||null,is_targeted:false};
-      });
-      return sbFetch('/rest/v1/quiz_questions',{
-        method:'POST',body:JSON.stringify(rows),
-        headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
-      }).then(function(r){return r.json();})
-        .then(function(saved){
-          var qs=Array.isArray(saved)&&saved.length?saved:rows;
-          quizCurrentQuestions=qs;
-          quizQCounts[objId]=(quizQCounts[objId]||0)+qs.length;
-          /* also bump the section prefix bucket */
-          var grp=getObjGroupKey(objId);
-          if(grp!==objId) quizQCounts[grp]=(quizQCounts[grp]||0)+qs.length;
-          /* update bank so newly-generated questions appear immediately */
-          qs.forEach(function(q){
-            if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
-              quizBankQuestions.push({id:q.id,objective_id:q.objective_id||objId,
-                stem:q.stem||'',type:q.type||'multiple_choice'});
-              quizCourseQuestionIds.push(q.id);
-              quizQuestionObjMap[q.id]=q.objective_id||objId;
-            }
-          });
-          showQuestionsReady(objId,qs.length,true);
-        });
-    })
-    .catch(function(e){
-      console.error('generateAndSave:',e);
-      showQsError('Could not generate questions: '+(e.message||'Unknown error'));
-    });
-}
 
-function showQuestionsReady(objId,count,wasGenerated){
+function showQuestionsReady(objId,count){
   var og=getObjGroups();
   var name=objId==='all'?'All Sections':(og[objId]||objId);
 
@@ -3330,12 +3139,10 @@ function showQuestionsReady(objId,count,wasGenerated){
     return m&&(m.total_attempts||0)>(m.total_correct||0);
   }).length;
 
-  var note=wasGenerated?'Questions generated and saved \u2014 they\'ll load instantly next time.'
-    :'Loaded from question bank.';
   var priorityNote='';
   if(wrongCount>0){
     priorityNote='<div style="font-size:12px;color:var(--unsure);margin-top:6px">'
-      +'\u26a0\ufe0f '+wrongCount+' question'+(wrongCount!==1?'s':'')+' you\'ve answered incorrectly before — front-loaded'
+      +'\u26a0\ufe0f '+wrongCount+' question'+(wrongCount!==1?'s':'')+' you\'ve answered incorrectly before \u2014 front-loaded'
       +'</div>';
   }
 
@@ -3343,7 +3150,7 @@ function showQuestionsReady(objId,count,wasGenerated){
     '<button class="qs-back-link" onclick="showQuizPicker()">\u2190 Quiz Builder</button>'
     +'<div class="qs-ready">'
     +'<div class="qs-ready-title">'+name+'</div>'
-    +'<div class="qs-ready-sub">'+count+' question'+(count===1?'':'s')+' &mdash; '+note+'</div>'
+    +'<div class="qs-ready-sub">'+count+' question'+(count===1?'':'s')+' ready</div>'
     +priorityNote
     +'<button class="qs-begin-btn" onclick="beginQuizSession()" style="margin-top:20px">Begin Quiz &rarr;</button>'
     +'</div>'
@@ -3663,7 +3470,7 @@ function startTargetedReview(){
 
 function loadTargetedQuestions(){
   var facts=quizMissedResults.map(function(r){return r.question.fact_tested;}).filter(Boolean);
-  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=eq.'+quizCurrentObjId+'&is_targeted=eq.true')
+  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=like.'+encodeURIComponent(quizCurrentObjId+'%')+'&is_targeted=eq.true')
     .then(function(r){return r.json();})
     .then(function(data){
       var existing=Array.isArray(data)?data:[];
@@ -3671,66 +3478,21 @@ function loadTargetedQuestions(){
       var relevant=facts.length
         ? existing.filter(function(q){return facts.indexOf(q.fact_tested)>-1;})
         : existing;
-      /* need at least as many questions as missed facts */
-      if(relevant.length>=quizMissedResults.length){
+      /* use targeted questions if available, otherwise fall back to missed question objects */
+      if(relevant.length>0){
         quizCurrentQuestions=relevant;
-        beginQuizSession();
       } else {
-        showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
-          +'<div class="qs-load-msg">Generating targeted questions\u2026<br>'
-          +'<small style="font-size:12px">Focusing on what you missed.</small></div></div>');
-        generateTargetedQuestions();
+        quizCurrentQuestions=quizMissedResults.map(function(r){return r.question;});
       }
-    })
-    .catch(function(e){showQsError('Error loading targeted questions: '+e.message);});
-}
-
-function generateTargetedQuestions(){
-  var guideText=getStudyGuideText(quizCurrentObjId);
-  var missedFacts=quizMissedResults.map(function(r){
-    var correctText=r.correct.map(function(letter){
-      var found=letter;
-      (r.question.options||[]).forEach(function(o){if(o.charAt(0)===letter) found=o;});
-      return found;
-    }).join(', ');
-    return 'Question: '+r.question.stem
-      +'\nCorrect answer: '+correctText
-      +'\nExplanation: '+r.question.explanation;
-  }).join('\n\n---\n\n');
-
-  callGemini(buildTargetedPrompt(guideText,missedFacts))
-    .then(function(parsed){
-      if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
-        throw new Error('Gemini returned no targeted questions.');
-      var rows=parsed.questions.map(function(q){
-        return {objective_id:quizCurrentObjId,type:q.type,stem:q.stem,
-          options:q.options,correct:q.correct,explanation:q.explanation,
-          fact_tested:q.fact_tested||null,is_targeted:true};
-      });
-      return sbFetch('/rest/v1/quiz_questions',{
-        method:'POST',body:JSON.stringify(rows),
-        headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
-      }).then(function(r){return r.json();})
-        .then(function(saved){
-          quizCurrentQuestions=Array.isArray(saved)&&saved.length?saved:rows;
-          beginQuizSession();
-        });
+      beginQuizSession();
     })
     .catch(function(e){
-      console.error('generateTargeted:',e);
-      showQsError('Could not generate targeted questions: '+(e.message||'Unknown error'));
+      /* fallback: re-use missed questions directly */
+      quizCurrentQuestions=quizMissedResults.map(function(r){return r.question;});
+      beginQuizSession();
     });
 }
 
-function buildTargetedPrompt(guideText,missedFacts){
-  return 'NCLEX exam writer. Use ONLY the content below — no outside knowledge.\n\n'
-    +'STUDY GUIDE:\n'+(guideText||'(see missed facts below)')+'\n\n'
-    +'MISSED FACTS (student got these wrong):\n'+missedFacts+'\n\n'
-    +'Generate 2 new questions per missed fact using different scenarios and question types.\n'
-    +'Max 8 questions total. Clinical scenarios only. Only test the missed facts above.\n\n'
-    +'JSON only — no markdown:\n'
-    +'{"questions":[{"type":"multiple_choice","stem":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":["B"],"explanation":"...","fact_tested":"..."}]}';
-}
 
 function showTargetedResults(){
   var total=quizSessionResults.length;
@@ -3773,252 +3535,6 @@ function getStudyGuideText(objId){
   }).filter(Boolean).join('\n\n');
   /* cap at 1500 chars to keep input tokens low — flashcards carry the detail */
   return text.length>1500?text.slice(0,1500)+'…':text;
-}
-
-function getFlashcardsForObj(objId){
-  return sbFetch('/rest/v1/flashcards?select=question,answer,objective_ids&course=eq.'+currentCourse+'&order=id.asc')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(!Array.isArray(data)) return [];
-      return data.filter(function(c){
-        var pre=(c.objective_ids&&c.objective_ids.length)
-          ?c.objective_ids[0].replace(/_\d+$/,''):'';
-        return pre===objId;
-      });
-    });
-}
-
-function buildGeminiPrompt(objName,guideText,flashText){
-  return 'You are a rigorous NCLEX-Next Generation exam writer for nursing students.\n\n'
-
-    +'════════════════════════════════════\n'
-    +'SOURCE MATERIAL — USE NOTHING ELSE\n'
-    +'════════════════════════════════════\n'
-    +'STUDY GUIDE ('+objName+'):\n'
-    +(guideText||'(not provided — rely on flashcard facts only)')+'\n\n'
-    +'FLASHCARD FACTS ('+objName+'):\n'
-    +flashText+'\n\n'
-
-    +'════════════════════════════════════\n'
-    +'COVERAGE REQUIREMENT\n'
-    +'════════════════════════════════════\n'
-    +'You MUST write at least one question for EVERY numbered flashcard fact listed above.\n'
-    +'Complex facts (e.g., multi-step processes, drug mechanisms, priority hierarchies) require 2–3 questions.\n'
-    +'Do NOT skip any fact. Do NOT pad with generic or repeated questions.\n\n'
-
-    +'════════════════════════════════════\n'
-    +'DIFFICULTY — THIS IS THE MOST IMPORTANT RULE\n'
-    +'════════════════════════════════════\n'
-    +'ALL questions must be HARD. This means:\n'
-    +'• Stem presents a realistic clinical situation with competing priorities or subtle cues — never a direct definition lookup\n'
-    +'• Correct answer requires reasoning and application, not simple recall\n'
-    +'• Every wrong option (distractor) must be something a real student WOULD choose — a plausible action, a related-but-wrong value, a common misconception, or correct in a DIFFERENT scenario\n'
-    +'• Never include obviously absurd or unrelated distractors\n'
-    +'• For select-all: include 3–5 correct answers and 2–3 convincing wrong ones; never make it obvious which are correct\n'
-    +'• For priority: present 4 patients/actions and require the student to reason about urgency, not just identify a sick patient\n'
-    +'• Avoid questions that can be answered by a student who never studied — the correct answer must depend on knowledge from the source material\n\n'
-
-    +'════════════════════════════════════\n'
-    +'QUESTION CONSTRUCTION RULES\n'
-    +'════════════════════════════════════\n'
-    +'• Write every stem as a patient scenario (e.g., "A nurse is caring for a client who...")\n'
-    +'• Use age, relevant history, vitals, labs, or medications in the stem to create realistic context\n'
-    +'• Do NOT ask "what is the definition of X" or "which statement is true about X"\n'
-    +'• Do NOT ask what the nurse should "delegate" for clinical/assessment objectives\n'
-    +'• For drug questions: test mechanism, adverse effects, or contraindications — not just the name\n'
-    +'• Explanation must cite WHY from the source material — not just restate the answer\n\n'
-
-    +'════════════════════════════════════\n'
-    +'OUTPUT FORMAT — JSON ONLY\n'
-    +'════════════════════════════════════\n'
-    +'Respond with raw JSON only. No markdown, no explanation, no code fences.\n'
-    +'{"questions":[{'
-    +'"type":"multiple_choice",'   /* multiple_choice | select_all | priority */
-    +'"stem":"A nurse is caring for a 68-year-old client with...",'
-    +'"options":["A. text","B. text","C. text","D. text"],'
-    +'"correct":["B"],'            /* array; select_all may have multiple */
-    +'"explanation":"Because the source material states... the correct action is... The distractors are wrong because...",'
-    +'"fact_tested":"exact flashcard fact this question tests",'
-    +'"objective_id":"'+objName+'"'
-    +'}]}';
-}
-
-/* ── Background pre-generation of ALL quiz questions ── */
-function backgroundGenerateForObj(objId){
-  return new Promise(function(resolve,reject){
-    var guideText=getStudyGuideText(objId);
-    getFlashcardsForObj(objId)
-      .then(function(cards){
-        if(!cards.length) throw new Error('No flashcards for '+objId);
-        var flashText=cards.map(function(c,i){
-          return (i+1)+'. Q: '+c.question+'\n   A: '+c.answer;
-        }).join('\n');
-        var og=getObjGroups();
-        var objName=og[objId]||objId;
-        return callGemini(buildGeminiPrompt(objName,guideText,flashText));
-      })
-      .then(function(parsed){
-        if(!parsed||!Array.isArray(parsed.questions)||!parsed.questions.length)
-          throw new Error('No questions returned');
-        var rows=parsed.questions.map(function(q){
-          return {objective_id:objId,type:q.type,stem:q.stem,
-            options:q.options,correct:q.correct,explanation:q.explanation,
-            fact_tested:q.fact_tested||null,is_targeted:false};
-        });
-        return sbFetch('/rest/v1/quiz_questions',{
-          method:'POST',body:JSON.stringify(rows),
-          headers:Object.assign({},getAuthHdr(),{'Prefer':'return=representation'})
-        }).then(function(r){return r.json();})
-          .then(function(saved){
-            var qs=Array.isArray(saved)&&saved.length?saved:rows;
-            quizQCounts[objId]=(quizQCounts[objId]||0)+qs.length;
-            var grp2=getObjGroupKey(objId);
-            if(grp2!==objId) quizQCounts[grp2]=(quizQCounts[grp2]||0)+qs.length;
-            /* push into bank so the list reflects newly generated questions */
-            qs.forEach(function(q){
-              if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
-                quizBankQuestions.push({id:q.id,objective_id:q.objective_id||objId,
-                  stem:q.stem||'',type:q.type||'multiple_choice'});
-                quizCourseQuestionIds.push(q.id);
-                quizQuestionObjMap[q.id]=q.objective_id||objId;
-              }
-            });
-            resolve(qs.length);
-          });
-      })
-      .catch(function(e){ reject(e); });
-  });
-}
-
-function preGenerateAllQuestions(){
-  var og=getObjGroups();
-  var missing=Object.keys(og).filter(function(k){ return !(quizQCounts[k]>0); });
-  if(!missing.length) return;
-
-  /* show the dedicated status bar that lives between builder and bank */
-  var bar=document.getElementById('qb-gen-status');
-  if(bar){
-    bar.innerHTML='<div class="qb-gen-bar"><div class="qs-spinner"></div>'
-      +'<span>Generating questions — <strong id="qp-gen-left">'+missing.length+'</strong> section'
-      +(missing.length!==1?'s':'')+' remaining\u2026</span></div>';
-    bar.style.display='';
-  }
-
-  var remaining=missing.slice();
-  function genNext(){
-    if(!remaining.length){
-      /* all done — swap to a success message then hide */
-      var b=document.getElementById('qb-gen-status');
-      if(b){
-        b.innerHTML='<div class="qb-gen-bar" style="border-color:#bbf7d0;background:#f0fdf4;color:var(--forest)">'
-          +'<span>✅ All questions ready.</span></div>';
-        setTimeout(function(){
-          var b2=document.getElementById('qb-gen-status');
-          if(b2){ b2.style.display='none'; b2.innerHTML=''; }
-        },3000);
-      }
-      renderQuizBuilder();
-      renderQuizBank();
-      return;
-    }
-    var objId=remaining.shift();
-    backgroundGenerateForObj(objId)
-      .then(function(){
-        var lbl=document.getElementById('qp-gen-left');
-        if(lbl) lbl.textContent=remaining.length;
-        renderQuizBuilder();
-        genNext();
-      })
-      .catch(function(e){
-        console.warn('preGen failed for '+objId+':',e);
-        var lbl=document.getElementById('qp-gen-left');
-        if(lbl) lbl.textContent=remaining.length;
-        genNext(); /* keep going even if one fails */
-      });
-  }
-  genNext();
-}
-
-/* ── Regenerate ALL sections (append on top of existing) ── */
-function regenerateAllQuestions(){
-  var og=getObjGroups();
-  var allObjs=Object.keys(og);
-  if(!allObjs.length) return;
-
-  /* disable button while running */
-  var regenBtn=document.getElementById('qbank-regen-btn');
-  if(regenBtn) regenBtn.disabled=true;
-
-  var bar=document.getElementById('qb-gen-status');
-  if(bar){
-    bar.innerHTML='<div class="qb-gen-bar"><div class="qs-spinner"></div>'
-      +'<span>Generating new questions — <strong id="qp-gen-left">'+allObjs.length+'</strong> section'
-      +(allObjs.length!==1?'s':'')+' remaining\u2026</span></div>';
-    bar.style.display='';
-  }
-
-  var remaining=allObjs.slice();
-  function genNext(){
-    if(!remaining.length){
-      var b=document.getElementById('qb-gen-status');
-      if(b){
-        b.innerHTML='<div class="qb-gen-bar" style="border-color:#bbf7d0;background:#f0fdf4;color:var(--forest)">'
-          +'<span>✅ New questions added to all sections.</span></div>';
-        setTimeout(function(){
-          var b2=document.getElementById('qb-gen-status');
-          if(b2){ b2.style.display='none'; b2.innerHTML=''; }
-        },3000);
-      }
-      var rb=document.getElementById('qbank-regen-btn');
-      if(rb) rb.disabled=false;
-      renderQuizBuilder();
-      renderQuizBank();
-      return;
-    }
-    var objId=remaining.shift();
-    backgroundGenerateForObj(objId)
-      .then(function(){
-        var lbl=document.getElementById('qp-gen-left');
-        if(lbl) lbl.textContent=remaining.length;
-        genNext();
-      })
-      .catch(function(e){
-        console.warn('regen failed for '+objId+':',e);
-        var lbl=document.getElementById('qp-gen-left');
-        if(lbl) lbl.textContent=remaining.length;
-        genNext();
-      });
-  }
-  genNext();
-}
-
-function callGemini(prompt){
-  /* Call our Edge Function — key lives server-side, never in client code */
-  return fetch(SB_URL+'/functions/v1/generate-quiz',{
-    method:'POST',
-    headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
-    body:JSON.stringify({prompt:prompt})
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.error) throw new Error('Gemini error: '+(typeof data.error==='object'?JSON.stringify(data.error):data.error));
-    var fb=data.promptFeedback;
-    if(fb&&fb.blockReason) throw new Error('Prompt blocked: '+fb.blockReason);
-    if(!data.candidates||!data.candidates[0])
-      throw new Error('No candidates returned — check Edge Function logs');
-    var cand=data.candidates[0];
-    if(cand.finishReason&&cand.finishReason!=='STOP'&&cand.finishReason!=='MAX_TOKENS')
-      throw new Error('Gemini stopped early: '+cand.finishReason);
-    if(!cand.content||!cand.content.parts||!cand.content.parts[0])
-      throw new Error('Candidate has no content');
-    var text=cand.content.parts[0].text;
-    text=text.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-    try{ return JSON.parse(text); }
-    catch(e){
-      console.error('Gemini JSON parse failed:\n',text);
-      throw new Error('Gemini returned invalid JSON — see console');
-    }
-  });
 }
 
 /* ═══════════════════════════════════════════════════════════
