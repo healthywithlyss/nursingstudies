@@ -2265,15 +2265,16 @@ function renderDeckDropdown(){
     var cnt=groups[key]||0;
     if(cnt) html+='<option value="'+key+'">'+og[key]+' ('+cnt+')</option>';
   });
-  /* Needs Review option — shown when loaded and count > 0, or when currently active */
+  /* Needs Review option */
   if(fcReviewCardIds===null&&currentUser){
-    html+='<option value="__review__">\uD83D\uDCCC Needs Review (\u2026)</option>';
+    html+='<option value="__review__" disabled>\uD83D\uDCCC Needs Review (\u2026)</option>';
     loadReviewDeck(function(){renderDeckDropdown();}); /* async refresh */
   } else if(fcReviewCardIds&&fcReviewCardIds.length>0){
     html+='<option value="__review__">\uD83D\uDCCC Needs Review ('+fcReviewCardIds.length+')</option>';
   } else if(sess.deckFilter==='__review__'){
-    /* stay selectable if already in review mode */
     html+='<option value="__review__">\uD83D\uDCCC Needs Review</option>';
+  } else if(fcReviewCardIds&&fcReviewCardIds.length===0){
+    html+='<option value="__review__" disabled>\uD83D\uDCCC Needs Review (none yet)</option>';
   }
   sel.innerHTML=html;
   sel.value=sess.deckFilter||'';
