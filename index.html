@@ -1700,14 +1700,33 @@ async function handleAuthSubmit(){
   btn.disabled=true;btn.textContent=authMode==='login'?'Logging in…':'Signing up…';
   setAuthMsg('','');
   var sb=getSb();
-  if(authMode==='signup'){
-    var r=await sb.auth.signUp({email:email,password:pwd});
-    if(r.error){setAuthMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Sign Up';}
-    else{setAuthMsg('Account created! Check your email and click the confirmation link, then log in here.','ok');btn.disabled=false;btn.textContent='Sign Up';}
-  } else {
-    var r=await sb.auth.signInWithPassword({email:email,password:pwd});
-    if(r.error){setAuthMsg(r.error.message,'err');btn.disabled=false;btn.textContent='Log In';}
-    /* success handled by onAuthStateChange */
+  try {
+    if(authMode==='signup'){
+      var r=await sb.auth.signUp({email:email,password:pwd});
+      console.log('[signup] response:', r);
+      if(r.error){
+        console.error('[signup] error:', r.error, 'status:', r.error.status, 'name:', r.error.name);
+        setAuthMsg(r.error.message,'err');
+        btn.disabled=false;btn.textContent='Sign Up';
+      } else {
+        console.log('[signup] user:', r.data && r.data.user, 'session:', r.data && r.data.session);
+        setAuthMsg('Account created! Check your email and click the confirmation link, then log in here.','ok');
+        btn.disabled=false;btn.textContent='Sign Up';
+      }
+    } else {
+      var r=await sb.auth.signInWithPassword({email:email,password:pwd});
+      if(r.error){
+        console.error('[login] error:', r.error);
+        setAuthMsg(r.error.message,'err');
+        btn.disabled=false;btn.textContent='Log In';
+      }
+      /* success handled by onAuthStateChange */
+    }
+  } catch(e) {
+    console.error('[auth] exception:', e);
+    setAuthMsg((e && e.message) || 'Network error — see console.','err');
+    btn.disabled=false;
+    btn.textContent=authMode==='login'?'Log In':'Sign Up';
   }
 }
 
