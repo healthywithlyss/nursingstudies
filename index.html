@@ -442,6 +442,27 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .rating-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 /* shuffle toggle */
 .shuffle-on{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+/* ── Study timer ── */
+.study-timer{display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:12px 0 4px;border-top:1px solid var(--border);margin-top:10px}
+.st-presets{display:flex;gap:6px}
+.st-preset{background:var(--g50);border:1px solid var(--border);border-radius:6px;
+  padding:4px 12px;font-size:12px;font-weight:600;color:var(--text-muted);
+  cursor:pointer;font-family:inherit;transition:all .15s}
+.st-preset:hover{background:var(--border)}
+.st-preset.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.st-controls{display:flex;align-items:center;gap:14px}
+.st-display{font-size:24px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;
+  min-width:76px;text-align:center;letter-spacing:.03em;transition:color .3s}
+.st-display.done{color:var(--got)}
+.st-display.pulse{animation:st-pulse .35s ease 4}
+.st-btn{background:var(--g50);border:1px solid var(--border);border-radius:8px;
+  width:36px;height:36px;font-size:16px;cursor:pointer;color:var(--text);
+  transition:all .15s;display:flex;align-items:center;justify-content:center;
+  font-family:inherit}
+.st-btn:hover{background:var(--border)}
+.st-btn.running{color:var(--accent);border-color:var(--accent)}
+@keyframes st-pulse{0%,100%{opacity:1}50%{opacity:.25}}
 /* pass summary panel */
 .fc-summary-panel{flex-direction:column;align-items:center;justify-content:center;
   background:#fff;border-radius:16px;box-shadow:var(--shadow);
@@ -1313,6 +1334,22 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
                 &#8592; Undo last rating
               </button>
             </div>
+
+            <!-- ── Study timer ── -->
+            <div class="study-timer" id="study-timer">
+              <div class="st-presets" id="st-presets">
+                <button class="st-preset" onclick="timerSetMins(5)">5m</button>
+                <button class="st-preset active" onclick="timerSetMins(10)">10m</button>
+                <button class="st-preset" onclick="timerSetMins(15)">15m</button>
+                <button class="st-preset" onclick="timerSetMins(25)">25m</button>
+              </div>
+              <div class="st-controls">
+                <button class="st-btn" id="st-play-btn" onclick="timerToggle()" title="Start / Pause">&#9654;</button>
+                <div class="st-display" id="st-display">10:00</div>
+                <button class="st-btn" id="st-reset-btn" onclick="timerReset()" title="Reset">&#8635;</button>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -2532,6 +2569,92 @@ function showToast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+/* ══════════════════════════════════════════
+   STUDY TIMER
+══════════════════════════════════════════ */
+var timerInterval=null;
+var timerSecondsLeft=600;  /* default 10 min */
+var timerTotalSeconds=600;
+var timerRunning=false;
+
+function timerSetMins(mins){
+  timerReset();
+  timerTotalSeconds=mins*60;
+  timerSecondsLeft=timerTotalSeconds;
+  document.querySelectorAll('.st-preset').forEach(function(b){
+    b.classList.toggle('active',b.textContent===mins+'m');
+  });
+  timerUpdateDisplay();
+}
+
+function timerToggle(){
+  if(timerRunning) timerPause();
+  else timerStart();
+}
+
+function timerStart(){
+  if(timerSecondsLeft<=0){timerReset();return;}
+  timerRunning=true;
+  var pb=document.getElementById('st-play-btn');
+  if(pb){pb.innerHTML='&#9646;&#9646;';pb.classList.add('running');}
+  var ps=document.getElementById('st-presets');
+  if(ps) ps.style.display='none';
+  timerInterval=setInterval(function(){
+    timerSecondsLeft--;
+    timerUpdateDisplay();
+    if(timerSecondsLeft<=0){timerPause();timerDone();}
+  },1000);
+}
+
+function timerPause(){
+  timerRunning=false;
+  clearInterval(timerInterval);timerInterval=null;
+  var pb=document.getElementById('st-play-btn');
+  if(pb){pb.innerHTML='&#9654;';pb.classList.remove('running');}
+  var ps=document.getElementById('st-presets');
+  if(ps) ps.style.display='flex';
+}
+
+function timerReset(){
+  timerPause();
+  timerSecondsLeft=timerTotalSeconds;
+  var disp=document.getElementById('st-display');
+  if(disp){disp.classList.remove('done','pulse');}
+  timerUpdateDisplay();
+}
+
+function timerDone(){
+  var disp=document.getElementById('st-display');
+  if(disp){disp.textContent='Done!';disp.classList.add('done','pulse');}
+  timerChime();
+  showToast('\u23f0 Study session complete!');
+}
+
+function timerUpdateDisplay(){
+  var disp=document.getElementById('st-display');
+  if(!disp) return;
+  var s=Math.max(0,timerSecondsLeft);
+  var m=Math.floor(s/60);var sec=s%60;
+  disp.textContent=(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+}
+
+function timerChime(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784,1047].forEach(function(freq,i){
+      var osc=ctx.createOscillator();
+      var gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=freq;
+      var t=ctx.currentTime+i*0.2;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.28,t+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.55);
+      osc.start(t);osc.stop(t+0.6);
+    });
+  }catch(e){}
 }
 
 /* ══════════════════════════════════════════
