@@ -273,6 +273,17 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-a-text{font-size:15px;color:var(--text);line-height:1.7;text-align:left;
   white-space:pre-line;width:100%}
 .fc-flip-hint{font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px}
+/* Why? explanation toggle */
+.fc-why-wrap{margin-top:14px;width:100%}
+.fc-why-btn{background:none;border:none;font-size:12px;font-weight:600;
+  color:var(--accent);cursor:pointer;padding:0;font-family:inherit;
+  display:flex;align-items:center;gap:4px}
+.fc-why-btn svg{width:12px;height:12px;transition:transform .18s}
+.fc-why-btn.open svg{transform:rotate(90deg)}
+.fc-why-body{display:none;margin-top:8px;background:#eef3fe;border-left:3px solid var(--accent);
+  border-radius:0 6px 6px 0;padding:10px 14px;font-size:13px;font-style:italic;
+  color:#334155;line-height:1.6;white-space:pre-line}
+.fc-why-body.open{display:block}
 /* history badge — top-right of card, shows prior result */
 .fc-history{position:absolute;top:14px;right:16px;
   font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
@@ -1688,7 +1699,7 @@ function buildCycle(){
 function initPractice(){
   if(fcLoaded) return;
   fcSetLoading();
-  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids&order=id.asc&course=eq.'+currentCourse;
+  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
   sbFetch(url)
     .then(function(r){return r.json();})
     .then(function(data){
@@ -1782,6 +1793,8 @@ function resetCardShell(){
   if(hist){hist.className='fc-history';hist.textContent='';}
   var streak=document.getElementById('fc-streak');
   if(streak){streak.className='fc-streak';}
+  var why=document.getElementById('fc-why-wrap');
+  if(why) why.remove();
   ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
@@ -1852,6 +1865,28 @@ function fcFlip(){
   document.getElementById('fc-card-text').textContent=c.answer;
   document.getElementById('fc-flip-hint').style.display='none';
   document.getElementById('fc-card').style.background='#f0fdf4';
+  /* Why? toggle — only when explanation exists */
+  var oldWhy=document.getElementById('fc-why-wrap');
+  if(oldWhy) oldWhy.remove();
+  if(c.explanation && c.explanation.trim()){
+    var wrap=document.createElement('div');
+    wrap.id='fc-why-wrap';wrap.className='fc-why-wrap';
+    var btn=document.createElement('button');
+    btn.className='fc-why-btn';
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>Why?';
+    var body=document.createElement('div');
+    body.className='fc-why-body';
+    body.textContent=c.explanation.trim();
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var open=body.classList.toggle('open');
+      btn.classList.toggle('open',open);
+    });
+    wrap.appendChild(btn);wrap.appendChild(body);
+    /* insert after fc-card-text, inside card body area */
+    var cardEl=document.getElementById('fc-card');
+    cardEl.appendChild(wrap);
+  }
 }
 
 function fcRate(result){
