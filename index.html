@@ -267,6 +267,44 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .prog-obj-count{font-size:10px;color:var(--text-muted);flex-shrink:0}
 .prog-obj-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:14px}
 .prog-obj-fill{height:100%;border-radius:2px;transition:width .4s ease}
+/* ── Dashboard ── */
+.dash-wrap{max-width:800px;margin:0 auto;padding:24px 20px 60px}
+.dash-heading{font-size:22px;font-weight:800;color:var(--text);margin-bottom:20px}
+.dash-overview{display:flex;align-items:center;gap:24px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-card);padding:24px;margin-bottom:24px;
+  box-shadow:var(--shadow)}
+.dash-ring-wrap{position:relative;flex-shrink:0;width:100px;height:100px}
+.dash-ring{width:100px;height:100px}
+.dr-bg{stroke:var(--border);fill:none;stroke-width:10}
+.dr-fill{stroke:var(--got);fill:none;stroke-width:10;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s ease}
+.dash-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;pointer-events:none}
+.dr-pct{font-size:20px;font-weight:800;color:var(--text);line-height:1}
+.dr-lbl{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:2px;letter-spacing:.03em}
+.dash-stats{flex:1;display:flex;flex-direction:column;gap:12px}
+.dash-stat-row{display:flex;align-items:baseline;gap:8px}
+.dash-stat-val{font-size:24px;font-weight:800;color:var(--text);line-height:1;min-width:40px}
+.dash-stat-lbl{font-size:13px;color:var(--text-muted)}
+.dash-stat-review .dash-stat-val{color:var(--unsure)}
+.dash-sec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.dash-sec-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:16px 18px;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow)}
+.dash-sec-card:hover{border-color:var(--accent);box-shadow:0 2px 14px rgba(79,126,248,.18)}
+.dash-sec-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-sec-bar-track{height:6px;background:var(--border);border-radius:3px;
+  overflow:hidden;margin-bottom:6px}
+.dash-sec-bar{height:100%;border-radius:3px;transition:width .5s ease;min-width:0}
+.dash-sec-counts{font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between}
+.dash-sec-pct{font-weight:700;color:var(--text)}
+.dash-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
+.dash-loading{text-align:center;padding:24px;color:var(--text-muted);font-size:13px}
+@media(max-width:600px){
+  .dash-overview{flex-direction:column;align-items:flex-start;gap:16px}
+  .dash-sec-grid{grid-template-columns:1fr}
+}
 /* card column (right) */
 .card-col{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card-header-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -734,6 +772,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-quiz" onclick="goTo('quiz')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Quiz
+      </button>
+      <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
       </button>
     </nav>
     <div class="sidebar-divider"></div>
@@ -1343,6 +1385,47 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <div id="quiz-session-view" style="display:none"></div>
     </div><!-- /page-quiz -->
 
+    <!-- ══════════════ DASHBOARD PAGE ══════════════ -->
+    <div id="page-dashboard" class="page">
+      <div class="dash-wrap">
+        <div class="dash-heading">Progress Dashboard</div>
+
+        <!-- Overview ring + key numbers -->
+        <div class="dash-overview">
+          <div class="dash-ring-wrap">
+            <svg class="dash-ring" viewBox="0 0 100 100">
+              <circle class="dr-bg" cx="50" cy="50" r="42"/>
+              <circle class="dr-fill" id="dr-fill" cx="50" cy="50" r="42"
+                stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+            </svg>
+            <div class="dash-ring-inner">
+              <div class="dr-pct" id="dr-pct">—</div>
+              <div class="dr-lbl">mastered</div>
+            </div>
+          </div>
+          <div class="dash-stats">
+            <div class="dash-stat-row">
+              <div class="dash-stat-val" id="dos-mastered">—</div>
+              <div class="dash-stat-lbl">cards mastered</div>
+            </div>
+            <div class="dash-stat-row">
+              <div class="dash-stat-val" id="dos-total">—</div>
+              <div class="dash-stat-lbl">total cards</div>
+            </div>
+            <div class="dash-stat-row dash-stat-review">
+              <div class="dash-stat-val" id="dos-review">—</div>
+              <div class="dash-stat-lbl">need review</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section breakdown grid -->
+        <div class="dash-sec-grid" id="dash-sections">
+          <div class="dash-loading">Loading&hellip;</div>
+        </div>
+      </div>
+    </div><!-- /page-dashboard -->
+
   </main>
 </div>
 
@@ -1358,6 +1441,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-quiz" onclick="goTo('quiz')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     Quiz
+  </button>
+  <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
   </button>
 </div>
 
@@ -1450,6 +1537,7 @@ function goTo(page){
   document.getElementById('main-content').scrollTop=0;
   if(page==='practice') initPractice();
   if(page==='quiz') initQuiz();
+  if(page==='dashboard') initDashboard();
   /* Show AI chat button only for admins on practice page */
   updateAiChatBtnVisibility();
 }
@@ -1469,6 +1557,10 @@ function renderCtx(page){
     initScrollSpy();
   } else if(page==='quiz'){
     renderQuizSidebar();
+  } else if(page==='dashboard'){
+    ctx.innerHTML='<div class="ctx-label">Dashboard</div>'
+      +'<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">'
+      +'Flashcard mastery by section.<br>Click a section card to practice it.</div>';
   } else {
     renderSidebarObjList();
   }
@@ -2478,6 +2570,101 @@ var quizQuestionObjMap={}; /* question_id → objective_id */
 var quizBankQuestions=[]; /* lightweight rows: {id, objective_id, stem, type} */
 var troubleCardIds=[];   /* card IDs user consistently struggles with */
 var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
+
+/* ══════════════════════════════════════════════════════════════════
+   DASHBOARD
+   ══════════════════════════════════════════════════════════════════ */
+function initDashboard(){
+  var sectionsEl=document.getElementById('dash-sections');
+  if(sectionsEl) sectionsEl.innerHTML='<div class="dash-loading">Loading\u2026</div>';
+  /* reset ring to empty while loading */
+  var drFill=document.getElementById('dr-fill');
+  if(drFill){drFill.style.strokeDashoffset='263.9';}
+  var pctEl=document.getElementById('dr-pct');if(pctEl) pctEl.textContent='\u2014';
+  ['dos-mastered','dos-total','dos-review'].forEach(function(id){
+    var el=document.getElementById(id);if(el) el.textContent='\u2014';
+  });
+
+  if(!currentUser){renderDashboard([],{});return;}
+
+  var dashCards=null, dashMastery=null;
+  function maybeRender(){
+    if(dashCards!==null&&dashMastery!==null) renderDashboard(dashCards,dashMastery);
+  }
+
+  /* reuse cached practice cards if available, else fetch minimal fields */
+  if(fcLoaded&&fcAllCards.length){
+    dashCards=fcAllCards;
+    maybeRender();
+  } else {
+    sbFetch('/rest/v1/flashcards?select=id,objective_ids&order=id.asc&course=eq.'+currentCourse)
+      .then(function(r){return r.json();})
+      .then(function(data){dashCards=Array.isArray(data)?data:[];maybeRender();})
+      .catch(function(){dashCards=[];maybeRender();});
+  }
+
+  sbFetch('/rest/v1/card_mastery?select=card_id,is_mastered,last_result&user_id=eq.'+currentUser.id)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      dashMastery={};
+      if(Array.isArray(data)) data.forEach(function(m){dashMastery[m.card_id]=m;});
+      maybeRender();
+    })
+    .catch(function(){dashMastery={};maybeRender();});
+}
+
+function renderDashboard(cards,masteryMap){
+  var og=getObjGroups();
+  var groups={};
+  var totalMastered=0, reviewCount=0;
+
+  cards.forEach(function(c){
+    var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
+    if(!groups[pre]) groups[pre]={total:0,mastered:0};
+    groups[pre].total++;
+    var m=masteryMap[c.id];
+    if(m&&m.is_mastered){groups[pre].mastered++;totalMastered++;}
+    else if(m&&(m.last_result==='unsure'||m.last_result==='missed')) reviewCount++;
+  });
+
+  var totalCards=cards.length;
+  var overallPct=totalCards?Math.round(totalMastered/totalCards*100):0;
+
+  /* Ring — circumference of r=42 circle */
+  var C=2*Math.PI*42;
+  var drFill=document.getElementById('dr-fill');
+  if(drFill){
+    drFill.style.strokeDasharray=C;
+    drFill.style.strokeDashoffset=C*(1-overallPct/100);
+    /* color by mastery level */
+    drFill.style.stroke=overallPct>=80?'var(--got)':overallPct>=50?'var(--unsure)':'var(--missed)';
+  }
+  var pctEl=document.getElementById('dr-pct');if(pctEl) pctEl.textContent=overallPct+'%';
+
+  /* Stats */
+  var mastEl=document.getElementById('dos-mastered');if(mastEl) mastEl.textContent=totalMastered;
+  var totEl=document.getElementById('dos-total');if(totEl) totEl.textContent=totalCards;
+  var revEl=document.getElementById('dos-review');if(revEl) revEl.textContent=reviewCount;
+
+  /* Section cards */
+  var html='';
+  Object.keys(og).forEach(function(key){
+    var g=groups[key];if(!g||!g.total) return;
+    var pct=g.total?Math.round(g.mastered/g.total*100):0;
+    var barColor=pct>=80?'var(--got)':pct>=50?'var(--unsure)':pct>0?'var(--missed)':'var(--border)';
+    html+='<div class="dash-sec-card" onclick="goTo(\'practice\');setTimeout(function(){startSessionForFilter(\''+key+'\');},80)">'
+      +'<div class="dash-sec-name">'+og[key]+'</div>'
+      +'<div class="dash-sec-bar-track"><div class="dash-sec-bar" style="width:'+pct+'%;background:'+barColor+'"></div></div>'
+      +'<div class="dash-sec-counts">'
+      +'<span>'+g.mastered+' / '+g.total+' mastered</span>'
+      +'<span class="dash-sec-pct">'+pct+'%</span>'
+      +'</div>'
+      +'</div>';
+  });
+
+  var el=document.getElementById('dash-sections');
+  if(el) el.innerHTML=html||'<div class="dash-empty">No cards found for this course.</div>';
+}
 
 function initQuiz(){
   if(quizLoaded){
