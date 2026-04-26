@@ -2135,6 +2135,17 @@ function showCurrentCard(){
         (sess.cardState[fcCycleQueue[fcCyclePos].id]||{}).status==='mastered'){
     fcCyclePos++;
   }
+  /* Engage drill mode mid-cycle: if 5+ cards are in-progress and the
+     next queued card is unseen, rebuild now so we drill instead. */
+  if(fcCyclePos<fcCycleQueue.length&&
+     (sess.cardState[fcCycleQueue[fcCyclePos].id]||{}).status==='unseen'){
+    var inProgressCount=sess.cards.filter(function(c){
+      return(sess.cardState[c.id]||{}).status==='active';
+    }).length;
+    if(inProgressCount>=5){
+      if(!buildCycle()) return;
+    }
+  }
   if(fcCyclePos>=fcCycleQueue.length){
     if(!buildCycle()) return; /* all mastered → completion screen */
   }
