@@ -2267,6 +2267,28 @@ function showToast(msg){
 /* ══════════════════════════════════════════
    QUIZ SYSTEM
 ══════════════════════════════════════════ */
+
+/* ── Quiz objective-ID helpers ── */
+/* Maps a sub-objective (e.g. "L78_01") to its section prefix ("L78").
+   For NUR116 the group keys ARE the exact IDs, so pass through unchanged. */
+function getObjGroupKey(objId){
+  if(!objId) return objId;
+  var keys=Object.keys(getObjGroups());
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    if(objId===k||objId.startsWith(k+'_')) return k;
+  }
+  return objId; /* unknown — return as-is */
+}
+/* true if objId belongs to the given section (prefix match OR exact) */
+function isInSection(objId,sectionKey){
+  if(!sectionKey) return true;
+  return objId===sectionKey||objId.startsWith(sectionKey+'_');
+}
+/* PostgREST filter string that limits quiz_questions to the current course */
+function getQuizCourseFilter(){
+  return currentCourse==='NUR116'?'like.N116T%':'not.like.N116T%';
+}
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
 var quizScores={};     /* objective_id → {correct, total} from quiz_attempts (session scores) */
@@ -2294,12 +2316,15 @@ function initQuiz(){
   var keys=Object.keys(og);
   /* p1: lightweight question list for counts, bank display, and obj map — static, load once */
   var qUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type'
-    +'&objective_id=in.('+encodeURIComponent(keys.join(','))+')&is_targeted=eq.false'
+    +'&objective_id='+getQuizCourseFilter()+'&is_targeted=eq.false'
     +'&order=objective_id.asc,id.asc';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
     quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
     if(Array.isArray(data)) data.forEach(function(q){
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
+      /* also accumulate into the section prefix bucket (e.g. L78_01 → L78) */
+      var grp=getObjGroupKey(q.objective_id);
+      if(grp!==q.objective_id) quizQCounts[grp]=(quizQCounts[grp]||0)+1;
       quizCourseQuestionIds.push(q.id);
       quizQuestionObjMap[q.id]=q.objective_id;
       quizBankQuestions.push({id:q.id,objective_id:q.objective_id,
@@ -2391,7 +2416,7 @@ function getQuizQMastery(objId){
   if(!total) return null; /* no questions for this objective */
   var mastered=0, attempted=0;
   Object.keys(quizQuestionObjMap).forEach(function(qid){
-    if(quizQuestionObjMap[qid]===objId){
+    if(isInSection(quizQuestionObjMap[qid],objId)){
       var m=quizMasteryData[qid];
       if(m&&(m.total_attempts||0)>0) attempted++;
       if(m&&m.is_mastered) mastered++;
@@ -2510,7 +2535,7 @@ function renderQuizBank(){
 
   /* filter the bank */
   var rows=quizBankQuestions.filter(function(q){
-    if(filter&&q.objective_id!==filter) return false;
+    if(filter&&!isInSection(q.objective_id,filter)) return false;
     if(query&&q.stem.toLowerCase().indexOf(query)===-1) return false;
     return true;
   });
@@ -2607,7 +2632,7 @@ function startQuizAll(count){
   var og=getObjGroups();
   var keys=Object.keys(og);
   var keyList=keys.join(',');
-  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=in.('+encodeURIComponent(keyList)+')&is_targeted=eq.false')
+  sbFetch('/rest/v1/quiz_questions?select=*&objective_id='+getQuizCourseFilter()+'&is_targeted=eq.false')
     .then(function(r){return r.json();})
     .then(function(data){
       if(!Array.isArray(data)||!data.length){
@@ -2733,7 +2758,9 @@ function showQuizPicker(){
 }
 
 function loadQuizForObj(objId){
-  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=eq.'+objId+'&is_targeted=eq.false')
+  /* Use LIKE so a section prefix key (e.g. "L78") also matches sub-objectives (L78_01, L78_02…) */
+  var filter=objId+'%'; /* L78% matches L78, L78_01, L78_02, … */
+  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=like.'+encodeURIComponent(filter)+'&is_targeted=eq.false')
     .then(function(r){return r.json();})
     .then(function(data){
       if(Array.isArray(data)&&data.length>0){
@@ -2776,7 +2803,10 @@ function generateAndSaveQuestions(objId){
         .then(function(saved){
           var qs=Array.isArray(saved)&&saved.length?saved:rows;
           quizCurrentQuestions=qs;
-          quizQCounts[objId]=qs.length;
+          quizQCounts[objId]=(quizQCounts[objId]||0)+qs.length;
+          /* also bump the section prefix bucket */
+          var grp=getObjGroupKey(objId);
+          if(grp!==objId) quizQCounts[grp]=(quizQCounts[grp]||0)+qs.length;
           /* update bank so newly-generated questions appear immediately */
           qs.forEach(function(q){
             if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
@@ -3353,7 +3383,9 @@ function backgroundGenerateForObj(objId){
         }).then(function(r){return r.json();})
           .then(function(saved){
             var qs=Array.isArray(saved)&&saved.length?saved:rows;
-            quizQCounts[objId]=qs.length;
+            quizQCounts[objId]=(quizQCounts[objId]||0)+qs.length;
+            var grp2=getObjGroupKey(objId);
+            if(grp2!==objId) quizQCounts[grp2]=(quizQCounts[grp2]||0)+qs.length;
             /* push into bank so the list reflects newly generated questions */
             qs.forEach(function(q){
               if(!quizBankQuestions.some(function(b){return b.id===q.id;})){
