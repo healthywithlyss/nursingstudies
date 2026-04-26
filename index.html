@@ -51,6 +51,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
   color:rgba(255,255,255,.65);padding:5px 12px;border-radius:var(--r-btn);
   font-size:12px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
 .btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+.admin-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px;
+  display:none;flex-shrink:0;user-select:none}
 
 /* LAYOUT */
 #layout{display:flex;position:fixed;top:var(--topbar-h);left:0;right:0;bottom:0}
@@ -605,6 +608,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     </div>
   </div>
   <div class="user-area">
+    <span class="admin-badge" id="admin-badge">Admin</span>
     <span id="user-email"></span>
     <button class="btn-ghost" id="logout-btn" onclick="handleSignOut()" style="display:none">Log out</button>
   </div>
@@ -1400,6 +1404,7 @@ var SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'app
 var _sb=null;
 var currentUser=null;
 var currentToken=null;
+var isAdmin=false;
 var authMode='login';
 
 function getSb(){
@@ -1490,17 +1495,29 @@ function showApp(){
   renderCtx('study');
 }
 
+async function fetchProfile(userId){
+  /* Fetch role from profiles table and update isAdmin + topbar badge */
+  try{
+    var sb=getSb();
+    var {data,error}=await sb.from('profiles').select('role').eq('id',userId).single();
+    isAdmin=(!error && data && data.role==='admin');
+  } catch(e){ isAdmin=false; }
+  var badge=document.getElementById('admin-badge');
+  if(badge) badge.style.display=isAdmin?'':'none';
+}
+
 async function initApp(){
   var sb=getSb();
   var sess=await sb.auth.getSession();
   if(sess.data.session){
     currentUser=sess.data.session.user;
     currentToken=sess.data.session.access_token;
+    await fetchProfile(currentUser.id);
     showApp();
   } else {
     showAuthScreen();
   }
-  sb.auth.onAuthStateChange(function(event,session){
+  sb.auth.onAuthStateChange(async function(event,session){
     if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session){
       var prevUserId=currentUser?currentUser.id:null;
       currentUser=session.user;
@@ -1511,6 +1528,7 @@ async function initApp(){
       if(prevUserId!==session.user.id){
         fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
         sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
+        await fetchProfile(session.user.id);
       }
       showApp();
     } else if(event==='PASSWORD_RECOVERY'){
@@ -1520,7 +1538,9 @@ async function initApp(){
       setAuthMsg('Enter a new password below to reset your account.','ok');
       document.getElementById('auth-password').focus();
     } else if(event==='SIGNED_OUT'){
-      currentUser=null;currentToken=null;
+      currentUser=null;currentToken=null;isAdmin=false;
+      var badge=document.getElementById('admin-badge');
+      if(badge) badge.style.display='none';
       fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
       sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
       showAuthScreen();
