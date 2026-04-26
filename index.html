@@ -590,6 +590,21 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qb-start-btn:disabled{opacity:.45;cursor:not-allowed}
 .qb-avail{font-size:12px;color:var(--text-muted);margin-top:10px;text-align:center;
   min-height:16px}
+.qb-label-hint{font-size:11px;font-weight:400;color:var(--text-muted);margin-left:4px}
+/* Section & status chips */
+.qb-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+.qb-chip{padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);
+  background:transparent;font-size:12px;font-weight:600;color:var(--text-muted);
+  cursor:pointer;transition:all .15s;font-family:inherit;line-height:1.2}
+.qb-chip:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.qb-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Star button on quiz question */
+.qq-star{background:none;border:none;font-size:22px;cursor:pointer;
+  padding:4px 8px;line-height:1;opacity:.35;transition:opacity .15s,transform .1s;
+  position:absolute;top:10px;right:8px}
+.qq-star:hover{opacity:.8;transform:scale(1.15)}
+.qq-star.starred{opacity:1}
+.qq-question-wrap{position:relative}
 
 /* trouble spots banner */
 .qp-trouble{background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r-card);
@@ -1330,12 +1345,20 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
           <div class="qb-card">
             <div class="qb-section-label">Quiz Builder</div>
 
+            <!-- Section chips — populated by renderQuizBuilder() -->
             <div class="qb-field">
-              <label class="qb-label" for="qb-filter">Filter by section</label>
-              <select class="qb-select" id="qb-filter" onchange="updateBuilderSlider()">
-                <option value="">All Sections</option>
-                <!-- populated by renderQuizBuilder() -->
-              </select>
+              <label class="qb-label">Sections <span class="qb-label-hint">(tap to select; none = all)</span></label>
+              <div class="qb-chips" id="qb-section-chips"></div>
+            </div>
+
+            <!-- Status filter chips -->
+            <div class="qb-field">
+              <label class="qb-label">Filter by status <span class="qb-label-hint">(any combination)</span></label>
+              <div class="qb-chips">
+                <button class="qb-chip" id="qbc-unseen"   onclick="toggleStatusFilter('unseen')">👁 Unseen</button>
+                <button class="qb-chip" id="qbc-wrong"    onclick="toggleStatusFilter('wrong')">❌ Wrong answers</button>
+                <button class="qb-chip" id="qbc-starred"  onclick="toggleStatusFilter('starred')">⭐ Starred</button>
+              </div>
             </div>
 
             <div class="qb-field">
@@ -1353,7 +1376,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <button class="qb-start-btn" id="qb-start-btn" onclick="startQuizFromBuilder()">
               Start Quiz
             </button>
-            <!-- available question count line, updated by updateBuilderSlider() -->
             <div class="qb-avail" id="qb-avail"></div>
           </div>
 
@@ -2784,6 +2806,7 @@ function renderDashboard(cards,masteryMap,qMasteryMap,qAttempts){
 }
 
 function initQuiz(){
+  loadStarredQuestions(); /* always refresh from localStorage */
   if(quizLoaded){
     /* static data already cached — just refresh the mastery tables and re-render */
     loadQuizMastery(function(){
@@ -2907,25 +2930,88 @@ function getQuizQMastery(objId){
 }
 
 /* ── QUIZ BUILDER STATE ── */
-var quizBuilderFilter='';   /* '' = all sections, or objective key */
-var quizBuilderCount=20;    /* number of questions for the upcoming quiz */
+var quizBuilderFilter='';        /* kept for legacy callers */
+var quizBuilderCount=20;
+var quizBuilderSections=[];      /* [] = all; else array of section keys e.g. ['L78','L910'] */
+var quizBuilderStatus=[];        /* [] = all; else subset of ['unseen','wrong','starred'] */
+var starredQuestionIds=new Set();/* question IDs starred by this user (persisted in localStorage) */
+
+function loadStarredQuestions(){
+  try{var raw=localStorage.getItem('nur_starred_qs');
+    starredQuestionIds=new Set(raw?JSON.parse(raw):[]);}
+  catch(e){starredQuestionIds=new Set();}
+}
+function saveStarredQuestions(){
+  localStorage.setItem('nur_starred_qs',JSON.stringify(Array.from(starredQuestionIds)));
+}
+function toggleStarQuestion(qId){
+  if(starredQuestionIds.has(qId)) starredQuestionIds.delete(qId);
+  else starredQuestionIds.add(qId);
+  saveStarredQuestions();
+  var nowStarred=starredQuestionIds.has(qId);
+  var btn=document.getElementById('qq-star-btn');
+  if(btn){
+    btn.classList.toggle('starred',nowStarred);
+    btn.textContent=nowStarred?'\u2b50':'\u2606';
+    btn.title=nowStarred?'Unstar':'Star this question';
+  }
+}
+
+function toggleSectionChip(key){
+  var i=quizBuilderSections.indexOf(key);
+  if(i>-1) quizBuilderSections.splice(i,1); else quizBuilderSections.push(key);
+  var chip=document.getElementById('qbc-sec-'+key);
+  if(chip) chip.classList.toggle('active',quizBuilderSections.indexOf(key)>-1);
+  updateBuilderSlider();
+}
+function toggleStatusFilter(status){
+  var i=quizBuilderStatus.indexOf(status);
+  if(i>-1) quizBuilderStatus.splice(i,1); else quizBuilderStatus.push(status);
+  var chip=document.getElementById('qbc-'+status);
+  if(chip) chip.classList.toggle('active',quizBuilderStatus.indexOf(status)>-1);
+  updateBuilderSlider();
+}
+
+/* Returns the question pool after applying section + status filters */
+function getFilteredPool(){
+  var pool=quizBankQuestions;
+  /* section filter */
+  if(quizBuilderSections.length>0){
+    pool=pool.filter(function(q){
+      return quizBuilderSections.indexOf(getObjGroupKey(q.objective_id))>-1;
+    });
+  }
+  /* status filter — OR logic across selected statuses */
+  if(quizBuilderStatus.length>0){
+    pool=pool.filter(function(q){
+      return quizBuilderStatus.some(function(s){
+        if(s==='unseen') return !quizMasteryData[q.id];
+        if(s==='wrong'){var m=quizMasteryData[q.id];
+          return m&&(m.total_attempts||0)>(m.total_correct||0);}
+        if(s==='starred') return starredQuestionIds.has(q.id);
+        return false;
+      });
+    });
+  }
+  return pool;
+}
 
 function renderQuizBuilder(){
   var og=getObjGroups();
 
-  /* ── populate filter dropdown ── */
-  var sel=document.getElementById('qb-filter');
-  if(sel){
-    /* preserve current selection if possible */
-    var prev=sel.value;
-    sel.innerHTML='<option value="">All Sections</option>';
+  /* ── section chips ── */
+  var chipsEl=document.getElementById('qb-section-chips');
+  if(chipsEl){
+    var h='';
     Object.keys(og).forEach(function(key){
       var cnt=quizQCounts[key]||0;
-      var opt=document.createElement('option');
-      opt.value=key; opt.textContent=og[key]+(cnt?' ('+cnt+')':'');
-      sel.appendChild(opt);
+      var isActive=quizBuilderSections.indexOf(key)>-1;
+      h+='<button class="qb-chip'+(isActive?' active':'')+'" id="qbc-sec-'+key
+        +'" onclick="toggleSectionChip(\''+key+'\')">'
+        +og[key]+(cnt?' <span style="opacity:.7;font-size:10px">('+cnt+')</span>':'')
+        +'</button>';
     });
-    if(prev) sel.value=prev;
+    chipsEl.innerHTML=h;
   }
 
   /* ── trouble spots banner ── */
@@ -2955,19 +3041,10 @@ function renderQuizBuilder(){
   updateBuilderSlider();
 }
 
-/* recalculates slider max + available-count display whenever filter changes */
+/* recalculates slider max + available-count display whenever any filter changes */
 function updateBuilderSlider(){
-  var sel=document.getElementById('qb-filter');
-  var filter=sel?sel.value:'';
-  var og=getObjGroups();
-
-  /* count available questions for the selected filter */
-  var available=0;
-  if(!filter){
-    Object.keys(og).forEach(function(k){ available+=(quizQCounts[k]||0); });
-  } else {
-    available=quizQCounts[filter]||0;
-  }
+  /* count using the full filter stack */
+  var available=quizLoaded?getFilteredPool().length:0;
 
   var slider=document.getElementById('qb-count-slider');
   var display=document.getElementById('qb-count-display');
@@ -2976,16 +3053,14 @@ function updateBuilderSlider(){
 
   if(slider){
     if(available>0){
-      var maxVal=Math.min(available,100); /* cap at 100 */
-      slider.max=maxVal;
-      slider.min=5;
+      var maxVal=Math.min(available,100);
+      slider.max=maxVal; slider.min=5;
       var cur=parseInt(slider.value,10)||20;
       var clamped=Math.min(Math.max(cur,5),maxVal);
       if(cur===20||cur>maxVal) clamped=Math.min(20,maxVal);
       slider.value=clamped;
       if(display) display.textContent=clamped;
     } else {
-      /* no questions yet — keep slider at readable default, don't clamp to 5 */
       slider.min=5; slider.max=50; slider.value=20;
       if(display) display.textContent='20';
     }
@@ -2993,32 +3068,48 @@ function updateBuilderSlider(){
 
   if(btn) btn.disabled=available===0;
 
-  /* small available-count hint below the Start button */
   if(avail){
     if(available>0){
       avail.textContent=available+' question'+(available!==1?'s':'')+' available';
     } else if(quizLoaded){
-      avail.textContent='No questions found for this section. Questions may still be loading.';
+      var why=quizBuilderStatus.length?'No questions match the selected filters.'
+        :'No questions found. Questions may still be loading.';
+      avail.textContent=why;
     } else {
-      avail.textContent='';
+      avail.textContent='Loading questions\u2026';
     }
   }
-
 }
 
-/* launches a quiz from the builder — reads filter + count, hands off to loader */
+/* launches a quiz from the builder using the current filter state */
 function startQuizFromBuilder(){
-  var sel=document.getElementById('qb-filter');
   var slider=document.getElementById('qb-count-slider');
-  quizBuilderFilter=sel?sel.value:'';
   quizBuilderCount=slider?parseInt(slider.value,10):20;
 
-  if(!quizBuilderFilter){
-    /* All Sections — build a combined pool across all objectives */
-    startQuizAll(quizBuilderCount);
-  } else {
-    startQuiz(quizBuilderFilter);
-  }
+  var pool=getFilteredPool();
+  if(!pool.length){showToast('No questions match your filters.');return;}
+
+  /* set quizCurrentObjId for scoring context */
+  if(quizBuilderSections.length===1) quizCurrentObjId=quizBuilderSections[0];
+  else quizCurrentObjId='all';
+
+  showQuizSession('<div class="qs-loading"><div class="qs-spinner"></div>'
+    +'<div class="qs-load-msg">Loading questions\u2026</div></div>');
+
+  /* full question objects are needed — fetch only the ones in our filtered pool */
+  var ids=pool.map(function(q){return q.id;});
+  var idFilter='id=in.('+ids.join(',')+')';
+  sbFetch('/rest/v1/quiz_questions?select=*&'+idFilter+'&is_targeted=eq.false')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)||!data.length){
+        showQsError('Could not load questions. Please try again.');return;
+      }
+      var deck=buildQuizDeck(data,quizBuilderCount);
+      quizCurrentQuestions=deck;
+      beginQuizSession();
+    })
+    .catch(function(e){showQsError('Error loading questions: '+(e.message||e));});
 }
 
 /* starts a quiz drawing from all objectives for the current course */
@@ -3091,11 +3182,12 @@ function renderQuizSidebar(){
 
 function startQuizFromSidebar(key){
   if(currentPage!=='quiz') goTo('quiz');
-  /* pre-select the section in the builder dropdown, then start */
-  var sel=document.getElementById('qb-filter');
-  if(sel){ sel.value=key; updateBuilderSlider(); }
-  quizBuilderFilter=key;
-  startQuiz(key);
+  /* select just this section chip, clear status filters, then start */
+  quizBuilderSections=[key];
+  quizBuilderStatus=[];
+  renderQuizBuilder();   /* re-renders chips with correct active states */
+  updateBuilderSlider();
+  startQuizFromBuilder();
 }
 
 /* ── TROUBLE SPOTS REVIEW ── */
@@ -3288,14 +3380,20 @@ function renderQuizQuestion(){
       +'</button>';
   });
 
+  var isStarred=starredQuestionIds.has(q.id);
   showQuizSession(
     '<div class="qq-header">'
-    +'<button class="qq-back" onclick="showQuizPicker()">\u2190 Objectives</button>'
+    +'<button class="qq-back" onclick="showQuizPicker()">\u2190 Builder</button>'
     +'<span class="qq-type-badge" style="'+typeStyle+'">'+typeLbl+'</span>'
-    +'<span class="qq-progress-text">'+( quizSessionIdx+1)+' / '+total+'</span>'
+    +'<span class="qq-progress-text">'+(quizSessionIdx+1)+' / '+total+'</span>'
     +'</div>'
     +'<div class="qq-prog-bar"><div class="qq-prog-fill" style="width:'+pct+'%"></div></div>'
+    +'<div class="qq-question-wrap">'
+    +'<button class="qq-star'+(isStarred?' starred':'')+'" id="qq-star-btn"'
+      +' onclick="toggleStarQuestion(\''+q.id+'\')" title="'+(isStarred?'Unstar':'Star this question')+'">'
+      +(isStarred?'\u2b50':'\u2606')+'</button>'
     +'<div class="qq-stem">'+escHtml(q.stem)+'</div>'
+    +'</div>'
     +(isSelectAll?'<div class="qq-type-label">Select all that apply</div>':'')
     +'<div class="qq-options">'+optHtml+'</div>'
     +'<button class="qq-submit" id="qq-submit" onclick="submitQuizAnswer()" disabled>Submit</button>'
