@@ -292,6 +292,52 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .fc-history.got{background:#dcfce7;color:var(--got)}
 .fc-history.unsure{background:#fef9c3;color:#b45309}
 .fc-history.missed{background:#fee2e2;color:var(--missed)}
+/* ── AI Chat bubble (admin-only, Practice page) ── */
+#ai-chat-btn{position:fixed;bottom:24px;right:24px;width:52px;height:52px;
+  border-radius:50%;background:var(--accent);color:#fff;border:none;
+  font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(79,126,248,.45);
+  display:none;align-items:center;justify-content:center;z-index:500;
+  transition:transform .15s,box-shadow .15s}
+#ai-chat-btn:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(79,126,248,.55)}
+#ai-chat-panel{position:fixed;bottom:0;right:0;width:400px;max-width:100vw;
+  height:45vh;min-height:280px;background:#fff;
+  border-radius:16px 16px 0 0;box-shadow:0 -4px 32px rgba(0,0,0,.15);
+  display:flex;flex-direction:column;z-index:499;
+  transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+  overflow:hidden}
+#ai-chat-panel.open{transform:translateY(0)}
+.ai-chat-header{display:flex;align-items:center;padding:12px 16px 10px;
+  border-bottom:1px solid var(--border);gap:8px;flex-shrink:0}
+.ai-chat-header-title{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.ai-chat-close{background:none;border:none;font-size:18px;cursor:pointer;
+  color:var(--text-muted);padding:0 4px;line-height:1}
+.ai-quick-btn{background:var(--cobalt-bg);border:1px solid #bfdbfe;color:var(--cobalt);
+  font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;cursor:pointer;
+  font-family:inherit;white-space:nowrap;transition:background .15s}
+.ai-quick-btn:hover{background:#dbeafe}
+.ai-chat-messages{flex:1;overflow-y:auto;padding:10px 14px;display:flex;
+  flex-direction:column;gap:8px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.ai-msg{max-width:88%;padding:9px 13px;border-radius:14px;font-size:13px;
+  line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.ai-msg-user{align-self:flex-end;background:var(--accent);color:#fff;
+  border-bottom-right-radius:4px}
+.ai-msg-bot{align-self:flex-start;background:var(--g50);color:var(--text);
+  border:1px solid var(--border);border-bottom-left-radius:4px}
+.ai-msg-thinking{align-self:flex-start;color:var(--text-muted);font-size:12px;
+  font-style:italic;padding:4px 2px}
+.ai-chat-input-row{display:flex;gap:8px;padding:10px 12px;
+  border-top:1px solid var(--border);flex-shrink:0}
+#ai-chat-input{flex:1;border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;font-size:13px;font-family:inherit;resize:none;
+  outline:none;line-height:1.4;max-height:80px;
+  transition:border-color .15s}
+#ai-chat-input:focus{border-color:var(--accent)}
+.ai-send-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600;
+  font-family:inherit;flex-shrink:0;transition:background .15s}
+.ai-send-btn:hover{background:#3d6ef6}
+.ai-send-btn:disabled{opacity:.5;cursor:not-allowed}
 /* mastery streak indicator — below rating buttons */
 .fc-streak{font-size:12px;font-weight:600;color:var(--got);letter-spacing:1px;
   background:#dcfce7;border-radius:20px;padding:3px 14px;white-space:nowrap;
@@ -1256,6 +1302,22 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   </button>
 </div>
 
+<!-- AI Chat bubble — admin-only, shown on Practice page -->
+<button id="ai-chat-btn" onclick="toggleAiChat()" title="AI Study Assistant">💬</button>
+<div id="ai-chat-panel">
+  <div class="ai-chat-header">
+    <span class="ai-chat-header-title">✨ AI Study Assistant</span>
+    <button class="ai-quick-btn" onclick="aiQuickExplain()">Explain this answer</button>
+    <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
+  </div>
+  <div class="ai-chat-messages" id="ai-chat-messages"></div>
+  <div class="ai-chat-input-row">
+    <textarea id="ai-chat-input" rows="1" placeholder="Ask about this card…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiChatSend();}"></textarea>
+    <button class="ai-send-btn" id="ai-send-btn" onclick="aiChatSend()">Send</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -1302,6 +1364,8 @@ function goTo(page){
   document.getElementById('main-content').scrollTop=0;
   if(page==='practice') initPractice();
   if(page==='quiz') initQuiz();
+  /* Show AI chat button only for admins on practice page */
+  updateAiChatBtnVisibility();
 }
 
 function renderCtx(page){
@@ -1503,6 +1567,7 @@ function showApp(){
   if(emailEl) emailEl.textContent=currentUser?currentUser.email:'';
   var logoutBtn=document.getElementById('logout-btn');
   if(logoutBtn) logoutBtn.style.display='';
+  updateAiChatBtnVisibility();
   renderCtx('study');
 }
 
@@ -1810,6 +1875,7 @@ function showCurrentCard(){
     if(!buildCycle()) return; /* all mastered → completion screen */
   }
   var c=fcCycleQueue[fcCyclePos];
+  if(fcCurrentCard&&fcCurrentCard.id!==c.id) aiChatClearMessages();
   fcCurrentCard=c;
   fcFlipped=false;
   resetCardShell();
@@ -3361,6 +3427,122 @@ function callGemini(prompt){
       throw new Error('Gemini returned invalid JSON — see console');
     }
   });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AI CHAT — admin-only study assistant on Practice page
+═══════════════════════════════════════════════════════════ */
+
+function callGeminiChat(prompt){
+  /* Same Edge Function, but returns raw text (no JSON parse) */
+  return fetch(SB_URL+'/functions/v1/generate-quiz',{
+    method:'POST',
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+    body:JSON.stringify({prompt:prompt})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error) throw new Error(typeof data.error==='object'?JSON.stringify(data.error):data.error);
+    if(!data.candidates||!data.candidates[0]) throw new Error('No response from AI');
+    var text=(data.candidates[0].content&&data.candidates[0].content.parts&&
+              data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||'';
+    return text.trim();
+  });
+}
+
+function updateAiChatBtnVisibility(){
+  var btn=document.getElementById('ai-chat-btn');
+  if(!btn) return;
+  btn.style.display=(isAdmin&&currentPage==='practice')?'flex':'none';
+  if(!(isAdmin&&currentPage==='practice')) aiChatClose();
+}
+
+var aiChatPanelOpen=false;
+
+function toggleAiChat(){
+  aiChatPanelOpen=!aiChatPanelOpen;
+  var panel=document.getElementById('ai-chat-panel');
+  if(panel) panel.classList.toggle('open',aiChatPanelOpen);
+  if(aiChatPanelOpen){
+    var inp=document.getElementById('ai-chat-input');
+    if(inp) inp.focus();
+  }
+}
+
+function aiChatClose(){
+  aiChatPanelOpen=false;
+  var panel=document.getElementById('ai-chat-panel');
+  if(panel) panel.classList.remove('open');
+}
+
+function aiChatClearMessages(){
+  var msgs=document.getElementById('ai-chat-messages');
+  if(msgs) msgs.innerHTML='';
+}
+
+function aiAppendMsg(text,cls){
+  var msgs=document.getElementById('ai-chat-messages');
+  if(!msgs) return null;
+  var div=document.createElement('div');
+  div.className='ai-msg '+cls;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function aiChatSend(prefill){
+  var inp=document.getElementById('ai-chat-input');
+  var text=(prefill||inp.value).trim();
+  if(!text) return;
+  inp.value='';
+  inp.style.height='';
+
+  aiAppendMsg(text,'ai-msg-user');
+
+  /* Build context from current card */
+  var card=fcCurrentCard;
+  var cardCtx='';
+  if(card){
+    cardCtx='CURRENT FLASHCARD:\n'
+      +'Question: '+card.question+'\n'
+      +'Answer: '+card.answer
+      +(card.explanation?'\nExplanation: '+card.explanation:'');
+  }
+  var objId=card&&card.objective_ids&&card.objective_ids[0]?card.objective_ids[0]:'';
+  var guideCtx=objId?getStudyGuideText(objId):'';
+
+  var systemPrompt='You are a knowledgeable nursing tutor helping a nursing student study. '
+    +'Answer clearly and concisely. Focus on clinical relevance and NCLEX application.\n\n';
+  if(cardCtx) systemPrompt+=cardCtx+'\n\n';
+  if(guideCtx) systemPrompt+='STUDY GUIDE CONTEXT:\n'+guideCtx+'\n\n';
+  systemPrompt+='STUDENT QUESTION: '+text;
+
+  /* Show thinking indicator */
+  var thinking=aiAppendMsg('Thinking…','ai-msg-thinking');
+
+  var sendBtn=document.getElementById('ai-send-btn');
+  if(sendBtn) sendBtn.disabled=true;
+
+  callGeminiChat(systemPrompt)
+    .then(function(reply){
+      if(thinking&&thinking.parentNode) thinking.remove();
+      aiAppendMsg(reply,'ai-msg-bot');
+    })
+    .catch(function(e){
+      if(thinking&&thinking.parentNode) thinking.remove();
+      aiAppendMsg('Error: '+e.message,'ai-msg-bot');
+    })
+    .finally(function(){
+      if(sendBtn) sendBtn.disabled=false;
+    });
+}
+
+function aiQuickExplain(){
+  if(!fcCurrentCard) return;
+  if(!aiChatPanelOpen) toggleAiChat();
+  var question='Can you explain why the answer to this card is correct and how to remember it for the NCLEX?';
+  aiChatSend(question);
 }
 
 
