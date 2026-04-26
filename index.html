@@ -301,9 +301,22 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .dash-sec-pct{font-weight:700;color:var(--text)}
 .dash-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
 .dash-loading{text-align:center;padding:24px;color:var(--text-muted);font-size:13px}
+/* Quiz performance row */
+.dash-quiz-row{display:flex;align-items:center;gap:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r-card);padding:16px 20px;
+  margin-bottom:24px;box-shadow:var(--shadow)}
+.dqr-label{font-size:13px;font-weight:700;color:var(--text-muted);white-space:nowrap;min-width:120px}
+.dqr-stats{display:flex;gap:24px;flex:1}
+.dqr-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dqr-val{font-size:20px;font-weight:800;color:var(--text);line-height:1}
+.dqr-lbl{font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:.03em}
+/* Per-section quiz count on section cards */
+.dash-sec-quiz{font-size:11px;color:var(--text-muted);margin-top:4px}
 @media(max-width:600px){
   .dash-overview{flex-direction:column;align-items:flex-start;gap:16px}
   .dash-sec-grid{grid-template-columns:1fr}
+  .dash-quiz-row{flex-direction:column;align-items:flex-start}
+  .dqr-stats{gap:16px}
 }
 /* card column (right) */
 .card-col{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -1380,6 +1393,16 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
               <div class="dash-stat-val" id="dos-review">—</div>
               <div class="dash-stat-lbl">need review</div>
             </div>
+          </div>
+        </div>
+
+        <!-- Quiz overview row -->
+        <div class="dash-quiz-row" id="dash-quiz-row">
+          <div class="dqr-label">📝 Quiz Performance</div>
+          <div class="dqr-stats">
+            <div class="dqr-stat"><span class="dqr-val" id="dqs-answered">—</span><span class="dqr-lbl">answered</span></div>
+            <div class="dqr-stat"><span class="dqr-val" id="dqs-mastered">—</span><span class="dqr-lbl">mastered</span></div>
+            <div class="dqr-stat"><span class="dqr-val" id="dqs-accuracy">—</span><span class="dqr-lbl">accuracy</span></div>
           </div>
         </div>
 
@@ -2606,9 +2629,10 @@ function isInSection(objId,sectionKey){
   if(!sectionKey) return true;
   return objId===sectionKey||objId.startsWith(sectionKey+'_');
 }
-/* PostgREST filter string that limits quiz_questions to the current course */
+/* PostgREST filter string that limits quiz_questions to the current course.
+   NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
 function getQuizCourseFilter(){
-  return currentCourse==='NUR116'?'like.N116T%':'not.like.N116T%';
+  return currentCourse==='NUR116'?'like.N116T%25':'not.like.N116T%25';
 }
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
@@ -2632,15 +2656,16 @@ function initDashboard(){
   var drFill=document.getElementById('dr-fill');
   if(drFill){drFill.style.strokeDashoffset='263.9';}
   var pctEl=document.getElementById('dr-pct');if(pctEl) pctEl.textContent='\u2014';
-  ['dos-mastered','dos-total','dos-review'].forEach(function(id){
+  ['dos-mastered','dos-total','dos-review','dqs-answered','dqs-mastered','dqs-accuracy'].forEach(function(id){
     var el=document.getElementById(id);if(el) el.textContent='\u2014';
   });
 
-  if(!currentUser){renderDashboard([],{});return;}
+  if(!currentUser){renderDashboard([],{},{},{});return;}
 
-  var dashCards=null, dashMastery=null;
+  var dashCards=null, dashMastery=null, dashQMastery=null, dashQAttempts=null;
   function maybeRender(){
-    if(dashCards!==null&&dashMastery!==null) renderDashboard(dashCards,dashMastery);
+    if(dashCards!==null&&dashMastery!==null&&dashQMastery!==null&&dashQAttempts!==null)
+      renderDashboard(dashCards,dashMastery,dashQMastery,dashQAttempts);
   }
 
   /* reuse cached practice cards if available, else fetch minimal fields */
@@ -2662,20 +2687,49 @@ function initDashboard(){
       maybeRender();
     })
     .catch(function(){dashMastery={};maybeRender();});
+
+  /* quiz question mastery — just need total mastered count */
+  sbFetch('/rest/v1/question_mastery?select=question_id,is_mastered&user_id=eq.'+currentUser.id)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      dashQMastery={};
+      if(Array.isArray(data)) data.forEach(function(m){dashQMastery[m.question_id]=m;});
+      maybeRender();
+    })
+    .catch(function(){dashQMastery={};maybeRender();});
+
+  /* quiz attempts for accuracy */
+  sbFetch('/rest/v1/quiz_attempts?select=is_correct,objective_id&user_id=eq.'+currentUser.id)
+    .then(function(r){return r.json();})
+    .then(function(data){dashQAttempts=Array.isArray(data)?data:[];maybeRender();})
+    .catch(function(){dashQAttempts=[];maybeRender();});
 }
 
-function renderDashboard(cards,masteryMap){
+function renderDashboard(cards,masteryMap,qMasteryMap,qAttempts){
+  qMasteryMap=qMasteryMap||{}; qAttempts=qAttempts||[];
   var og=getObjGroups();
   var groups={};
   var totalMastered=0, reviewCount=0;
 
   cards.forEach(function(c){
     var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
-    if(!groups[pre]) groups[pre]={total:0,mastered:0};
+    if(!groups[pre]) groups[pre]={total:0,mastered:0,qCorrect:0,qTotal:0};
     groups[pre].total++;
     var m=masteryMap[c.id];
     if(m&&m.is_mastered){groups[pre].mastered++;totalMastered++;}
     else if(m&&(m.last_result==='unsure'||m.last_result==='missed')) reviewCount++;
+  });
+
+  /* Quiz stats — use quiz_attempts (has objective_id) for per-section grouping */
+  var totalQAnswered=0, totalQCorrect=0;
+  var totalQMastered=Object.values(qMasteryMap).filter(function(m){return m.is_mastered;}).length;
+  qAttempts.forEach(function(a){
+    totalQAnswered++;
+    if(a.is_correct) totalQCorrect++;
+    var grp=getObjGroupKey(a.objective_id||'');
+    if(!groups[grp]) groups[grp]={total:0,mastered:0,qCorrect:0,qTotal:0};
+    groups[grp].qTotal=(groups[grp].qTotal||0)+1;
+    if(a.is_correct) groups[grp].qCorrect=(groups[grp].qCorrect||0)+1;
   });
 
   var totalCards=cards.length;
@@ -2687,15 +2741,21 @@ function renderDashboard(cards,masteryMap){
   if(drFill){
     drFill.style.strokeDasharray=C;
     drFill.style.strokeDashoffset=C*(1-overallPct/100);
-    /* color by mastery level */
     drFill.style.stroke=overallPct>=80?'var(--got)':overallPct>=50?'var(--unsure)':'var(--missed)';
   }
   var pctEl=document.getElementById('dr-pct');if(pctEl) pctEl.textContent=overallPct+'%';
 
-  /* Stats */
+  /* Flashcard stats */
   var mastEl=document.getElementById('dos-mastered');if(mastEl) mastEl.textContent=totalMastered;
   var totEl=document.getElementById('dos-total');if(totEl) totEl.textContent=totalCards;
   var revEl=document.getElementById('dos-review');if(revEl) revEl.textContent=reviewCount;
+
+  /* Quiz stats */
+  var accPct=totalQAnswered?Math.round(totalQCorrect/totalQAnswered*100):0;
+  var ansEl=document.getElementById('dqs-answered');if(ansEl) ansEl.textContent=totalQAnswered||'0';
+  var qmEl=document.getElementById('dqs-mastered');if(qmEl) qmEl.textContent=totalQMastered||'0';
+  var acEl=document.getElementById('dqs-accuracy');
+  if(acEl) acEl.textContent=totalQAnswered?(accPct+'%'):'—';
 
   /* Section cards */
   var html='';
@@ -2703,13 +2763,19 @@ function renderDashboard(cards,masteryMap){
     var g=groups[key];if(!g||!g.total) return;
     var pct=g.total?Math.round(g.mastered/g.total*100):0;
     var barColor=pct>=80?'var(--got)':pct>=50?'var(--unsure)':pct>0?'var(--missed)':'var(--border)';
+    var qLine='';
+    if(g.qTotal>0){
+      var qPct=Math.round(g.qCorrect/g.qTotal*100);
+      qLine='<div class="dash-sec-quiz">📝 '+qPct+'% correct &nbsp;·&nbsp; '+g.qCorrect+' / '+g.qTotal+' attempts</div>';
+    }
     html+='<div class="dash-sec-card" onclick="goTo(\'practice\');setTimeout(function(){startSessionForFilter(\''+key+'\');},80)">'
       +'<div class="dash-sec-name">'+og[key]+'</div>'
       +'<div class="dash-sec-bar-track"><div class="dash-sec-bar" style="width:'+pct+'%;background:'+barColor+'"></div></div>'
       +'<div class="dash-sec-counts">'
-      +'<span>'+g.mastered+' / '+g.total+' mastered</span>'
+      +'<span>'+g.mastered+' / '+g.total+' cards mastered</span>'
       +'<span class="dash-sec-pct">'+pct+'%</span>'
       +'</div>'
+      +qLine
       +'</div>';
   });
 
@@ -2909,14 +2975,20 @@ function updateBuilderSlider(){
   var avail=document.getElementById('qb-avail');
 
   if(slider){
-    var maxVal=Math.max(5,available);
-    slider.max=maxVal;
-    slider.min=Math.min(5,available);
-    var cur=parseInt(slider.value,10)||20;
-    var clamped=Math.min(Math.max(cur,parseInt(slider.min,10)),maxVal);
-    if(cur===20||cur>maxVal) clamped=Math.min(20,maxVal);
-    slider.value=clamped;
-    if(display) display.textContent=clamped;
+    if(available>0){
+      var maxVal=Math.min(available,100); /* cap at 100 */
+      slider.max=maxVal;
+      slider.min=5;
+      var cur=parseInt(slider.value,10)||20;
+      var clamped=Math.min(Math.max(cur,5),maxVal);
+      if(cur===20||cur>maxVal) clamped=Math.min(20,maxVal);
+      slider.value=clamped;
+      if(display) display.textContent=clamped;
+    } else {
+      /* no questions yet — keep slider at readable default, don't clamp to 5 */
+      slider.min=5; slider.max=50; slider.value=20;
+      if(display) display.textContent='20';
+    }
   }
 
   if(btn) btn.disabled=available===0;
@@ -2926,7 +2998,7 @@ function updateBuilderSlider(){
     if(available>0){
       avail.textContent=available+' question'+(available!==1?'s':'')+' available';
     } else if(quizLoaded){
-      avail.textContent='No questions found for this section';
+      avail.textContent='No questions found for this section. Questions may still be loading.';
     } else {
       avail.textContent='';
     }
