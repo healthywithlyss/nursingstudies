@@ -1947,19 +1947,23 @@ function upsertCardMastery(cardId,cs){
 
 /* ── Cycle management ── */
 function buildCycle(){
-  var active=sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status!=='mastered';});
-  if(!active.length){showCompletionScreen();return false;}
+  var nonMastered=sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status!=='mastered';});
+  if(!nonMastered.length){showCompletionScreen();return false;}
+  /* Drill mode: once 5+ cards are attempted-but-not-mastered, stop
+     introducing unseen cards until the active pool drops below 5. */
+  var inProgress=nonMastered.filter(function(c){return(sess.cardState[c.id]||{}).status==='active';});
+  var pool=inProgress.length>=5?inProgress:nonMastered;
   if(fcShuffleOn){
-    var missed=active.filter(function(c){return(sess.cardState[c.id]||{}).lastResult==='missed';});
-    var unsure=active.filter(function(c){
+    var missed=pool.filter(function(c){return(sess.cardState[c.id]||{}).lastResult==='missed';});
+    var unsure=pool.filter(function(c){
       var r=(sess.cardState[c.id]||{}).lastResult;return r&&r!=='missed'&&r!=='unseen';
     });
-    var other=active.filter(function(c){
+    var other=pool.filter(function(c){
       var s=sess.cardState[c.id]||{};return s.lastResult!=='missed'&&(!s.lastResult||s.lastResult==='unseen');
     });
     fcCycleQueue=shuffleArr(missed.slice()).concat(shuffleArr(unsure.slice())).concat(shuffleArr(other.slice()));
   } else {
-    fcCycleQueue=active.slice();
+    fcCycleQueue=pool.slice();
   }
   fcCyclePos=0;
   return true;
