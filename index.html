@@ -1723,6 +1723,7 @@ var sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
 var fcAllCards=[];    /* all cards for course — never mutated */
 var fcLoaded=false;
 var fcPendingIds=null;
+var fcReviewCardIds=null; /* null=not loaded, []=loaded (may be empty) */
 var fcShuffleOn=false;
 var fcFlipped=false;
 var fcCurrentCard=null;
@@ -1854,6 +1855,7 @@ function initPractice(){
     .then(function(data){
       if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found.');return;}
       fcAllCards=data; fcLoaded=true;
+      fcReviewCardIds=null; /* reset so dropdown re-fetches on load */
       renderSidebarObjList();
       renderDeckDropdown();
       if(fcPendingIds){var ids=fcPendingIds;fcPendingIds=null;startSessionWithIds(ids);return;}
@@ -1864,6 +1866,7 @@ function initPractice(){
 
 function startSessionForFilter(filter){
   filter=filter||'';
+  if(filter==='__review__'){startReviewSession();return;}
   var cards=filter?fcAllCards.filter(function(c){
     var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
     return pre===filter;
@@ -1878,6 +1881,54 @@ function startSessionForFilter(filter){
     else{lsClear(filter||'all');}
   }
   startSession(cards,filter);
+}
+
+/* ── Needs Review deck ── */
+function loadReviewDeck(cb){
+  if(!currentUser){fcReviewCardIds=[];cb([]);return;}
+  var url='/rest/v1/card_attempts?user_id=eq.'+currentUser.id
+    +'&select=card_id,result&order=created_at.desc&limit=5000';
+  sbFetch(url)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)){fcReviewCardIds=[];cb([]);return;}
+      var seen={};var ids=[];
+      data.forEach(function(row){
+        if(!seen[row.card_id]){
+          seen[row.card_id]=true;
+          if(row.result==='unsure'||row.result==='missed') ids.push(row.card_id);
+        }
+      });
+      fcReviewCardIds=ids;
+      cb(ids);
+    })
+    .catch(function(){fcReviewCardIds=[];cb([]);});
+}
+
+function startReviewSession(){
+  loadReviewDeck(function(ids){
+    var sel=document.getElementById('deck-select');
+    if(!ids.length){
+      showToast('\u2713 No cards need review right now!');
+      if(sel) sel.value=sess.deckFilter||'';
+      return;
+    }
+    var cards=fcAllCards.filter(function(c){return ids.indexOf(c.id)>-1;});
+    if(!cards.length){
+      showToast('Review cards not found — try All Cards deck');
+      if(sel) sel.value=sess.deckFilter||'';
+      return;
+    }
+    renderDeckDropdown(); /* refresh count now that we have ids */
+    var saved=lsLoad('__review__');
+    if(saved&&saved.cardState){
+      var mastered=0;
+      cards.forEach(function(c){if((saved.cardState[c.id]||{}).status==='mastered') mastered++;});
+      if(mastered<cards.length){showResumePrompt(cards,saved,'__review__');return;}
+      else lsClear('__review__');
+    }
+    startSession(cards,'__review__');
+  });
 }
 
 function startSession(cards,filter){
@@ -2158,6 +2209,16 @@ function renderDeckDropdown(){
     var cnt=groups[key]||0;
     if(cnt) html+='<option value="'+key+'">'+og[key]+' ('+cnt+')</option>';
   });
+  /* Needs Review option — shown when loaded and count > 0, or when currently active */
+  if(fcReviewCardIds===null&&currentUser){
+    html+='<option value="__review__">\uD83D\uDCCC Needs Review (\u2026)</option>';
+    loadReviewDeck(function(){renderDeckDropdown();}); /* async refresh */
+  } else if(fcReviewCardIds&&fcReviewCardIds.length>0){
+    html+='<option value="__review__">\uD83D\uDCCC Needs Review ('+fcReviewCardIds.length+')</option>';
+  } else if(sess.deckFilter==='__review__'){
+    /* stay selectable if already in review mode */
+    html+='<option value="__review__">\uD83D\uDCCC Needs Review</option>';
+  }
   sel.innerHTML=html;
   sel.value=sess.deckFilter||'';
 }
@@ -2169,8 +2230,8 @@ function switchDeckFromDropdown(){
   var curFilter=sess.deckFilter||'';
   if(newFilter===curFilter) return;
   var og=getObjGroups();
-  var toName=newFilter?(og[newFilter]||newFilter):'All Cards';
-  var fromName=curFilter?(og[curFilter]||curFilter):'All Cards';
+  var toName=newFilter==='__review__'?'Needs Review':newFilter?(og[newFilter]||newFilter):'All Cards';
+  var fromName=curFilter==='__review__'?'Needs Review':curFilter?(og[curFilter]||curFilter):'All Cards';
   if(!confirm('Switch to "'+toName+'" deck?\n\nYour "'+fromName+'" session progress is saved.')){
     sel.value=curFilter; /* revert */
     return;
