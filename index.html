@@ -318,6 +318,28 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .dash-quiz-row{flex-direction:column;align-items:flex-start}
   .dqr-stats{gap:16px}
 }
+/* admin tools row */
+.dash-admin-row{background:linear-gradient(135deg,#7c5cff 0%,#4f7ef8 100%);
+  border-radius:12px;padding:16px 18px;margin-bottom:24px;
+  display:flex;align-items:center;gap:14px;color:#fff;
+  box-shadow:0 4px 16px rgba(79,126,248,.25)}
+.dash-admin-icon{font-size:24px}
+.dash-admin-text{flex:1;min-width:0}
+.dash-admin-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.dash-admin-sub{font-size:12px;opacity:.85}
+.dash-admin-btn{background:#fff;color:#4f7ef8;border:none;border-radius:8px;
+  padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;
+  white-space:nowrap;transition:opacity .15s}
+.dash-admin-btn:hover{opacity:.88}
+.dash-admin-btn:disabled{opacity:.6;cursor:default}
+@media(max-width:600px){.dash-admin-row{flex-direction:column;align-items:stretch;text-align:center}}
+/* fact-grouped results */
+.qr-fact-row{background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.qr-fact-row.good{border-left:4px solid var(--ok,#4ade80)}
+.qr-fact-row.bad{border-left:4px solid #f87171}
+.qr-fact-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.qr-fact-stat{font-size:12px;color:var(--text-muted)}
 /* card column (right) */
 .card-col{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card-header-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -1426,6 +1448,16 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
             <div class="dqr-stat"><span class="dqr-val" id="dqs-mastered">—</span><span class="dqr-lbl">mastered</span></div>
             <div class="dqr-stat"><span class="dqr-val" id="dqs-accuracy">—</span><span class="dqr-lbl">accuracy</span></div>
           </div>
+        </div>
+
+        <!-- Admin: Generate Targeted Quiz (hidden for non-admins) -->
+        <div class="dash-admin-row" id="dash-admin-row" style="display:none">
+          <div class="dash-admin-icon">🎯</div>
+          <div class="dash-admin-text">
+            <div class="dash-admin-title">Generate Targeted Quiz</div>
+            <div class="dash-admin-sub">3 NCLEX questions per fact you've struggled with</div>
+          </div>
+          <button class="dash-admin-btn" id="dash-admin-btn" onclick="handleGenerateTargetedQuiz()">Generate</button>
         </div>
 
         <!-- Section breakdown grid -->
@@ -2706,6 +2738,8 @@ var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
    DASHBOARD
    ══════════════════════════════════════════════════════════════════ */
 function initDashboard(){
+  var adminRow=document.getElementById('dash-admin-row');
+  if(adminRow) adminRow.style.display=isAdmin?'flex':'none';
   var sectionsEl=document.getElementById('dash-sections');
   if(sectionsEl) sectionsEl.innerHTML='<div class="dash-loading">Loading\u2026</div>';
   /* reset ring to empty while loading */
@@ -3543,7 +3577,8 @@ function submitQuizAnswer(){
 function quizNext(){
   var isLast=quizSessionIdx>=quizCurrentQuestions.length-1;
   if(isLast){
-    if(quizIsTargeted) showTargetedResults();
+    if(quizAdminFactRun) showAdminTargetedFactResults();
+    else if(quizIsTargeted) showTargetedResults();
     else showQuizResults();
   } else {quizSessionIdx++;renderQuizQuestion();}
 }
@@ -4013,6 +4048,246 @@ function deleteCard(){
   .finally(function(){btn.disabled=false;btn.textContent='🗑 Delete';});
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN: GENERATE TARGETED QUIZ (dashboard button)
+   Builds NCLEX-style application questions from the cards the
+   admin has marked unsure/missed at least twice, saves them to
+   quiz_questions, and launches straight into a quiz session.
+═══════════════════════════════════════════════════════════ */
+var quizAdminFactRun=false;       /* flag picked up by quizNext */
+var quizAdminFactCardMap={};      /* question.id → {cardId, factText, question, answer} */
+var ADMIN_TARGETED_MAX_FACTS=10;  /* cap to keep Gemini call manageable */
+
+function setGenTargetedBtnState(disabled,label){
+  var btn=document.getElementById('dash-admin-btn');
+  if(!btn) return;
+  btn.disabled=!!disabled;
+  btn.textContent=label||'Generate';
+}
+
+function parseTargetedQuizJson(text){
+  /* mirror of the Node script's recovery — Gemini sometimes wraps in
+     code fences or embeds raw newlines inside string values */
+  var stripped=String(text||'').replace(/^```json\s*/m,'').replace(/^```\s*/m,'').replace(/```\s*$/m,'').trim();
+  function sanitize(s){
+    var out='',inStr=false;
+    for(var i=0;i<s.length;i++){
+      var c=s[i],prev=i>0?s[i-1]:'';
+      if(c==='"'&&prev!=='\\'){inStr=!inStr;out+=c;}
+      else if(inStr){
+        if(c==='\n') out+='\\n';
+        else if(c==='\r'){}
+        else if(c==='\t') out+='\\t';
+        else out+=c;
+      } else out+=c;
+    }
+    return out;
+  }
+  var clean=sanitize(stripped);
+  var parsed=null;
+  try{parsed=JSON.parse(clean);}catch(e){}
+  if(!parsed){var m=clean.match(/\{[\s\S]*\}/);if(m){try{parsed=JSON.parse(m[0]);}catch(e){}}}
+  if(!parsed){
+    var trimmed=clean.replace(/^\s+/,'');
+    if(trimmed.charAt(0)==='['){try{parsed={questions:JSON.parse(trimmed)};}catch(e){}}
+  }
+  if(!parsed) throw new Error('Could not parse Gemini JSON. First 300 chars: '+stripped.slice(0,300));
+  return parsed.questions||[];
+}
+
+async function handleGenerateTargetedQuiz(){
+  if(!isAdmin){alert('Admin access required.');return;}
+  if(!currentUser){alert('Not signed in.');return;}
+  setGenTargetedBtnState(true,'Finding cards…');
+  try{
+    /* 1. Pull all attempts for this user, count unsure+missed per card */
+    var attemptsRes=await sbFetch('/rest/v1/card_attempts?user_id=eq.'+currentUser.id
+      +'&select=card_id,result&limit=10000');
+    var attempts=await attemptsRes.json();
+    if(!Array.isArray(attempts)) throw new Error('Failed to load card_attempts');
+    var counts={};
+    attempts.forEach(function(a){
+      if(a.result==='unsure'||a.result==='missed') counts[a.card_id]=(counts[a.card_id]||0)+1;
+    });
+    var struggling=Object.keys(counts).filter(function(id){return counts[id]>1;});
+    if(!struggling.length){
+      setGenTargetedBtnState(false,'Generate');
+      alert('No cards have been marked unsure or missed more than once yet — keep practicing!');
+      return;
+    }
+    /* sort by miss-count desc so we drill on the worst first */
+    struggling.sort(function(a,b){return counts[b]-counts[a];});
+    var cardIds=struggling.slice(0,ADMIN_TARGETED_MAX_FACTS);
+
+    /* 2. Fetch flashcard contents */
+    setGenTargetedBtnState(true,'Loading cards…');
+    var cardsRes=await sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids&id=in.('+cardIds.join(',')+')');
+    var cards=await cardsRes.json();
+    if(!Array.isArray(cards)||!cards.length) throw new Error('Could not load flashcards for struggling card IDs');
+
+    /* 3. Build the prompt */
+    var factsText=cards.map(function(c,i){
+      return 'Fact '+(i+1)+' (card_id='+c.id+'):\nQ: '+c.question+'\nA: '+c.answer;
+    }).join('\n\n');
+    var prompt='You are an NCLEX exam writer. The nursing student has struggled with these specific flashcard facts:\n\n'
+      +factsText
+      +'\n\nGenerate exactly 3 NCLEX-style application questions for EACH fact above. Every question must:'
+      +'\n- Use a realistic patient scenario (specific patient, specific situation)'
+      +'\n- Require APPLYING the knowledge, not just recalling it'
+      +'\n- Use plausible distractors that reflect common student mistakes (related-but-wrong values, correct-in-different-scenario answers, common misconceptions)'
+      +'\n- Never ask bare definitions; never start with "What is the definition of…" or "What does X stand for…"'
+      +'\n\nRespond with raw JSON only. No markdown, no code fences, no commentary.'
+      +'\n{"questions":[{'
+      +'\n  "card_id": <integer matching one of the card_ids above>,'
+      +'\n  "type": "multiple_choice",'
+      +'\n  "stem": "A nurse is caring for…",'
+      +'\n  "options": ["A. text","B. text","C. text","D. text"],'
+      +'\n  "correct": ["B"],'
+      +'\n  "explanation": "B is correct because… A is wrong because…",'
+      +'\n  "fact_tested": "brief description of which fact this tests"'
+      +'\n}]}';
+
+    /* 4. Call Gemini via the existing edge function */
+    setGenTargetedBtnState(true,'Generating ('+cards.length+' facts)…');
+    var raw=await callGeminiChat(prompt);
+    var generated=parseTargetedQuizJson(raw);
+    if(!generated.length) throw new Error('Gemini returned no questions');
+
+    /* 5. Save to quiz_questions (is_targeted=true) and capture inserted rows */
+    setGenTargetedBtnState(true,'Saving…');
+    var cardObjMap={};
+    cards.forEach(function(c){cardObjMap[c.id]=(c.objective_ids&&c.objective_ids[0])||'';});
+    var rows=generated.map(function(q){
+      var cid=parseInt(q.card_id,10);
+      return {
+        objective_id:cardObjMap[cid]||'',
+        type:q.type||'multiple_choice',
+        stem:q.stem,
+        options:q.options,
+        correct:Array.isArray(q.correct)?q.correct:[q.correct],
+        explanation:q.explanation||'',
+        fact_tested:q.fact_tested||'',
+        is_targeted:true
+      };
+    }).filter(function(r){return r.stem&&r.options&&r.options.length;});
+    if(!rows.length) throw new Error('No valid questions to save');
+
+    var insertRes=await sbFetch('/rest/v1/quiz_questions',{
+      method:'POST',
+      headers:Object.assign({'Prefer':'return=representation'},getAuthHdr()),
+      body:JSON.stringify(rows)
+    });
+    if(!insertRes.ok){
+      var errTxt=await insertRes.text();
+      throw new Error('Save failed ('+insertRes.status+'): '+errTxt);
+    }
+    var inserted=await insertRes.json();
+    var finalQs=Array.isArray(inserted)&&inserted.length?inserted:rows;
+
+    /* Map question.id → originating card so the results screen can group by fact.
+       Inserted rows have ids; fallback synthesizes one from index. */
+    quizAdminFactCardMap={};
+    finalQs.forEach(function(q,i){
+      /* match by fact_tested back to the originating card */
+      var srcCard=null;
+      var gen=generated[i]||generated.find(function(g){return g.fact_tested===q.fact_tested;});
+      if(gen){srcCard=cards.find(function(c){return c.id===parseInt(gen.card_id,10);});}
+      var qid=q.id!=null?q.id:('synth-'+i);
+      quizAdminFactCardMap[qid]={
+        cardId:srcCard?srcCard.id:null,
+        factText:srcCard?srcCard.question:(q.fact_tested||'fact '+(i+1)),
+        question:srcCard?srcCard.question:'',
+        answer:srcCard?srcCard.answer:''
+      };
+    });
+
+    /* 6. Launch into quiz mode */
+    quizAdminFactRun=true;
+    quizIsTargeted=false;
+    quizCurrentObjId='__admin_targeted__';
+    quizCurrentQuestions=finalQs;
+    setGenTargetedBtnState(false,'Generate');
+    goTo('quiz');
+    showQuizSession(
+      '<div class="qs-ready">'
+      +'<div class="qs-ready-title">🎯 Targeted Quiz</div>'
+      +'<div class="qs-ready-sub">'+finalQs.length+' question'+(finalQs.length===1?'':'s')
+        +' on '+cards.length+' fact'+(cards.length===1?'':'s')+' you\'ve struggled with</div>'
+      +'<button class="qs-begin-btn" onclick="beginQuizSession()" style="margin-top:20px">Begin Quiz →</button>'
+      +'</div>'
+    );
+  } catch(e) {
+    console.error('[targeted-quiz]',e);
+    setGenTargetedBtnState(false,'Generate');
+    alert('Could not generate targeted quiz: '+(e.message||e));
+  }
+}
+
+function showAdminTargetedFactResults(){
+  /* group quizSessionResults by fact_tested → {right, wrong, factText} */
+  var byFact={};
+  quizSessionResults.forEach(function(r){
+    var qid=r.question.id;
+    var meta=quizAdminFactCardMap[qid]||{};
+    var key=meta.factText||r.question.fact_tested||'(unspecified fact)';
+    if(!byFact[key]) byFact[key]={right:0,wrong:0,total:0};
+    byFact[key].total++;
+    if(r.isCorrect) byFact[key].right++; else byFact[key].wrong++;
+  });
+
+  var total=quizSessionResults.length;
+  var numCorrect=quizSessionResults.filter(function(r){return r.isCorrect;}).length;
+  var pct=total?Math.round(numCorrect/total*100):0;
+  var scoreCls=pct>=80?'good':pct>=60?'mid':'bad';
+
+  var factKeys=Object.keys(byFact);
+  var stillStruggling=factKeys.filter(function(k){return byFact[k].wrong>0;});
+  var nailed=factKeys.filter(function(k){return byFact[k].wrong===0;});
+
+  var nailedHtml='';
+  if(nailed.length){
+    nailedHtml='<div class="qr-missed-label" style="color:var(--ok,#4ade80)">✓ Got it ('+nailed.length+')</div>';
+    nailed.forEach(function(k){
+      var f=byFact[k];
+      nailedHtml+='<div class="qr-fact-row good">'
+        +'<div class="qr-fact-name">'+escHtml(k)+'</div>'
+        +'<div class="qr-fact-stat">'+f.right+' / '+f.total+' correct</div>'
+        +'</div>';
+    });
+  }
+
+  var struggleHtml='';
+  if(stillStruggling.length){
+    struggleHtml='<div class="qr-missed-label">⚠ Still struggling ('+stillStruggling.length+')</div>';
+    stillStruggling.forEach(function(k){
+      var f=byFact[k];
+      struggleHtml+='<div class="qr-fact-row bad">'
+        +'<div class="qr-fact-name">'+escHtml(k)+'</div>'
+        +'<div class="qr-fact-stat">'+f.right+' / '+f.total+' correct — review this fact</div>'
+        +'</div>';
+    });
+  }
+
+  var actionsHtml='<div class="qr-actions">'
+    +'<button class="qr-btn qr-btn-primary" onclick="quizAdminFactRun=false;goTo(\'dashboard\')">Back to Dashboard</button>'
+    +'<button class="qr-btn qr-btn-secondary" onclick="retakeMissedQuestions()">Retake Missed</button>'
+    +'</div>';
+
+  showQuizSession(
+    '<div class="qr-score-card">'
+    +'<div class="qr-card-title">Targeted Quiz Complete</div>'
+    +'<div class="qr-obj-name">Facts you\'d struggled with</div>'
+    +'<div class="qr-pct '+scoreCls+'">'+pct+'%</div>'
+    +'<div class="qr-fraction">'+numCorrect+' / '+total+' correct</div>'
+    +'</div>'
+    +struggleHtml
+    +nailedHtml
+    +actionsHtml
+  );
+  /* one-shot — clear the flag so a future regular quiz isn't routed here */
+  quizAdminFactRun=false;
+}
 
 initApp();
 </script>
