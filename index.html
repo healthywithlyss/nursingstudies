@@ -4057,7 +4057,7 @@ function deleteCard(){
 ═══════════════════════════════════════════════════════════ */
 var quizAdminFactRun=false;       /* flag picked up by quizNext */
 var quizAdminFactCardMap={};      /* question.id → {cardId, factText, question, answer} */
-var ADMIN_TARGETED_MAX_FACTS=10;  /* cap to keep Gemini call manageable */
+var ADMIN_TARGETED_BATCH_SIZE=8;  /* facts per Gemini call — output stays under token cap */
 
 function setGenTargetedBtnState(disabled,label){
   var btn=document.getElementById('dash-admin-btn');
@@ -4118,41 +4118,54 @@ async function handleGenerateTargetedQuiz(){
     }
     /* sort by miss-count desc so we drill on the worst first */
     struggling.sort(function(a,b){return counts[b]-counts[a];});
-    var cardIds=struggling.slice(0,ADMIN_TARGETED_MAX_FACTS);
 
-    /* 2. Fetch flashcard contents */
-    setGenTargetedBtnState(true,'Loading cards…');
-    var cardsRes=await sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids&id=in.('+cardIds.join(',')+')');
+    /* 2. Fetch flashcard contents for ALL struggling cards */
+    setGenTargetedBtnState(true,'Loading '+struggling.length+' card'+(struggling.length===1?'':'s')+'…');
+    var cardsRes=await sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids&id=in.('+struggling.join(',')+')');
     var cards=await cardsRes.json();
     if(!Array.isArray(cards)||!cards.length) throw new Error('Could not load flashcards for struggling card IDs');
+    /* preserve worst-first order (sbFetch may return in arbitrary order) */
+    var cardById={};cards.forEach(function(c){cardById[c.id]=c;});
+    cards=struggling.map(function(id){return cardById[parseInt(id,10)];}).filter(Boolean);
 
-    /* 3. Build the prompt */
-    var factsText=cards.map(function(c,i){
-      return 'Fact '+(i+1)+' (card_id='+c.id+'):\nQ: '+c.question+'\nA: '+c.answer;
-    }).join('\n\n');
-    var prompt='You are an NCLEX exam writer. The nursing student has struggled with these specific flashcard facts:\n\n'
-      +factsText
-      +'\n\nGenerate exactly 3 NCLEX-style application questions for EACH fact above. Every question must:'
-      +'\n- Use a realistic patient scenario (specific patient, specific situation)'
-      +'\n- Require APPLYING the knowledge, not just recalling it'
-      +'\n- Use plausible distractors that reflect common student mistakes (related-but-wrong values, correct-in-different-scenario answers, common misconceptions)'
-      +'\n- Never ask bare definitions; never start with "What is the definition of…" or "What does X stand for…"'
-      +'\n\nRespond with raw JSON only. No markdown, no code fences, no commentary.'
-      +'\n{"questions":[{'
-      +'\n  "card_id": <integer matching one of the card_ids above>,'
-      +'\n  "type": "multiple_choice",'
-      +'\n  "stem": "A nurse is caring for…",'
-      +'\n  "options": ["A. text","B. text","C. text","D. text"],'
-      +'\n  "correct": ["B"],'
-      +'\n  "explanation": "B is correct because… A is wrong because…",'
-      +'\n  "fact_tested": "brief description of which fact this tests"'
-      +'\n}]}';
-
-    /* 4. Call Gemini via the existing edge function */
-    setGenTargetedBtnState(true,'Generating ('+cards.length+' facts)…');
-    var raw=await callGeminiChat(prompt);
-    var generated=parseTargetedQuizJson(raw);
-    if(!generated.length) throw new Error('Gemini returned no questions');
+    /* 3. Generate in batches — Gemini's output token budget can't fit all
+       facts at once, so we chunk and accumulate. */
+    var generated=[];
+    var totalBatches=Math.ceil(cards.length/ADMIN_TARGETED_BATCH_SIZE);
+    for(var bi=0;bi<totalBatches;bi++){
+      var batch=cards.slice(bi*ADMIN_TARGETED_BATCH_SIZE,(bi+1)*ADMIN_TARGETED_BATCH_SIZE);
+      setGenTargetedBtnState(true,'Generating batch '+(bi+1)+'/'+totalBatches+'…');
+      var factsText=batch.map(function(c,i){
+        return 'Fact '+(i+1)+' (card_id='+c.id+'):\nQ: '+c.question+'\nA: '+c.answer;
+      }).join('\n\n');
+      var prompt='You are an NCLEX exam writer. The nursing student has struggled with these specific flashcard facts:\n\n'
+        +factsText
+        +'\n\nGenerate exactly 3 NCLEX-style application questions for EACH fact above. Every question must:'
+        +'\n- Use a realistic patient scenario (specific patient, specific situation)'
+        +'\n- Require APPLYING the knowledge, not just recalling it'
+        +'\n- Use plausible distractors that reflect common student mistakes (related-but-wrong values, correct-in-different-scenario answers, common misconceptions)'
+        +'\n- Never ask bare definitions; never start with "What is the definition of…" or "What does X stand for…"'
+        +'\n\nRespond with raw JSON only. No markdown, no code fences, no commentary.'
+        +'\n{"questions":[{'
+        +'\n  "card_id": <integer matching one of the card_ids above>,'
+        +'\n  "type": "multiple_choice",'
+        +'\n  "stem": "A nurse is caring for…",'
+        +'\n  "options": ["A. text","B. text","C. text","D. text"],'
+        +'\n  "correct": ["B"],'
+        +'\n  "explanation": "B is correct because… A is wrong because…",'
+        +'\n  "fact_tested": "brief description of which fact this tests"'
+        +'\n}]}';
+      try {
+        var raw=await callGeminiChat(prompt);
+        var batchQs=parseTargetedQuizJson(raw);
+        if(batchQs.length) generated=generated.concat(batchQs);
+        else console.warn('[targeted-quiz] batch '+(bi+1)+' returned 0 questions');
+      } catch(batchErr) {
+        console.warn('[targeted-quiz] batch '+(bi+1)+' failed:',batchErr);
+        /* continue with remaining batches rather than abort the whole run */
+      }
+    }
+    if(!generated.length) throw new Error('Gemini returned no questions across '+totalBatches+' batch(es)');
 
     /* 5. Save to quiz_questions (is_targeted=true) and capture inserted rows */
     setGenTargetedBtnState(true,'Saving…');
