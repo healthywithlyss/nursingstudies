@@ -878,7 +878,8 @@ ${cardFacts}
 ════════════════════════════════════
 COVERAGE REQUIREMENT
 ════════════════════════════════════
-You MUST write at least 3 questions for EVERY distinct flashcard fact above.
+You MUST cover EVERY distinct flashcard fact above at least 3 times across the question set.
+Layered questions that integrate 2+ facts count toward each fact they test.
 For comparison cards (A vs B), generate questions from both directions.
 For list cards (e.g. 8 signs of distress), test individual items.
 For drug cards, test each specific nursing action and monitoring parameter separately.
@@ -888,18 +889,32 @@ Do NOT skip any fact. Do NOT pad with generic or repeated questions.
 ════════════════════════════════════
 DIFFICULTY — THIS IS THE MOST IMPORTANT RULE
 ════════════════════════════════════
-ALL questions must be HARD:
-• Stem presents a realistic clinical PATIENT SCENARIO — never a direct definition lookup
-• Correct answer requires reasoning and application, not simple recall
-• Every wrong option must be something a real student WOULD choose — plausible action, related-but-wrong value, common misconception, or correct in a DIFFERENT scenario
-• Never include obviously absurd or unrelated distractors
-• For select-all: include 3-5 correct answers and 2-3 convincing wrong ones
-• For priority: present a clinical scenario requiring the student to reason about urgency or sequence
-• Avoid questions answerable without studying — correct answer must depend on source material knowledge
+EVERY question must:
+1. Open with a realistic clinical PATIENT SCENARIO — a specific patient with a specific situation. Never a bare definition lookup.
+2. Require APPLICATION of knowledge, not recall. The student must REASON to the correct answer.
+3. INTEGRATE AT LEAST 2 FACTS from the source material — the student must combine knowledge to answer correctly. Examples of valid combinations: drug action + lab to monitor; disease pathophysiology + expected symptom; medication side effect + nursing intervention; abnormal lab value + ECG/assessment finding.
+4. Use distractors that are PLAUSIBLE COMMON MISTAKES — what a real student WOULD choose: related-but-wrong value, correct-in-a-different-scenario, common misconception. NEVER obviously absurd or unrelated distractors.
+
+FORBIDDEN STEM PATTERNS — do NOT write any question that:
+• Starts with "What is the definition of ___?"
+• Starts with "What does ___ stand for?"
+• Starts with "Which of the following is ___?" or "What is ___?"
+• Names a term and asks for its meaning without a patient context
+• Can be answered correctly using only ONE flashcard fact
+
+BAD STEM (never write like this — single fact, bare definition):
+"What is the normal range for serum potassium?"
+
+GOOD STEM (write like this — combines lab range + symptom recognition + drug fact):
+"A client receiving daily furosemide reports muscle weakness and leg cramps. The nurse notes a flat T wave on the rhythm strip. Which laboratory value would the nurse expect to find?"
+
+For select-all: include 3-5 correct answers and 2-3 convincing wrong ones, label clearly with "Select all that apply".
+For priority: present a clinical scenario requiring the student to reason about urgency or sequence.
+The correct answer must depend on source material knowledge — never answerable without studying.
 
 Question types to use (vary them throughout):
 - multiple_choice: 4 options, 1 correct — MOST COMMON
-- select_all: 4-6 options, 2-4 correct — label clearly with "Select all that apply"
+- select_all: 4-6 options, 2-4 correct
 - priority: "Which action should the nurse take FIRST?" or "In what order should the nurse perform these actions?"
 
 Respond with raw JSON only. No markdown, no explanation, no code fences.
@@ -908,8 +923,8 @@ Respond with raw JSON only. No markdown, no explanation, no code fences.
   "stem":"A nurse is caring for a 68-year-old client with COPD who...",
   "options":["A. text","B. text","C. text","D. text"],
   "correct":["B"],
-  "explanation":"B is correct because [cite specific fact from source material]. A is wrong because... C is wrong because...",
-  "fact_tested":"brief description of which flashcard fact this question tests",
+  "explanation":"B is correct because [cite fact 1 from source] combined with [cite fact 2 from source]. A is wrong because... C is wrong because...",
+  "fact_tested":"list the 2+ facts this question integrates (e.g. 'furosemide → K+ wasting; hypokalemia ECG = flat T')",
   "objective_id":"${objId}"
 }]}`;
 
