@@ -868,14 +868,18 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 }
 
 /* ── NUR118 Unit switcher ── */
-.nur118-unit-bar{display:flex;gap:4px;background:var(--g50);border-bottom:1px solid var(--border);
-  padding:10px 16px;position:sticky;top:var(--topbar-h);z-index:100}
-.nur118-unit-btn{padding:7px 18px;border:none;border-radius:8px;background:transparent;
-  font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;
-  font-family:inherit;transition:background .15s,color .15s;white-space:nowrap}
-.nur118-unit-btn:hover{background:var(--border);color:var(--text)}
-.nur118-unit-btn.active{background:var(--accent);color:#fff}
-@media(max-width:767px){.nur118-unit-bar{padding:8px 10px;top:var(--topbar-h)}}
+.nur118-unit-bar{display:flex;align-items:center;gap:8px;
+  padding:14px 20px;background:#fff;border-bottom:2px solid var(--border);
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.nur118-unit-bar-label{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-muted);margin-right:4px;white-space:nowrap}
+.nur118-unit-btn{padding:9px 22px;border:2px solid var(--border);border-radius:8px;
+  background:var(--g50);font-size:13px;font-weight:700;color:var(--text-muted);
+  cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.nur118-unit-btn:hover{border-color:var(--accent);color:var(--accent);background:#f0f4ff}
+.nur118-unit-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);
+  box-shadow:0 2px 8px rgba(79,126,248,.35)}
+@media(max-width:767px){.nur118-unit-bar{padding:10px 12px;flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -945,8 +949,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <div id="page-study" class="page active">
     <div id="sg-nur118">
       <div class="nur118-unit-bar">
-        <button class="nur118-unit-btn" id="nur118-u1-btn" onclick="switchNur118Unit(1)">Unit 1 &mdash; Lec 1&ndash;6</button>
-        <button class="nur118-unit-btn active" id="nur118-u2-btn" onclick="switchNur118Unit(2)">Unit 2 &mdash; Lec 7&ndash;12</button>
+        <span class="nur118-unit-bar-label">NUR 118</span>
+        <button class="nur118-unit-btn" id="nur118-u1-btn" onclick="switchNur118Unit(1)">&#128218; Unit 1 &mdash; Lec 1&ndash;6</button>
+        <button class="nur118-unit-btn active" id="nur118-u2-btn" onclick="switchNur118Unit(2)">&#128218; Unit 2 &mdash; Lec 7&ndash;12</button>
       </div>
 
       <!-- ══ UNIT 1 sections (hidden by default, shown when Unit 1 tab active) ══ -->
