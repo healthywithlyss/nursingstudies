@@ -115,6 +115,19 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
   .g2,.g3,.g4{grid-template-columns:1fr!important}
   .study-sec{padding:16px 14px 4px}
   .pg,.pg-wide{padding:14px}
+  /* topbar: hide email, shrink course tabs & logout */
+  #user-email{display:none}
+  .admin-badge{display:none}
+  #logout-btn{padding:5px 10px;font-size:11px}
+  .course-tab{padding:5px 10px;font-size:12px}
+  .course-tab-group{padding:2px}
+  /* AI chat: lift above bottom nav */
+  #ai-chat-btn{bottom:80px}
+  #ai-chat-panel{bottom:56px;width:100vw;border-radius:16px 16px 0 0}
+  /* fc-add-btn is already at 86px — ensure it clears bottom nav too */
+  #fc-add-btn{bottom:80px}
+  /* toast: lift above bottom nav */
+  #toast{bottom:76px}
 }
 #bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;
   height:56px;background:var(--topbar);z-index:200;
@@ -4507,6 +4520,35 @@ function deleteCard(){
 
 
 initApp();
+
+// Touch swipe on practice flashcard: right = Got it, left = Missed (when answer showing)
+(function(){
+  var card=document.getElementById('fc-card');
+  if(!card) return;
+  var startX=0,startY=0,isSwiping=false;
+  card.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    isSwiping=false;
+  },{passive:true});
+  card.addEventListener('touchmove',function(e){
+    var dx=Math.abs(e.touches[0].clientX-startX);
+    var dy=Math.abs(e.touches[0].clientY-startY);
+    if(dx>12&&dx>dy) isSwiping=true;
+  },{passive:true});
+  card.addEventListener('touchend',function(e){
+    if(!isSwiping){isSwiping=false;return;}
+    var dx=e.changedTouches[0].clientX-startX;
+    var dy=e.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
+      e.preventDefault();
+      if(typeof fcFlipped!=='undefined'&&fcFlipped&&typeof fcRate==='function'){
+        fcRate(dx>0?'got_it':'missed');
+      }
+    }
+    isSwiping=false;
+  },{passive:false});
+})();
 </script>
 </body>
 </html>

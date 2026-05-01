@@ -2711,6 +2711,37 @@ function fcShowSummary(){
   document.getElementById('fc-summary').style.display='block';
 }
 
+// Touch swipe on flashcard card area: right = got, left = missed (when answer showing)
+(function(){
+  var area=document.getElementById('fc-card-area');
+  if(!area) return;
+  var startX=0,startY=0,isSwiping=false;
+  area.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    isSwiping=false;
+  },{passive:true});
+  area.addEventListener('touchmove',function(e){
+    var dx=Math.abs(e.touches[0].clientX-startX);
+    var dy=Math.abs(e.touches[0].clientY-startY);
+    if(dx>12&&dx>dy) isSwiping=true;
+  },{passive:true});
+  area.addEventListener('touchend',function(e){
+    if(!isSwiping){isSwiping=false;return;}
+    var dx=e.changedTouches[0].clientX-startX;
+    var dy=e.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
+      e.preventDefault();
+      if(fcFlippedState){
+        fcRate(dx>0?'got':'missed');
+      } else {
+        fcFlip();
+      }
+    }
+    isSwiping=false;
+  },{passive:false});
+})();
+
 // ── DASHBOARD ──
 var LECTURE_MAP={
   'NUR118-L1':{label:'L1: Infection Control',color:'#0f766e'},
