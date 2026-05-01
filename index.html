@@ -761,12 +761,30 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .tcard-body h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:12px 0 6px}
 .tcard-body .card,.tcard-body .band-card{margin-bottom:8px}
 .tcard-body .g2,.tcard-body .g3{margin-bottom:8px}
+/* Section is always open; hide for search-no-match */
+.n116-sec.hidden{display:none}
+.n116-sec{margin-bottom:8px}
+/* Category color theming — cards & band-cards inside a section pick up section color */
+.n116-clinical .card{border-top:3px solid var(--teal);background:var(--teal-bg)}
+.n116-clinical .band-card .band-head{background:var(--teal)}
+.n116-clinical .ts th{background:var(--teal)}
+.n116-clinical .obj{border-left-color:var(--teal)}
+.n116-legal .card{border-top:3px solid var(--rust);background:var(--rust-bg)}
+.n116-legal .band-card .band-head{background:var(--rust)}
+.n116-legal .ts th{background:var(--rust)}
+.n116-legal .obj{border-left-color:var(--rust)}
+.n116-psycho .card{border-top:3px solid var(--plum);background:var(--plum-bg)}
+.n116-psycho .band-card .band-head{background:var(--plum)}
+.n116-psycho .ts th{background:var(--plum)}
+.n116-psycho .obj{border-left-color:var(--plum)}
+.n116-pro .card{border-top:3px solid var(--cobalt);background:var(--cobalt-bg)}
+.n116-pro .band-card .band-head{background:var(--cobalt)}
+.n116-pro .ts th{background:var(--cobalt)}
+.n116-pro .obj{border-left-color:var(--cobalt)}
 @media print{
   .n116-tabs,.n116-search-wrap{display:none!important}
   .n116-tab-pane{display:block!important;page-break-before:always}
-  .tcard,.tcard-body{display:block!important;break-inside:avoid;box-shadow:none}
-  .tcard-arrow{display:none}
-  .tcard-body{border-top:none}
+  .n116-sec{display:block!important;break-inside:avoid;box-shadow:none}
 }
 @media(max-width:767px){
   .n116-wrap{padding:14px}
@@ -1141,8 +1159,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
         <div class="n116-search-wrap">
           <input id="n116-search" class="n116-search-input" type="text" placeholder="&#128269; Search topics or keywords..." oninput="filterN116Topics(this.value)" autocomplete="off">
           <button class="n116-action" type="button" onclick="clearN116Search()">Clear</button>
-          <button class="n116-action" type="button" onclick="toggleAllN116(true)">Expand all</button>
-          <button class="n116-action" type="button" onclick="toggleAllN116(false)">Collapse all</button>
         </div>
         <div id="n116-tab-wrapup" class="n116-tab-pane active">
           <div class="n116-intro"><strong>&#11088; Wrap-Up Priority Topics</strong> &mdash; pulled directly from the final exam review slides. Highest yield for the exam.</div>
@@ -1849,6 +1865,14 @@ var LECTURE_TOPICS=[
 
 var n116State={currentTab:'wrapup',wrapupRendered:false,lecturesRendered:false};
 
+function n116CatColor(c){
+  if(c==='clinical') return 'teal';
+  if(c==='legal') return 'rust';
+  if(c==='psycho') return 'plum';
+  if(c==='pro') return 'cobalt';
+  return 'slate';
+}
+
 function n116CatLabel(c){
   if(c==='clinical') return 'Clinical';
   if(c==='legal') return 'Legal / Ethical';
@@ -1871,54 +1895,27 @@ function n116FindTopic(id){
 }
 
 function renderN116Topics(targetId,topics){
-  /* Build collapsed cards only \u2014 bodies stay empty until expanded */
+  /* Render as full open NUR 118-style sections with colored headers */
   var html=topics.map(function(t){
+    var color=n116CatColor(t.cat);
     var raw=(t.title+' '+(t.body||'')).toLowerCase().replace(/<[^>]*>/g,' ');
     var search=n116EscapeAttr(raw);
-    return '<div class="tcard cat-'+t.cat+'" id="'+t.id+'" data-search="'+search+'">'
-      +'<button class="tcard-head" type="button" onclick="toggleTopic(\''+t.id+'\')" aria-expanded="false">'
-      +'<span class="tcard-cat">'+n116CatLabel(t.cat)+'</span>'
-      +(t.hy?'<span class="tcard-hy">\u2b50 HIGH YIELD</span>':'')
-      +'<span class="tcard-title">'+t.title+'</span>'
-      +'<span class="tcard-arrow">\u25bc</span>'
-      +'</button>'
-      +'<div class="tcard-body" id="body-'+t.id+'"></div>'
-      +'</div>';
+    var tag=t.hy?'\u2b50 HIGH YIELD':(t.tag||n116CatLabel(t.cat));
+    return '<section id="'+t.id+'" class="study-sec n116-sec n116-'+t.cat+'" data-search="'+search+'">'
+      +'<div class="sec-hdr sh-'+color+'">'+t.title+'<span class="lec-tag">'+tag+'</span></div>'
+      +'<div class="pg">'
+      +(t.obj?'<div class="obj"><h4>&#9745; Objective</h4><p>'+t.obj+'</p></div>':'')
+      +t.body
+      +'</div>'
+      +'</section>';
   }).join('');
   var target=document.getElementById(targetId);
   if(target) target.innerHTML=html;
 }
 
-function toggleTopic(id){
-  var card=document.getElementById(id);
-  if(!card) return;
-  var body=document.getElementById('body-'+id);
-  var head=card.querySelector('.tcard-head');
-  if(card.classList.contains('open')){
-    card.classList.remove('open');
-    if(head) head.setAttribute('aria-expanded','false');
-  }else{
-    /* Lazy load body content on first expand */
-    if(body && !body.dataset.loaded){
-      var topic=n116FindTopic(id);
-      if(topic){body.innerHTML=topic.body;body.dataset.loaded='1';}
-    }
-    card.classList.add('open');
-    if(head) head.setAttribute('aria-expanded','true');
-  }
-}
-
-function toggleAllN116(open){
-  var pane=n116State.currentTab==='wrapup'?'n116-tab-wrapup':'n116-tab-lectures';
-  var paneEl=document.getElementById(pane);
-  if(!paneEl) return;
-  var cards=paneEl.querySelectorAll('.tcard:not(.hidden)');
-  cards.forEach(function(card){
-    var isOpen=card.classList.contains('open');
-    if(open && !isOpen) toggleTopic(card.id);
-    else if(!open && isOpen) toggleTopic(card.id);
-  });
-}
+/* Content is always open \u2014 toggle helpers kept as no-ops for backward compat */
+function toggleTopic(){}
+function toggleAllN116(){}
 
 function clearN116Search(){
   var input=document.getElementById('n116-search');
@@ -1931,13 +1928,13 @@ function filterN116Topics(query){
   var pane=n116State.currentTab==='wrapup'?'n116-tab-wrapup':'n116-tab-lectures';
   var paneEl=document.getElementById(pane);
   if(!paneEl) return;
-  var cards=paneEl.querySelectorAll('.tcard');
+  var secs=paneEl.querySelectorAll('.n116-sec');
   var visible=0;
-  cards.forEach(function(card){
-    if(!q){card.classList.remove('hidden');visible++;return;}
-    var data=card.dataset.search||'';
-    if(data.indexOf(q)>=0){card.classList.remove('hidden');visible++;}
-    else card.classList.add('hidden');
+  secs.forEach(function(sec){
+    if(!q){sec.classList.remove('hidden');visible++;return;}
+    var data=sec.dataset.search||'';
+    if(data.indexOf(q)>=0){sec.classList.remove('hidden');visible++;}
+    else sec.classList.add('hidden');
   });
   var emptyId=n116State.currentTab==='wrapup'?'n116-wrapup-empty':'n116-lectures-empty';
   var empty=document.getElementById(emptyId);
