@@ -719,6 +719,63 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qr-btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .qr-btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
 .qr-btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border)}
+
+/* ── NUR 116 — Two-tab study guide ── */
+.n116-wrap{padding:20px 24px 8px;max-width:1100px;margin:0 auto}
+.n116-tabs{display:flex;gap:4px;background:var(--g50);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px;max-width:560px}
+.n116-tab{flex:1;background:transparent;border:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-muted);transition:background .15s,color .15s;white-space:nowrap}
+.n116-tab:hover{color:var(--text);background:rgba(0,0,0,.03)}
+.n116-tab.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(79,126,248,.4)}
+.n116-search-wrap{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.n116-search-input{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff}
+.n116-search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,126,248,.15)}
+.n116-action{padding:9px 14px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted);font-family:inherit;transition:background .15s,color .15s}
+.n116-action:hover{background:var(--g50);color:var(--text)}
+.n116-intro{background:#fefce8;border-left:4px solid #eab308;border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;line-height:1.5}
+.n116-intro-blue{background:#eff6ff;border-left-color:var(--cobalt)}
+.n116-cards{display:flex;flex-direction:column;gap:8px}
+.n116-empty{padding:40px 20px;text-align:center;color:var(--text-muted);font-size:14px}
+.tcard{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s,border-color .15s}
+.tcard.cat-clinical{border-left:4px solid var(--cobalt)}
+.tcard.cat-legal{border-left:4px solid var(--rust)}
+.tcard.cat-psycho{border-left:4px solid var(--plum)}
+.tcard.cat-pro{border-left:4px solid var(--forest)}
+.tcard:hover{box-shadow:0 2px 8px rgba(0,0,0,.08),0 12px 32px rgba(0,0,0,.06)}
+.tcard.hidden{display:none}
+.tcard-head{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;text-align:left;font-size:14px;font-weight:700;color:var(--text)}
+.tcard-head:hover{background:var(--g50)}
+.tcard-cat{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 7px;border-radius:20px;color:#fff;flex-shrink:0}
+.tcard.cat-clinical .tcard-cat{background:var(--cobalt)}
+.tcard.cat-legal .tcard-cat{background:var(--rust)}
+.tcard.cat-psycho .tcard-cat{background:var(--plum)}
+.tcard.cat-pro .tcard-cat{background:var(--forest)}
+.tcard-hy{display:inline-block;font-size:9px;font-weight:700;color:#b45309;background:#fefce8;padding:3px 7px;border-radius:20px;border:1px solid #fde68a;flex-shrink:0;letter-spacing:.04em}
+.tcard-title{flex:1;line-height:1.35}
+.tcard-arrow{margin-left:auto;font-size:11px;color:var(--text-muted);transition:transform .2s;flex-shrink:0}
+.tcard.open .tcard-arrow{transform:rotate(180deg)}
+.tcard-body{display:none;padding:4px 16px 18px;border-top:1px solid var(--border);background:#fafbfc}
+.tcard.open .tcard-body{display:block}
+.tcard-body p{margin-bottom:6px}
+.tcard-body ul,.tcard-body ol{padding-left:20px;margin-bottom:8px}
+.tcard-body li{margin-bottom:3px}
+.tcard-body h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:12px 0 6px}
+.tcard-body .card,.tcard-body .band-card{margin-bottom:8px}
+.tcard-body .g2,.tcard-body .g3{margin-bottom:8px}
+@media print{
+  .n116-tabs,.n116-search-wrap{display:none!important}
+  .n116-tab-pane{display:block!important;page-break-before:always}
+  .tcard,.tcard-body{display:block!important;break-inside:avoid;box-shadow:none}
+  .tcard-arrow{display:none}
+  .tcard-body{border-top:none}
+}
+@media(max-width:767px){
+  .n116-wrap{padding:14px}
+  .n116-tabs{max-width:100%}
+  .n116-tab{padding:9px 10px;font-size:12px}
+  .tcard-head{font-size:13px;padding:11px 13px;flex-wrap:wrap}
+  .tcard-body{padding:4px 13px 14px}
+  .n116-search-input{min-width:140px}
+}
 </style>
 </head>
 <body>
@@ -1076,262 +1133,28 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     </div><!-- /sg-nur118 -->
 
     <div id="sg-nur116" style="display:none">
-      <!-- ══ TOPIC 1: NURSING FOUNDATIONS & PROFESSIONAL ROLES ══ -->
-      <section id="sec-116-t01" class="study-sec">
-        <div class="sec-hdr sh-cobalt">Nursing Foundations &amp; Professional Roles <span class="lec-tag">Topic 1</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Describe the ANA definition of nursing, education levels, NCLEX/licensure, Benner's theory, nursing roles, QSEN competencies, and key organizations</p></div>
-
-          <span class="sub sub-cobalt">ANA Definition of Nursing</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>What Nursing IS</h4><ul><li>Protecting, promoting, and advancing clients' health</li><li>Averting illness and injury through health promotion</li><li>Using the nursing process to facilitate recovery</li><li>Minimizing or eliminating suffering</li><li>Advocating for the care and health of client, family, or community</li></ul></div>
-            <div class="card card-cobalt"><h4>Shared Governance</h4><p>Shared decision-making structure giving nurses control over their own practice</p><ul><li>Nurses have access to resources, information, data, and growth opportunities</li><li><b class="lbl">Goal:</b> Take nurses from point of care to the decision-making table</li><li><b class="lbl">Outcomes:</b> Improved client outcomes, better work environments, higher job satisfaction</li></ul></div>
-          </div>
-
-          <span class="sub sub-cobalt">Education Levels</span>
-          <div class="ts"><table class="t-cobalt"><thead><tr><th>Degree</th><th>Duration</th><th>Key Notes</th></tr></thead><tbody>
-            <tr><td><b class="lbl">LPN/LVN</b></td><td>1 year</td><td>Works under RN supervision; cannot do independent assessment</td></tr>
-            <tr><td><b class="lbl">ADN</b></td><td>2 years</td><td>Associate Degree; RN license</td></tr>
-            <tr><td><b class="lbl">BSN</b></td><td>4 years</td><td>Broader competencies: research, leadership, community health, policy, QI. <strong>IOM goal: 80% nurses BSN by 2020</strong></td></tr>
-            <tr><td><b class="lbl">MSN</b></td><td>Master's</td><td>Nurse practitioners, educators</td></tr>
-            <tr><td><b class="lbl">DNP</b></td><td>Doctoral</td><td>Doctor of Nursing Practice — clinical practice degree</td></tr>
-            <tr><td><b class="lbl">PhD</b></td><td>Doctoral</td><td>Doctor of Philosophy — research degree</td></tr>
-          </tbody></table></div>
-
-          <span class="sub sub-cobalt">NCLEX &amp; Licensure</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>NCLEX Facts</h4><ul><li>Given by <b class="lbl">NCSBN</b> (National Council of State Boards of Nursing)</li><li>ADN and BSN take the <strong>SAME</strong> NCLEX-RN</li><li>Pass/fail computer adaptive test</li><li>Passing = <strong>minimum competency</strong> — not excellence</li><li>Only the state <b class="lbl">BON</b> can issue a nursing license</li></ul></div>
-            <div class="card card-cobalt"><h4>Licensure Rules</h4><ul><li>Must graduate from BON-approved program AND pass NCLEX</li><li>Must disclose criminal history, substance misuse (last 5 years), disciplinary actions</li><li><b class="lbl">Compact license (NLC):</b> Licensed in one compact state = licensed in ALL compact states</li><li><b class="lbl">Endorsement:</b> Apply to practice in another state</li><li><b class="lbl">Reciprocity:</b> All 50 states accept a valid license from another state</li></ul></div>
-          </div>
-          <div class="warn"><strong>APRNs:</strong> Require at minimum a master's degree · 4 roles: CRNA, CNM, CNS, NP · Scope varies by state</div>
-
-          <span class="sub sub-cobalt">Patricia Benner — Novice to Expert</span>
-          <div class="ts"><table class="t-cobalt"><thead><tr><th>Stage</th><th>Description</th></tr></thead><tbody>
-            <tr><td><b class="lbl">1 — Novice</b></td><td>No experience; cannot draw on own judgment; struggles with task relevance</td></tr>
-            <tr><td><b class="lbl">2 — Advanced Beginner</b></td><td>Recognizes patterns; focuses on rules; needs clinical support for priorities</td></tr>
-            <tr><td><b class="lbl">3 — Competent</b></td><td>Prioritizes by drawing on past experiences; mastery in multiple areas</td></tr>
-            <tr><td><b class="lbl">4 — Proficient</b></td><td>Understands the bigger picture; responds to changing situations; modifies plans</td></tr>
-            <tr><td><b class="lbl">5 — Expert</b></td><td>Extensive experience; self-confidence; trusts intuition; knows what needs to be done</td></tr>
-          </tbody></table></div>
-
-          <span class="sub sub-cobalt">Nursing Roles</span>
-          <div class="g3">
-            <div class="card card-cobalt"><h4>Care Provider</h4><p>Most prominent role; holistic care (physical, mental, emotional, spiritual); culturally competent</p></div>
-            <div class="card card-cobalt"><h4>Case Manager</h4><p>Coordinates services; discharge planning; manages costs; works with patient, family, and team</p></div>
-            <div class="card card-cobalt"><h4>Researcher</h4><p>Uses research for EBP and QI; nurses with PhDs conduct formal nursing research</p></div>
-            <div class="card card-cobalt"><h4>Educator</h4><p>Educates patients, families, and new nurses; preceptors new staff</p></div>
-            <div class="card card-cobalt"><h4>Leader</h4><p><b class="lbl">Assigned</b> (formal: nurse manager, CNO) and <b class="lbl">Emergent</b> (informal: resolves conflicts, advocates)</p></div>
-            <div class="card card-cobalt"><h4>Change Agent</h4><p>Advocates for changes to improve patient care; helps educate and facilitate change</p></div>
-          </div>
-
-          <span class="sub sub-cobalt">QSEN Competencies (6)</span>
-          <div class="ts"><table class="t-cobalt"><thead><tr><th>#</th><th>Competency</th><th>Key Idea</th></tr></thead><tbody>
-            <tr><td>1</td><td><b class="lbl">Patient-Centered Care</b></td><td>Caring, compassionate, culturally sensitive; addresses physiological, psychological, sociological, spiritual, cultural needs</td></tr>
-            <tr><td>2</td><td><b class="lbl">Teamwork &amp; Collaboration</b></td><td>Aware of own strengths and limitations</td></tr>
-            <tr><td>3</td><td><b class="lbl">Evidence-Based Practice</b></td><td>Uses research to guide care vs. tradition alone</td></tr>
-            <tr><td>4</td><td><b class="lbl">Quality Improvement</b></td><td>Applies processes to develop and implement plans to improve care</td></tr>
-            <tr><td>5</td><td><b class="lbl">Safety</b></td><td>Minimizes risk factors; promotes quality care; maintains secure environment</td></tr>
-            <tr><td>6</td><td><b class="lbl">Informatics</b></td><td>Uses technology as communication and information-gathering tool to support clinical decision-making</td></tr>
-          </tbody></table></div>
-
-          <span class="sub sub-cobalt">Nursing Organizations &amp; Current Issues</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>Key Organizations</h4><ul><li><b class="lbl">ANA:</b> Enhances nursing profession; lobbying; publishes Code of Ethics, Scope &amp; Standards, position statements</li><li><b class="lbl">National Academy of Medicine (IOM):</b> Nonprofit; scientific/EBP approach to improve global health</li><li><b class="lbl">NSNA:</b> Nonprofit for nursing students; 6 core values: advocacy, leadership, professionalism, care, diversity, quality education</li><li><b class="lbl">NLN:</b> Promotes excellence in nursing education; addresses nurse educator shortage</li></ul></div>
-            <div class="card card-cobalt"><h4>Current Issues</h4><ul><li><b class="lbl">Nursing shortage:</b> Large number of nurses retiring by 2030; increased chronic illness; limited faculty; older adults</li><li><b class="lbl">Healthy People 2030:</b> 10-year national objectives; decrease infant mortality, improve life expectancy, decrease obesity</li><li><b class="lbl">Health Literacy:</b> Capacity to obtain, understand, and use health information to make appropriate decisions</li></ul></div>
-          </div>
-          <div class="warn"><strong>&#9888; Impaired Nursing:</strong> SUD affects 10–15% of nurses · Signs = disheveled, mood swings, isolation, <em>rarely calls in sick</em> (hospital = drug source), <em>frequently volunteers</em> to give pain meds (possible diversion) · <strong>MUST report suspicions immediately</strong> · Naloxone (Narcan) = antidote for opioids</div>
+      <div class="n116-wrap">
+        <div class="n116-tabs">
+          <button class="n116-tab active" id="ntab-wrapup" type="button" onclick="switchN116Tab('wrapup')">&#11088; Wrap-Up Priority</button>
+          <button class="n116-tab" id="ntab-lectures" type="button" onclick="switchN116Tab('lectures')">&#128218; Full Lecture Notes</button>
         </div>
-      </section>
-
-      <!-- ══ TOPIC 2: SCOPE & STANDARDS OF PRACTICE ══ -->
-      <section id="sec-116-t02" class="study-sec">
-        <div class="sec-hdr sh-cobalt">Scope &amp; Standards of Practice <span class="lec-tag">Topic 2</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Distinguish what defines nursing practice, compare RN vs. LPN scope, and explain delegation principles</p></div>
-
-          <span class="sub sub-cobalt">What Defines Nursing Practice</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>Sources of Authority</h4><ul><li><b class="lbl">Nurse Practice Acts (NPA):</b> Legal/regulatory body created by each state; establishes definitions, rules, regulations; differs state to state</li><li><b class="lbl">ANA Scope of Nursing Practice:</b> Defines the complex and dynamic role of the nurse</li><li><b class="lbl">Code of Ethics for Nurses:</b> Assists with ethical decision-making; incorporates values, duty, obligation</li><li>State and facility rules and regulations</li><li>Nurses' own judgment: uses knowledge, skills, critical thinking</li></ul></div>
-            <div class="card card-cobalt"><h4>Standards of Professional Nursing Practice</h4><ul><li><b class="lbl">Standards of Practice:</b> Competent nursing care using the nursing process</li><li><b class="lbl">Standards of Professional Performance:</b> Competent behavior of all registered nurses</li><li>Quality, EBP, and Safety are interwoven throughout all levels of regulation</li></ul></div>
-          </div>
-
-          <span class="sub sub-cobalt">RN vs. LPN Scope Comparison</span>
-          <div class="ts"><table class="t-cobalt"><thead><tr><th>Task / Responsibility</th><th>RN</th><th>LPN</th></tr></thead><tbody>
-            <tr><td>Independent assessment</td><td class="hi">&#10003; Yes</td><td class="lo">&#10007; No (collects data only)</td></tr>
-            <tr><td>Nursing diagnosis</td><td class="hi">&#10003; Yes</td><td class="lo">&#10007; No</td></tr>
-            <tr><td>IV push medications</td><td class="hi">&#10003; Yes</td><td class="lo">&#10007; No</td></tr>
-            <tr><td>Vital signs</td><td class="hi">&#10003; Yes</td><td class="hi">&#10003; Yes</td></tr>
-            <tr><td>Insert Foley / NG tube</td><td class="hi">&#10003; Yes</td><td class="hi">&#10003; Yes</td></tr>
-            <tr><td>Wound care</td><td class="hi">&#10003; Yes</td><td class="hi">&#10003; Yes</td></tr>
-            <tr><td>Initial assessment on new/unstable clients</td><td class="hi">&#10003; RN must do this</td><td class="lo">&#10007; RN must perform</td></tr>
-            <tr><td>Supervision requirement</td><td>Supervises LPNs and AP</td><td>Must work under RN or MD at all times</td></tr>
-          </tbody></table></div>
-          <div class="warn"><strong>&#9888; Key Rule:</strong> RN must perform initial assessments on NEW and UNSTABLE clients · LPN can collect data on STABLE clients — RN still determines if further assessment is needed · Delegator ALWAYS maintains responsibility even after delegating</div>
+        <div class="n116-search-wrap">
+          <input id="n116-search" class="n116-search-input" type="text" placeholder="&#128269; Search topics or keywords..." oninput="filterN116Topics(this.value)" autocomplete="off">
+          <button class="n116-action" type="button" onclick="clearN116Search()">Clear</button>
+          <button class="n116-action" type="button" onclick="toggleAllN116(true)">Expand all</button>
+          <button class="n116-action" type="button" onclick="toggleAllN116(false)">Collapse all</button>
         </div>
-      </section>
-
-      <!-- ══ TOPIC 3: TEAMWORK, COLLABORATION & COMMUNICATION ══ -->
-      <section id="sec-116-t03" class="study-sec">
-        <div class="sec-hdr sh-cobalt">Teamwork, Collaboration &amp; Communication <span class="lec-tag">Topic 3</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Explain interprofessional collaboration, discharge planning, I-SBAR-R, medication reconciliation, and barriers/promoters of collaboration</p></div>
-
-          <span class="sub sub-cobalt">Collaborative Health Care</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>Benefits of Interprofessional Teams</h4><ul><li>Improved access and coordination</li><li>Greater referral efficiency</li><li>Increased quality of community health</li><li>Decreased complications, length of stay, sentinel events, mortality, and staff turnover</li></ul></div>
-            <div class="card card-cobalt"><h4>Discharge Planning</h4><ul><li>Must begin on <strong>ADMISSION</strong> — not at discharge</li><li>Requires input from interprofessional team, client, and family</li><li>Decreases LOS, avoids readmission, decreases costs, increases hospital reimbursement</li><li>Elements: home environment safety, medications, education on disease/restrictions, follow-up, when to call provider, readiness for discharge</li></ul></div>
-          </div>
-
-          <span class="sub sub-cobalt">I-SBAR-R Communication Tool</span>
-          <div class="ts"><table class="t-cobalt"><thead><tr><th>Letter</th><th>Stands For</th><th>What to Say</th></tr></thead><tbody>
-            <tr><td><b class="lbl">I</b></td><td>Introduction</td><td>Your name and client care role</td></tr>
-            <tr><td><b class="lbl">S</b></td><td>Situation</td><td>What is currently happening</td></tr>
-            <tr><td><b class="lbl">B</b></td><td>Background</td><td>Pertinent clinical background</td></tr>
-            <tr><td><b class="lbl">A</b></td><td>Assessment</td><td>Brief evaluation of the situation</td></tr>
-            <tr><td><b class="lbl">R</b></td><td>Recommendation</td><td>Suggestions for care</td></tr>
-            <tr><td><b class="lbl">R</b></td><td>Read back / Repeat</td><td>Summarize, allow questions, repeat</td></tr>
-          </tbody></table></div>
-          <div class="mnem">Originally developed by the <strong>U.S. Navy for nuclear submarines</strong> — adopted by IHI for healthcare. Handoff report should occur <strong>AT THE BEDSIDE</strong> and covers: background, allergies, medications, condition, anticipated needs, plan of care.</div>
-
-          <span class="sub sub-cobalt">Medication Reconciliation</span>
-          <div class="g2">
-            <div class="card card-cobalt"><h4>When It Occurs</h4><ul><li>At <b class="lbl">admission</b></li><li>At <b class="lbl">discharge</b></li><li>At <b class="lbl">transfer</b></li></ul><p>Creates accurate list: drug name, dosage, frequency, route — compared against physician orders at every transition point</p></div>
-            <div class="card card-cobalt"><h4>Key Facts</h4><ul><li>Most medication errors occur during <strong>PRESCRIBING</strong></li><li>Verbal orders must be <strong>read back</strong> (not just repeated) to verify accuracy</li></ul></div>
-          </div>
-
-          <span class="sub sub-cobalt">Barriers &amp; Promoters of Collaboration</span>
-          <div class="g2">
-            <div class="band-card bh-cobalt"><div class="band-head">Barriers</div><div class="band-body"><ul><li><b class="lbl">Incivility:</b> Gossiping, spreading rumors, being rude, refusing to help, texting during conversation</li><li><b class="lbl">Bullying:</b> Recurring harmful behavior — incivility that is repeated</li><li><b class="lbl">Lateral violence:</b> Peer-to-peer incivility (horizontal violence)</li><li><b class="lbl">Vertical violence:</b> Supervisor to employee or vice versa</li><li><b class="lbl">Silos:</b> Departments working independently → fragmented care</li></ul></div></div>
-            <div class="band-card bh-cobalt"><div class="band-head">Promoters</div><div class="band-body"><ul><li><b class="lbl">Zero-tolerance policy:</b> TJC recommends for incivility, bullying, harassment</li><li><b class="lbl">Cognitive rehearsal:</b> Visualizing a difficult scenario ahead of time to prepare constructive responses</li><li><b class="lbl">Emotional intelligence:</b> Self-awareness, self-regulation, motivation, empathy, social skills</li><li><b class="lbl">5 conflict approaches:</b> Dominate, oblige, avoid, compromise, integrate — goal is to <strong>COMPROMISE AND INTEGRATE</strong></li></ul></div></div>
-          </div>
+        <div id="n116-tab-wrapup" class="n116-tab-pane active">
+          <div class="n116-intro"><strong>&#11088; Wrap-Up Priority Topics</strong> &mdash; pulled directly from the final exam review slides. Highest yield for the exam.</div>
+          <div id="n116-wrapup-list" class="n116-cards"></div>
+          <div id="n116-wrapup-empty" class="n116-empty" style="display:none">No topics match your search.</div>
         </div>
-      </section>
-      <section id="sec-116-t04" class="study-sec">
-        <div class="sec-hdr sh-teal">Elimination Disorders <span class="lec-tag">Topic 4</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Differentiate constipation, fecal impaction, and the 6 types of urinary incontinence</p></div>
-          <div class="g2">
-            <div class="band-card bh-teal"><div class="band-head">Constipation &amp; Fecal Impaction</div><div class="band-body"><p><b class="lbl">Constipation:</b> &lt;3 BMs/week — hard / lumpy / difficult to pass</p><p><b class="lbl">Danger signs:</b> Fever · GI bleeding · Abdominal pain · Vomiting · Low back pain · Weight loss</p><p><b class="lbl">Fecal impaction:</b> Hardened stool preventing evacuation → obstruction or rectal injury</p><p><b class="lbl">Highest risk:</b> Immobile clients or those with nervous system injury</p></div></div>
-            <div class="band-card bh-teal"><div class="band-head">6 Types of Urinary Incontinence</div><div class="band-body"><p><b class="lbl">Stress</b> — ↑ bladder pressure (coughing / sneezing / laughing)</p><p><b class="lbl">Urge</b> — strong urge but leaks before toilet → <strong>bladder training works well</strong></p><p><b class="lbl">Reflex</b> — nerve damage, no warning sensation</p><p><b class="lbl">Overflow</b> — incomplete emptying → overfills → leaks</p><p><b class="lbl">Functional</b> — physical inability to reach toilet in time</p><p><b class="lbl">Nocturnal enuresis</b> — nighttime bedwetting</p></div></div>
-          </div>
-          <div class="warn"><strong>&#9888; Diarrhea Risk Factors:</strong> Alcohol · Caffeine · Dairy · High-fat foods · Fructose beverages · Spicy foods · Apples/peaches/pears · Sweeteners (sorbitol / mannitol / xylitol / maltitol)</div>
+        <div id="n116-tab-lectures" class="n116-tab-pane" style="display:none">
+          <div class="n116-intro n116-intro-blue">&#128218; <strong>Full Lecture Notes</strong> &mdash; covers all lecture material. The Wrap-Up tab is highest priority for the exam.</div>
+          <div id="n116-lectures-list" class="n116-cards"></div>
+          <div id="n116-lectures-empty" class="n116-empty" style="display:none">No topics match your search.</div>
         </div>
-      </section>
-      <section id="sec-116-t05" class="study-sec">
-        <div class="sec-hdr sh-teal">Foley Catheter &amp; Urine Specimens <span class="lec-tag">Topic 5</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Describe safe Foley catheter care and correct urine specimen collection techniques</p></div>
-          <div class="g2">
-            <div class="card card-teal"><h4>Foley Catheter</h4><p><b class="lbl">Purpose:</b> Remove urine from the bladder</p><p><b class="lbl">3 Indications:</b> Surgical procedures / Wounds where urine prevents healing / Urinary retention</p><p><b class="lbl">Bag:</b> Always below bladder — never on floor — prevents backflow</p></div>
-            <div class="card card-teal"><h4>Urine Specimen Types</h4><p><b class="lbl">Routine UA:</b> Standard collection</p><p><b class="lbl">Clean-catch:</b> Wipe 3× front-to-back → begin voiding → stop → collect midstream. Ask about antibiotics first</p><p><b class="lbl">Sterile:</b> From indwelling or straight catheter — most reliable</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="sec-116-t06" class="study-sec">
-        <div class="sec-hdr sh-slate">Medicaid &amp; Medicare <span class="lec-tag">Topic 6</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Distinguish between Medicaid and Medicare coverage</p></div>
-          <div class="g2">
-            <div class="card card-slate"><h4>Medicaid</h4><p>Insurance for the <strong>poor / low-income individuals</strong></p><p>Need-based federal/state program</p></div>
-            <div class="card card-slate"><h4>Medicare</h4><p>Insurance for the <strong>elderly (65+)</strong> AND people with <b class="lbl">end-stage renal disease</b> (dialysis patients)</p></div>
-          </div>
-          <div class="warn">Memory trick: MedicAID = AID for those in need. MediCARE = CARES for the elderly.</div>
-        </div>
-      </section>
-      <section id="sec-116-t07" class="study-sec">
-        <div class="sec-hdr sh-forest">Parenteral &amp; Enteral Nutrition <span class="lec-tag">Topic 7</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Explain how TPN works, what it provides, its major complication, and apply enteral feeding safety rules</p></div>
-          <div class="g2">
-            <div class="band-card bh-forest"><div class="band-head">TPN (Total Parenteral Nutrition)</div><div class="band-body"><p><b class="lbl">Route:</b> IV into large vein via venous access device</p><p><b class="lbl">Used for:</b> Cannot absorb food by mouth / no functioning GI tract</p><p><b class="lbl">Provides:</b> Proteins · Fats · Carbohydrates · Minerals · Electrolytes · Vitamins</p><p><b class="lbl">Major complication:</b> <strong>Hyperglycemia</strong> — monitor blood glucose; even non-diabetics may need insulin</p></div></div>
-            <div class="band-card bh-forest"><div class="band-head">Enteral Nutrition Safety Rules</div><div class="band-body"><p><b class="lbl">HOB:</b> 30°–45° during feeding and ≥1 hour after bolus</p><p><b class="lbl">Pause</b> feeding when repositioning patient flat</p><p><b class="lbl">Residuals &gt;250 mL:</b> Follow facility policy</p><p><b class="lbl">NG placement:</b> X-ray first → then aspirate + check pH</p></div></div>
-          </div>
-          <div class="g3" style="margin-top:12px">
-            <div class="card card-forest"><h4>Nasogastric (NG)</h4><p>Nostril → esophagus → stomach. X-ray first, then aspirate + pH</p></div>
-            <div class="card card-forest"><h4>Nasojejunal (NJ)</h4><p>Nostril → stomach → jejunum. Placed via guided radiology; verified by X-ray</p></div>
-            <div class="card card-forest"><h4>G-tube (Gastrostomy)</h4><p>Through abdomen into stomach. Long-term use. Placed surgically by surgeon</p></div>
-          </div>
-          <div class="warn" style="margin-top:12px"><strong>&#9888; Aspiration Priority:</strong> Stop feeding immediately — do NOT lower HOB — notify provider.<br><b class="lbl">Silent:</b> No symptoms — only ↓SpO&#8322; / ↑HR / ↑BP / ↑RR / wheezing &nbsp;·&nbsp; <b class="lbl">Overt:</b> Cough / wheezing / trouble breathing / congestion / heartburn</div>
-        </div>
-      </section>
-      <section id="sec-116-t08" class="study-sec">
-        <div class="sec-hdr sh-cobalt">Legal Concepts <span class="lec-tag">Topic 8</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Apply informed consent, advance directives, assault vs. battery, and incident reporting principles</p></div>
-          <div class="g2">
-            <div class="band-card bh-cobalt"><div class="band-head">Informed Consent</div><div class="band-body"><p>Given <b class="lbl">voluntarily</b> by client or legal representative — without coercion</p><p><b class="lbl">Nurse's role:</b> Verify and <strong>witness</strong> signing — does <strong>NOT obtain</strong> consent</p><p>Patient informed of all <b class="lbl">risks and benefits</b> · Can <b class="lbl">withdraw at any time</b></p></div></div>
-            <div class="band-card bh-cobalt"><div class="band-head">Advance Directives</div><div class="band-body"><p><b class="lbl">Living will:</b> States life-sustaining treatments wanted if incapacitated</p><p><b class="lbl">Durable POA for healthcare:</b> Appoints someone to make decisions on patient's behalf</p><p>Federal law: institutions must provide forms · Nurse can witness — <strong>no attorney needed</strong></p></div></div>
-          </div>
-          <div class="g2" style="margin-top:12px">
-            <div class="card card-cobalt"><h4>Assault vs. Battery</h4><p><b class="lbl">Assault:</b> Client made to feel <strong>fearful of harm</strong> or offensive contact</p><p><b class="lbl">Battery:</b> Act that causes <strong>actual harm or injury</strong> — criminal offense</p></div>
-            <div class="card card-cobalt"><h4>Incident Reports</h4><p><strong>NOT</strong> part of medical record — risk management tool only</p><p>Document assessment/interventions <strong>in the chart</strong> separately · <strong>Never reference</strong> incident report in chart</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="sec-116-t09" class="study-sec">
-        <div class="sec-hdr sh-slate">Medical Abbreviations <span class="lec-tag">Topic 9</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Apply Joint Commission guidelines for safe medication documentation</p></div>
-          <div class="g2">
-            <div class="card card-slate"><h4>Joint Commission Rules</h4><p>Each facility establishes its own <b class="lbl">approved abbreviation list</b> and educates staff</p><p>JC maintains a list of <b class="lbl">potentially dangerous abbreviations</b> to avoid</p></div>
-            <div class="card card-slate"><h4>Zero Rules — High Yield</h4><p><b class="lbl">Trailing zeros — AVOID:</b> Write 25 not 25.0 → could be misread as 250</p><p><b class="lbl">Leading zeros — ALWAYS USE:</b> Write 0.25 not .25 → could be misread as 25</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="sec-116-t10" class="study-sec">
-        <div class="sec-hdr sh-rust">Alarms &amp; Fire Safety <span class="lec-tag">Topic 10</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Describe alarm fatigue and execute the RACE fire safety protocol</p></div>
-          <div class="g2">
-            <div class="card card-rust"><h4>Alarm Fatigue</h4><p>Frequent false/nuisance alarms → <b class="lbl">sensory overload</b></p><p>Staff become <strong>desensitized</strong> — may miss emergencies / reduced reaction time</p><p>Bed/chair alarms allow quick rescue — <strong>do NOT prevent falls</strong></p></div>
-            <div class="card card-rust"><h4>RACE — Fire Safety</h4><p><b class="lbl">R</b> — <strong>Rescue</strong>: Remove clients / visitors / employees in immediate danger</p><p><b class="lbl">A</b> — <strong>Alarm</strong>: Activate fire alarm per facility policy</p><p><b class="lbl">C</b> — <strong>Contain</strong>: Close doors and windows → ↓ oxygen to fire</p><p><b class="lbl">E</b> — <strong>Extinguish</strong>: Only if safe and proper extinguisher available</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="sec-116-t11" class="study-sec">
-        <div class="sec-hdr sh-forest">Nutrition &amp; Special Diets <span class="lec-tag">Topic 11</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Select the correct diet type and interventions for a given clinical scenario</p></div>
-          <div class="g2">
-            <div class="band-card bh-forest"><div class="band-head">Special Diets</div><div class="band-body"><p><b class="lbl">Vegan:</b> Supplement Vitamin B12 (only from animal sources)</p><p><b class="lbl">Cardiovascular:</b> Control portions / fruits &amp; vegetables / whole grains / limit unhealthy fats / low-fat protein / ↓ sodium</p><p><b class="lbl">Renal:</b> Limit Na/K/phosphorus. Avoid: bananas / cantaloupe / tomatoes / oranges / prune juice / leafy greens</p><p><b class="lbl">Post-surgery:</b> ↑ protein to aid healing &nbsp;·&nbsp; <b class="lbl">NPO:</b> Nothing by mouth</p></div></div>
-            <div class="band-card bh-forest"><div class="band-head">Liquid Diets &amp; Dysphagia</div><div class="band-body"><p><b class="lbl">Full liquid:</b> Liquid at room temp — ice cream / juices / pudding / milkshakes / strained soups / gelatin</p><p><b class="lbl">Clear liquid:</b> Broth / gelatin / water. Also N/V/diarrhea. Avoid red coloring (colon/tonsillectomy)</p><p><b class="lbl">Dysphagia 9:</b> HOB 90° · Chin tuck · No straws · Dentures in · Hearing aids · Assistive devices · Self-feeding · Remove clutter · Toilet first</p></div></div>
-          </div>
-          <div class="g3" style="margin-top:12px">
-            <div class="card card-forest"><h4>Kyphosis</h4><p>Abnormal curvature — <b class="lbl">thoracic (upper)</b> spine</p></div>
-            <div class="card card-forest"><h4>Scoliosis</h4><p><b class="lbl">Lateral S-shaped</b> curvature of the spine</p></div>
-            <div class="card card-forest"><h4>Lordosis</h4><p>Abnormal curvature — <b class="lbl">lumbar (lower)</b> spine</p></div>
-          </div>
-        </div>
-      </section>
-      <section id="sec-116-t12" class="study-sec">
-        <div class="sec-hdr sh-plum">Ethical Principles <span class="lec-tag">Topic 12</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Apply all 6 ethical principles to clinical and case study scenarios</p></div>
-          <div class="g3">
-            <div class="card card-plum"><h4>Autonomy — Self-rule</h4><p>Respect client's right to make own decisions — including right to refuse care</p></div>
-            <div class="card card-plum"><h4>Beneficence — Do good</h4><p>Minimize harm and act in client's best interest — going above what is required</p></div>
-            <div class="card card-plum"><h4>Nonmaleficence — Do no harm</h4><p>Do no harm — or least harm while achieving best possible outcome</p></div>
-            <div class="card card-plum"><h4>Veracity — Truth</h4><p>Provide truthful and accurate information to the client</p></div>
-            <div class="card card-plum"><h4>Fidelity — Promises</h4><p>Keep promises and uphold commitments to the client</p></div>
-            <div class="card card-plum"><h4>Justice — Fairness</h4><p>Impartial / fair / equitable care regardless of age / sex / race / economic status</p></div>
-          </div>
-          <div class="warn" style="margin-top:12px"><strong>Case Applications:</strong> Advance directive respected = Autonomy · Telling diagnosis truth = Veracity · Acting in patient's interest = Beneficence · Preventing harm = Nonmaleficence · Ignoring patient wishes = violates Autonomy · Unequal care = violates Justice</div>
-        </div>
-      </section>
-      <section id="sec-116-t13" class="study-sec">
-        <div class="sec-hdr sh-plum">Grief — K&#252;bler-Ross <span class="lec-tag">Topic 13</span></div>
-        <div class="pg">
-          <div class="obj"><h4>&#9745; Objective</h4><p>Identify each of the 5 stages of grief from patient behaviors</p></div>
-          <div class="g3">
-            <div class="card card-plum"><h4>1 — Denial</h4><p>Refuses to believe reality to lessen pain of the loss</p><p><em>Refuses diagnosis / seeks alternative cures</em></p></div>
-            <div class="card card-plum"><h4>2 — Anger</h4><p>Blames others — anger releases emotional discomfort</p><p><em>Blames staff / "this isn't fair" / irritable toward family</em></p></div>
-            <div class="card card-plum"><h4>3 — Bargaining</h4><p>Promises to higher power for better outcome — attempts to avoid grief through negotiating</p></div>
-            <div class="card card-plum"><h4>4 — Depression</h4><p>Reality sets in — the loss is deeply felt</p><p><em>Withdraws and appears deeply sad — NOT anger</em></p></div>
-            <div class="card card-plum"><h4>5 — Acceptance</h4><p>Still feels pain but realizes all will eventually be well</p></div>
-          </div>
-          <div class="warn" style="margin-top:12px"><strong>&#9888; Not Sequential</strong> — patients move back and forth at any time. NCLEX trap: withdrawing + deeply sad = <strong>Depression</strong>, NOT Anger.</div>
-        </div>
-      </section>
+      </div>
     </div><!-- /sg-nur116 -->
 
     </div><!-- /page-study -->
@@ -1614,20 +1437,168 @@ var NUR118_SECTIONS=[
   {id:'sec-meds',  label:'Medications',      sub:''},
   {id:'sec-labs',  label:'Lab Values',       sub:''},
 ];
+/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+   NUR 116 \u2014 Two-Tab Study Guide
+   - Topic data stored in const arrays at module scope (no re-creation)
+   - Tab 2 (Lecture Notes) renders lazily on first click
+   - Card bodies are not inserted into DOM until first expand
+   - All cards collapsed by default
+   \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+
+/* STEP 1 \u2014 Shell only with placeholder cards (one per category) */
+var WRAPUP_TOPICS=[
+  {id:'wu-placeholder-1',title:'Sample Clinical Topic',cat:'clinical',hy:true,
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real wrap-up content will be added in Step 2.</p>'},
+  {id:'wu-placeholder-2',title:'Sample Legal / Ethical Topic',cat:'legal',hy:true,
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real wrap-up content will be added in Step 2.</p>'},
+  {id:'wu-placeholder-3',title:'Sample Psychosocial Topic',cat:'psycho',hy:true,
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real wrap-up content will be added in Step 2.</p>'},
+  {id:'wu-placeholder-4',title:'Sample Professional Topic',cat:'pro',hy:true,
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real wrap-up content will be added in Step 2.</p>'}
+];
+
+var LECTURE_TOPICS=[
+  {id:'lec-placeholder-1',title:'Sample Clinical Lecture',cat:'clinical',
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
+  {id:'lec-placeholder-2',title:'Sample Legal / Ethical Lecture',cat:'legal',
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
+  {id:'lec-placeholder-3',title:'Sample Psychosocial Lecture',cat:'psycho',
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
+  {id:'lec-placeholder-4',title:'Sample Professional Lecture',cat:'pro',
+   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'}
+];
+
+var n116State={currentTab:'wrapup',wrapupRendered:false,lecturesRendered:false};
+
+function n116CatLabel(c){
+  if(c==='clinical') return 'Clinical';
+  if(c==='legal') return 'Legal / Ethical';
+  if(c==='psycho') return 'Psychosocial';
+  if(c==='pro') return 'Professional';
+  return c;
+}
+
+function n116EscapeAttr(s){
+  return (s||'').replace(/[<>"'&]/g,function(c){
+    return {'<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','&':'&amp;'}[c];
+  });
+}
+
+function n116FindTopic(id){
+  var i;
+  for(i=0;i<WRAPUP_TOPICS.length;i++) if(WRAPUP_TOPICS[i].id===id) return WRAPUP_TOPICS[i];
+  for(i=0;i<LECTURE_TOPICS.length;i++) if(LECTURE_TOPICS[i].id===id) return LECTURE_TOPICS[i];
+  return null;
+}
+
+function renderN116Topics(targetId,topics){
+  /* Build collapsed cards only \u2014 bodies stay empty until expanded */
+  var html=topics.map(function(t){
+    var raw=(t.title+' '+(t.body||'')).toLowerCase().replace(/<[^>]*>/g,' ');
+    var search=n116EscapeAttr(raw);
+    return '<div class="tcard cat-'+t.cat+'" id="'+t.id+'" data-search="'+search+'">'
+      +'<button class="tcard-head" type="button" onclick="toggleTopic(\''+t.id+'\')" aria-expanded="false">'
+      +'<span class="tcard-cat">'+n116CatLabel(t.cat)+'</span>'
+      +(t.hy?'<span class="tcard-hy">\u2b50 HIGH YIELD</span>':'')
+      +'<span class="tcard-title">'+t.title+'</span>'
+      +'<span class="tcard-arrow">\u25bc</span>'
+      +'</button>'
+      +'<div class="tcard-body" id="body-'+t.id+'"></div>'
+      +'</div>';
+  }).join('');
+  var target=document.getElementById(targetId);
+  if(target) target.innerHTML=html;
+}
+
+function toggleTopic(id){
+  var card=document.getElementById(id);
+  if(!card) return;
+  var body=document.getElementById('body-'+id);
+  var head=card.querySelector('.tcard-head');
+  if(card.classList.contains('open')){
+    card.classList.remove('open');
+    if(head) head.setAttribute('aria-expanded','false');
+  }else{
+    /* Lazy load body content on first expand */
+    if(body && !body.dataset.loaded){
+      var topic=n116FindTopic(id);
+      if(topic){body.innerHTML=topic.body;body.dataset.loaded='1';}
+    }
+    card.classList.add('open');
+    if(head) head.setAttribute('aria-expanded','true');
+  }
+}
+
+function toggleAllN116(open){
+  var pane=n116State.currentTab==='wrapup'?'n116-tab-wrapup':'n116-tab-lectures';
+  var paneEl=document.getElementById(pane);
+  if(!paneEl) return;
+  var cards=paneEl.querySelectorAll('.tcard:not(.hidden)');
+  cards.forEach(function(card){
+    var isOpen=card.classList.contains('open');
+    if(open && !isOpen) toggleTopic(card.id);
+    else if(!open && isOpen) toggleTopic(card.id);
+  });
+}
+
+function clearN116Search(){
+  var input=document.getElementById('n116-search');
+  if(input) input.value='';
+  filterN116Topics('');
+}
+
+function filterN116Topics(query){
+  var q=(query||'').toLowerCase().trim();
+  var pane=n116State.currentTab==='wrapup'?'n116-tab-wrapup':'n116-tab-lectures';
+  var paneEl=document.getElementById(pane);
+  if(!paneEl) return;
+  var cards=paneEl.querySelectorAll('.tcard');
+  var visible=0;
+  cards.forEach(function(card){
+    if(!q){card.classList.remove('hidden');visible++;return;}
+    var data=card.dataset.search||'';
+    if(data.indexOf(q)>=0){card.classList.remove('hidden');visible++;}
+    else card.classList.add('hidden');
+  });
+  var emptyId=n116State.currentTab==='wrapup'?'n116-wrapup-empty':'n116-lectures-empty';
+  var empty=document.getElementById(emptyId);
+  if(empty) empty.style.display=visible===0?'block':'none';
+}
+
+function switchN116Tab(tab){
+  n116State.currentTab=tab;
+  var btnW=document.getElementById('ntab-wrapup');
+  var btnL=document.getElementById('ntab-lectures');
+  if(btnW) btnW.classList.toggle('active',tab==='wrapup');
+  if(btnL) btnL.classList.toggle('active',tab==='lectures');
+  var paneW=document.getElementById('n116-tab-wrapup');
+  var paneL=document.getElementById('n116-tab-lectures');
+  if(paneW) paneW.style.display=tab==='wrapup'?'':'none';
+  if(paneL) paneL.style.display=tab==='lectures'?'':'none';
+  /* Lazy render lectures the first time the tab is clicked */
+  if(tab==='lectures' && !n116State.lecturesRendered){
+    renderN116Topics('n116-lectures-list',LECTURE_TOPICS);
+    n116State.lecturesRendered=true;
+  }
+  /* Re-apply active search filter to the now-visible pane */
+  var search=document.getElementById('n116-search');
+  if(search && search.value) filterN116Topics(search.value);
+  else filterN116Topics('');
+  /* Refresh sidebar context if it's showing NUR116 */
+  if(typeof renderCtx==='function' && typeof currentCourse!=='undefined'
+     && currentCourse==='NUR116' && currentPage==='study') renderCtx('study');
+}
+
+function initN116(){
+  if(!n116State.wrapupRendered){
+    renderN116Topics('n116-wrapup-list',WRAPUP_TOPICS);
+    n116State.wrapupRendered=true;
+  }
+}
+
 var NUR116_SECTIONS=[
-  {id:'sec-116-t01',label:'EMTALA',                    sub:'T1'},
-  {id:'sec-116-t02',label:'Good Samaritan Law',         sub:'T2'},
-  {id:'sec-116-t03',label:'Urinalysis & Urine Output',  sub:'T3'},
-  {id:'sec-116-t04',label:'Elimination Disorders',      sub:'T4'},
-  {id:'sec-116-t05',label:'Foley & Urine Specimens',    sub:'T5'},
-  {id:'sec-116-t06',label:'Medicaid & Medicare',        sub:'T6'},
-  {id:'sec-116-t07',label:'Parenteral & Enteral Nutrition',sub:'T7'},
-  {id:'sec-116-t08',label:'Legal Concepts',             sub:'T8'},
-  {id:'sec-116-t09',label:'Medical Abbreviations',      sub:'T9'},
-  {id:'sec-116-t10',label:'Alarms & Fire Safety',       sub:'T10'},
-  {id:'sec-116-t11',label:'Nutrition & Special Diets',  sub:'T11'},
-  {id:'sec-116-t12',label:'Ethical Principles',         sub:'T12'},
-  {id:'sec-116-t13',label:'Grief \u2014 K\u00fcbler-Ross',sub:'T13'},
+  {id:'n116-tab-wrapup',  label:'\u2b50 Wrap-Up Priority',  sub:'A'},
+  {id:'n116-tab-lectures',label:'Full Lecture Notes',       sub:'B'}
 ];
 function getSections(){return currentCourse==='NUR116'?NUR116_SECTIONS:NUR118_SECTIONS;}
 
@@ -1730,6 +1701,13 @@ function goToAndFilter(key){
 }
 
 function scrollToSec(id){
+  /* NUR116 — sidebar links route to tab panes, switch tab + scroll to top */
+  if(id==='n116-tab-wrapup' || id==='n116-tab-lectures'){
+    if(typeof switchN116Tab==='function') switchN116Tab(id==='n116-tab-wrapup'?'wrapup':'lectures');
+    var mc1=document.getElementById('main-content');
+    if(mc1) mc1.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
   var el=document.getElementById(id);
   var mc=document.getElementById('main-content');
   if(el) mc.scrollTo({top:el.offsetTop-20,behavior:'smooth'});
@@ -2623,6 +2601,8 @@ function switchCourse(course){
   var s116=document.getElementById('sg-nur116');
   if(s118) s118.style.display=(course==='NUR118'?'':'none');
   if(s116) s116.style.display=(course==='NUR116'?'':'none');
+  /* Lazy-init NUR116 study guide on first switch to it */
+  if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
   fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
   sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
