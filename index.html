@@ -20,6 +20,7 @@
   --topbar-h:52px;--sidebar-w:240px;
   --teal:#0f766e;--plum:#7e22ce;--rust:#b91c1c;
   --forest:#15803d;--cobalt:#1d4ed8;--slate:#334155;--gold:#b45309;
+  --orange:#ea580c;
   --teal-bg:#f0fdfa;--plum-bg:#faf5ff;--rust-bg:#fff1f2;
   --forest-bg:#f0fdf4;--cobalt-bg:#eff6ff;--slate-bg:#f8fafc;
   --g50:#f8fafc;--g200:#e2e8f0;--g700:#334155
@@ -721,9 +722,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qr-btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border)}
 
 /* ── NUR 116 — Two-tab study guide ── */
-.n116-wrap{padding:20px 24px 8px;max-width:1100px;margin:0 auto}
-.n116-tabs{display:flex;gap:4px;background:var(--g50);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px;max-width:560px}
-.n116-tab{flex:1;background:transparent;border:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-muted);transition:background .15s,color .15s;white-space:nowrap}
+.n116-wrap{padding:20px 24px 8px;max-width:1200px;margin:0 auto}
+/* Full-width tab bar */
+.n116-tabs{display:flex;gap:4px;background:var(--g50);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px;width:100%}
+.n116-tab{flex:1;background:transparent;border:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-muted);transition:background .15s,color .15s;white-space:nowrap}
 .n116-tab:hover{color:var(--text);background:rgba(0,0,0,.03)}
 .n116-tab.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(79,126,248,.4)}
 .n116-search-wrap{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
@@ -763,49 +765,61 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .tcard-body .g2,.tcard-body .g3{margin-bottom:8px}
 /* Section is always open; hide for search-no-match */
 .n116-sec.hidden{display:none}
-/* Tighter spacing than default study-sec to match NUR 118 visual density */
-.n116-sec{padding:10px 16px 0;margin-bottom:0}
-.n116-sec .sec-hdr{font-size:15px;padding:10px 16px;margin-bottom:10px;border-radius:10px}
-.n116-sec .sec-hdr .lec-tag{font-size:10px;padding:2px 8px}
-.n116-sec .pg{padding:14px 16px;margin-bottom:10px;border-radius:10px}
-.n116-sec .obj{padding:8px 12px;margin-bottom:10px;font-size:12px;border-radius:6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.n116-sec .obj h4{font-size:12px;margin-bottom:0;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
-.n116-sec .obj p{margin:0;flex:1;min-width:200px}
-.n116-sec .card{padding:9px 12px;font-size:12px;border-radius:8px}
-.n116-sec .card h4{font-size:12px;margin-bottom:4px}
-.n116-sec .card p{margin-bottom:3px;line-height:1.4}
+/* Match NUR 118 visual density: bigger cards, generous section spacing */
+.n116-sec{padding:0;margin-bottom:32px}
+.n116-sec .sec-hdr{font-size:17px;padding:14px 20px;margin-bottom:0;border-radius:12px 12px 0 0}
+.n116-sec .sec-hdr .lec-tag{font-size:11px;padding:3px 9px}
+.n116-sec .pg{padding:22px 24px;margin-bottom:0;border-radius:0 0 12px 12px}
+/* Italic objective subtitle (sits directly under the section header, no border box) */
+.n116-sec .n116-sec-obj{font-size:13px;color:var(--text-muted);margin:0 0 18px;line-height:1.5}
+.n116-sec .n116-sec-obj em{font-style:italic}
+/* Bold topic sub-labels (NOT colored boxes) — divider between topics inside a section */
+.n116-sec .n116-topic{margin-bottom:22px}
+.n116-sec .n116-topic:last-child{margin-bottom:0}
+.n116-sec .n116-topic-label{font-size:14px;font-weight:700;color:var(--text);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--border);letter-spacing:.01em}
+/* Cards — generous padding so content has breathing room */
+.n116-sec .card{padding:18px 18px;font-size:13px;border-radius:10px}
+.n116-sec .card h4{font-size:13px;margin-bottom:8px;font-weight:700}
+.n116-sec .card p{margin-bottom:6px;line-height:1.5}
 .n116-sec .card p:last-child{margin-bottom:0}
-.n116-sec .card ul,.n116-sec .card ol{padding-left:16px}
-.n116-sec .card li{margin-bottom:1px;line-height:1.4}
-.n116-sec .band-card{border-radius:8px}
-.n116-sec .band-card .band-head{padding:7px 12px;font-size:12px}
-.n116-sec .band-card .band-body{padding:9px 12px;font-size:12px;line-height:1.45}
-.n116-sec .band-card .band-body p{margin-bottom:4px}
-.n116-sec .band-card .band-body ul,.n116-sec .band-card .band-body ol{padding-left:16px;margin-bottom:4px}
-.n116-sec .band-card .band-body li{margin-bottom:1px;line-height:1.4}
-.n116-sec .g2,.n116-sec .g3{gap:8px;margin-bottom:8px;align-items:start}
-.n116-sec .warn,.n116-sec .mnem{padding:8px 12px;font-size:12px;margin:8px 0;border-radius:6px;line-height:1.45}
-.n116-sec .ts{margin-bottom:8px;border-radius:6px}
-.n116-sec table{font-size:12px}
-.n116-sec th{padding:6px 10px}
-.n116-sec td{padding:6px 10px}
-/* Category color theming — cards & band-cards inside a section pick up section color */
-.n116-clinical .card{border-top:3px solid var(--teal);background:var(--teal-bg)}
-.n116-clinical .band-card .band-head{background:var(--teal)}
-.n116-clinical .ts th{background:var(--teal)}
-.n116-clinical .obj{border-left-color:var(--teal)}
-.n116-legal .card{border-top:3px solid var(--rust);background:var(--rust-bg)}
-.n116-legal .band-card .band-head{background:var(--rust)}
-.n116-legal .ts th{background:var(--rust)}
-.n116-legal .obj{border-left-color:var(--rust)}
-.n116-psycho .card{border-top:3px solid var(--plum);background:var(--plum-bg)}
-.n116-psycho .band-card .band-head{background:var(--plum)}
-.n116-psycho .ts th{background:var(--plum)}
-.n116-psycho .obj{border-left-color:var(--plum)}
-.n116-pro .card{border-top:3px solid var(--cobalt);background:var(--cobalt-bg)}
-.n116-pro .band-card .band-head{background:var(--cobalt)}
-.n116-pro .ts th{background:var(--cobalt)}
-.n116-pro .obj{border-left-color:var(--cobalt)}
+.n116-sec .card ul,.n116-sec .card ol{padding-left:18px;margin-bottom:6px}
+.n116-sec .card ul:last-child,.n116-sec .card ol:last-child{margin-bottom:0}
+.n116-sec .card li{margin-bottom:3px;line-height:1.5}
+/* Band-cards — colored header strip + white body */
+.n116-sec .band-card{border-radius:10px}
+.n116-sec .band-card .band-head{padding:10px 16px;font-size:13px}
+.n116-sec .band-card .band-body{padding:14px 16px;font-size:13px;line-height:1.5}
+.n116-sec .band-card .band-body p{margin-bottom:6px}
+.n116-sec .band-card .band-body p:last-child{margin-bottom:0}
+.n116-sec .band-card .band-body ul,.n116-sec .band-card .band-body ol{padding-left:18px;margin-bottom:6px}
+.n116-sec .band-card .band-body ul:last-child,.n116-sec .band-card .band-body ol:last-child{margin-bottom:0}
+.n116-sec .band-card .band-body li{margin-bottom:3px;line-height:1.5}
+.n116-sec .g2,.n116-sec .g3{gap:12px;margin-bottom:12px;align-items:start}
+.n116-sec .g2:last-child,.n116-sec .g3:last-child{margin-bottom:0}
+.n116-sec .warn,.n116-sec .mnem{padding:11px 14px;font-size:13px;margin:12px 0;border-radius:8px;line-height:1.5}
+.n116-sec .ts{margin-bottom:12px;border-radius:8px}
+.n116-sec table{font-size:13px}
+.n116-sec th{padding:9px 12px}
+.n116-sec td{padding:9px 12px}
+/* Per-section color theming — one consistent color for every card/band-card/table inside */
+.n116-color-teal    .card{border-top:3px solid var(--teal);   background:var(--teal-bg)}
+.n116-color-teal    .band-card .band-head,.n116-color-teal    .ts th{background:var(--teal)}
+.n116-color-cobalt  .card{border-top:3px solid var(--cobalt); background:var(--cobalt-bg)}
+.n116-color-cobalt  .band-card .band-head,.n116-color-cobalt  .ts th{background:var(--cobalt)}
+.n116-color-slate   .card{border-top:3px solid var(--slate);  background:var(--slate-bg)}
+.n116-color-slate   .band-card .band-head,.n116-color-slate   .ts th{background:var(--slate)}
+.n116-color-plum    .card{border-top:3px solid var(--plum);   background:var(--plum-bg)}
+.n116-color-plum    .band-card .band-head,.n116-color-plum    .ts th{background:var(--plum)}
+.n116-color-rust    .card{border-top:3px solid var(--rust);   background:var(--rust-bg)}
+.n116-color-rust    .band-card .band-head,.n116-color-rust    .ts th{background:var(--rust)}
+.n116-color-gold    .card{border-top:3px solid var(--gold);   background:#fef3c7}
+.n116-color-gold    .band-card .band-head,.n116-color-gold    .ts th{background:var(--gold)}
+.n116-color-forest  .card{border-top:3px solid var(--forest); background:var(--forest-bg)}
+.n116-color-forest  .band-card .band-head,.n116-color-forest  .ts th{background:var(--forest)}
+.n116-color-orange  .card{border-top:3px solid var(--orange); background:#fff7ed}
+.n116-color-orange  .band-card .band-head,.n116-color-orange  .ts th{background:var(--orange)}
+.n116-color-orange  .sec-hdr.sh-orange{background:var(--orange)}
+.sh-orange{background:var(--orange)}
 @media print{
   .n116-tabs,.n116-search-wrap{display:none!important}
   .n116-tab-pane{display:block!important;page-break-before:always}
@@ -1486,542 +1500,461 @@ var NUR118_SECTIONS=[
    - All cards collapsed by default
    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
 
-/* WRAP-UP PRIORITY \u2014 pulled directly from final exam review slides
-   All marked highYield; bodies use full NUR 118-style layouts (cards, band-cards, warn) */
-var WRAPUP_TOPICS=[
+/* WRAP-UP PRIORITY — 8 grouped sections matching NUR 118's visual structure
+   Each section has one consistent color; topics inside are bold sub-labels
+   followed by content (cards / band-cards / warn boxes). */
+var WRAPUP_SECTIONS=[
 
-  {id:'wu-nursing-process',title:'Nursing Process',cat:'pro',hy:true,
-   obj:'Define interventions, etiology, and the nursing diagnosis \u2014 and explain how they connect',
-   body:
-    '<div class="g3">'
-    +'<div class="card"><h4>Interventions</h4><p>Things <strong>nurses or others</strong> (CNAs, LPNs) do for the patient \u2014 directly or indirectly</p></div>'
-    +'<div class="card"><h4>Etiology</h4><p>The <strong>reason for the problem</strong> AND <strong>where nursing interventions come from</strong></p></div>'
-    +'<div class="card"><h4>Nursing Diagnosis</h4><p>Statement of health status a nurse can <strong>identify, prevent, or treat independently</strong></p><p>Stated in terms of <em>human responses</em> \u2014 reactions to disease, injuries, stressors</p></div>'
-    +'</div>'
-    +'<div class="mnem"><strong>Connection:</strong> Nursing diagnosis identifies the response \u00b7 Etiology explains why \u00b7 Interventions address the etiology \u2014 not the medical diagnosis.</div>'},
+  /* ══ SECTION 1: NUTRITION & FEEDING (teal) ══ */
+  {id:'sec-nutrition',title:'Nutrition & Feeding',color:'teal',
+   obj:'NPO/diet types, dysphagia safety, aspiration, TPN, and feeding tube selection',
+   topics:[
+    {label:'Aspiration',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Who Is at Risk?</div><div class="band-body"><p>All patients on <strong>tube feedings</strong> are at risk for aspiration.</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Symptoms to Watch</div><div class="band-body"><ul><li>Wheezing</li><li>Fever — threshold <strong>38°C (100.4°F)</strong></li><li>Restlessness</li><li>Decreased O₂</li><li>Tachypnea</li></ul></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Priority Action:</strong> STOP the tube feeding immediately · do <strong>NOT</strong> lower the HOB · notify the provider</div>'},
+    {label:'Dysphagia Interventions',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Positioning &amp; Mechanics</div><div class="band-body"><ul>'
+      +'<li>Sit up at <strong>90°</strong></li>'
+      +'<li><strong>Tuck chin</strong> while swallowing</li>'
+      +'<li>Thicken liquids as ordered</li>'
+      +'<li><strong>No straws</strong> — increase aspiration risk</li>'
+      +'<li>Follow bites with liquids</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">During Meals</div><div class="band-body"><ul>'
+      +'<li>Encourage self-feeding</li>'
+      +'<li>Check for <strong>pocketing of food</strong> in cheeks</li>'
+      +'<li>Use assistive devices · dentures in · hearing aids</li>'
+      +'<li>Toilet patient first · remove clutter</li>'
+      +'</ul></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Never lower the HOB</strong> during feeding or for at least <strong>1 hour after</strong> bolus feeding.</div>'},
+    {label:'Therapeutic Diets',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">NPO</div><div class="band-body"><p><strong>Nothing by mouth</strong></p><p>Used for: swallowing difficulties · pre-surgery · aspiration risk prevention</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Clear Liquid</div><div class="band-body"><p>Broth · gelatin · water · clear liquids only</p><p>Foods that can be seen through or melt at room temperature</p><p>Also for nausea / vomiting / diarrhea</p><p><b class="lbl">⚠ Avoid red coloring</b> for colon procedures and tonsillectomies — can be confused with bleeding</p></div></div>'
+      +'</div>'
+      +'<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Full Liquid</div><div class="band-body"><p>Fluids and foods that are liquid <strong>at room temperature</strong></p><p>Ice cream · yogurt · juices · pudding · milkshakes · tea · strained soups · protein shakes · gelatin</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Pureed</div><div class="band-body"><p>Smooth foods <strong>not requiring chewing</strong></p><p>Yogurt · pudding · mashed potatoes · juices without pulp · baby food · pureed meats · broths · ice cream</p></div></div>'
+      +'</div>'},
+    {label:'TPN — Total Parenteral Nutrition',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Administration</div><div class="band-body"><ul>'
+      +'<li>Dietary intake administered <strong>intravenously (IV)</strong></li>'
+      +'<li>Administered into a <strong>large vein through a venous access device</strong></li>'
+      +'<li>For clients <strong>without a functioning GI tract</strong> — TPN may be the only option</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Provides</div><div class="band-body"><p>Proteins · fats · carbohydrates · minerals · electrolytes · vitamins</p><p>Prevents malnutrition or corrects existing malnutrition</p></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Major Complication: Hyperglycemia.</strong> Monitor blood glucose frequently — <strong>even non-diabetic patients may need insulin.</strong></div>'},
+    {label:'Feeding Tubes — Choosing the Right Method',body:
+      '<div class="warn"><strong>All three tubes (NG / NJ / G-tube) carry aspiration risk.</strong></div>'
+      +'<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Aspiration Prevention</div><div class="band-body"><ul>'
+      +'<li>Verify initial placement with <strong>X-ray before first use</strong></li>'
+      +'<li>Check tube placement every <strong>4 hours</strong> by checking pH of gastric contents</li>'
+      +'<li>Check tube feeding tolerance every 4 hours by measuring <strong>residual</strong></li>'
+      +'<li>Follow facility policy for residuals greater than <strong>250 mL</strong></li>'
+      +'<li>Maintain HOB at <strong>30–45°</strong> during feeding</li>'
+      +'<li>Maintain HOB at 30–45° for at least <strong>1 hour</strong> after bolus feedings</li>'
+      +'<li>If aspiration suspected: <strong>stop the tube feeding immediately</strong> · notify provider</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">How to Choose the Right Method</div><div class="band-body"><ol>'
+      +'<li><b class="lbl">Step 1:</b> GI tract non-functioning? → <strong>TPN</strong></li>'
+      +'<li><b class="lbl">Step 2:</b> Can patient swallow? No → feeding tube → Step 3</li>'
+      +'<li><b class="lbl">Step 3:</b> Long-term? → <strong>G-tube</strong> regardless of reason</li>'
+      +'<li><b class="lbl">Step 4 (short-term):</b> Stomach works? → <strong>NG</strong> · stomach can\'t tolerate → <strong>NJ</strong></li>'
+      +'</ol></div></div>'
+      +'</div>'
+      +'<div class="mnem"><strong>Trigger words:</strong> "long-term / permanent / unable to consume enough nutrition on their own" → <strong>G-tube</strong> · "delayed gastric emptying / stomach intolerance" → <strong>NJ</strong> · GI non-functioning → <strong>TPN</strong></div>'},
+    {label:'NG Tube',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Placement &amp; Uses</div><div class="band-body"><ul>'
+      +'<li>Can be placed by <strong>nurses at the bedside</strong></li>'
+      +'<li><strong>Decompress the abdomen</strong></li>'
+      +'<li>Deliver <strong>tube feedings and medication</strong></li>'
+      +'<li>Remove stomach contents (poison, OD)</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Verifying Placement</div><div class="band-body"><ul>'
+      +'<li>Check placement initially with <strong>X-ray</strong></li>'
+      +'<li>After initial X-ray: aspirate <strong>stomach contents and check pH</strong> every 4 hours</li>'
+      +'</ul></div></div>'
+      +'</div>'},
+    {label:'Vitamins',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Fat-Soluble (A, D, E, K)</div><div class="band-body"><p><strong>Fat is needed in the diet to absorb fat-soluble vitamins</strong></p><p>Stored in liver and fatty tissue</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Water-Soluble (C and B complex)</div><div class="band-body"><p><strong>NOT stored in the body</strong></p><p>Must be replaced regularly through diet</p></div></div>'
+      +'</div>'}
+   ]},
 
-  {id:'wu-aspiration',title:'Aspiration',cat:'clinical',hy:true,
-   obj:'Recognize aspiration risk in tube-fed patients and execute the priority response',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Who Is at Risk?</div><div class="band-body"><p>All patients on <strong>tube feedings</strong> are at risk for aspiration.</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Symptoms to Watch</div><div class="band-body"><ul><li>Wheezing</li><li>Fever \u2014 threshold <strong>38\u00b0C (100.4\u00b0F)</strong></li><li>Restlessness</li><li>Decreased O\u2082</li><li>Tachypnea</li></ul></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>\u26a0 Priority Action:</strong> STOP the tube feeding immediately \u00b7 do <strong>NOT</strong> lower the HOB \u00b7 notify the provider</div>'},
+  /* ══ SECTION 2: ELIMINATION (cobalt) ══ */
+  {id:'sec-elimination',title:'Elimination',color:'cobalt',
+   obj:'Foley care, urine and stool specimen collection, constipation and fecal impaction',
+   topics:[
+    {label:'Foley Catheter',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Indications</div><div class="band-body"><ul>'
+      +'<li>Urinary retention</li>'
+      +'<li>Surgical procedures</li>'
+      +'<li>Patients with large wounds where urine contacts the wound and impedes healing</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Care &amp; Maintenance</div><div class="band-body"><ul>'
+      +'<li>Keep bag <strong>below the bladder</strong> — never on the floor</li>'
+      +'<li>Tape catheter to patient\'s leg to secure</li>'
+      +'<li>Maintain a <strong>closed drainage system</strong></li>'
+      +'<li>Clean around the meatus <strong>at least once daily</strong> with soap and water — more often if soiled</li>'
+      +'</ul></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Anchoring</h4><p>Foley remains in the bladder anchored by a <strong>balloon</strong>. Backflow is prevented by gravity drainage — keeping the bag below the bladder reduces CAUTI risk.</p></div>'},
+    {label:'Urine Specimens',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Clean Catch (Midstream)</div><div class="band-body"><ol>'
+      +'<li>Wipe <strong>three times</strong> front-to-back with sanitary wipes</li>'
+      +'<li>Start urinating into the toilet</li>'
+      +'<li>Stop, then collect <strong>midstream</strong> in sterile cup</li>'
+      +'<li><strong>Ask about antibiotic use FIRST</strong> — alters results and delays treatment</li>'
+      +'</ol></div></div>'
+      +'<div class="band-card"><div class="band-head">24-Hour Urine</div><div class="band-body"><ol>'
+      +'<li><strong>DISCARD</strong> first morning void</li>'
+      +'<li>Collect <strong>ALL</strong> urine for the next 24 hours</li>'
+      +'<li>Keep <strong>refrigerated or on ice</strong></li>'
+      +'<li>Evaluates kidney function by measuring chemicals excreted</li>'
+      +'</ol></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Sterile Specimen</h4><p>From an indwelling or straight catheter — <strong>most reliable</strong>; no contamination.</p></div>'},
+    {label:'Stool Specimens',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Fecal Occult Blood (FOBT)</div><div class="band-body"><p>Tests for hidden blood in stool</p><p><b class="lbl">Result:</b> turns <strong>BLUE</strong> if blood is present</p><p><b class="lbl">False positives:</b> red meat · broccoli · beets · turnips · NSAIDs</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Ova &amp; Parasites</div><div class="band-body"><p><strong>Bring to lab IMMEDIATELY</strong></p><p>Parasites die quickly and become difficult to identify if delayed.</p></div></div>'
+      +'</div>'},
+    {label:'Constipation',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Definition &amp; Symptoms</div><div class="band-body">'
+      +'<p><b class="lbl">Definition:</b> fewer than <strong>3 bowel movements per week</strong></p>'
+      +'<p>Stools are <strong>hard, lumpy, and difficult to pass</strong></p>'
+      +'</div></div>'
+      +'<div class="band-card"><div class="band-head">Nursing Interventions</div><div class="band-body"><ul>'
+      +'<li>High-fiber diet</li>'
+      +'<li>Stay well hydrated</li>'
+      +'<li>Encourage exercise</li>'
+      +'<li>Bowel training</li>'
+      +'<li>Stool softeners / laxatives</li>'
+      +'<li>Assist patient to toilet promptly</li>'
+      +'</ul></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Manifestations Requiring Medical Attention:</strong> fever · GI bleeding · abdominal pain · vomiting · low back pain · weight loss</div>'},
+    {label:'Fecal Impaction',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">What It Is</div><div class="band-body"><p>Chronic constipation → hardened stool clumps together → <strong>intestinal obstruction or rectal injury</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Highest Risk</div><div class="band-body"><p>Clients who are <strong>immobile</strong> or have a <strong>nervous system injury</strong></p></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Treatment Sequence</h4><ol><li><strong>Warm mineral oil enema</strong> to loosen stool</li><li><strong>Manual removal</strong></li><li><strong>Surgery</strong> if complete obstruction cannot be cleared</li></ol></div>'}
+   ]},
 
-  {id:'wu-vital-signs',title:'Vital Signs',cat:'clinical',hy:true,
-   obj:'Identify normal ranges and the named departures (tachy/brady, tachy/bradypnea)',
-   body:
-    '<div class="g2">'
-    +'<div class="card"><h4>Normal Ranges</h4>'
-    +'<p><b class="lbl">Temperature:</b> 96.8 \u2013 100.4\u00b0F</p>'
-    +'<p><b class="lbl">Pulse:</b> 60 \u2013 100 bpm</p>'
-    +'<p><b class="lbl">Respirations:</b> 12 \u2013 20 / min</p>'
-    +'<p><b class="lbl">Blood pressure:</b> 120/80 mmHg</p></div>'
-    +'<div class="card"><h4>Named Departures</h4>'
-    +'<p><b class="lbl">Tachycardia:</b> pulse <strong>over 100</strong></p>'
-    +'<p><b class="lbl">Bradycardia:</b> pulse <strong>under 60</strong></p>'
-    +'<p><b class="lbl">Tachypnea:</b> respirations <strong>over 20</strong></p>'
-    +'<p><b class="lbl">Bradypnea:</b> respirations <strong>under 12</strong></p></div>'
-    +'</div>'},
+  /* ══ SECTION 3: PATIENT SAFETY (slate) ══ */
+  {id:'sec-safety',title:'Patient Safety',color:'slate',
+   obj:'Fall risk, pressure injury risk, restraint use, and safe handoff communication',
+   topics:[
+    {label:'Hendrich II Fall Risk Model',body:
+      '<div class="warn"><strong>Higher score = greater risk for falls</strong></div>'
+      +'<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Patient-Specific Risk Factors</div><div class="band-body"><ul>'
+      +'<li>Confusion / Disorientation / Impulsivity</li>'
+      +'<li>Symptomatic Depression</li>'
+      +'<li>Altered Elimination</li>'
+      +'<li>Dizziness / Vertigo</li>'
+      +'<li><strong>Male</strong> gender</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Medication &amp; Mobility</div><div class="band-body"><ul>'
+      +'<li>Any administered <strong>antiepileptics</strong> (anticonvulsants)</li>'
+      +'<li>Any administered <strong>benzodiazepines</strong></li>'
+      +'<li><strong>Get-Up-and-Go Test:</strong> "Rising from a Chair"</li>'
+      +'</ul></div></div>'
+      +'</div>'},
+    {label:'Braden Scale',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>What It Measures</h4><p>Valid and reliable risk assessment tool for <strong>pressure injury risk</strong></p><p><b class="lbl">Lower score = greater risk</b></p></div>'
+      +'<div class="card"><h4>6 Categories</h4><p>Sensory perception · moisture · activity · mobility · nutrition · friction and shear</p></div>'
+      +'</div>'
+      +'<div class="ts"><table><thead><tr><th>Score</th><th>Risk Level</th></tr></thead><tbody>'
+      +'<tr><td>19 – 23</td><td>No risk</td></tr>'
+      +'<tr><td>15 – 18</td><td>Mild risk</td></tr>'
+      +'<tr><td>13 – 14</td><td>Moderate risk</td></tr>'
+      +'<tr><td>10 – 12</td><td>High risk</td></tr>'
+      +'<tr><td>9 or less</td><td><strong>Very high risk</strong></td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Restraints',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Physical Restraints</div><div class="band-body"><p>Ties and straps</p><p><em>Vests, wrist restraints — NOT casts, traction, or holding for a procedure</em></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Chemical Restraints</div><div class="band-body"><p>Medications used to <strong>sedate</strong></p></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ LAST RESORT.</strong> Restraints do <strong>NOT reduce falls</strong> · cause physical harm (pressure ulcers · nerve damage · contractures) and emotional harm (anger · fear · humiliation · diminished self-esteem). ANA standard of care: restraint-free environment is preferred.</div>'},
+    {label:'I-SBAR-R Communication',body:
+      '<div class="ts"><table><thead><tr><th>Letter</th><th>Stands For</th><th>Content</th></tr></thead><tbody>'
+      +'<tr><td><b class="lbl">I</b></td><td>Introductions</td><td>Your name and client care role</td></tr>'
+      +'<tr><td><b class="lbl">S</b></td><td>Situation</td><td>What is currently happening</td></tr>'
+      +'<tr><td><b class="lbl">B</b></td><td>Background</td><td>Pertinent clinical background</td></tr>'
+      +'<tr><td><b class="lbl">A</b></td><td>Assessment</td><td>Brief evaluation of the situation</td></tr>'
+      +'<tr><td><b class="lbl">R</b></td><td>Recommendation</td><td>Suggestions for care</td></tr>'
+      +'<tr><td><b class="lbl">R</b></td><td>Read back / Repeat</td><td>Summarize · allow questions · repeat</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="card"><h4>Handoff Report</h4><p>Should occur <strong>AT THE BEDSIDE</strong>. Covers: background · allergies · medication regimen · condition · anticipated needs · plan of care.</p></div>'}
+   ]},
 
-  {id:'wu-learning-domains',title:'Patient Education \u2014 Learning Domains',cat:'pro',hy:true,
-   obj:'Match teaching strategies to the right learning domain',
-   body:
-    '<div class="g3">'
-    +'<div class="card"><h4>Cognitive</h4><p><b class="lbl">Domain:</b> thinking</p><p>Knowledge \u00b7 understanding \u00b7 recall \u00b7 analysis</p><p><em>Disease processes, medication facts</em></p></div>'
-    +'<div class="card"><h4>Affective</h4><p><b class="lbl">Domain:</b> emotional</p><p>Feelings \u00b7 attitudes \u00b7 values \u00b7 beliefs</p><p><em>Accepting a diagnosis \u00b7 motivation</em></p></div>'
-    +'<div class="card"><h4>Psychomotor</h4><p><b class="lbl">Domain:</b> action</p><p>Physical movement \u00b7 skills \u00b7 coordination \u00b7 use of senses</p><p><em>Hands-on skills \u2014 insulin injection, dressing change</em></p></div>'
-    +'</div>'},
+  /* ══ SECTION 4: PAIN (plum) ══ */
+  {id:'sec-pain',title:'Pain',color:'plum',
+   obj:'Pain types, assessment scales, and opioid pharmacology',
+   topics:[
+    {label:'Pain Types — Acute vs Chronic',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Acute Pain</div><div class="band-body">'
+      +'<p>Sudden or slow onset · <strong>predictable end</strong></p>'
+      +'<p><strong>Less than six months</strong></p>'
+      +'<p><em>Trauma · surgery</em></p>'
+      +'</div></div>'
+      +'<div class="band-card"><div class="band-head">Chronic Pain</div><div class="band-body">'
+      +'<p>Constant or recurring · <strong>no predictable end</strong></p>'
+      +'<p><strong>Longer than six months</strong></p>'
+      +'<p><em>Arthritis · back pain · headaches</em></p>'
+      +'<p>Physically and emotionally debilitating</p>'
+      +'</div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Key:</strong> If acute pain is not addressed, it can become chronic.</div>'},
+    {label:'Pain Scales',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Numeric Rating Scale (0 – 10)</div><div class="band-body"><p><b class="lbl">0:</b> no pain</p><p><b class="lbl">1 – 3:</b> mild</p><p><b class="lbl">4 – 6:</b> moderate</p><p><b class="lbl">7 – 10:</b> severe</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Wong-Baker FACES</div><div class="band-body"><p><strong>Three scales in one</strong> — faces, words, numbers</p><p>Patient picks the face that best represents how they feel</p></div></div>'
+      +'</div>'
+      +'<div class="g2">'
+      +'<div class="band-card"><div class="band-head">FLACC</div><div class="band-body"><p><strong>F</strong>ace · <strong>L</strong>egs · <strong>A</strong>ctivity · <strong>C</strong>ry · <strong>C</strong>onsolability</p><p>Observational tool for children <strong>2 months to 7 years</strong> AND cognitively disabled clients</p></div></div>'
+      +'<div class="band-card"><div class="band-head">CRIES</div><div class="band-body"><p>Observational scale for infants born at <strong>38 weeks gestation or greater</strong></p></div></div>'
+      +'</div>'},
+    {label:'Pain Medication — Opioids',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Mechanism &amp; Use</div><div class="band-body"><ul>'
+      +'<li>Most commonly prescribed for relief of pain</li>'
+      +'<li>Suppress pain by activating opioid receptors in the <strong>brain, spinal cord, and CNS</strong></li>'
+      +'<li>Come from <strong>natural</strong> (poppy plant) and <strong>synthetic</strong> sources</li>'
+      +'<li>Can lead to addiction if misused — careful titration and monitoring required</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Side Effects &amp; Monitoring</div><div class="band-body"><ul>'
+      +'<li>Sedation AND <strong>respiratory depression</strong></li>'
+      +'<li>Nausea / vomiting · constipation · itching · rashes · flushing</li>'
+      +'<li><b class="lbl">MONITOR:</b> respiratory rate · blood pressure (orthostatic hypotension)</li>'
+      +'</ul></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>PCA (Patient-Controlled Analgesia)</h4><p>Used <strong>postoperatively</strong>. Client presses a button for a small bolus at a basal/continuous rate as ordered. Check pump constantly for tampering.</p></div>'}
+   ]},
 
-  {id:'wu-other-professionals',title:'Other Professionals',cat:'pro',hy:true,
-   obj:'Match each interprofessional role to its scope of practice',
-   body:
-    '<div class="g3">'
-    +'<div class="card"><h4>Physical Therapist (PT)</h4><p>Improves movement and alleviates pain</p><p><strong>GROSS motor skills</strong> \u2014 walking, balance, strength</p></div>'
-    +'<div class="card"><h4>Occupational Therapist (OT)</h4><p>Recover or develop skills for daily living and return to work</p><p><strong>FINE motor skills</strong> \u2014 dressing, cooking, writing</p></div>'
-    +'<div class="card"><h4>Respiratory Therapist (RT)</h4><p>Manages oxygen and oxygenation devices</p><p>Ventilator settings \u00b7 respiratory treatments</p></div>'
-    +'<div class="card"><h4>Speech Therapist</h4><p>Communication / speaking impairments</p><p><strong>AND swallowing disorders</strong></p></div>'
-    +'<div class="card"><h4>Social Worker</h4><p>Collaborates with team to find solutions</p><p>Advocates for resources \u00b7 addresses challenges</p></div>'
-    +'<div class="card"><h4>Assistive Personnel (AP)</h4><p>Nurses\' aides \u2014 unlicensed</p><p><strong>Clinical reasoning CANNOT be delegated to AP</strong></p></div>'
-    +'</div>'},
+  /* ══ SECTION 5: LEGAL & ETHICAL (rust) ══ */
+  {id:'sec-legal',title:'Legal & Ethical',color:'rust',
+   obj:'Ethical principles, informed/implied consent, legal protections, and reportable concepts',
+   topics:[
+    {label:'Ethical Principles',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Autonomy</h4><p>Respect client\'s right to <strong>make own decisions</strong> — including the right to refuse care</p></div>'
+      +'<div class="card"><h4>Beneficence</h4><p><strong>Minimize harm</strong>; practice in a way that benefits the client</p></div>'
+      +'<div class="card"><h4>Nonmaleficence</h4><p><strong>Do no harm</strong></p></div>'
+      +'<div class="card"><h4>Veracity</h4><p>Provide <strong>truthful and accurate</strong> information</p></div>'
+      +'<div class="card"><h4>Fidelity</h4><p>Demonstrate <strong>loyalty</strong> · keep promises · uphold commitments</p></div>'
+      +'<div class="card"><h4>Justice</h4><p><strong>Impartial, fair, equitable</strong> care regardless of age, sex, race, or economic status</p></div>'
+      +'</div>'},
+    {label:'Consent — Informed vs Implied',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Informed Consent</div><div class="band-body"><p>Permission given <strong>voluntarily without coercion</strong> after relevant information is provided</p><p>Patient must be made aware of <strong>risks and benefits</strong></p><p>Client may <strong>withdraw at any time</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Implied Consent</div><div class="band-body"><p>Agreement demonstrated by the client\'s <strong>actions</strong> rather than formal verbal or written consent — client allows themselves to be examined / treated</p><p><b class="lbl">Also applies when</b> patient cannot consent (stroke · hypoglycemic · diminished LOC) and delay poses increased risk to life</p></div></div>'
+      +'</div>'
+      +'<div class="warn"><strong>⚠ Nurse\'s role:</strong> VERIFY and WITNESS the signature — the nurse does <strong>NOT obtain</strong> consent (the provider does).</div>'},
+    {label:'Advance Directives',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Living Will</div><div class="band-body"><p>Document stating <strong>which life-sustaining treatments</strong> the client wishes performed if incapacitated and unable to make decisions.</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Durable POA for Healthcare</div><div class="band-body"><p>Client appoints an <strong>individual</strong> to make healthcare decisions on their behalf if unable to do so.</p></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Nurse\'s Role</h4><p>Federal law requires institutions to provide forms · Nurse <strong>can witness — no attorney needed</strong></p></div>'},
+    {label:'Assault vs Battery',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Assault</div><div class="band-body"><p>Client is made to feel <strong>fearful of harm or offensive contact</strong></p><p><em>Threatened with restraints; no contact required</em></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Battery</div><div class="band-body"><p>An act that <strong>results in actual harm or injury</strong></p><p>Illegally restraining · inappropriate touching · operating on wrong body part</p><p><strong>Most often treated as a criminal offense</strong></p></div></div>'
+      +'</div>'},
+    {label:'Good Samaritan Law',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Protections</div><div class="band-body"><ul>'
+      +'<li>Protects from <strong>negligence claims</strong> when providing care without expectation of payment</li>'
+      +'<li>Enacted to <strong>encourage</strong> healthcare professionals to render aid outside of work</li>'
+      +'<li>A nurse <strong>does NOT have a legal obligation</strong> to provide care outside employment</li>'
+      +'<li>Laws vary by state</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">3 Things That VOID Protection</div><div class="band-body"><ul>'
+      +'<li>Receiving <strong>compensation</strong></li>'
+      +'<li>Being <strong>negligent</strong></li>'
+      +'<li>Practicing <strong>outside scope of practice</strong></li>'
+      +'</ul></div></div>'
+      +'</div>'},
+    {label:'HIPAA',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">What HIPAA Protects</div><div class="band-body"><p>Federal law — <strong>must keep protected health information private</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Exceptions</div><div class="band-body"><ul>'
+      +'<li>Cases of <strong>abuse</strong> reporting</li>'
+      +'<li>Cases of <strong>communicable disease</strong> reporting</li>'
+      +'</ul></div></div>'
+      +'</div>'},
+    {label:'NCLEX & Licensure',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">NCLEX Facts</div><div class="band-body"><ul>'
+      +'<li>Given by the <b class="lbl">NCSBN</b> (National Council of State Boards of Nursing)</li>'
+      +'<li>Passing the NCLEX means the nurse has <strong>MINIMUM COMPETENCY</strong> — not excellence</li>'
+      +'<li>Pass/fail computer adaptive test</li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">Types of Licensure</div><div class="band-body"><ul>'
+      +'<li><b class="lbl">Endorsement:</b> apply to practice in another state</li>'
+      +'<li><b class="lbl">Compact license (NLC):</b> licensed in one compact state = <strong>automatically licensed in all other compact states</strong></li>'
+      +'</ul></div></div>'
+      +'</div>'},
+    {label:'Medicaid vs Medicare',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Medicaid</div><div class="band-body"><p>Insurance for the <strong>poor / low-income individuals</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Medicare</div><div class="band-body"><p>Insurance for the <strong>elderly (65+)</strong></p><p>AND people with <strong>end-stage renal disease</strong> (dialysis patients)</p></div></div>'
+      +'</div>'
+      +'<div class="mnem"><strong>Memory trick:</strong> MedicAID = AID for those in need · MediCARE = CARES for the elderly.</div>'},
+    {label:'Medical Abbreviations',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Trailing Zeros — AVOID</div><div class="band-body"><p>Write <strong>25</strong> NOT 25.0</p><p>Could be misread as <strong>250</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Leading Zeros — ALWAYS USE</div><div class="band-body"><p>Write <strong>0.25</strong> NOT .25</p><p>Could be misread as <strong>25</strong></p></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Joint Commission Rules</h4><p>Each facility establishes its own approved list. <strong>TJC maintains a list of potentially dangerous abbreviations</strong> to avoid.</p></div>'}
+   ]},
 
-  {id:'wu-shared-governance',title:'Shared Governance',cat:'pro',hy:true,
-   obj:'Describe shared governance and the clinical outcomes associated with it',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Definition</div><div class="band-body"><p>Shared decision-making structure giving nurses <strong>control over their own practice</strong></p><p>Based on the premise that nurses will have access to <em>resources, information, data, and growth opportunities</em></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Goal &amp; Outcomes</div><div class="band-body"><p><b class="lbl">Goal:</b> take nurses from the <strong>point of care</strong> to the <strong>decision-making table</strong></p><p><b class="lbl">Most significant findings:</b></p><ul><li>Improved client outcomes</li><li>Better work environments</li><li>Higher job satisfaction</li></ul></div></div>'
-    +'</div>'},
+  /* ══ SECTION 6: STRESS, GRIEF & PSYCH (gold/amber) ══ */
+  {id:'sec-stress',title:'Stress, Grief & Psych',color:'gold',
+   obj:'Stress disorders, the body\'s stress response, types of stressors, and grief stages and types',
+   topics:[
+    {label:'Stress Disorders — ASD vs PTSD',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Acute Stress Disorder (ASD)</div><div class="band-body"><ul>'
+      +'<li>Results from an <strong>overwhelming traumatic event</strong> causing intense and dysfunctional reaction</li>'
+      +'<li>Exposure to a frightening / traumatic event</li>'
+      +'<li><strong>If symptoms last beyond 1 month → diagnosed as PTSD</strong></li>'
+      +'</ul></div></div>'
+      +'<div class="band-card"><div class="band-head">PTSD</div><div class="band-body"><ul>'
+      +'<li>Prolonged and heightened stress reaction lasting <strong>more than 1 month</strong></li>'
+      +'<li>Most trauma-exposed individuals do <strong>NOT</strong> develop PTSD</li>'
+      +'<li>Symptoms may be <strong>delayed days, months, or years</strong></li>'
+      +'<li>Can become chronic and debilitating</li>'
+      +'</ul></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>Manifestations of PTSD</h4><p>Recurring flashbacks · nightmares · sweating · increased heart rate · exaggerated startle response to noises or experiences reminding of trauma</p></div>'},
+    {label:'Physiological Response to Stress',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Cardiovascular</h4><p>↑ Blood pressure</p><p>↑ Heart rate</p></div>'
+      +'<div class="card"><h4>Respiratory</h4><p>↑ Oxygen consumption (tachypnea)</p><p>Bronchial tubes <strong>dilate</strong></p></div>'
+      +'<div class="card"><h4>Metabolic</h4><p>↑ Blood sugar</p></div>'
+      +'<div class="card"><h4>CNS / Sensory</h4><p>Pupil <strong>dilation</strong></p><p>↑ Alertness</p></div>'
+      +'</div>'},
+    {label:'Types of Stress',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Situational</h4><p>Personal, family, or work-related issues</p><p><em>Illness diagnosis · financial strain · MVA · death of family member</em></p><p><b class="lbl">Includes moral distress</b> — when nurse\'s actions differ from what they feel is ethically correct</p></div>'
+      +'<div class="card"><h4>Developmental</h4><p>Occur as the individual moves through <strong>life stages</strong></p><p><em>Puberty · becoming a parent · retirement</em></p></div>'
+      +'<div class="card"><h4>Adventitious (Disaster Events)</h4><p><strong>Rare and unexpected</strong></p><p>Natural disasters · interpersonal disasters (assault) · acts of terrorism</p></div>'
+      +'<div class="card"><h4>Socioeconomic</h4><p>Poverty · homelessness · low SES</p></div>'
+      +'</div>'
+      +'<div class="card"><h4>Cultural</h4><p>Living in a society where one does not culturally fit · receiving care that ignores cultural beliefs</p></div>'},
+    {label:'Grief — Kübler-Ross 5 Stages',body:
+      '<div class="warn"><strong>⚠ NOT sequential</strong> — patients move back and forth between stages.</div>'
+      +'<div class="g3">'
+      +'<div class="card"><h4>1 — Denial</h4><p>Refuses to believe reality; attempt to <strong>lessen pain</strong></p><p><em>Numbness and shock</em></p></div>'
+      +'<div class="card"><h4>2 — Anger</h4><p>Normal and necessary; <strong>releases emotional discomfort</strong></p><p>Blames others — targets loved ones, family, close friends</p></div>'
+      +'<div class="card"><h4>3 — Bargaining</h4><p>Negotiates with higher power</p><p><em>"I promise I will be a better person if you let this person live"</em></p></div>'
+      +'<div class="card"><h4>4 — Depression</h4><p>Reality sets in · loss deeply felt · numbness · immense loss</p><p>May withdraw · questions if worth continuing alone — natural and appropriate</p></div>'
+      +'<div class="card"><h4>5 — Acceptance</h4><p>Still feels pain but realizes <strong>all will eventually be well</strong></p></div>'
+      +'</div>'},
+    {label:'Grief — Types',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Normal Grief</div><div class="band-body"><p>Several months to a year · lessens over time</p><p>Sadness · guilt · yearning · anger · regret</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Anticipatory Grief</div><div class="band-body"><p>Experienced <strong>BEFORE</strong> an expected loss</p><p>Sadness · anger · loneliness · guilt · anxiety · fatigue</p></div></div>'
+      +'</div>'
+      +'<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Prolonged Grief Disorder</div><div class="band-body"><p>Lasts <strong>longer than 6 months</strong> · significantly affects ability to function</p><p>Unable to accept death · preoccupied with deceased</p></div></div>'
+      +'<div class="band-card"><div class="band-head">Disenfranchised Grief</div><div class="band-body"><p>Grief for a loss <strong>not recognized by society</strong></p><p>Pet · miscarriage · suicide loss · extramarital relationship</p><p>Grieves alone — risk for depression, isolation, insomnia</p></div></div>'
+      +'</div>'}
+   ]},
 
-  {id:'wu-ethical-principles',title:'Ethical Principles',cat:'legal',hy:true,
-   obj:'Apply all 6 ethical principles to clinical scenarios',
-   body:
-    '<div class="g3">'
-    +'<div class="card"><h4>Autonomy</h4><p>Respect client\'s right to <strong>make own decisions</strong> \u2014 including the right to refuse care</p></div>'
-    +'<div class="card"><h4>Beneficence</h4><p><strong>Minimize harm</strong>; practice in a way that benefits the client</p></div>'
-    +'<div class="card"><h4>Nonmaleficence</h4><p><strong>Do no harm</strong></p></div>'
-    +'<div class="card"><h4>Veracity</h4><p>Provide <strong>truthful and accurate</strong> information</p></div>'
-    +'<div class="card"><h4>Fidelity</h4><p>Demonstrate <strong>loyalty</strong> \u00b7 keep promises \u00b7 uphold commitments</p></div>'
-    +'<div class="card"><h4>Justice</h4><p><strong>Impartial, fair, equitable</strong> care regardless of age, sex, race, or economic status</p></div>'
-    +'</div>'},
+  /* ══ SECTION 7: CLINICAL SKILLS & PROCESS (forest/green) ══ */
+  {id:'sec-clinical',title:'Clinical Skills & Process',color:'forest',
+   obj:'Nursing process, vital sign ranges, shared governance, and pressure injury staging',
+   topics:[
+    {label:'Nursing Process',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Interventions</h4><p>Things <strong>nurses or others</strong> (CNAs, LPNs) do for the patient — directly or indirectly</p></div>'
+      +'<div class="card"><h4>Etiology</h4><p>The <strong>reason for the problem</strong> AND <strong>where nursing interventions come from</strong></p></div>'
+      +'<div class="card"><h4>Nursing Diagnosis</h4><p>Statement of health status a nurse can <strong>identify, prevent, or treat independently</strong></p><p>Stated in terms of <em>human responses</em> — reactions to disease, injuries, stressors</p></div>'
+      +'</div>'
+      +'<div class="mnem"><strong>Connection:</strong> Nursing diagnosis identifies the response · Etiology explains why · Interventions address the etiology — not the medical diagnosis.</div>'},
+    {label:'Vital Signs',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Normal Ranges</h4>'
+      +'<p><b class="lbl">Temperature:</b> 96.8 – 100.4°F</p>'
+      +'<p><b class="lbl">Pulse:</b> 60 – 100 bpm</p>'
+      +'<p><b class="lbl">Respirations:</b> 12 – 20 / min</p>'
+      +'<p><b class="lbl">Blood pressure:</b> 120/80 mmHg</p></div>'
+      +'<div class="card"><h4>Named Departures</h4>'
+      +'<p><b class="lbl">Tachycardia:</b> pulse <strong>over 100</strong></p>'
+      +'<p><b class="lbl">Bradycardia:</b> pulse <strong>under 60</strong></p>'
+      +'<p><b class="lbl">Tachypnea:</b> respirations <strong>over 20</strong></p>'
+      +'<p><b class="lbl">Bradypnea:</b> respirations <strong>under 12</strong></p></div>'
+      +'</div>'},
+    {label:'Shared Governance',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Definition</div><div class="band-body"><p>Shared decision-making structure giving nurses <strong>control over their own practice</strong></p><p>Based on the premise that nurses will have access to <em>resources, information, data, and growth opportunities</em></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Goal &amp; Outcomes</div><div class="band-body"><p><b class="lbl">Goal:</b> take nurses from the <strong>point of care</strong> to the <strong>decision-making table</strong></p><p><b class="lbl">Most significant findings:</b></p><ul><li>Improved client outcomes</li><li>Better work environments</li><li>Higher job satisfaction</li></ul></div></div>'
+      +'</div>'},
+    {label:'Pressure Injury Stages',body:
+      '<div class="ts"><table><thead><tr><th>Stage</th><th>Description</th></tr></thead><tbody>'
+      +'<tr><td><b class="lbl">Stage 1</b></td><td>Nonblanchable erythema of <strong>intact skin</strong></td></tr>'
+      +'<tr><td><b class="lbl">Stage 2</b></td><td>Partial-thickness skin loss with exposed dermis</td></tr>'
+      +'<tr><td><b class="lbl">Stage 3</b></td><td>Full-thickness skin loss (fat may be visible — <strong>no</strong> bone/tendon/muscle)</td></tr>'
+      +'<tr><td><b class="lbl">Stage 4</b></td><td>Full-thickness skin and tissue loss (<strong>bone/tendon/muscle exposed</strong>)</td></tr>'
+      +'<tr><td><b class="lbl">Unstageable</b></td><td>Obscured full-thickness loss — covered by <strong>slough or eschar</strong></td></tr>'
+      +'<tr><td><b class="lbl">DTPI</b></td><td>Deep Tissue Pressure Injury — persistent <strong>nonblanchable deep red, maroon, or purple</strong> discoloration</td></tr>'
+      +'</tbody></table></div>'}
+   ]},
 
-  {id:'wu-stress-disorders',title:'Stress Disorders \u2014 ASD vs PTSD',cat:'psycho',hy:true,
-   obj:'Differentiate Acute Stress Disorder from PTSD by timing and presentation',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Acute Stress Disorder (ASD)</div><div class="band-body"><ul>'
-    +'<li>Results from an <strong>overwhelming traumatic event</strong> causing intense and dysfunctional reaction</li>'
-    +'<li>Exposure to a frightening / traumatic event</li>'
-    +'<li><strong>If symptoms last beyond 1 month \u2192 diagnosed as PTSD</strong></li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">PTSD</div><div class="band-body"><ul>'
-    +'<li>Prolonged and heightened stress reaction lasting <strong>more than 1 month</strong></li>'
-    +'<li>Most trauma-exposed individuals do <strong>NOT</strong> develop PTSD</li>'
-    +'<li>Symptoms may be <strong>delayed days, months, or years</strong></li>'
-    +'<li>Can become chronic and debilitating</li>'
-    +'</ul></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Manifestations of PTSD</h4><p>Recurring flashbacks \u00b7 nightmares \u00b7 sweating \u00b7 increased heart rate \u00b7 exaggerated startle response to noises or experiences reminding of trauma</p></div>'},
-
-  {id:'wu-hendrich-fall',title:'Hendrich II Fall Risk Model',cat:'clinical',hy:true,
-   obj:'Identify the 8 risk criteria scored by the Hendrich II',
-   body:
-    '<div class="warn"><strong>Higher score = greater risk for falls</strong></div>'
-    +'<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Patient-Specific Risk Factors</div><div class="band-body"><ul>'
-    +'<li>Confusion / Disorientation / Impulsivity</li>'
-    +'<li>Symptomatic Depression</li>'
-    +'<li>Altered Elimination</li>'
-    +'<li>Dizziness / Vertigo</li>'
-    +'<li><strong>Male</strong> gender</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Medication &amp; Mobility</div><div class="band-body"><ul>'
-    +'<li>Any administered <strong>antiepileptics</strong> (anticonvulsants)</li>'
-    +'<li>Any administered <strong>benzodiazepines</strong></li>'
-    +'<li><strong>Get-Up-and-Go Test:</strong> "Rising from a Chair"</li>'
-    +'</ul></div></div>'
-    +'</div>'},
-
-  {id:'wu-physio-stress',title:'Physiological Response to Stress',cat:'psycho',hy:true,
-   obj:'Recognize the body\'s sympathetic stress response on assessment',
-   body:
-    '<div class="g3">'
-    +'<div class="card"><h4>Cardiovascular</h4><p>\u2191 Blood pressure</p><p>\u2191 Heart rate</p></div>'
-    +'<div class="card"><h4>Respiratory</h4><p>\u2191 Oxygen consumption (tachypnea)</p><p>Bronchial tubes <strong>dilate</strong></p></div>'
-    +'<div class="card"><h4>Metabolic</h4><p>\u2191 Blood sugar</p></div>'
-    +'<div class="card"><h4>CNS / Sensory</h4><p>Pupil <strong>dilation</strong></p><p>\u2191 Alertness</p></div>'
-    +'</div>'},
-
-  {id:'wu-dysphagia',title:'Dysphagia Interventions',cat:'clinical',hy:true,
-   obj:'Apply safe-feeding interventions to reduce aspiration risk in dysphagia',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Positioning &amp; Mechanics</div><div class="band-body"><ul>'
-    +'<li>Sit up at <strong>90\u00b0</strong></li>'
-    +'<li><strong>Tuck chin</strong> while swallowing</li>'
-    +'<li>Thicken liquids as ordered</li>'
-    +'<li><strong>No straws</strong> \u2014 increase aspiration risk</li>'
-    +'<li>Follow bites with liquids</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">During Meals</div><div class="band-body"><ul>'
-    +'<li>Encourage self-feeding</li>'
-    +'<li>Check for <strong>pocketing of food</strong> in cheeks</li>'
-    +'<li>Use assistive devices \u00b7 dentures in \u00b7 hearing aids</li>'
-    +'<li>Toilet patient first \u00b7 remove clutter</li>'
-    +'</ul></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>\u26a0 Never lower the HOB</strong> during feeding or for at least <strong>1 hour after</strong> bolus feeding.</div>'},
-
-  {id:'wu-foley',title:'Foley Catheter',cat:'clinical',hy:true,
-   obj:'Care safely for an indwelling Foley \u2014 bag placement, securement, infection prevention',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Indications</div><div class="band-body"><ul>'
-    +'<li>Urinary retention</li>'
-    +'<li>Surgical procedures</li>'
-    +'<li>Patients with large wounds where urine contacts the wound and impedes healing</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Care &amp; Maintenance</div><div class="band-body"><ul>'
-    +'<li>Keep bag <strong>below the bladder</strong> \u2014 never on the floor</li>'
-    +'<li>Tape catheter to patient\'s leg to secure</li>'
-    +'<li>Maintain a <strong>closed drainage system</strong></li>'
-    +'<li>Clean around the meatus <strong>at least once daily</strong> with soap and water \u2014 more often if soiled</li>'
-    +'</ul></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Anchoring</h4><p>Foley remains in the bladder anchored by a <strong>balloon</strong>. Backflow is prevented by gravity drainage \u2014 keeping the bag below the bladder reduces CAUTI risk.</p></div>'},
-
-  {id:'wu-urine-specimens',title:'Urine Specimens',cat:'clinical',hy:true,
-   obj:'Collect a clean-catch and a 24-hour urine correctly',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Clean Catch (Midstream)</div><div class="band-body"><ol>'
-    +'<li>Wipe <strong>three times</strong> front-to-back with sanitary wipes</li>'
-    +'<li>Start urinating into the toilet</li>'
-    +'<li>Stop, then collect <strong>midstream</strong> in sterile cup</li>'
-    +'<li><strong>Ask about antibiotic use FIRST</strong> \u2014 alters results and delays treatment</li>'
-    +'</ol></div></div>'
-    +'<div class="band-card"><div class="band-head">24-Hour Urine</div><div class="band-body"><ol>'
-    +'<li><strong>DISCARD</strong> first morning void</li>'
-    +'<li>Collect <strong>ALL</strong> urine for the next 24 hours</li>'
-    +'<li>Keep <strong>refrigerated or on ice</strong></li>'
-    +'<li>Evaluates kidney function by measuring chemicals excreted</li>'
-    +'</ol></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Sterile Specimen</h4><p>From an indwelling or straight catheter \u2014 <strong>most reliable</strong>; no contamination.</p></div>'},
-
-  {id:'wu-stool-specimens',title:'Stool Specimens',cat:'clinical',hy:true,
-   obj:'Collect FOBT and ova/parasite specimens correctly',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Fecal Occult Blood (FOBT)</div><div class="band-body"><p>Tests for hidden blood in stool</p><p><b class="lbl">Result:</b> turns <strong>BLUE</strong> if blood is present</p><p><b class="lbl">False positives:</b> red meat \u00b7 broccoli \u00b7 beets \u00b7 turnips \u00b7 NSAIDs</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Ova &amp; Parasites</div><div class="band-body"><p><strong>Bring to lab IMMEDIATELY</strong></p><p>Parasites die quickly and become difficult to identify if delayed.</p></div></div>'
-    +'</div>'},
-
-  {id:'wu-diets',title:'Therapeutic Diets',cat:'clinical',hy:true,
-   obj:'Match the right consistency and restriction to the clinical scenario',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">NPO</div><div class="band-body"><p><strong>Nothing by mouth</strong></p><p>Used for: swallowing difficulties \u00b7 pre-surgery \u00b7 aspiration risk prevention</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Clear Liquid</div><div class="band-body"><p>Broth \u00b7 gelatin \u00b7 water \u00b7 clear liquids only</p><p>Foods that can be seen through or melt at room temperature</p><p>Also for nausea / vomiting / diarrhea</p><p><b class="lbl">\u26a0 Avoid red coloring</b> for colon procedures and tonsillectomies \u2014 can be confused with bleeding</p></div></div>'
-    +'</div>'
-    +'<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Full Liquid</div><div class="band-body"><p>Fluids and foods that are liquid <strong>at room temperature</strong></p><p>Ice cream \u00b7 yogurt \u00b7 juices \u00b7 pudding \u00b7 milkshakes \u00b7 tea \u00b7 strained soups \u00b7 protein shakes \u00b7 gelatin</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Pureed</div><div class="band-body"><p>Smooth foods <strong>not requiring chewing</strong></p><p>Yogurt \u00b7 pudding \u00b7 mashed potatoes \u00b7 juices without pulp \u00b7 baby food \u00b7 pureed meats \u00b7 broths \u00b7 ice cream</p></div></div>'
-    +'</div>'},
-
-  {id:'wu-stress-types',title:'Types of Stress',cat:'psycho',hy:true,
-   obj:'Categorize stressors and recognize moral distress in nursing',
-   body:
-    '<div class="g2">'
-    +'<div class="card"><h4>Situational</h4><p>Personal, family, or work-related issues</p><p><em>Illness diagnosis \u00b7 financial strain \u00b7 MVA \u00b7 death of family member</em></p><p><b class="lbl">Includes moral distress</b> \u2014 when nurse\'s actions differ from what they feel is ethically correct</p></div>'
-    +'<div class="card"><h4>Developmental</h4><p>Occur as the individual moves through <strong>life stages</strong></p><p><em>Puberty \u00b7 becoming a parent \u00b7 retirement</em></p></div>'
-    +'<div class="card"><h4>Adventitious (Disaster Events)</h4><p><strong>Rare and unexpected</strong></p><p>Natural disasters \u00b7 interpersonal disasters (assault) \u00b7 acts of terrorism</p></div>'
-    +'<div class="card"><h4>Socioeconomic</h4><p>Poverty \u00b7 homelessness \u00b7 low SES</p></div>'
-    +'</div>'
-    +'<div class="card"><h4>Cultural</h4><p>Living in a society where one does not culturally fit \u00b7 receiving care that ignores cultural beliefs</p></div>'},
-
-  {id:'wu-cam',title:'Alternative vs Complementary Therapy',cat:'clinical',hy:true,
-   obj:'Distinguish complementary from alternative therapy',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Complementary</div><div class="band-body"><p>Done <strong>IN CONJUNCTION WITH</strong> prescribed treatment.</p><p><em>Music therapy alongside chemotherapy</em></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Alternative</div><div class="band-body"><p>Done <strong>INSTEAD OF</strong> prescribed treatment.</p><p><em>Herbal regimen replacing prescribed medication</em></p></div></div>'
-    +'</div>'},
-
-  {id:'wu-advance-directives',title:'Advance Directives',cat:'legal',hy:true,
-   obj:'Differentiate a living will from a durable POA for healthcare',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Living Will</div><div class="band-body"><p>Document stating <strong>which life-sustaining treatments</strong> the client wishes performed if incapacitated and unable to make decisions.</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Durable POA for Healthcare</div><div class="band-body"><p>Client appoints an <strong>individual</strong> to make healthcare decisions on their behalf if unable to do so.</p></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Nurse\'s Role</h4><p>Federal law requires institutions to provide forms \u00b7 Nurse <strong>can witness \u2014 no attorney needed</strong></p></div>'},
-
-  {id:'wu-assault-battery',title:'Assault vs Battery',cat:'legal',hy:true,
-   obj:'Distinguish assault from battery in nursing scenarios',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Assault</div><div class="band-body"><p>Client is made to feel <strong>fearful of harm or offensive contact</strong></p><p><em>Threatened with restraints; no contact required</em></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Battery</div><div class="band-body"><p>An act that <strong>results in actual harm or injury</strong></p><p>Illegally restraining \u00b7 inappropriate touching \u00b7 operating on wrong body part</p><p><strong>Most often treated as a criminal offense</strong></p></div></div>'
-    +'</div>'},
-
-  {id:'wu-consent',title:'Consent \u2014 Informed vs Implied',cat:'legal',hy:true,
-   obj:'Apply informed and implied consent to clinical scenarios',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Informed Consent</div><div class="band-body"><p>Permission given <strong>voluntarily without coercion</strong> after relevant information is provided</p><p>Patient must be made aware of <strong>risks and benefits</strong></p><p>Client may <strong>withdraw at any time</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Implied Consent</div><div class="band-body"><p>Agreement demonstrated by the client\'s <strong>actions</strong> rather than formal verbal or written consent \u2014 client allows themselves to be examined / treated</p><p><b class="lbl">Also applies when</b> patient cannot consent (stroke \u00b7 hypoglycemic \u00b7 diminished LOC) and delay poses increased risk to life</p></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>\u26a0 Nurse\'s role:</strong> VERIFY and WITNESS the signature \u2014 the nurse does <strong>NOT obtain</strong> consent (the provider does).</div>'},
-
-  {id:'wu-grief-stages',title:'Grief \u2014 K\u00fcbler-Ross 5 Stages',cat:'psycho',hy:true,
-   obj:'Identify each stage of grief from patient behavior',
-   body:
-    '<div class="warn"><strong>\u26a0 NOT sequential</strong> \u2014 patients move back and forth between stages.</div>'
-    +'<div class="g3">'
-    +'<div class="card"><h4>1 \u2014 Denial</h4><p>Refuses to believe reality; attempt to <strong>lessen pain</strong></p><p><em>Numbness and shock</em></p></div>'
-    +'<div class="card"><h4>2 \u2014 Anger</h4><p>Normal and necessary; <strong>releases emotional discomfort</strong></p><p>Blames others \u2014 targets loved ones, family, close friends</p></div>'
-    +'<div class="card"><h4>3 \u2014 Bargaining</h4><p>Negotiates with higher power</p><p><em>"I promise I will be a better person if you let this person live"</em></p></div>'
-    +'<div class="card"><h4>4 \u2014 Depression</h4><p>Reality sets in \u00b7 loss deeply felt \u00b7 numbness \u00b7 immense loss</p><p>May withdraw \u00b7 questions if worth continuing alone \u2014 natural and appropriate</p></div>'
-    +'<div class="card"><h4>5 \u2014 Acceptance</h4><p>Still feels pain but realizes <strong>all will eventually be well</strong></p></div>'
-    +'</div>'},
-
-];
-
-var WRAPUP_TOPICS_PART2=[
-
-  {id:'wu-grief-types',title:'Grief — Types',cat:'psycho',hy:true,
-   obj:'Differentiate normal, anticipatory, prolonged, and disenfranchised grief',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Normal Grief</div><div class="band-body"><p>Several months to a year · lessens over time</p><p>Sadness · guilt · yearning · anger · regret</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Anticipatory Grief</div><div class="band-body"><p>Experienced <strong>BEFORE</strong> an expected loss</p><p>Sadness · anger · loneliness · guilt · anxiety · fatigue</p></div></div>'
-    +'</div>'
-    +'<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Prolonged Grief Disorder</div><div class="band-body"><p>Lasts <strong>longer than 6 months</strong> · significantly affects ability to function</p><p>Unable to accept death · preoccupied with deceased</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Disenfranchised Grief</div><div class="band-body"><p>Grief for a loss <strong>not recognized by society</strong></p><p>Pet · miscarriage · suicide loss · extramarital relationship</p><p>Grieves alone — risk for depression, isolation, insomnia</p></div></div>'
-    +'</div>'},
-
-  {id:'wu-ng-tube',title:'NG Tube',cat:'clinical',hy:true,
-   obj:'Describe NG tube placement, uses, and verification',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Placement &amp; Uses</div><div class="band-body"><ul>'
-    +'<li>Can be placed by <strong>nurses at the bedside</strong></li>'
-    +'<li><strong>Decompress the abdomen</strong></li>'
-    +'<li>Deliver <strong>tube feedings and medication</strong></li>'
-    +'<li>Remove stomach contents (poison, OD)</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Verifying Placement</div><div class="band-body"><ul>'
-    +'<li>Check placement initially with <strong>X-ray</strong></li>'
-    +'<li>After initial X-ray: aspirate <strong>stomach contents and check pH</strong> every 4 hours</li>'
-    +'</ul></div></div>'
-    +'</div>'},
-
-  {id:'wu-constipation',title:'Constipation',cat:'clinical',hy:true,
-   obj:'Identify constipation, danger signs, and nursing interventions',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Definition &amp; Symptoms</div><div class="band-body">'
-    +'<p><b class="lbl">Definition:</b> fewer than <strong>3 bowel movements per week</strong></p>'
-    +'<p>Stools are <strong>hard, lumpy, and difficult to pass</strong></p>'
-    +'</div></div>'
-    +'<div class="band-card"><div class="band-head">Nursing Interventions</div><div class="band-body"><ul>'
-    +'<li>High-fiber diet</li>'
-    +'<li>Stay well hydrated</li>'
-    +'<li>Encourage exercise</li>'
-    +'<li>Bowel training</li>'
-    +'<li>Stool softeners / laxatives</li>'
-    +'<li>Assist patient to toilet promptly</li>'
-    +'</ul></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>⚠ Manifestations Requiring Medical Attention:</strong> fever · GI bleeding · abdominal pain · vomiting · low back pain · weight loss</div>'},
-
-  {id:'wu-isbarr',title:'I-SBAR-R',cat:'pro',hy:true,
-   obj:'Use I-SBAR-R for safe handoff and provider communication',
-   body:
-    '<div class="ts"><table><thead><tr><th>Letter</th><th>Stands For</th><th>Content</th></tr></thead><tbody>'
-    +'<tr><td><b class="lbl">I</b></td><td>Introductions</td><td>Your name and client care role</td></tr>'
-    +'<tr><td><b class="lbl">S</b></td><td>Situation</td><td>What is currently happening</td></tr>'
-    +'<tr><td><b class="lbl">B</b></td><td>Background</td><td>Pertinent clinical background</td></tr>'
-    +'<tr><td><b class="lbl">A</b></td><td>Assessment</td><td>Brief evaluation of the situation</td></tr>'
-    +'<tr><td><b class="lbl">R</b></td><td>Recommendation</td><td>Suggestions for care</td></tr>'
-    +'<tr><td><b class="lbl">R</b></td><td>Read back / Repeat</td><td>Summarize · allow questions · repeat</td></tr>'
-    +'</tbody></table></div>'
-    +'<div class="card"><h4>Handoff Report</h4><p>Should occur <strong>AT THE BEDSIDE</strong>. Covers: background · allergies · medication regimen · condition · anticipated needs · plan of care.</p></div>'},
-
-  {id:'wu-restraints',title:'Restraints',cat:'clinical',hy:true,
-   obj:'Differentiate physical and chemical restraints — understand last-resort use',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Physical Restraints</div><div class="band-body"><p>Ties and straps</p><p><em>Vests, wrist restraints — NOT casts, traction, or holding for a procedure</em></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Chemical Restraints</div><div class="band-body"><p>Medications used to <strong>sedate</strong></p></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>⚠ LAST RESORT.</strong> Restraints do <strong>NOT reduce falls</strong> · cause physical harm (pressure ulcers · nerve damage · contractures) and emotional harm (anger · fear · humiliation · diminished self-esteem). ANA standard of care: restraint-free environment is preferred.</div>'},
-
-  {id:'wu-feeding-tubes',title:'Feeding Tubes — Choosing the Right Method',cat:'clinical',hy:true,
-   obj:'Choose the correct feeding route and prevent aspiration',
-   body:
-    '<div class="warn"><strong>All three tubes (NG / NJ / G-tube) carry aspiration risk.</strong></div>'
-    +'<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Aspiration Prevention</div><div class="band-body"><ul>'
-    +'<li>Verify initial placement with <strong>X-ray before first use</strong></li>'
-    +'<li>Check tube placement every <strong>4 hours</strong> by checking pH of gastric contents</li>'
-    +'<li>Check tube feeding tolerance every 4 hours by measuring <strong>residual</strong></li>'
-    +'<li>Follow facility policy for residuals greater than <strong>250 mL</strong></li>'
-    +'<li>Maintain HOB at <strong>30–45°</strong> during feeding</li>'
-    +'<li>Maintain HOB at 30–45° for at least <strong>1 hour</strong> after bolus feedings</li>'
-    +'<li>If aspiration suspected: <strong>stop the tube feeding immediately</strong> · notify provider</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">How to Choose the Right Method</div><div class="band-body"><ol>'
-    +'<li><b class="lbl">Step 1:</b> GI tract non-functioning? → <strong>TPN</strong></li>'
-    +'<li><b class="lbl">Step 2:</b> Can patient swallow? No → feeding tube → Step 3</li>'
-    +'<li><b class="lbl">Step 3:</b> Long-term? → <strong>G-tube</strong> regardless of reason</li>'
-    +'<li><b class="lbl">Step 4 (short-term):</b> Stomach works? → <strong>NG</strong> · stomach can\'t tolerate → <strong>NJ</strong></li>'
-    +'</ol></div></div>'
-    +'</div>'
-    +'<div class="mnem"><strong>Trigger words:</strong> "long-term / permanent / unable to consume enough nutrition on their own" → <strong>G-tube</strong> · "delayed gastric emptying / stomach intolerance" → <strong>NJ</strong> · GI non-functioning → <strong>TPN</strong></div>'},
-
-  {id:'wu-pain',title:'Pain — Acute vs Chronic',cat:'clinical',hy:true,
-   obj:'Differentiate acute and chronic pain by onset, duration, and effect',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Acute Pain</div><div class="band-body">'
-    +'<p>Sudden or slow onset · <strong>predictable end</strong></p>'
-    +'<p><strong>Less than six months</strong></p>'
-    +'<p><em>Trauma · surgery</em></p>'
-    +'</div></div>'
-    +'<div class="band-card"><div class="band-head">Chronic Pain</div><div class="band-body">'
-    +'<p>Constant or recurring · <strong>no predictable end</strong></p>'
-    +'<p><strong>Longer than six months</strong></p>'
-    +'<p><em>Arthritis · back pain · headaches</em></p>'
-    +'<p>Physically and emotionally debilitating</p>'
-    +'</div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>⚠ Key:</strong> If acute pain is not addressed, it can become chronic.</div>'},
-
-  {id:'wu-pressure-stages',title:'Pressure Injury Stages',cat:'clinical',hy:true,
-   obj:'Stage a pressure injury based on tissue depth and visibility',
-   body:
-    '<div class="ts"><table><thead><tr><th>Stage</th><th>Description</th></tr></thead><tbody>'
-    +'<tr><td><b class="lbl">Stage 1</b></td><td>Nonblanchable erythema of <strong>intact skin</strong></td></tr>'
-    +'<tr><td><b class="lbl">Stage 2</b></td><td>Partial-thickness skin loss with exposed dermis</td></tr>'
-    +'<tr><td><b class="lbl">Stage 3</b></td><td>Full-thickness skin loss (fat may be visible — <strong>no</strong> bone/tendon/muscle)</td></tr>'
-    +'<tr><td><b class="lbl">Stage 4</b></td><td>Full-thickness skin and tissue loss (<strong>bone/tendon/muscle exposed</strong>)</td></tr>'
-    +'<tr><td><b class="lbl">Unstageable</b></td><td>Obscured full-thickness loss — covered by <strong>slough or eschar</strong></td></tr>'
-    +'<tr><td><b class="lbl">DTPI</b></td><td>Deep Tissue Pressure Injury — persistent <strong>nonblanchable deep red, maroon, or purple</strong> discoloration</td></tr>'
-    +'</tbody></table></div>'},
-
-  {id:'wu-nclex',title:'NCLEX & Licensure',cat:'pro',hy:true,
-   obj:'Identify NCSBN, what passing the NCLEX means, and types of licensure',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">NCLEX Facts</div><div class="band-body"><ul>'
-    +'<li>Given by the <b class="lbl">NCSBN</b> (National Council of State Boards of Nursing)</li>'
-    +'<li>Passing the NCLEX means the nurse has <strong>MINIMUM COMPETENCY</strong> — not excellence</li>'
-    +'<li>Pass/fail computer adaptive test</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Types of Licensure</div><div class="band-body"><ul>'
-    +'<li><b class="lbl">Endorsement:</b> apply to practice in another state</li>'
-    +'<li><b class="lbl">Compact license (NLC):</b> licensed in one compact state = <strong>automatically licensed in all other compact states</strong></li>'
-    +'</ul></div></div>'
-    +'</div>'},
-
-  {id:'wu-good-samaritan',title:'Good Samaritan Law',cat:'legal',hy:true,
-   obj:'Describe protections and limits of the Good Samaritan Law',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Protections</div><div class="band-body"><ul>'
-    +'<li>Protects from <strong>negligence claims</strong> when providing care without expectation of payment</li>'
-    +'<li>Enacted to <strong>encourage</strong> healthcare professionals to render aid outside of work</li>'
-    +'<li>A nurse <strong>does NOT have a legal obligation</strong> to provide care outside employment</li>'
-    +'<li>Laws vary by state</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">3 Things That VOID Protection</div><div class="band-body"><ul>'
-    +'<li>Receiving <strong>compensation</strong></li>'
-    +'<li>Being <strong>negligent</strong></li>'
-    +'<li>Practicing <strong>outside scope of practice</strong></li>'
-    +'</ul></div></div>'
-    +'</div>'},
-
-  {id:'wu-tpn',title:'TPN — Total Parenteral Nutrition',cat:'clinical',hy:true,
-   obj:'Describe TPN administration, what it provides, and its major complication',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Administration</div><div class="band-body"><ul>'
-    +'<li>Dietary intake administered <strong>intravenously (IV)</strong></li>'
-    +'<li>Administered into a <strong>large vein through a venous access device</strong></li>'
-    +'<li>For clients <strong>without a functioning GI tract</strong> — TPN may be the only option</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Provides</div><div class="band-body"><p>Proteins · fats · carbohydrates · minerals · electrolytes · vitamins</p><p>Prevents malnutrition or corrects existing malnutrition</p></div></div>'
-    +'</div>'
-    +'<div class="warn"><strong>⚠ Major Complication: Hyperglycemia.</strong> Monitor blood glucose frequently — <strong>even non-diabetic patients may need insulin.</strong></div>'},
-
-  {id:'wu-braden',title:'Braden Scale',cat:'clinical',hy:true,
-   obj:'Calculate and interpret the Braden Scale for pressure injury risk',
-   body:
-    '<div class="g2">'
-    +'<div class="card"><h4>What It Measures</h4><p>Valid and reliable risk assessment tool for <strong>pressure injury risk</strong></p><p><b class="lbl">Lower score = greater risk</b></p></div>'
-    +'<div class="card"><h4>6 Categories</h4><p>Sensory perception · moisture · activity · mobility · nutrition · friction and shear</p></div>'
-    +'</div>'
-    +'<div class="ts"><table><thead><tr><th>Score</th><th>Risk Level</th></tr></thead><tbody>'
-    +'<tr><td>19 – 23</td><td>No risk</td></tr>'
-    +'<tr><td>15 – 18</td><td>Mild risk</td></tr>'
-    +'<tr><td>13 – 14</td><td>Moderate risk</td></tr>'
-    +'<tr><td>10 – 12</td><td>High risk</td></tr>'
-    +'<tr><td>9 or less</td><td><strong>Very high risk</strong></td></tr>'
-    +'</tbody></table></div>'},
-
-  {id:'wu-vitamins',title:'Vitamins',cat:'clinical',hy:true,
-   obj:'Differentiate fat-soluble and water-soluble vitamins',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Fat-Soluble (A, D, E, K)</div><div class="band-body"><p><strong>Fat is needed in the diet to absorb fat-soluble vitamins</strong></p><p>Stored in liver and fatty tissue</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Water-Soluble (C and B complex)</div><div class="band-body"><p><strong>NOT stored in the body</strong></p><p>Must be replaced regularly through diet</p></div></div>'
-    +'</div>'},
-
-  {id:'wu-hipaa',title:'HIPAA',cat:'legal',hy:true,
-   obj:'Identify what HIPAA protects and the exceptions',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">What HIPAA Protects</div><div class="band-body"><p>Federal law — <strong>must keep protected health information private</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Exceptions</div><div class="band-body"><ul>'
-    +'<li>Cases of <strong>abuse</strong> reporting</li>'
-    +'<li>Cases of <strong>communicable disease</strong> reporting</li>'
-    +'</ul></div></div>'
-    +'</div>'},
-
-  {id:'wu-pain-meds',title:'Pain Medication — Opioids',cat:'clinical',hy:true,
-   obj:'Apply opioid pharmacology, monitoring, and PCA principles',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Mechanism &amp; Use</div><div class="band-body"><ul>'
-    +'<li>Most commonly prescribed for relief of pain</li>'
-    +'<li>Suppress pain by activating opioid receptors in the <strong>brain, spinal cord, and CNS</strong></li>'
-    +'<li>Come from <strong>natural</strong> (poppy plant) and <strong>synthetic</strong> sources</li>'
-    +'<li>Can lead to addiction if misused — careful titration and monitoring required</li>'
-    +'</ul></div></div>'
-    +'<div class="band-card"><div class="band-head">Side Effects &amp; Monitoring</div><div class="band-body"><ul>'
-    +'<li>Sedation AND <strong>respiratory depression</strong></li>'
-    +'<li>Nausea / vomiting · constipation · itching · rashes · flushing</li>'
-    +'<li><b class="lbl">MONITOR:</b> respiratory rate · blood pressure (orthostatic hypotension)</li>'
-    +'</ul></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>PCA (Patient-Controlled Analgesia)</h4><p>Used <strong>postoperatively</strong>. Client presses a button for a small bolus at a basal/continuous rate as ordered. Check pump constantly for tampering.</p></div>'},
-
-  {id:'wu-fecal-impaction',title:'Fecal Impaction',cat:'clinical',hy:true,
-   obj:'Recognize fecal impaction, identify high-risk patients, and apply treatment',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">What It Is</div><div class="band-body"><p>Chronic constipation → hardened stool clumps together → <strong>intestinal obstruction or rectal injury</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Highest Risk</div><div class="band-body"><p>Clients who are <strong>immobile</strong> or have a <strong>nervous system injury</strong></p></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Treatment Sequence</h4><ol><li><strong>Warm mineral oil enema</strong> to loosen stool</li><li><strong>Manual removal</strong></li><li><strong>Surgery</strong> if complete obstruction cannot be cleared</li></ol></div>'},
-
-  {id:'wu-pain-scales',title:'Pain Scales',cat:'clinical',hy:true,
-   obj:'Choose the right pain scale for the patient population',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Numeric Rating Scale (0 – 10)</div><div class="band-body"><p><b class="lbl">0:</b> no pain</p><p><b class="lbl">1 – 3:</b> mild</p><p><b class="lbl">4 – 6:</b> moderate</p><p><b class="lbl">7 – 10:</b> severe</p></div></div>'
-    +'<div class="band-card"><div class="band-head">Wong-Baker FACES</div><div class="band-body"><p><strong>Three scales in one</strong> — faces, words, numbers</p><p>Patient picks the face that best represents how they feel</p></div></div>'
-    +'</div>'
-    +'<div class="g2">'
-    +'<div class="band-card"><div class="band-head">FLACC</div><div class="band-body"><p><strong>F</strong>ace · <strong>L</strong>egs · <strong>A</strong>ctivity · <strong>C</strong>ry · <strong>C</strong>onsolability</p><p>Observational tool for children <strong>2 months to 7 years</strong> AND cognitively disabled clients</p></div></div>'
-    +'<div class="band-card"><div class="band-head">CRIES</div><div class="band-body"><p>Observational scale for infants born at <strong>38 weeks gestation or greater</strong></p></div></div>'
-    +'</div>'},
-
-  {id:'wu-sensory-aging',title:'Sensory Aging Changes',cat:'clinical',hy:true,
-   obj:'Recognize presbycusis and presbyopia in older adults',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Presbycusis</div><div class="band-body"><p>Loss of hearing <strong>sibilant sounds</strong> (Sh, Ph, S, Ch)</p><p>AND <strong>high-pitched sounds</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Presbyopia</div><div class="band-body"><p>Becoming more <strong>FARSIGHTED</strong> with aging</p></div></div>'
-    +'</div>'
-    +'<div class="mnem"><strong>For hearing impaired:</strong> speak in a <strong>LOWER register</strong> (not louder) · FACE the patient.</div>'},
-
-  {id:'wu-abbreviations',title:'Medical Abbreviations',cat:'legal',hy:true,
-   obj:'Apply Joint Commission rules to safe medication documentation',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Trailing Zeros — AVOID</div><div class="band-body"><p>Write <strong>25</strong> NOT 25.0</p><p>Could be misread as <strong>250</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Leading Zeros — ALWAYS USE</div><div class="band-body"><p>Write <strong>0.25</strong> NOT .25</p><p>Could be misread as <strong>25</strong></p></div></div>'
-    +'</div>'
-    +'<div class="card"><h4>Joint Commission Rules</h4><p>Each facility establishes its own approved list. <strong>TJC maintains a list of potentially dangerous abbreviations</strong> to avoid.</p></div>'},
-
-  {id:'wu-medicaid-medicare',title:'Medicaid vs Medicare',cat:'legal',hy:true,
-   obj:'Distinguish Medicaid from Medicare coverage',
-   body:
-    '<div class="g2">'
-    +'<div class="band-card"><div class="band-head">Medicaid</div><div class="band-body"><p>Insurance for the <strong>poor / low-income individuals</strong></p></div></div>'
-    +'<div class="band-card"><div class="band-head">Medicare</div><div class="band-body"><p>Insurance for the <strong>elderly (65+)</strong></p><p>AND people with <strong>end-stage renal disease</strong> (dialysis patients)</p></div></div>'
-    +'</div>'
-    +'<div class="mnem"><strong>Memory trick:</strong> MedicAID = AID for those in need · MediCARE = CARES for the elderly.</div>'}
+  /* ══ SECTION 8: OTHER PROFESSIONALS & EDUCATION (orange) ══ */
+  {id:'sec-other',title:'Other Professionals & Education',color:'orange',
+   obj:'Interprofessional roles, learning domains, complementary therapy, and sensory aging',
+   topics:[
+    {label:'Other Professionals',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Physical Therapist (PT)</h4><p>Improves movement and alleviates pain</p><p><strong>GROSS motor skills</strong> — walking, balance, strength</p></div>'
+      +'<div class="card"><h4>Occupational Therapist (OT)</h4><p>Recover or develop skills for daily living and return to work</p><p><strong>FINE motor skills</strong> — dressing, cooking, writing</p></div>'
+      +'<div class="card"><h4>Respiratory Therapist (RT)</h4><p>Manages oxygen and oxygenation devices</p><p>Ventilator settings · respiratory treatments</p></div>'
+      +'<div class="card"><h4>Speech Therapist</h4><p>Communication / speaking impairments</p><p><strong>AND swallowing disorders</strong></p></div>'
+      +'<div class="card"><h4>Social Worker</h4><p>Collaborates with team to find solutions</p><p>Advocates for resources · addresses challenges</p></div>'
+      +'<div class="card"><h4>Assistive Personnel (AP)</h4><p>Nurses\' aides — unlicensed</p><p><strong>Clinical reasoning CANNOT be delegated to AP</strong></p></div>'
+      +'</div>'},
+    {label:'Patient Education — Learning Domains',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Cognitive</h4><p><b class="lbl">Domain:</b> thinking</p><p>Knowledge · understanding · recall · analysis</p><p><em>Disease processes, medication facts</em></p></div>'
+      +'<div class="card"><h4>Affective</h4><p><b class="lbl">Domain:</b> emotional</p><p>Feelings · attitudes · values · beliefs</p><p><em>Accepting a diagnosis · motivation</em></p></div>'
+      +'<div class="card"><h4>Psychomotor</h4><p><b class="lbl">Domain:</b> action</p><p>Physical movement · skills · coordination · use of senses</p><p><em>Hands-on skills — insulin injection, dressing change</em></p></div>'
+      +'</div>'},
+    {label:'Alternative vs Complementary Therapy',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Complementary</div><div class="band-body"><p>Done <strong>IN CONJUNCTION WITH</strong> prescribed treatment.</p><p><em>Music therapy alongside chemotherapy</em></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Alternative</div><div class="band-body"><p>Done <strong>INSTEAD OF</strong> prescribed treatment.</p><p><em>Herbal regimen replacing prescribed medication</em></p></div></div>'
+      +'</div>'},
+    {label:'Sensory Aging Changes',body:
+      '<div class="g2">'
+      +'<div class="band-card"><div class="band-head">Presbycusis</div><div class="band-body"><p>Loss of hearing <strong>sibilant sounds</strong> (Sh, Ph, S, Ch)</p><p>AND <strong>high-pitched sounds</strong></p></div></div>'
+      +'<div class="band-card"><div class="band-head">Presbyopia</div><div class="band-body"><p>Becoming more <strong>FARSIGHTED</strong> with aging</p></div></div>'
+      +'</div>'
+      +'<div class="mnem"><strong>For hearing impaired:</strong> speak in a <strong>LOWER register</strong> (not louder) · FACE the patient.</div>'}
+   ]}
 
 ];
-
-/* Combine both wrap-up parts into one source array */
-WRAPUP_TOPICS=WRAPUP_TOPICS.concat(WRAPUP_TOPICS_PART2);
 
 var LECTURE_TOPICS=[
   {id:'lec-placeholder-1',title:'Sample Clinical Lecture',cat:'clinical',
@@ -2065,8 +1998,33 @@ function n116FindTopic(id){
   return null;
 }
 
+function renderN116Sections(targetId,sections){
+  /* Render grouped sections \u2014 one big colored sec-hdr per group, italic obj subtitle,
+     bold topic labels (no colored boxes), content cards within. */
+  var html=sections.map(function(s){
+    var topicsHtml=s.topics.map(function(t){
+      return '<div class="n116-topic">'
+        +'<h3 class="n116-topic-label">'+t.label+'</h3>'
+        +t.body
+        +'</div>';
+    }).join('');
+    var raw=(s.title+' '+s.obj+' '+s.topics.map(function(t){return t.label+' '+t.body;}).join(' ')).toLowerCase().replace(/<[^>]*>/g,' ');
+    var search=n116EscapeAttr(raw);
+    return '<section id="'+s.id+'" class="study-sec n116-sec n116-color-'+s.color+'" data-search="'+search+'">'
+      +'<div class="sec-hdr sh-'+s.color+'">'+s.title+'<span class="lec-tag">\u2b50 HIGH YIELD</span></div>'
+      +'<div class="pg">'
+      +'<p class="n116-sec-obj"><em>'+s.obj+'</em></p>'
+      +topicsHtml
+      +'</div>'
+      +'</section>';
+  }).join('');
+  var target=document.getElementById(targetId);
+  if(target) target.innerHTML=html;
+}
+
+/* Backward-compat: old function name still used for the placeholder lectures tab */
 function renderN116Topics(targetId,topics){
-  /* Render as full open NUR 118-style sections with colored headers */
+  /* Lectures tab still uses the old per-topic layout; will be rebuilt in Step 3 */
   var html=topics.map(function(t){
     var color=n116CatColor(t.cat);
     var raw=(t.title+' '+(t.body||'')).toLowerCase().replace(/<[^>]*>/g,' ');
@@ -2075,7 +2033,7 @@ function renderN116Topics(targetId,topics){
     return '<section id="'+t.id+'" class="study-sec n116-sec n116-'+t.cat+'" data-search="'+search+'">'
       +'<div class="sec-hdr sh-'+color+'">'+t.title+'<span class="lec-tag">'+tag+'</span></div>'
       +'<div class="pg">'
-      +(t.obj?'<div class="obj"><h4>&#9745; Objective</h4><p>'+t.obj+'</p></div>':'')
+      +(t.obj?'<p class="n116-sec-obj"><em>'+t.obj+'</em></p>':'')
       +t.body
       +'</div>'
       +'</section>';
@@ -2138,16 +2096,32 @@ function switchN116Tab(tab){
 
 function initN116(){
   if(!n116State.wrapupRendered){
-    renderN116Topics('n116-wrapup-list',WRAPUP_TOPICS);
+    renderN116Sections('n116-wrapup-list',WRAPUP_SECTIONS);
     n116State.wrapupRendered=true;
   }
 }
 
-var NUR116_SECTIONS=[
-  {id:'n116-tab-wrapup',  label:'\u2b50 Wrap-Up Priority',  sub:'A'},
-  {id:'n116-tab-lectures',label:'Full Lecture Notes',       sub:'B'}
+var NUR116_WRAPUP_NAV=[
+  {id:'sec-nutrition',  label:'Nutrition & Feeding',         sub:'1'},
+  {id:'sec-elimination',label:'Elimination',                  sub:'2'},
+  {id:'sec-safety',     label:'Patient Safety',               sub:'3'},
+  {id:'sec-pain',       label:'Pain',                         sub:'4'},
+  {id:'sec-legal',      label:'Legal & Ethical',              sub:'5'},
+  {id:'sec-stress',     label:'Stress, Grief & Psych',        sub:'6'},
+  {id:'sec-clinical',   label:'Clinical Skills & Process',    sub:'7'},
+  {id:'sec-other',      label:'Other Pros & Education',       sub:'8'}
 ];
-function getSections(){return currentCourse==='NUR116'?NUR116_SECTIONS:NUR118_SECTIONS;}
+var NUR116_LECTURES_NAV=[
+  {id:'lec-placeholder-1',label:'Lecture Notes (coming soon)',sub:''}
+];
+var NUR116_SECTIONS=NUR116_WRAPUP_NAV;
+function getSections(){
+  if(currentCourse!=='NUR116') return NUR118_SECTIONS;
+  /* For NUR 116, return the nav list for the currently active tab */
+  return (typeof n116State!=='undefined' && n116State.currentTab==='lectures')
+    ? NUR116_LECTURES_NAV
+    : NUR116_WRAPUP_NAV;
+}
 
 var currentPage='study';
 
