@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUR 118 Unit 1 — Study Guide</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0f766e;--teal-lt:#ccfbf1;--teal-bg:#f0fdfa;
+  --plum:#7e22ce;--plum-lt:#f3e8ff;--plum-bg:#faf5ff;
+  --rust:#b91c1c;--rust-lt:#fee2e2;--rust-bg:#fff5f5;
+  --forest:#15803d;--forest-lt:#dcfce7;--forest-bg:#f0fdf4;
+  --cobalt:#1d4ed8;--cobalt-lt:#dbeafe;--cobalt-bg:#eff6ff;
+  --slate:#334155;--slate-lt:#f1f5f9;--slate-bg:#f8fafc;
+  --gold:#b45309;--gold-lt:#fef3c7;--gold-bg:#fffbeb;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g400:#9ca3af;--g700:#374151;--g900:#111827;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:14px;line-height:1.6;color:var(--g700);background:var(--g100);min-height:100vh}
+.app-header{background:var(--g900);color:#fff;padding:12px 20px 0;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.app-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  opacity:.6;margin-bottom:10px}
+.tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;background:transparent;color:rgba(255,255,255,.5);
+  font-size:12px;font-weight:600;padding:8px 13px 10px;cursor:pointer;
+  border-radius:6px 6px 0 0;transition:background .15s,color .15s;
+  white-space:nowrap;letter-spacing:.02em}
+.tab-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.tab-btn.active{background:var(--tc,#fff);color:#fff}
+.panel{display:none;padding:20px 16px 48px;max-width:1200px;margin:0 auto}
+.panel.active{display:block}
+.sec-head{font-size:17px;font-weight:800;padding:13px 18px;border-radius:var(--r);
+  margin-bottom:16px;color:#fff;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lec-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);
+  padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.sh-teal{background:var(--teal)}.sh-plum{background:var(--plum)}
+.sh-rust{background:var(--rust)}.sh-forest{background:var(--forest)}
+.sh-cobalt{background:var(--cobalt)}.sh-slate{background:var(--slate)}
+.sh-gold{background:var(--gold)}
+.pg,.pg-wide{background:#fff;border-radius:var(--r);padding:18px 20px;
+  box-shadow:var(--sh);margin-bottom:14px}
+.sub{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  padding:5px 12px;border-radius:4px;margin:16px 0 10px;display:block}
+.sub-teal{background:var(--teal);color:#fff}.sub-plum{background:var(--plum);color:#fff}
+.sub-rust{background:var(--rust);color:#fff}.sub-forest{background:var(--forest);color:#fff}
+.sub-cobalt{background:var(--cobalt);color:#fff}.sub-slate{background:var(--slate);color:#fff}
+.sub-gold{background:var(--gold);color:#fff}
+.obj{background:var(--g50);border-left:4px solid var(--g200);
+  border-radius:0 var(--r) var(--r) 0;padding:11px 15px;margin-bottom:14px;font-size:13px}
+.obj h4{font-size:13px;margin-bottom:4px;color:var(--g900)}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(min-width:701px) and (max-width:1024px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r);padding:13px}
+.card h4{font-size:13px;font-weight:700;margin-bottom:7px}
+.card ul,.card ol{padding-left:17px}.card li{margin-bottom:2px}
+.card p{margin-bottom:5px}
+.card-teal{border-top:3px solid var(--teal);background:var(--teal-bg)}
+.card-plum{border-top:3px solid var(--plum);background:var(--plum-bg)}
+.card-rust{border-top:3px solid var(--rust);background:var(--rust-bg)}
+.card-forest{border-top:3px solid var(--forest);background:var(--forest-bg)}
+.card-cobalt{border-top:3px solid var(--cobalt);background:var(--cobalt-bg)}
+.card-slate{border-top:3px solid var(--slate);background:var(--slate-bg)}
+.card-gold{border-top:3px solid var(--gold);background:var(--gold-bg)}
+.card-teal h4{color:var(--teal)}.card-plum h4{color:var(--plum)}
+.card-rust h4{color:var(--rust)}.card-forest h4{color:var(--forest)}
+.card-cobalt h4{color:var(--cobalt)}.card-slate h4{color:var(--slate)}
+.card-gold h4{color:var(--gold)}
+.band-card{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:4px}
+.band-head{font-weight:800;font-size:13px;padding:9px 14px;color:#fff}
+.band-body{background:#fff;padding:11px 14px;border:1px solid var(--g200);border-top:none}
+.band-body p{margin-bottom:4px}.band-body ul{padding-left:17px}
+.bh-teal .band-head{background:var(--teal)}.bh-plum .band-head{background:var(--plum)}
+.bh-rust .band-head{background:var(--rust)}.bh-forest .band-head{background:var(--forest)}
+.bh-cobalt .band-head{background:var(--cobalt)}.bh-slate .band-head{background:var(--slate)}
+.bh-gold .band-head{background:var(--gold)}
+.warn{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:#9a3412}
+.mnem{background:#fefce8;border:1px solid #fde68a;border-left:4px solid #eab308;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;
+  color:#713f12;font-style:italic}
+.emerg{color:#dc2626!important;font-weight:700}
+td.emerg{background:#fff5f5}
+.lbl{font-weight:700}
+.norm{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;
+  font-weight:600;margin:2px;background:var(--g200);color:var(--g700)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;
+  box-shadow:var(--sh);border-radius:var(--r);overflow:hidden}
+th{background:var(--g700);color:#fff;padding:8px 11px;text-align:left;
+  font-size:12px;font-weight:700;letter-spacing:.02em}
+td{padding:7px 11px;border-bottom:1px solid var(--g200);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--g50)}
+tr:nth-child(odd) td{background:#fff}
+.t-teal th{background:var(--teal)}.t-plum th{background:var(--plum)}
+.t-rust th{background:var(--rust)}.t-forest th{background:var(--forest)}
+.t-cobalt th{background:var(--cobalt)}.t-slate th{background:var(--slate)}
+.t-gold th{background:var(--gold)}
+.ts{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px}
+.ts table{min-width:580px}
+.drug-class{display:block;font-size:11px;color:#64748b;font-style:italic;margin-top:2px}
+p{margin-bottom:5px}ul{padding-left:17px;margin-bottom:5px}
+ol{padding-left:17px;margin-bottom:5px}li{margin-bottom:2px}
+h4{font-size:14px}strong{font-weight:700}
+#fc-wrap{max-width:660px;margin:0 auto;padding-top:4px}
+.fc-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.fc-controls select{padding:7px 11px;border-radius:6px;border:1px solid var(--g200);font-size:13px;cursor:pointer;background:#fff}
+.fc-ctrl-btn{padding:7px 13px;border-radius:6px;border:1px solid var(--g700);background:var(--g900);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.fc-ctrl-btn:hover{opacity:.85}
+.fc-progress{margin-bottom:14px}
+.fc-progress-bar{height:7px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:5px}
+.fc-progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .3s}
+.fc-progress-label{font-size:12px;color:var(--g400)}
+.fc-face{border-radius:var(--r);padding:28px 24px;min-height:180px;margin-bottom:12px;cursor:pointer}
+.fc-front{background:#fff;border:2px solid var(--g200);box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:center}
+.fc-back{background:var(--teal-bg);border:2px solid var(--teal);box-shadow:var(--sh);display:none}
+.fc-hint{font-size:11px;color:var(--g400);text-align:center;margin-bottom:10px}
+.fc-q{font-size:15px;font-weight:600;text-align:center;color:var(--g900);line-height:1.6}
+.fc-a-head{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.fc-a{font-size:14px;color:var(--g700);line-height:1.7}
+.fc-btns{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.fc-btns button{flex:1;max-width:140px;padding:11px 8px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-got{background:#16a34a;color:#fff}.btn-unsure{background:#d97706;color:#fff}.btn-missed{background:#dc2626;color:#fff}
+.fc-btns button:hover{opacity:.85}
+#fc-summary{text-align:center;padding:32px 16px;background:#fff;border-radius:var(--r);box-shadow:var(--sh)}
+#fc-summary h3{font-size:20px;font-weight:800;margin-bottom:16px;color:var(--g900)}
+.sum-stat{display:inline-block;padding:10px 18px;border-radius:8px;margin:4px;font-size:14px;font-weight:600}
+.sum-got{background:#dcfce7;color:#16a34a}.sum-unsure{background:#fef3c7;color:#d97706}.sum-missed{background:#fee2e2;color:#dc2626}
+#db-wrap{max-width:860px;margin:0 auto}
+.db-lecture-group{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.db-lec-head{padding:11px 16px;font-weight:800;font-size:13px;color:#fff}
+.db-obj-row{padding:10px 16px;border-bottom:1px solid var(--g200)}
+.db-obj-row:last-child{border-bottom:none}
+.db-obj-label{font-size:12px;color:var(--g700);margin-bottom:5px}
+.db-bar-wrap{display:flex;align-items:center;gap:10px}
+.db-bar-bg{flex:1;height:12px;background:var(--g200);border-radius:6px;overflow:hidden}
+.db-bar-fill{height:100%;border-radius:6px;transition:width .4s}
+.db-bar-pct{font-size:12px;font-weight:700;min-width:36px;text-align:right}
+.db-bar-notstarted .db-bar-fill{background:var(--g400);width:0%!important}
+.db-green .db-bar-fill{background:#16a34a}.db-yellow .db-bar-fill{background:#d97706}.db-red .db-bar-fill{background:#dc2626}
+.db-green .db-bar-pct{color:#16a34a}.db-yellow .db-bar-pct{color:#d97706}.db-red .db-bar-pct{color:#dc2626}
+.db-bar-notstarted .db-bar-pct{color:var(--g400)}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">NUR 118 · Unit 1 Study Guide — Lectures 1–6</div>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" style="--tc:#0f766e" onclick="show(0,this)">Infection Control</button>
+    <button class="tab-btn" style="--tc:#7e22ce" onclick="show(1,this)">Skin &amp; Wounds</button>
+    <button class="tab-btn" style="--tc:#b91c1c" onclick="show(2,this)">Pharmacology</button>
+    <button class="tab-btn" style="--tc:#15803d" onclick="show(3,this)">Mobility</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(4,this)">Periop Part 1</button>
+    <button class="tab-btn" style="--tc:#334155" onclick="show(5,this)">Periop + Pain</button>
+    <button class="tab-btn" style="--tc:#b45309" onclick="show(6,this)">Medications</button>
+    <button class="tab-btn" style="--tc:#0f766e" onclick="show(7,this)" id="fc-tab">&#127794; Flashcards</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(8,this)" id="db-tab">&#128202; Dashboard</button>
+  </div>
+</div>
+
+<!-- ═══ LECTURE 1 — INFECTION CONTROL ═══ -->
+<div id="s0" class="panel active">
+  <div class="sec-head sh-teal">Body Defense &amp; Infection Control <span class="lec-tag">Lecture 1</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Describe infection &amp; risk factors &nbsp;·&nbsp; HAI vs. Nosocomial &nbsp;·&nbsp; Six links in chain of infection &nbsp;·&nbsp; Stages of infectious process (5) &nbsp;·&nbsp; Classifications: local vs systemic, acute vs chronic, latent &nbsp;·&nbsp; Body's lines of defense &nbsp;·&nbsp; Factors placing patient at risk &nbsp;·&nbsp; Activities promoting immune function &nbsp;·&nbsp; Medical vs surgical asepsis + sterile principles &nbsp;·&nbsp; Standard Precautions &nbsp;·&nbsp; Transmission-based precautions (3 examples each) &nbsp;·&nbsp; Transmission-based vs Protective Environment &nbsp;·&nbsp; Nursing interventions for asepsis &amp; host defenses</p>
+    </div>
+
+    <span class="sub sub-teal">HAI vs. Nosocomial &amp; Source of Infection</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">HAI — Healthcare-Associated Infection</div>
+        <div class="band-body">
+          <p>Infection contracted in <strong>ANY</strong> healthcare setting</p>
+          <p>Includes: nursing home, rehab, dialysis, urgent care, detox, home care, doctor's office</p>
+          <p><b class="lbl">Greatest risk:</b> chronically ill, elderly, pts on steroids, diabetics, immunocompromised</p>
+          <p><b class="lbl">Impact:</b> aggravate existing illness, lengthen stay &amp; recovery, increase cost; one of the 10 leading causes of death in the US</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">Nosocomial — Hospital-Only</div>
+        <div class="band-body">
+          <p>Infection acquired in the <strong>HOSPITAL only</strong></p>
+          <p><b class="lbl">Examples:</b> CLABSI (central line), SSI (surgical site), CAUTI (catheter UTI), VAP (ventilator pneumonia), MDROs, C-Diff</p>
+          <p><b class="lbl">C. difficile:</b> most common &amp; serious nosocomial; elderly on antibiotics = highest risk</p>
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>Endogenous Infection</h4>
+        <p>Source is <strong>inside</strong> the patient — normal flora altered (e.g., antibiotics disrupt gut flora → C. diff)</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Exogenous Infection</h4>
+        <p>Source is <strong>outside</strong> the patient — environmental organisms (e.g., staph from surfaces, hands, equipment)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Six Links — Chain of Infection (ALL 6 must be present for spread)</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">1 · Infectious Agent (Pathogen)</div>
+        <div class="band-body">
+          <p>Bacteria, viruses, fungi, yeast, mold</p>
+          <p><b class="lbl">Resident flora:</b> live on/in us (intestines, skin) — normally harmless</p>
+          <p><b class="lbl">Transient flora:</b> temporary; removed by handwashing</p>
+          <p>Normal flora becomes pathogenic when it goes where it doesn't belong</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">2 · Reservoir</div>
+        <div class="band-body">
+          <p>Where pathogens live &amp; multiply</p>
+          <p><b class="lbl">Living:</b> humans, animals, insects — warm, dark, moist environments</p>
+          <p><b class="lbl">Nonliving:</b> food, soil, water, sinks, toilets, bed rails, overbed tables, linens, wound dressings, stethoscope</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">3 · Portal of Exit</div>
+        <div class="band-body">
+          <p>How the pathogen leaves the reservoir</p>
+          <p><b class="lbl">Body fluids:</b> blood, mucus, urine, feces, breast milk, emesis, semen</p>
+          <p>Coughing, sneezing, saliva, wound drainage, tubes, IV lines</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">4 · Mode of Transmission</div>
+        <div class="band-body">
+          <p><b class="lbl">Contact — Direct:</b> touching, kissing, sexual contact, wound drainage, scratch, bite</p>
+          <p><b class="lbl">Contact — Indirect:</b> fomite — contaminated object (stethoscope, thermometer, keyboard, pen, overbed table)</p>
+          <p><b class="lbl">Droplet:</b> water droplets when person exhales/coughs/sneezes/talks; suctioning &amp; oral care</p>
+          <p><b class="lbl">Airborne:</b> aerosolized particles — travel &gt;6 ft</p>
+          <p><b class="lbl">Vector:</b> ticks, fleas, mosquito, mites</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">5 · Portal of Entry</div>
+        <div class="band-body">
+          <p><b class="lbl">Normal openings:</b> eye, nares, mouth, urethra, vagina, anus</p>
+          <p><b class="lbl">Abnormal openings:</b> wounds, cuts, scrapes, surgical incisions, IV/drainage tube sites, urinary catheters, bite from vector</p>
+          <p><b class="lbl">Common in healthcare:</b> wounds, surgical sites, urinary catheters, IV lines, GI tubes</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">6 · Susceptible Host</div>
+        <div class="band-body">
+          <p>Person with inadequate defenses</p>
+          <p><b class="lbl">Most susceptible:</b> very old, very young, immunocompromised, immune deficiency</p>
+          <p><b class="lbl">4 determining factors:</b> virulence, organism's ability to survive in host, number of organisms, host's defenses</p>
+        </div>
+      </div>
+    </div>
+    <div class="mnem">Break ANY link → stop the spread. Nursing interventions target every link: hand hygiene (agent/transmission), PPE (portal of exit/entry), isolation (reservoir), immunization (host).</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Stages of Infection</span>
+    <div class="ts"><table class="t-teal">
+      <tr><th>#</th><th>Stage</th><th>What Happens</th><th>Key Points</th></tr>
+      <tr><td><strong>1</strong></td><td><strong>Incubation</strong></td><td>Entry of pathogen → first signs/symptoms</td><td>Can spread with NO s/s; may last a day (flu) to months/years (TB); COVID example</td></tr>
+      <tr><td><strong>2</strong></td><td><strong>Prodromal</strong></td><td>Vague, nonspecific s/s appear</td><td>Mild sore throat, fatigue — not all diseases have this stage</td></tr>
+      <tr><td><strong>3</strong></td><td><strong>Illness</strong></td><td>Obvious, full s/s present</td><td>If defenses &amp; treatment ineffective → can end in death</td></tr>
+      <tr><td><strong>4</strong></td><td><strong>Decline</strong></td><td>Pathogens decrease; s/s normalize/fade</td><td>Body/treatment gaining control</td></tr>
+      <tr><td><strong>5</strong></td><td><strong>Convalescence</strong></td><td>Tissue repair; return to health</td><td>Microorganisms reach zero</td></tr>
+    </table></div>
+
+    <span class="sub sub-teal">Classifications of Infection</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Local vs. Systemic</h4>
+        <p><b class="lbl">Local s/s:</b> redness, edema, warm to touch, pain, drainage (if wound)</p>
+        <p><b class="lbl">Systemic s/s:</b> temp &gt;100.4°F, tachycardia &gt;100, WBC &gt;10,000, fatigue</p>
+        <p>Untreated local → can become systemic</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Acute vs. Chronic</h4>
+        <p><b class="lbl">Acute:</b> rapid onset, short duration (common cold)</p>
+        <p><b class="lbl">Chronic:</b> slow development, long duration; may recur (osteomyelitis, abscess)</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Latent</h4>
+        <p>Present but no symptoms for long periods</p>
+        <p><b class="lbl">Examples:</b> HIV/AIDS, TB, shingles (herpes zoster)</p>
+        <p>Can reactivate when immune function drops</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Body's Lines of Defense</span>
+    <div class="band-card bh-teal">
+      <div class="band-head">PRIMARY (1st Line) — Physical &amp; Anatomical Barriers</div>
+      <div class="band-body">
+        <div class="g3">
+          <div>
+            <p><b class="lbl">Normal Flora</b> — protective competition</p>
+            <p><b class="lbl">Skin (intact)</b> — prevents pathogen entry</p>
+            <p><b class="lbl">Respiratory tree</b> — mucous membranes trap; nose hairs filter; cilia sweep upward; cough/sneeze expel</p>
+          </div>
+          <div>
+            <p><b class="lbl">Eyes</b> — lysozymes in tears</p>
+            <p><b class="lbl">Mouth</b> — lysozymes in saliva</p>
+            <p><b class="lbl">GI tract</b> — acidity, bile, vomiting, diarrhea</p>
+          </div>
+          <div>
+            <p><b class="lbl">GU tract</b> — mucous membranes, vaginal acidity, acid &amp; lysozymes in urine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">SECONDARY (2nd Line) — Chemical Activation When Pathogens Pass Primary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div class="card">
+            <h4>Phagocytosis</h4>
+            <p>Special WBCs attack &amp; kill pathogens — may see WBC &gt;10,000</p>
+          </div>
+          <div class="card">
+            <h4>Complement Cascade</h4>
+            <p>Blood proteins trigger chemicals to attack &amp; rupture pathogen cell membranes; signals basophils → release histamine → inflammation; may see elevated basophils</p>
+          </div>
+          <div class="card">
+            <h4>Inflammation</h4>
+            <p>Histamine from damaged cells → vessels dilate → redness, warmth, edema, pain</p>
+          </div>
+          <div class="card">
+            <h4>Fever</h4>
+            <p>Raises core body temp → increases metabolism → inhibits pathogen growth; assess temp &gt;100.4°F</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">TERTIARY (3rd Line) — Immune Memory (Antibodies)</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">ACTIVE — body makes its own antibodies/T-cells</b></p>
+            <ul>
+              <li><b class="lbl">Natural Active:</b> got ill → body made antibodies (influenza, chicken pox)</li>
+              <li><b class="lbl">Artificial Active:</b> vaccine triggers antibody production (measles, mumps, polio, tetanus)</li>
+            </ul>
+            <br>
+            <p><b class="lbl">PASSIVE — antibodies received from another source</b></p>
+            <ul>
+              <li><b class="lbl">Natural Passive:</b> placenta or breast milk</li>
+              <li><b class="lbl">Artificial Passive:</b> serum from another person/animal (rabies, botulism, hepatitis A immune globulin)</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Types of Specific Immunity:</b></p>
+            <ul>
+              <li><b class="lbl">Specific immunity:</b> immune system learns to ID &amp; kill previously encountered pathogens; specific to lymphocytes</li>
+              <li><b class="lbl">Humoral immunity:</b> antibody response; circulates antibodies to kill pathogens; specific to WBC leukocytes</li>
+              <li><b class="lbl">Cellular immunity:</b> cell-mediated, no antibodies; specific to phagocytes, T &amp; B cells; targets cancer, viruses, fungi, protozoans</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Risk Factors for Infection (12)</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Patient Characteristics</h4>
+        <ul>
+          <li><b class="lbl">Age:</b> very young (limited exposures, no immunizations); very old (↓ immune function, chronic illness, dehydrated skin)</li>
+          <li><b class="lbl">Immunosuppressant drugs:</b> chemo, biologics, steroids/prednisone, inhalers</li>
+          <li><b class="lbl">Immune deficiency disease:</b> HIV, autoimmune</li>
+          <li><b class="lbl">Substance abuse:</b> IV drugs, alcohol</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Behaviors &amp; Conditions</h4>
+        <ul>
+          <li><b class="lbl">Lifestyle:</b> unprotected risky behaviors, multiple partners, smoking, alcohol</li>
+          <li><b class="lbl">Stress:</b> physical or mental</li>
+          <li><b class="lbl">Invasive surgical procedures</b></li>
+          <li><b class="lbl">Improper antibiotic use:</b> taking ABT for viral infections</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Environmental &amp; Physical</h4>
+        <ul>
+          <li><b class="lbl">Living/work environment:</b> homeless, no running water, coal mine</li>
+          <li><b class="lbl">Skin breakdown:</b> pressure injury = portal of entry</li>
+          <li><b class="lbl">Inadequate nutrition:</b> low albumin = no cell repair; dehydration</li>
+          <li><b class="lbl">Travel outside the country</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-teal">Activities That Promote Immune Function</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Adequate Nutrition</h4>
+        <p>Monitor food &amp; fluid intake; protein, vitamins, minerals, water manufacture immune cells; replaces lost stores, maintains WBC production, repairs tissue; fever &amp; ↑ mucus increase water loss</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Balanced Hygiene</h4>
+        <p>Teach hand hygiene; sufficient to decrease skin bacterial count; <strong>NOT overzealous</strong> — causes skin cracking, diminishes natural oils</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Rest &amp; Exercise</h4>
+        <p>Educate 6–9 hrs sleep &amp; regular exercise; renews body &amp; mind, conserves strength</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Reducing Stress</h4>
+        <p>Physical or mental stress decreases immune defenses; laughing increases oxygenation, body movement, immune responses</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Immunization</h4>
+        <p>Encourage patients; protects against measles, mumps, childhood diseases, pneumonia, influenza, smallpox, shingles; ≥85% of population must be immunized to protect entire population</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Asepsis — Medical vs. Surgical</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">Medical Asepsis — "Clean Technique"</div>
+        <div class="band-body">
+          <p>Practices that <strong>REDUCE</strong> number of microorganisms &amp; decrease spread</p>
+          <p>Microorganisms exist everywhere except on sterilized objects</p>
+          <p><b class="lbl">Best method:</b> frequent handwashing</p>
+          <p><b class="lbl">Practices:</b> hand hygiene, cleaning environment, disinfecting equipment between pts, wearing PPE, standard precautions, transmission-based isolation</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">Surgical Asepsis — "Sterile Technique"</div>
+        <div class="band-body">
+          <p>Practices that <strong>DESTROY &amp; ELIMINATE</strong> all microorganisms &amp; spores</p>
+          <p><b class="lbl">Sterilization:</b> autoclave for surgical instruments; liquid chemicals for scoping</p>
+          <p><b class="lbl">Critical nursing uses:</b> inserting IV, urinary catheters, specific wound care, central line dressings, chest tubes</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-teal">7 Surgical Asepsis Principles</span>
+    <div class="ts"><table class="t-teal">
+      <tr><th>#</th><th>Principle</th></tr>
+      <tr><td>1</td><td>Sterile object remains sterile <strong>only</strong> when touched by another sterile object</td></tr>
+      <tr><td>2</td><td>Only sterile objects placed on a sterile field</td></tr>
+      <tr><td>3</td><td>Sterile object/field out of vision OR held below waist = <strong>contaminated</strong></td></tr>
+      <tr><td>4</td><td>Sterile object/field becomes contaminated by prolonged exposure to air</td></tr>
+      <tr><td>5</td><td>When sterile surface contacts a wet contaminated surface → contaminated by <strong>capillary action</strong></td></tr>
+      <tr><td>6</td><td>Fluid flows in the direction of <strong>gravity</strong></td></tr>
+      <tr><td>7</td><td>Edges of sterile field/container are contaminated — <strong>1-inch border</strong></td></tr>
+    </table></div>
+    <div class="warn">Other sterile rules: Don't talk, laugh, sneeze, cough over a sterile field · Hold hands above elbows during surgical scrub (gravity) · Don't touch edge of container after removing sterile items · Never turn back on sterile field; never leave it unattended</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Standard Precautions — 1st Tier (EVERY patient, ALL settings)</span>
+    <p>Assume ALL blood, body fluids, secretions, open skin, mucous membranes may contain pathogens.</p>
+    <br>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>When to Use What PPE</h4>
+        <p><b class="lbl">Gloves:</b> anticipating contact with blood/body fluids; broken skin on hands; applying medication/lotion</p>
+        <p><b class="lbl">Gown + eye protection:</b> when splashing of urine, stool, emesis is anticipated</p>
+        <p><b class="lbl">Also includes:</b> safe injection practices; respiratory hygiene/cough etiquette; mask during lumbar puncture</p>
+      </div>
+      <div>
+        <div class="card card-teal" style="margin-bottom:10px">
+          <h4>DONNING PPE — "Bottoms Up" (Putting On)</h4>
+          <ol>
+            <li>GOWN</li>
+            <li>MASK</li>
+            <li>GOGGLES / EYE SHIELD</li>
+            <li>GLOVES</li>
+          </ol>
+        </div>
+        <div class="card card-teal">
+          <h4>DOFFING PPE — "Alphabetical Order" (Taking Off)</h4>
+          <ol>
+            <li>GLOVES</li>
+            <li>GOGGLES</li>
+            <li>GOWN</li>
+            <li>MASK</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="mnem">Donning: Gown first (protect clothes), Gloves last (touch everything). Doffing: Gloves first (most contaminated), Mask last (protect face/airway).</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Transmission-Based Precautions — 2nd Tier (ADDED to Standard)</span>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">CONTACT PRECAUTIONS — Direct or Indirect Contact</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">PPE:</b> gloves &amp; gown (eye protection if splashing)</p>
+            <p><b class="lbl">Room:</b> private OR cohort with like infections</p>
+            <p><b class="lbl">Equipment:</b> disposable OR clean/disinfect between pts; disinfect on removal from room</p>
+            <p><b class="lbl">Supplies:</b> double-bag linens, specimens, soiled supplies; limit transport</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples (MDROs):</b></p>
+            <ul>
+              <li>MRSA (methicillin-resistant staph aureus)</li>
+              <li>VRE (vancomycin-resistant enterococcus)</li>
+              <li>ESBL (extended spectrum beta-lactamase)</li>
+              <li>C-Diff (Clostridium difficile)</li>
+            </ul>
+            <p class="warn" style="margin-top:8px"><strong>C-Diff SPECIAL:</strong> Highly contagious via spores · Requires <strong>BLEACH</strong> for surfaces · Use <strong>SOAP &amp; WATER</strong> (NOT alcohol foam) · Often nosocomial from antibiotic use</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">DROPLET PRECAUTIONS — Large Particles &gt;5 Microns, Travel 3–6 Feet</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Source:</b> cough, sneeze, talk, suctioning</p>
+            <p><b class="lbl">PPE:</b> surgical mask</p>
+            <p><b class="lbl">Room:</b> private OR cohort</p>
+            <p><b class="lbl">Transport:</b> patient wears surgical mask; disinfect equipment on removal</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples:</b></p>
+            <ul>
+              <li>Influenza (flu)</li>
+              <li>Pertussis (whooping cough)</li>
+              <li>Meningitis</li>
+              <li>Mumps</li>
+              <li>Measles (Rubella/German measles)</li>
+              <li>Strep throat</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">AIRBORNE PRECAUTIONS — Aerosolized Particles Travel &gt;6 Feet</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Source:</b> resp secretions, coughing, resp treatments, suctioning, BiPAP, AC, sweeping, fans, shaking linens</p>
+            <p><b class="lbl">PPE:</b> N95 respirator (PAPR if not fit-tested) — <strong>must be FIT TESTED</strong></p>
+            <p><b class="lbl">Room:</b> private <strong>NEGATIVE PRESSURE</strong> room ALONE; 6–12 air exchanges/hr; doors closed</p>
+            <p><b class="lbl">Transport:</b> limit; pt wears <strong>SURGICAL mask</strong> (not fit-tested for N95); disinfect equipment on removal</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples — MTV + C SARS:</b></p>
+            <ul>
+              <li><strong>M</strong>easles (Rubeola)</li>
+              <li><strong>T</strong>uberculosis</li>
+              <li><strong>V</strong>aricella (chicken pox); open shingles (Herpes Zoster — disseminated = wider spread)</li>
+              <li><strong>C</strong>OVID</li>
+              <li><strong>SARS</strong> (coronaviruses)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">PROTECTIVE ENVIRONMENT — Reverse / Neutropenic Isolation</div>
+      <div class="band-body">
+        <p>For <strong>IMMUNOCOMPROMISED</strong> patients — to <strong>PROTECT THEM</strong> from organisms</p>
+        <div class="g2">
+          <div>
+            <p><b class="lbl">PPE for staff &amp; visitors:</b> hand hygiene, gloves, gown, mask; signage; individual equipment OR disinfect ALL equipment before bringing in</p>
+            <p><b class="lbl">Restrict:</b> sick visitors (even common cold); limit transport; transporters wear PPE</p>
+          </div>
+          <div>
+            <p><b class="lbl">PROHIBITED in room:</b></p>
+            <ul>
+              <li>NO fresh fruits, salads, or vegetables</li>
+              <li>NO live plants or fresh flowers</li>
+              <li>NO standing water</li>
+              <li>NO invasive procedures</li>
+            </ul>
+          </div>
+        </div>
+        <div class="warn">ALWAYS assess how the patient is coping with isolation — it is a frightening and unknown experience.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Nursing Interventions — Medical &amp; Surgical Asepsis + Supporting Host Defenses</span>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>Infection Prevention Actions</h4>
+        <ul>
+          <li>Hand hygiene before &amp; after patient contact</li>
+          <li>Soap &amp; water at shift start/end, C-Diff, visibly soiled hands</li>
+          <li>Medical &amp; surgical asepsis (disinfect environment &amp; equipment; teach pt/visitors handwashing)</li>
+          <li>Appropriate precautions &amp; PPE (only transmissible infections &amp; reverse/protective iso require private room)</li>
+          <li>Administer ordered meds (antibiotics q8h, fever, pain)</li>
+          <li>Monitor V/S q4h; monitor lab values daily</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Supporting Host Defenses</h4>
+        <ul>
+          <li>Maintain skin integrity (T&amp;P q2h; keep dry if incontinent)</li>
+          <li>Reduce stress/anxiety (explain isolation/procedures/treatments; allow rest; keep informed; therapeutic communication)</li>
+          <li>Promote immune function: diet, activity, sleep, lifestyle</li>
+          <li>Encourage immunizations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- end s0 -->
+
+<!-- ═══ LECTURE 2 — SKIN INTEGRITY / WOUND CARE / PRESSURE INJURIES ═══ -->
+<div id="s1" class="panel">
+  <div class="sec-head sh-plum">Skin Integrity, Wound Care &amp; Pressure Injuries <span class="lec-tag">Lecture 2</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives — Wound Care</h4>
+      <p>12 factors affecting skin integrity · Classifications of wounds (4 ways) · Types of wound drainage · Types of wound healing · Phases of wound healing · Complications of wound healing</p>
+    </div>
+    <div class="obj">
+      <h4>&#9745; Objectives — Pressure Injuries</h4>
+      <p>Define pressure injury · Intrinsic &amp; extrinsic factors · Stages of pressure injuries · Braden Scale &amp; 6 categories · Interventions to prevent · Indications for heat and cold therapy</p>
+    </div>
+
+    <span class="sub sub-plum">12 Factors That Affect Skin Integrity</span>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>1. Age</h4>
+        <p>Older adults: ↓ sebaceous/sweat glands (dry skin), thinning subQ layer, weakened epidermis-dermis bond, slower healing, chronic disease interferes with healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>2. Impaired Mobility</h4>
+        <p>Body weight → pressure → breakdown; altered sensory perception, paralysis, sedation, disease processes limiting mobility</p>
+      </div>
+      <div class="card card-plum">
+        <h4>3. Nutrition</h4>
+        <p>Protein to maintain/repair/preserve intravascular volume; ALBUMIN level; adequate caloric intake; ascorbic acid, zinc, copper for wound healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>4. Hydration</h4>
+        <p>Both over AND under cause breakdown: <b class="lbl">Edema</b> = poor microcirculation, ↓ O2/nutrients; <b class="lbl">Dehydration</b> = no elasticity, low fluid/blood flow</p>
+      </div>
+      <div class="card card-plum">
+        <h4>5. Diminished Sensation</h4>
+        <p>Diabetics, PVD, stroke, spinal cord injury, fractures — difficulty feeling hot/cold/pain; pressure from ill-fitting clothing/shoes</p>
+      </div>
+      <div class="card card-plum">
+        <h4>6. Diminished Cognition</h4>
+        <p>Alzheimer's, dementia — unaware of need to reposition; higher risk for breakdown</p>
+      </div>
+      <div class="card card-plum">
+        <h4>7. Impaired Circulation</h4>
+        <p>Main cause of chronic wounds; arterial impairs O2/nutrient delivery; venous causes edema &amp; stasis with waste products</p>
+      </div>
+      <div class="card card-plum">
+        <h4>8. Medication</h4>
+        <p>Pruritus, rashes, photosensitivity, pigmentation changes; BP meds, NSAIDs, steroids (inhibit healing), anticoagulants (heparin, warfarin), chemotherapeutic agents</p>
+      </div>
+      <div class="card card-plum">
+        <h4>9. Moisture</h4>
+        <p>Causes maceration (softening of skin); incontinence &amp; fever are most common causes</p>
+      </div>
+      <div class="card card-plum">
+        <h4>10. Fever</h4>
+        <p>Sweating = maceration; ↑ metabolic rate raises tissue O2 demand</p>
+      </div>
+      <div class="card card-plum">
+        <h4>11. Infection</h4>
+        <p>Microorganism present, wound contamination, ↑ metabolic demands, makes skin more vulnerable, impedes healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>12. Lifestyle</h4>
+        <p>Tanning, bathing too much/little, diet, smoking, piercings, tattoos</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Classification of Wounds — 4 Ways</span>
+    <div class="g2">
+      <div class="band-card bh-plum">
+        <div class="band-head">By Skin Integrity</div>
+        <div class="band-body">
+          <p><b class="lbl">Open:</b> break in skin or mucous membrane</p>
+          <p><b class="lbl">Closed:</b> no break — bruise, edema, hematoma</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Length of Time for Healing</div>
+        <div class="band-body">
+          <p><b class="lbl">Acute:</b> short, no complications; all 3 healing phases occur (inflammation, proliferation, maturation)</p>
+          <p><b class="lbl">Chronic:</b> longer to heal due to interrupted healing — infection, trauma, edema, ischemia; pressure ulcers, diabetics, corticosteroids, PAD, PVD</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Level of Contamination</div>
+        <div class="band-body">
+          <p><b class="lbl">Clean:</b> no infection, limited inflammation = LOW infection risk</p>
+          <p><b class="lbl">Clean contaminated:</b> surgical incisions of GI/resp/GU = INCREASED risk</p>
+          <p><b class="lbl">Contaminated:</b> open wounds, pressure ulcers, trauma, surgeries with break in asepsis</p>
+          <p><b class="lbl">Infected:</b> bacteria &gt;100,000 per gm tissue; s/s = REEDA &amp; COCAF + pain</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Depth of Wound</div>
+        <div class="band-body">
+          <p><b class="lbl">Superficial:</b> epidermis only</p>
+          <p><b class="lbl">Partial thickness:</b> epidermis + dermis</p>
+          <p><b class="lbl">Full thickness:</b> through dermis into subcutaneous tissue</p>
+          <p><b class="lbl">Penetrating:</b> through to underlying organs/cavity</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Types of Wound Drainage — COCAF (Color · Odor · Consistency · Amount · Frequency)</span>
+    <div class="ts"><table class="t-plum">
+      <tr><th>Type</th><th>Appearance</th><th>Significance</th></tr>
+      <tr><td><strong>Serous</strong></td><td>Watery, clear to straw colored</td><td>Clean wounds — normal</td></tr>
+      <tr><td><strong>Sanguineous</strong></td><td>Blood, bright red to dark red/brown</td><td>Fresh bleeding</td></tr>
+      <tr><td><strong>Serosanguineous</strong></td><td>Combo of blood &amp; serous</td><td>New wounds — expected early on</td></tr>
+      <tr><td><strong>Purulent</strong></td><td>Thick, odorous, white/yellow/grey</td><td class="emerg">INFECTION</td></tr>
+      <tr><td><strong>Purosanguineous</strong></td><td>Red-tinged pus &amp; blood</td><td>Infection + new wound</td></tr>
+    </table></div>
+
+    <span class="sub sub-plum">Types of Wound Healing</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Regenerative / Epithelial</h4>
+        <p>Epidermis &amp; dermis regeneration; partial thickness wounds</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Primary Intention</h4>
+        <p>Clean, approximated edges = surgical wound; minimum scarring; <strong>LEAST</strong> infection risk</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Secondary Intention</h4>
+        <p>Greatest tissue loss, wide wound base; heals from base by filling with granulation tissue inside-out; NOT approximated; example = pressure ulcer</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Tertiary Intention (Delayed Closure)</h4>
+        <p>Open wound, can't close incision; allow secondary intention healing first, then suture once no s/s of infection/inflammation</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Phases of Wound Healing</span>
+    <div class="g3">
+      <div class="band-card bh-plum">
+        <div class="band-head">1. Inflammatory (Cleansing) — 1–5 days</div>
+        <div class="band-body">
+          <p><b class="lbl">Hemostasis:</b> vessels constrict, platelets aggregate to slow bleeding, clotting mechanism activates</p>
+          <p><b class="lbl">Inflammation:</b> edema, erythema, pain, ↑ temp, WBCs to area; macrophages do phagocytosis; scab forms</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">2. Proliferative (Granulation) — 5–21 days</div>
+        <div class="band-body">
+          <p><strong>HIGHER risk of infection</strong> here due to time</p>
+          <p>Cells develop &amp; grow to fill from base</p>
+          <p><b class="lbl">Granulation tissue:</b> fibroblasts, new blood/lymph vessels — beefy red, bleeds easily</p>
+          <p><b class="lbl">Epithelialization:</b> epithelial cells grow from edges, seal wound</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">3. Maturation (Remodeling) — 14–21 days → 3–6 months</div>
+        <div class="band-body">
+          <p>Collagen fibers broken down &amp; reorganized</p>
+          <p>Increases tensile strength of wound</p>
+          <p>Scar tissue formation</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Complications of Wound Healing</span>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>Hemorrhage</h4>
+        <p>Rapid blood loss, severed/injured vessel; know pt history — bleeding/clotting disorder, anticoagulants</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Infection</h4>
+        <p>Microorganisms present; wound not healing; REEDA/COCAF + systemic (fever, ↑ WBC)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Dehiscence</h4>
+        <p>Rupture/separation of wound layers (NOT total)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Evisceration</h4>
+        <p>Total separation with protrusion of viscera through wound — <strong class="emerg">SURGICAL EMERGENCY</strong></p>
+      </div>
+      <div class="card card-plum">
+        <h4>Fistula Formation</h4>
+        <p>Abnormal passage connecting two body cavities; d/t infection/debris → pressure → abnormal passageway; GI &amp; GU tracts</p>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Assessment Tools</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>REEDA — Surgical Wound Assessment</h4>
+        <ul>
+          <li><b class="lbl">R</b> = Redness</li>
+          <li><b class="lbl">E</b> = Edema</li>
+          <li><b class="lbl">E</b> = Ecchymosis</li>
+          <li><b class="lbl">D</b> = Drainage</li>
+          <li><b class="lbl">A</b> = Approximation</li>
+        </ul>
+      </div>
+      <div class="card card-plum">
+        <h4>Surgical Wound Care Notes</h4>
+        <ul>
+          <li><strong>Surgeon</strong> changes the 1st dressing</li>
+          <li>Surgical dressings are sterile</li>
+          <li>If original dressing soiled: mark outline of drainage; reinforce with dry sterile gauze; report COCAF to surgeon</li>
+          <li>Assess: REEDA, count sutures/staples/steri-strips, document drain length</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Pressure Injuries — Definition &amp; Staging</span>
+    <p><b class="lbl">Definition:</b> Localized injury to skin &amp; underlying tissue, usually over a bony prominence. Pressure → tissue ischemia → tissue cell death. Can occur in as little as <strong>2 hours</strong>.</p>
+    <p style="margin-top:6px"><b class="lbl">Reactive Hyperemia:</b> Start of ischemia — skin intact; pressure causes pale/cool skin; when pressure relieved → vasodilation → red. If redness doesn't disappear quickly = tissue damage = <strong>NONBLANCHABLE</strong>.</p>
+    <br>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Intrinsic Factors (Internal — Patient Health)</h4>
+        <ul>
+          <li>Chronic illness (diabetes, medications such as corticosteroids)</li>
+          <li>Impaired circulation (diabetes, atherosclerosis, low BP)</li>
+          <li>Reduced O2 supply in blood (tobacco users, anemic)</li>
+          <li>Limited mobility or reduced sensation (nerve damage, head injury, stroke, SCI, contractures)</li>
+          <li>Impaired cognition (Alzheimer's, dementia, altered LOC)</li>
+          <li>Plus: immobility, poor nutrition, edema, age, fever/sepsis</li>
+        </ul>
+      </div>
+      <div class="card card-plum">
+        <h4>Extrinsic Factors (External — Environment)</h4>
+        <ul>
+          <li><b class="lbl">Friction:</b> skin rubbing against surface</li>
+          <li><b class="lbl">Shearing:</b> pt sliding downward; epidermis and dermis separate</li>
+          <li><b class="lbl">Moisture:</b> incontinence, sweat</li>
+          <li><b class="lbl">Compression:</b> over bony prominences AND under medical devices (ET tubes, casts, catheters)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warn">Healing ulcers are <strong>NOT reverse-staged</strong> — a stage 4 healing wound stays documented as "Stage 4: healing." Never downgrade the stage.</div>
+
+    <div class="ts"><table class="t-plum">
+      <tr><th>Stage</th><th>Layers</th><th>Skin</th><th>Depth</th><th>Key Features</th></tr>
+      <tr><td><strong>Stage I</strong></td><td>1 layer</td><td>INTACT</td><td>Epidermis only</td><td>NONBLANCHABLE — does not change color when pressed</td></tr>
+      <tr><td><strong>Stage II</strong></td><td>2 layers</td><td>OPEN</td><td>Epidermis + dermis (partial thickness)</td><td>Shallow, red-pink wound bed; no slough; may be intact/ruptured serum-filled blister</td></tr>
+      <tr><td><strong>Stage III</strong></td><td>3 layers</td><td>OPEN</td><td>Epidermis + dermis + subQ (full thickness)</td><td>May see fascia; no muscle, bone, or tendon visible</td></tr>
+      <tr><td><strong>Stage IV</strong></td><td>4+ layers</td><td>OPEN</td><td>Through muscle; may involve fascia, bone, tendons, joint capsules</td><td>Slough or eschar may be present; undermining and sinus tracts common</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Braden Scale</span>
+    <p>Tool to assess skin impairment &amp; pressure injury risk. <strong>LOWER score = MORE likely to develop pressure injury.</strong></p>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>6 Categories</h4>
+        <ol>
+          <li>Sensory Perception</li>
+          <li>Moisture</li>
+          <li>Activity</li>
+          <li>Mobility</li>
+          <li>Nutrition</li>
+          <li>Friction &amp; Shear</li>
+        </ol>
+      </div>
+      <div class="card card-plum">
+        <h4>Score Thresholds</h4>
+        <p><b class="lbl">≤18</b> = at risk for skin breakdown</p>
+        <p><b class="lbl">&lt;12</b> = high risk</p>
+        <p><b class="lbl">When:</b> every shift / every 8 hours (per facility policy)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Interventions — Prevention</h4>
+        <ul>
+          <li>Inspect skin daily; q1–2h if at greater risk</li>
+          <li>T&amp;P q2h</li>
+          <li>Manage moisture (incontinence care, barrier cream)</li>
+          <li>Lotion &amp; massage — <strong>do NOT massage over bony prominences</strong></li>
+          <li>Monitor labs, nutrition, hydration</li>
+          <li>Pressure-limiting &amp; positioning devices</li>
+          <li>Side-lying: prevent direct pressure on trochanter</li>
+          <li>HOB at lowest degree consistent with condition</li>
+          <li>Use Hoyer lift when possible</li>
+          <li>Totally relieve pressure on heels (raise off bed)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Heat &amp; Cold Therapy</span>
+    <div class="g2">
+      <div class="band-card bh-plum">
+        <div class="band-head">Heat Therapy</div>
+        <div class="band-body">
+          <p><b class="lbl">Effects:</b> vasodilation · ↑ capillary permeability · ↑ cellular metabolism · ↑ inflammation</p>
+          <p><b class="lbl">Indications:</b> joint stiffness, contractures, low back pain</p>
+          <p>Increases blood flow → brings O2 and WBCs → aids healing; promotes relaxation, ↓ stiffness/muscle tension</p>
+          <p>Moist heat (washcloth, gauze compress, soaks) or dry heat</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">Cold Therapy</div>
+        <div class="band-body">
+          <p><b class="lbl">Effects:</b> vasoconstriction · ↓ capillary permeability · ↓ cellular metabolism · slowed bacterial growth · ↓ inflammation/edema · local anesthetic effect</p>
+          <p><b class="lbl">Indications:</b> fractures, post-injury swelling, bleeding, sprains, strains</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-plum" style="margin-top:8px">
+      <h4>Heat/Cold Nursing Interventions</h4>
+      <ul>
+        <li>PCP prescription required: body site, type, frequency, duration</li>
+        <li>Assess site and patient's perception of temp changes</li>
+        <li>V/S pre &amp; post treatment; inspect skin every 15 min</li>
+        <li>Receptors adapt to temp ~15 min — warn patient NOT to change temp (can cause tissue injury)</li>
+        <li><b class="lbl">Monitor carefully:</b> extremes of age, sensory impairment, highly vascular areas (fingers, hand, face, perineum), large body area, injured skin/wounds</li>
+      </ul>
+    </div>
+
+    <span class="sub sub-plum">Hyperbaric Treatment &amp; Wound Culture</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Hyperbaric Oxygen</h4>
+        <p>Body exposed to 100% O2 at greater than normal pressure</p>
+        <p>Speeds healing by stimulating new blood vessel growth</p>
+        <p><b class="lbl">Used for:</b> diabetic wounds, burns</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Wound Culture &amp; Diagnostics</h4>
+        <p>Obtain <strong>AFTER</strong> wound is irrigated/cleaned</p>
+        <p><strong>BEST</strong> obtained PRIOR to antibiotic administration</p>
+        <p><b class="lbl">Other dx:</b> needle aspiration, tissue biopsy</p>
+        <p><b class="lbl">Labs:</b> albumin (protein), WBC (infection), coagulation (bleeding), glucose (diabetes)</p>
+      </div>
+    </div>
+  </div>
+</div><!-- end s1 -->
+
+<!-- ═══ LECTURE 3 STUB ═══ -->
+<div id="s2" class="panel">
+  <div class="sec-head sh-rust">Pharmacology <span class="lec-tag">Lecture 3</span></div>
+  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
+</div>
+
+<!-- ═══ LECTURE 4 STUB ═══ -->
+<div id="s3" class="panel">
+  <div class="sec-head sh-forest">Mobility <span class="lec-tag">Lecture 4</span></div>
+  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
+</div>
+
+<!-- ═══ LECTURE 5 STUB ═══ -->
+<div id="s4" class="panel">
+  <div class="sec-head sh-cobalt">Perioperative Nursing Part 1 <span class="lec-tag">Lecture 5</span></div>
+  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
+</div>
+
+<!-- ═══ LECTURE 6 STUB ═══ -->
+<div id="s5" class="panel">
+  <div class="sec-head sh-slate">Perioperative Part 2 &amp; Pain Management <span class="lec-tag">Lecture 6</span></div>
+  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
+</div>
+
+<!-- ═══ MEDICATIONS ═══ -->
+<div id="s6" class="panel">
+  <div class="sec-head sh-gold">Unit 1 Required Medications <span class="lec-tag">Know the Classification</span></div>
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objective</h4>
+      <p>Know the <strong>classification</strong> for each generic drug name on the Unit 1 list.</p>
+    </div>
+    <div class="ts"><table class="t-gold">
+      <tr><th>Classification</th><th>Generic Drug(s)</th></tr>
+      <tr><td>Analgesic, Antipyretic</td><td>acetaminophen</td></tr>
+      <tr><td>NSAID — Analgesic, Antipyretic, Anti-inflammatory</td><td>acetylsalicylic acid (aspirin) &nbsp;·&nbsp; ibuprofen &nbsp;·&nbsp; ketorolac</td></tr>
+      <tr><td>Opiate Analgesic</td><td>codeine &nbsp;·&nbsp; oxycodone and acetaminophen &nbsp;·&nbsp; morphine sulfate &nbsp;·&nbsp; hydromorphone</td></tr>
+      <tr><td>Opiate Antagonist</td><td>naloxone</td></tr>
+      <tr><td>Local Anesthetic</td><td>lidoderm (lidocaine)</td></tr>
+      <tr><td>Anti-infective</td><td>penicillin (ampicillin) &nbsp;·&nbsp; gentamycin sulfate (eye drop) &nbsp;·&nbsp; azithromycin</td></tr>
+      <tr><td>Anesthetic Sedation</td><td>midazolam &nbsp;·&nbsp; propofol</td></tr>
+      <tr><td>Anticholinergic, Cardiac Agent</td><td>atropine sulfate</td></tr>
+      <tr><td>Stool Softener</td><td>docusate sodium</td></tr>
+      <tr><td>Laxative / Antacid</td><td>senna</td></tr>
+      <tr><td>Bulk-forming Fiber Laxative</td><td>polyethylene glycol</td></tr>
+      <tr><td>Anti-emetic</td><td>ondansetron</td></tr>
+      <tr><td>Vitamin</td><td>ascorbic acid (Vitamin C) &nbsp;·&nbsp; zinc</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ FLASHCARDS ═══ -->
+<div id="s7" class="panel">
+  <div class="sec-head sh-teal">Flashcards <span class="lec-tag" id="fc-deck-label">Loading&hellip;</span></div>
+  <div id="fc-wrap">
+    <div class="fc-controls">
+      <select id="fc-filter" onchange="fcFilter()">
+        <option value="">All Lectures</option>
+        <option value="NUR118-L1">L1: Infection Control</option>
+        <option value="NUR118-L2">L2: Skin &amp; Wounds</option>
+        <option value="NUR118-L3">L3: Pharmacology</option>
+        <option value="NUR118-L4">L4: Mobility</option>
+        <option value="NUR118-L5">L5: Periop Part 1</option>
+        <option value="NUR118-L6">L6: Periop + Pain</option>
+      </select>
+      <button class="fc-ctrl-btn" onclick="fcShuffle()">&#8635; Shuffle</button>
+      <button class="fc-ctrl-btn" onclick="fcRestart()">&#9654; Restart</button>
+    </div>
+    <div class="fc-progress">
+      <span class="fc-progress-label" id="fc-prog-label">Waiting&hellip;</span>
+      <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="fc-card-area">
+      <div id="fc-front" class="fc-face fc-front" onclick="fcFlip()">
+        <div class="fc-hint">Tap card to reveal answer</div>
+        <div class="fc-q" id="fc-question">Loading cards&hellip;</div>
+      </div>
+      <div id="fc-back" class="fc-face fc-back">
+        <div class="fc-a-head">Answer</div>
+        <div class="fc-a" id="fc-answer"></div>
+      </div>
+      <div class="fc-btns" id="fc-rate-btns" style="display:none">
+        <button class="btn-got" onclick="fcRate('got')">&#10003; Got it</button>
+        <button class="btn-unsure" onclick="fcRate('unsure')">&#126; Unsure</button>
+        <button class="btn-missed" onclick="fcRate('missed')">&#10007; Missed</button>
+      </div>
+    </div>
+    <div id="fc-summary" style="display:none">
+      <h3>&#127881; Session Complete!</h3>
+      <div id="fc-sum-stats"></div>
+      <br>
+      <button class="fc-ctrl-btn" onclick="fcRestart()" style="padding:11px 28px;font-size:14px">Study Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="s8" class="panel">
+  <div class="sec-head sh-cobalt">Mastery Dashboard <span class="lec-tag">Per Objective</span></div>
+  <div id="db-wrap">
+    <div id="db-content">
+      <p style="color:var(--g400);text-align:center;padding:32px">Click Dashboard tab to load your progress&hellip;</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TAB NAV ──
+function show(i,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  var panel=document.getElementById('s'+i);
+  if(!panel) return;
+  panel.classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(i===7 && !fcLoaded) fcInit();
+  if(i===8) dbLoad();
+}
+
+// ── SUPABASE REST ──
+var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
+var SB_H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+async function sbGet(table,qs){
+  var r=await fetch(SB_URL+'/rest/v1/'+table+'?'+qs,{headers:SB_H});
+  if(!r.ok) throw new Error(table+': '+await r.text());
+  return r.json();
+}
+async function sbInsert(table,body){
+  try{
+    await fetch(SB_URL+'/rest/v1/'+table,{method:'POST',headers:Object.assign({},SB_H,{'Prefer':'return=minimal'}),body:JSON.stringify(body)});
+  }catch(e){}
+}
+function mkUUID(){
+  if(crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:r&0x3|0x8).toString(16);});
+}
+
+// ── FLASHCARD STATE ──
+var fcAllCards=[], fcDeck=[], fcIndex=0;
+var fcSessionId=null, fcCounts={got:0,unsure:0,missed:0};
+var fcFlippedState=false, fcLoaded=false;
+
+async function fcInit(){
+  document.getElementById('fc-question').textContent='Loading cards…';
+  try{
+    var data=await sbGet('flashcards','select=id,question,answer,objective_ids&order=id');
+    fcAllCards=(data||[]).filter(function(c){
+      return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf('NUR118-L')===0;});
+    });
+    fcLoaded=true;
+    fcDeck=fcAllCards.slice();
+    document.getElementById('fc-deck-label').textContent=fcAllCards.length+' Cards';
+    fcNewSession();
+  }catch(e){
+    document.getElementById('fc-question').textContent='Error: '+e.message;
+    document.getElementById('fc-deck-label').textContent='Error';
+  }
+}
+
+function fcNewSession(){
+  fcSessionId=mkUUID();
+  fcCounts={got:0,unsure:0,missed:0};
+  fcIndex=0;
+  document.getElementById('fc-summary').style.display='none';
+  document.getElementById('fc-card-area').style.display='block';
+  fcShowCard();
+}
+
+function fcFilter(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  document.getElementById('fc-deck-label').textContent=fcDeck.length+' Cards';
+  fcNewSession();
+}
+
+function fcShuffle(){
+  for(var i=fcDeck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;}
+  fcNewSession();
+}
+
+function fcRestart(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  fcNewSession();
+}
+
+function fcShowCard(){
+  document.getElementById('fc-front').style.display='flex';
+  document.getElementById('fc-back').style.display='none';
+  document.getElementById('fc-rate-btns').style.display='none';
+  fcFlippedState=false;
+  if(!fcDeck.length){
+    document.getElementById('fc-question').textContent='No cards match this filter.';
+    document.getElementById('fc-prog-label').textContent='0 cards';
+    document.getElementById('fc-prog-fill').style.width='0%';
+    return;
+  }
+  var c=fcDeck[fcIndex];
+  document.getElementById('fc-question').textContent=c.question;
+  document.getElementById('fc-answer').textContent=c.answer;
+  document.getElementById('fc-prog-label').textContent='Card '+(fcIndex+1)+' of '+fcDeck.length;
+  document.getElementById('fc-prog-fill').style.width=Math.round(fcIndex/fcDeck.length*100)+'%';
+}
+
+function fcFlip(){
+  if(!fcFlippedState){
+    document.getElementById('fc-front').style.display='none';
+    document.getElementById('fc-back').style.display='block';
+    document.getElementById('fc-rate-btns').style.display='flex';
+    fcFlippedState=true;
+  }
+}
+
+var RESULT_MAP={got:'got_it',unsure:'unsure',missed:'missed'};
+async function fcRate(rating){
+  var c=fcDeck[fcIndex];
+  fcCounts[rating]++;
+  sbInsert('card_attempts',{card_id:c.id,session_id:fcSessionId,result:RESULT_MAP[rating]});
+  fcIndex++;
+  if(fcIndex>=fcDeck.length) fcShowSummary();
+  else fcShowCard();
+}
+
+function fcShowSummary(){
+  document.getElementById('fc-card-area').style.display='none';
+  document.getElementById('fc-prog-label').textContent='Complete! '+fcDeck.length+' cards';
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-sum-stats').innerHTML=
+    '<span class="sum-stat sum-got">&#10003; Got it: '+fcCounts.got+'</span>'+
+    '<span class="sum-stat sum-unsure">~ Unsure: '+fcCounts.unsure+'</span>'+
+    '<span class="sum-stat sum-missed">&#10007; Missed: '+fcCounts.missed+'</span>';
+  document.getElementById('fc-summary').style.display='block';
+}
+
+// ── DASHBOARD ──
+var LECTURE_MAP={
+  'NUR118-L1':{label:'L1: Infection Control',color:'#0f766e'},
+  'NUR118-L2':{label:'L2: Skin & Wounds',color:'#7e22ce'},
+  'NUR118-L3':{label:'L3: Pharmacology',color:'#b91c1c'},
+  'NUR118-L4':{label:'L4: Mobility',color:'#15803d'},
+  'NUR118-L5':{label:'L5: Periop Part 1',color:'#1d4ed8'},
+  'NUR118-L6':{label:'L6: Periop + Pain',color:'#334155'}
+};
+var dbLoaded=false;
+
+async function dbLoad(){
+  if(dbLoaded) return;
+  dbLoaded=true;
+  var el=document.getElementById('db-content');
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:32px">Loading your progress…</p>';
+  try{
+    var res=await Promise.all([
+      sbGet('flashcards','select=id,objective_ids'),
+      sbGet('objectives','select=id,description&id=like.NUR118-L*'),
+      sbGet('card_attempts','select=card_id,result,created_at&order=created_at.desc')
+    ]);
+    var cards=res[0], objectives=res[1], attempts=res[2];
+    objectives=objectives.filter(function(o){return o.id.indexOf('NUR118-L')===0;});
+    var latest={};
+    for(var a of attempts){if(!latest[a.card_id]) latest[a.card_id]=a;}
+    var groups={};
+    for(var obj of objectives){
+      var prefix=Object.keys(LECTURE_MAP).find(function(p){return obj.id.indexOf(p)===0;})||'OTHER';
+      if(!groups[prefix]) groups[prefix]=[];
+      groups[prefix].push(obj);
+    }
+    var html='';
+    for(var pfx of Object.keys(LECTURE_MAP)){
+      var list=groups[pfx]||[];
+      if(!list.length) continue;
+      var lec=LECTURE_MAP[pfx];
+      html+='<div class="db-lecture-group"><div class="db-lec-head" style="background:'+lec.color+'">'+lec.label+'</div>';
+      for(var o of list){
+        var oc=cards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf(o.id)>=0;});
+        var total=oc.length,got=0,attempted=0;
+        for(var cc of oc){var at=latest[cc.id];if(at){attempted++;if(at.result==='got_it')got++;}}
+        var pct=attempted===0?0:Math.round(got/total*100);
+        var cls=attempted===0?'db-bar-notstarted':pct>=80?'db-green':pct>=50?'db-yellow':'db-red';
+        html+='<div class="db-obj-row '+cls+'"><div class="db-obj-label">'+o.description+'</div>';
+        html+='<div class="db-bar-wrap"><div class="db-bar-bg"><div class="db-bar-fill" style="width:'+pct+'%"></div></div>';
+        html+='<span class="db-bar-pct">'+(attempted===0?'—':pct+'%')+'</span></div></div>';
+      }
+      html+='</div>';
+    }
+    el.innerHTML=html||'<p style="padding:16px;color:#9ca3af">No data yet — complete some flashcard sessions first.</p>';
+  }catch(e){
+    el.innerHTML='<p style="color:#dc2626;padding:16px">Error: '+e.message+'</p>';
+    dbLoaded=false;
+  }
+}
+</script>
+</body>
+</html>
