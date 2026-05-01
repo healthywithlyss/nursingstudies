@@ -972,17 +972,628 @@ h4{font-size:14px}strong{font-weight:700}
   </div>
 </div><!-- end s1 -->
 
-<!-- ═══ LECTURE 3 STUB ═══ -->
+<!-- ═══ LECTURE 3 — PHARMACOLOGY ═══ -->
 <div id="s2" class="panel">
   <div class="sec-head sh-rust">Pharmacology <span class="lec-tag">Lecture 3</span></div>
-  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
-</div>
 
-<!-- ═══ LECTURE 4 STUB ═══ -->
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Sources of drug information · 3 ways drugs are named · Classification of drugs · Routes of administration · 4 concepts of pharmacokinetics · Drug concentration terms (peak, trough, half-life, onset, duration) · Pharmacodynamics: primary &amp; secondary effects · Drug interactions: antagonistic, synergistic, agonist, incompatibilities</p>
+    </div>
+
+    <span class="sub sub-rust">Sources of Drug Information</span>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>Reliable Sources</h4>
+        <ul>
+          <li>US Pharmacopeia (USP) National Formulary (NF)</li>
+          <li>Physician's Desk Reference (PDR)</li>
+          <li>Package inserts (important for home care)</li>
+          <li>Nursing drug handbooks</li>
+          <li>Electronic databases: Medline (US National Library of Medicine), DailyMed</li>
+          <li>Clinical pharmacist</li>
+          <li>Facility policies &amp; procedures</li>
+        </ul>
+      </div>
+      <div class="card card-rust">
+        <h4>Information Found in Drug References</h4>
+        <ul>
+          <li>Description &amp; Action (target in cell, enzyme, cell function)</li>
+          <li>Indication for use</li>
+          <li>Interactions &amp; Contraindications</li>
+          <li>Precautions</li>
+          <li>Side effects &amp; Adverse reactions</li>
+          <li>Dosage and routes of administration</li>
+          <li>How to store</li>
+        </ul>
+        <div class="warn" style="margin-top:8px"><strong>NOT reliable:</strong> Google, Facebook, Instagram, TikTok</div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">3 Ways Drugs Are Named</span>
+    <div class="g3">
+      <div class="card card-rust">
+        <h4>Chemical Name</h4>
+        <p>Exact chemical composition; rarely used in nursing</p>
+        <p><em>Example: isobutylphenyl propionic acid</em></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Generic Name</h4>
+        <p>Official/common name; first letter <strong>NOT</strong> capitalized; how listed in US Pharmacopeia</p>
+        <p><em>Example: ibuprofen</em></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Trade (Brand) Name</h4>
+        <p>Capitalized; trademark symbol; what drug is sold as in stores</p>
+        <p><em>Example: Motrin, Advil</em></p>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Classification of Drugs</span>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>4 Classification Systems</h4>
+        <ul>
+          <li>Body system</li>
+          <li>Clinical indication / therapeutic use</li>
+          <li>Physiologic / chemical action</li>
+          <li>Prescription / non-prescription / illegal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Routes of Administration</span>
+    <div class="g2">
+      <div class="band-card bh-rust">
+        <div class="band-head">Oral</div>
+        <div class="band-body">
+          <p>Swallowed; absorbed in stomach or small intestines</p>
+          <p>Forms: pill, capsule, tablet, syrup, suspension, elixir, extract, tincture, solution, powder in liquid</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Enteral</div>
+        <div class="band-body">
+          <p>Given directly into stomach or intestines via tube (NG, G-tube); liquids only</p>
+          <p>Must check if pills can be crushed or capsules opened</p>
+          <p>Use for swallowing impairment (alternative to parenteral)</p>
+          <p><b class="lbl">Disadvantages:</b> not all tabs/caps can be crushed (can clog NG); NG = aspiration risk</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Transmucosal</div>
+        <div class="band-body">
+          <p><b class="lbl">Sublingual:</b> under tongue; do NOT swallow; allow to dissolve &amp; absorb; example = <strong>NITROGLYCERIN</strong></p>
+          <p><b class="lbl">Buccal:</b> held against mucous membrane in cheek; liquid, lozenges, spray, drops; examples = liquid Roxinol (end-of-life), Methyltestosterone</p>
+          <p>Can also be sprayed into nasal/pharyngeal mucosa</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Topical</div>
+        <div class="band-body">
+          <p><b class="lbl">Skin:</b> creams, lotions, ointment, transdermal patch, foam/spray, paste</p>
+          <p><b class="lbl">Instillations</b> (into a body cavity): eye, ear, nose, rectum, vagina, bladder — drops, spray, suppository, liquid</p>
+          <p><b class="lbl">Inhalation:</b> drug broken into fine particles via nebulizer; aerosols, inhalers, anesthesia gases</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Parenteral — Into Body WITHOUT Digestive System</div>
+        <div class="band-body">
+          <div class="g2">
+            <div>
+              <p><b class="lbl">IV (Intravenous):</b> directly in vein; rapid effect &amp; absorption; one stick for multiple doses; risk of infection, vein problems; antibiotics, IV fluids, antineoplastics</p>
+              <p><b class="lbl">IM (Intramuscular):</b> into muscle mass; larger volume; risk of nerve damage; can be irritating; CAN'T use where tissue is damaged; vaccines, antibiotics, opioids, antiemetics — example Prochlorperazine</p>
+            </div>
+            <div>
+              <p><b class="lbl">SQ (Subcutaneous):</b> into subQ tissue; faster than oral; absorption SLOW; small amounts only; <strong>INSULIN, HEPARIN, LOVENOX</strong>; epinephrine</p>
+              <p><b class="lbl">ID (Intradermal):</b> under skin into dermis; very small amounts; slowly absorbed; PPD (TB test), allergy testing, lidocaine for local anesthesia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Parenteral — Other Routes</div>
+        <div class="band-body">
+          <p><b class="lbl">Intraspinal:</b> into spinal canal</p>
+          <p><b class="lbl">Intrathecal:</b> into subarachnoid space around spinal cord</p>
+          <p><b class="lbl">Epidural:</b> between vertebral spines into extradural space; regional anesthesia &amp; pain control</p>
+          <p><b class="lbl">Rectal:</b> in rectum — example Bisacodyl</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Absorption Sites (Table 2.1)</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Route</th><th>Site</th><th>Example Drug</th></tr>
+      <tr><td>Sublingual</td><td>Under tongue</td><td>Nitroglycerin</td></tr>
+      <tr><td>Buccal</td><td>In cheek</td><td>Methyltestosterone</td></tr>
+      <tr><td>Oral</td><td>Stomach / intestine</td><td>Ibuprofen</td></tr>
+      <tr><td>IM</td><td>Muscle</td><td>Prochlorperazine</td></tr>
+      <tr><td>SubQ</td><td>Under skin</td><td>Epinephrine, Insulin</td></tr>
+      <tr><td>IV</td><td>Bloodstream</td><td>Antibiotics, antineoplastics</td></tr>
+      <tr><td>Topical</td><td>Through skin</td><td>Nitrodisc, hydrocortisone ointment</td></tr>
+      <tr><td>Rectal</td><td>Rectum</td><td>Bisacodyl</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Pharmacokinetics — "ADME"</span>
+    <p>Branch of pharmacology concerned with the <strong>movement of drugs within the body</strong>. 4 processes determine intensity &amp; duration of drug actions.</p>
+    <br>
+    <div class="g2">
+      <div class="band-card bh-rust">
+        <div class="band-head">A — Absorption</div>
+        <div class="band-body">
+          <p>Movement of drug from route of administration <strong>INTO bloodstream</strong>; when drug becomes available systemically to do its intended action</p>
+          <p><b class="lbl">Absorption depends on:</b></p>
+          <ul>
+            <li><b class="lbl">Route:</b> IV faster than oral</li>
+            <li><b class="lbl">Drug solubility:</b> water-soluble = faster in GI; lipid-soluble = penetrate cell membranes; enteric-coated = dissolves in intestines (delays); time-release = slow, small amounts over hours</li>
+            <li><b class="lbl">Blood flow to area:</b> poor blood supply = poor absorption</li>
+            <li><b class="lbl">Age:</b> older adults have ↓ stomach acid, ↓ intestinal motility, ↓ muscle mass &amp; subQ tissue</li>
+            <li><b class="lbl">Patient condition</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">D — Distribution</div>
+        <div class="band-body">
+          <p>How drug is delivered/moved in the bloodstream/circulatory system to the desired site</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">M — Metabolism</div>
+        <div class="band-body">
+          <p>Once at site, drug breaks down &amp; prepares for excretion</p>
+          <p><strong>PRIMARY SITE = LIVER</strong></p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">E — Excretion</div>
+        <div class="band-body">
+          <p>Removal/elimination of drug from the body</p>
+          <p><strong>PRIMARY SITE = KIDNEYS</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Drug Concentration Terms</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Term</th><th>Definition</th><th>Key Detail</th></tr>
+      <tr><td><strong>Onset of Action</strong></td><td>TIME for drug to reach minimum effective concentration in blood</td><td>When effects first appear</td></tr>
+      <tr><td><strong>Peak</strong></td><td>Drug at HIGHEST concentration in bloodstream (rate of absorption = rate of elimination)</td><td>Blood drawn <strong>2 hours AFTER</strong> dose administered</td></tr>
+      <tr><td><strong>Duration of Action</strong></td><td>TIME drug is effective; occurs BEFORE metabolism &amp; excretion</td><td>Window of therapeutic effect</td></tr>
+      <tr><td><strong>Trough</strong></td><td>Drug at LOWEST concentration; next dose is due</td><td>Blood drawn <strong>30 minutes BEFORE next dose</strong></td></tr>
+      <tr><td><strong>Therapeutic Level</strong></td><td>Drug causes desired effect WITHOUT toxicity</td><td>The sweet spot</td></tr>
+      <tr><td><strong>Therapeutic Range</strong></td><td>Range of therapeutic concentrations</td><td>Between minimum effective and toxic levels</td></tr>
+      <tr><td><strong>Half-Life</strong></td><td>TIME for HALF the drug to be eliminated from the body</td><td>Used to determine dosing frequency</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Pharmacodynamics</span>
+    <p><b class="lbl">Definition:</b> Study of how meds obtain effects in the body &amp; how the body interacts/responds — the drug's biochemical &amp; physiological effects on the body. (<em>What the drug does to your body.</em>)</p>
+    <p style="margin-top:4px">Affected by: disorder/disease · aging process · other drugs</p>
+    <br>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>Primary Effects</h4>
+        <p>Also called therapeutic effect — <strong>PREDICTED, DESIRED, INTENDED</strong></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Secondary Effects — All Unintended</h4>
+        <p>ALL effects different from what was intended</p>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Types of Secondary Effects</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Type</th><th>Definition</th><th>Key Points</th></tr>
+      <tr><td><strong>Side Effects</strong></td><td>Unintended but <strong>PREDICTABLE</strong> physiological effects; usually well tolerated</td><td>Can CONTINUE drug; most common: nausea, vomiting, diarrhea, dizziness, drowsiness, dry mouth, constipation; not life-threatening</td></tr>
+      <tr><td><strong>Adverse Reactions</strong></td><td>Unintended &amp; <strong>HARMFUL</strong>; usually unpredicted; more severe than side effects</td><td>MUST STOP drug; severe ones are life-threatening — require intervention to prevent permanent impairment/death</td></tr>
+      <tr><td><strong>Toxic Reactions</strong></td><td>DAMAGE organs &amp; tissue; can cause death</td><td>From overdosing (e.g., resp depression from excess morphine, hypoglycemia from too much insulin), accumulation in tissues, abnormal sensitivity</td></tr>
+      <tr><td><strong>Allergic Reactions</strong></td><td>IMMUNE SYSTEM reaction; common with antibiotics, biological agents, diagnostic agents</td><td>Minor → severe: hives (urticaria), itching (pruritus), edema, rhinitis → <strong class="emerg">ANAPHYLAXIS</strong>: laryngeal edema, bronchoconstriction, hypotension</td></tr>
+      <tr><td><strong>Idiosyncratic Reactions</strong></td><td>UNEXPECTED, abnormal, peculiar response</td><td>Can be extreme sensitivity, lack of response, or <strong>PARADOXICAL</strong> (opposite of expected) — e.g., Benadryl causing hyperactivity in a child</td></tr>
+      <tr><td><strong>Cumulative Effect</strong></td><td>INCREASED response from repeated doses when rate of administration &gt; rate of metabolism/excretion</td><td>Seen in liver/kidney failure; elderly d/t ↓ kidney function or metabolism</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Drug Interactions</span>
+    <div class="g3">
+      <div class="card card-rust">
+        <h4>Agonist — 1+1=2</h4>
+        <p>Desired combined effects; drugs work together as intended</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Antagonistic — 1+1=1</h4>
+        <p>One drug <strong>LIMITS or BLOCKS</strong> effects of another; combined effect LESS than either alone</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Synergistic — 1+1=3</h4>
+        <p>Additional/additive effects; both together <strong>GREATER</strong> than individual effects</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Potentiating — A+B=AAAAAA</h4>
+        <p>One drug significantly enhances the other to the point of <strong>TOXICITY</strong></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Incompatibilities — 1+1=0</h4>
+        <p>Mixed drugs cause <strong>chemical deterioration</strong></p>
+        <ul>
+          <li>Recognize: clear IV gets cloudy, particles in solution</li>
+          <li>Do NOT administer — consult compatibility charts BEFORE mixing</li>
+          <li>After mixing, double-check for changes</li>
+          <li>Administering incompatible meds = <strong>MEDICATION ERROR</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- end s2 -->
+
+<!-- ═══ LECTURE 4 — MOBILITY ═══ -->
 <div id="s3" class="panel">
   <div class="sec-head sh-forest">Mobility <span class="lec-tag">Lecture 4</span></div>
-  <p style="padding:24px;color:var(--g400)">Content loading — coming in next update.</p>
-</div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Good body mechanics · Purpose of ROM · Difference between AROM &amp; PROM · Factors affecting mobility · Complications &amp; interventions of immobility by system: Musculoskeletal, Cardiovascular, Respiratory, Metabolic, GI, GU, Integumentary, Psychosocial</p>
+    </div>
+
+    <span class="sub sub-forest">Physiology of Movement</span>
+    <p>Mobility depends on successful interaction among the <strong>Skeleton, Muscles, and Nervous System</strong>.</p>
+    <br>
+    <div class="g3">
+      <div class="card card-forest">
+        <h4>Skeletal System</h4>
+        <ul>
+          <li><b class="lbl">Bones:</b> 206; hard outer shell with spongy interior</li>
+          <li><b class="lbl">Joints:</b> where 2 bones articulate (hip, knee)</li>
+          <li><b class="lbl">Cartilage:</b> connective tissue; cushion around joints</li>
+          <li><b class="lbl">Ligaments:</b> fibrous tissue that <strong>connect movable joints</strong> (bone to bone)</li>
+          <li><b class="lbl">Tendons:</b> fibrous connective tissue that <strong>connect muscle to bone</strong></li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Muscles</h4>
+        <ul>
+          <li>~Half of body weight</li>
+          <li>Contract → cause movement</li>
+          <li><b class="lbl">3 types:</b> skeletal (moves bones/joints), smooth, cardiac</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Motor Nervous System</h4>
+        <ul>
+          <li>Controls movement of musculoskeletal system</li>
+          <li>Motor nerves: autonomic OR somatic</li>
+          <li><b class="lbl">Somatic NS:</b> controls voluntary skeletal muscles</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-forest">Body Mechanics</span>
+    <p><b class="lbl">Definition:</b> The way we move our bodies; allows movement without injury if done properly. <strong>4 components:</strong> body alignment, balance, coordination, joint mobility.</p>
+    <p style="margin-top:4px"><em>ANA (2013): Use mechanical equipment (transfer board, lift) OR get assistance whenever possible. Do not rely on body mechanics alone.</em></p>
+    <br>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Avoiding Injury — Key Principles</h4>
+        <ul>
+          <li>Use proper alignment = neutral spine posture</li>
+          <li>Wide base of support (feet spread apart) = balance</li>
+          <li>Avoid bending and twisting; face the object</li>
+          <li>Squat to lift (lowers center of gravity; position close to object)</li>
+          <li>Keep objects close when lifting; raise bed to waist height</li>
+          <li>Push, slide, or pull rather than lift whenever possible</li>
+          <li>Maintain good grip before moving</li>
+          <li>Keep elbows bent when carrying</li>
+          <li>Smooth &amp; even movements (avoid jerky) = COORDINATION</li>
+          <li>Use mechanical equipment or get assistance</li>
+          <li>Teach patients/families too</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Assess Patient Before Transfer</h4>
+        <ul>
+          <li>Patient's ability to assist in transfer</li>
+          <li>Patient's strength &amp; ability to bear weight</li>
+          <li>Height &amp; weight factor into safe transfer</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Range of Motion (ROM)</span>
+    <p><b class="lbl">Goal:</b> Exercise &amp; keep body in best possible physical condition when bed rest or immobility is present. Improve joint mobility, increase circulation, help maintain function, prevent contractures.</p>
+    <p><b class="lbl">ROM</b> = the maximum movement possible at a joint.</p>
+    <br>
+    <div class="g2">
+      <div class="band-card bh-forest">
+        <div class="band-head">AROM — Active Range of Motion</div>
+        <div class="band-body">
+          <p>Done <strong>BY PATIENT WITHOUT ASSISTANCE</strong></p>
+          <p>Patient independently moves joints through flexion, extension, abduction, adduction, circular motions</p>
+          <p>Often in rehab as pt recovering from illness, injury, surgery</p>
+          <p>Must teach patient what to do and how often</p>
+        </div>
+      </div>
+      <div class="band-card bh-forest">
+        <div class="band-head">PROM — Passive Range of Motion</div>
+        <div class="band-body">
+          <p>Done <strong>BY ANOTHER PERSON FOR PATIENT</strong> because they CANNOT do it themselves</p>
+          <p>Intervention to prevent complications of disuse &amp; promote joint mobility</p>
+          <p>Prevents contractures, muscle atrophy</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-forest">Factors Affecting Activity &amp; Mobility</span>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Patient Factors</h4>
+        <ol>
+          <li><b class="lbl">Developmental Stage (age):</b> older adults least active; 30 min/day recommended; incorporate resistance &amp; balance training to prevent falls</li>
+          <li><b class="lbl">Cognitive status:</b> can pt participate?</li>
+          <li><b class="lbl">Nutrition:</b> obesity &amp; chronic disease d/t inadequate protein stores (albumin)</li>
+          <li><b class="lbl">Lifestyle:</b> sedentary</li>
+        </ol>
+      </div>
+      <div class="card card-forest">
+        <h4>External Factors</h4>
+        <ol start="5">
+          <li><b class="lbl">Stress:</b> releases cortisol/adrenaline → muscle tension, fatigue, anxiety, brain damage, balance deficits</li>
+          <li><b class="lbl">Environmental factors</b></li>
+          <li><b class="lbl">Diseases &amp; abnormalities</b></li>
+          <li><b class="lbl">Respiratory disorders, circulatory disorders, fatigue, bed rest</b></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Complications of Immobility by System</span>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Musculoskeletal — First Systems Affected</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Balance problems; loss of endurance</li>
+              <li>Decreased muscle mass / <strong>ATROPHY</strong> — 10% muscle strength loss <strong>per week</strong></li>
+              <li>Wasting of gastrocnemius, soleus, leg muscles (control hip/knee/ankle)</li>
+              <li>Joints become stiff; decreased stability</li>
+              <li>Joint <strong>contractures</strong> — strongest muscles/flexors pull joints → ankylosis</li>
+              <li>Disuse <strong>osteoporosis</strong> — bones that don't bear weight release calcium</li>
+              <li>Hypercalcemia</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Assist pt to standing &amp; ambulation as tolerated</li>
+              <li>Prevent orthostatic hypotension</li>
+              <li>Use positioning devices to maintain body alignment</li>
+              <li>AROM, PROM</li>
+              <li>Assistive devices: walker, crutches, cane, bathing/toileting devices</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Respiratory</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>↓ lung expansion &amp; generalized respiratory muscle weakness</li>
+              <li>Stasis &amp; pooling of secretions</li>
+              <li>Risk for atelectasis (collapse of air sacs) or pneumonia</li>
+              <li>Pooled secretions block alveoli → ↓ gas exchange</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Chest movement restricted by bed; abdominal organs press on diaphragm; chest muscles weaken; secretions pool in bronchi → can't be expelled → atelectasis &amp; pneumonia.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Orthopneic position</li>
+              <li>T&amp;P q2h</li>
+              <li>Cough &amp; deep breathe</li>
+              <li>Incentive spirometer</li>
+              <li>Increase fluids to liquefy secretions (as tolerated)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Cardiovascular</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Edema; venous stasis</li>
+              <li>Thrombus formation (DVT)</li>
+              <li>Orthostatic hypotension; blood pooling</li>
+              <li>↑ heart rate</li>
+              <li>↓ Cardiac reserve (heart less able to respond to body's demands)</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Muscle contraction needed to pump blood back to heart. Immobility → blood stagnant, pools in leg veins → edema, stasis → thrombus.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>DVT prophylaxis</li>
+              <li>ROM to help prevent edema</li>
+              <li>Monitor heart rate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Metabolic</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>↓ Serum albumin = edema (low protein → water leaves vessels into tissues)</li>
+              <li>↓ Protein stores = muscle loss/atrophy</li>
+              <li>Calcium leaves bones = hypercalcemia, osteoporosis, renal calculi, calcium deposits in joints</li>
+              <li>↓ BMR (Basal Metabolic Rate)</li>
+              <li>Protein &amp; glycogen synthesis ↓; fat stores ↑</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>See GI interventions</li>
+              <li>Osteoporosis: weight-bearing exercise (especially older women) to improve bone density &amp; reduce bone loss</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Gastrointestinal</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li><b class="lbl">Anorexia:</b> appetite diminishes; digestion slows from ↓ metabolic rate → ↓ calorie intake; muscle broken down as fuel</li>
+              <li><b class="lbl">Constipation:</b> slows peristalsis → constipation, gas, difficulty evacuating</li>
+              <li><strong>PARALYTIC ILEUS</strong> — cessation of peristalsis — can occur</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Small frequent meals; high calorie, high protein diet</li>
+              <li>Monitor weight</li>
+              <li>↑ fluids as tolerated; ↑ fiber in diet</li>
+              <li>Monitor BMs (COCAF)</li>
+              <li>Stool softeners as needed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Genitourinary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Renal calculi; decreased urinary output</li>
+              <li>Urinary stasis; UTIs</li>
+              <li>Urinary retention (↓ muscle tone → ↓ bladder tone)</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Supine position inhibits drainage of urine from kidney/bladder → stagnant urine = ideal for infection. ↑ Calcium → stone formation. Many pts have difficulty voiding in bedpan/urinal.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Monitor I&amp;O</li>
+              <li>Encourage &amp; increase fluids per patient condition</li>
+              <li>Sit upright or get OOB to urinate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Integumentary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Pressure injuries — pressure over bony prominences compresses capillaries → ↓ circulation → tissue hypoxia → tissue damage</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>T&amp;P q2h</li>
+              <li>Pressure-reducing devices; trapeze; turn sheets; friction-reducing devices</li>
+              <li>If incontinent: keep area clean &amp; dry</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest">
+      <div class="band-head">Psychosocial</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Depression; behavioral changes; sleep disturbances; coping problems</li>
+              <li>Isolation; sensory deprivation; increased dependence</li>
+              <li><b class="lbl">Affect:</b> moodiness, anxiety, hostility, apathy, poor body concept</li>
+              <li><b class="lbl">Cognition:</b> ↓ concentration, recall, problem-solving</li>
+              <li><b class="lbl">Self-care:</b> reduced ability to perform</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Provide socialization; place in room with others</li>
+              <li>Social worker consult</li>
+              <li>Activities</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Mobility Assessment</span>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Assess on Admission &amp; Each Shift</h4>
+        <ul>
+          <li>Level of comfort; LOC</li>
+          <li>Restrictions in movement/position</li>
+          <li>Physical size of patient; presence of equipment</li>
+          <li>Side effects of medication; vital signs (orthostatic hypotension)</li>
+          <li>Risk factors for falls; underlying health conditions</li>
+          <li>Use of assistive devices</li>
+          <li>Body alignment, posture; joint function &amp; ROM</li>
+          <li>Muscle strength (push/pull against your hands)</li>
+          <li>Compare muscle mass right &amp; left</li>
+          <li>Activity tolerance (vital signs)</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Patients on Bed Rest</h4>
+        <p>Regularly monitor <strong>ALL body systems</strong> for complications of immobility — musculoskeletal, respiratory, cardiovascular, metabolic, GI, GU, integumentary, psychosocial.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- end s3 -->
 
 <!-- ═══ LECTURE 5 STUB ═══ -->
 <div id="s4" class="panel">
