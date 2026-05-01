@@ -737,7 +737,17 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 #sec-legal       .n116-step{border-left-color:var(--rust)}   #sec-legal       .n116-step-num{background:var(--rust)}
 #sec-stress      .n116-step{border-left-color:var(--gold)}   #sec-stress      .n116-step-num{background:var(--gold)}
 #sec-clinical    .n116-step{border-left-color:var(--forest)} #sec-clinical    .n116-step-num{background:var(--forest)}
-#sec-other       .n116-step{border-left-color:var(--orange)} #sec-other       .n116-step-num{background:var(--orange)}
+#sec-other           .n116-step{border-left-color:var(--orange)} #sec-other           .n116-step-num{background:var(--orange)}
+#sec-lec-foundations .n116-step{border-left-color:var(--teal)}   #sec-lec-foundations .n116-step-num{background:var(--teal)}
+#sec-lec-process     .n116-step{border-left-color:var(--cobalt)} #sec-lec-process     .n116-step-num{background:var(--cobalt)}
+#sec-lec-documentation .n116-step{border-left-color:var(--slate)} #sec-lec-documentation .n116-step-num{background:var(--slate)}
+#sec-lec-vitals      .n116-step{border-left-color:var(--rust)}   #sec-lec-vitals      .n116-step-num{background:var(--rust)}
+#sec-lec-ethics      .n116-step{border-left-color:var(--plum)}   #sec-lec-ethics      .n116-step-num{background:var(--plum)}
+#sec-lec-psychosocial .n116-step{border-left-color:var(--gold)}  #sec-lec-psychosocial .n116-step-num{background:var(--gold)}
+#sec-lec-comfort     .n116-step{border-left-color:var(--forest)} #sec-lec-comfort     .n116-step-num{background:var(--forest)}
+#sec-lec-aging       .n116-step{border-left-color:var(--orange)} #sec-lec-aging       .n116-step-num{background:var(--orange)}
+.n116-divider{display:flex;align-items:center;gap:12px;margin:32px 0 8px;padding:0 4px;color:var(--text-muted);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.n116-divider::before,.n116-divider::after{content:'';flex:1;height:1px;background:var(--g200)}
 </style>
 </head>
 <body>
@@ -1747,15 +1757,433 @@ var WRAPUP_SECTIONS=[
 
 ];
 
-var LECTURE_TOPICS=[
-  {id:'lec-placeholder-1',title:'Sample Clinical Lecture',cat:'clinical',
-   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
-  {id:'lec-placeholder-2',title:'Sample Legal / Ethical Lecture',cat:'legal',
-   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
-  {id:'lec-placeholder-3',title:'Sample Psychosocial Lecture',cat:'psycho',
-   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'},
-  {id:'lec-placeholder-4',title:'Sample Professional Lecture',cat:'pro',
-   body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'}
+var LECTURE_SECTIONS=[
+
+  /* \u2550\u2550 L1. FOUNDATIONS OF NURSING (teal) \u2550\u2550 */
+  {id:'sec-lec-foundations',title:'Foundations of Nursing Practice',color:'teal',
+   obj:'Describe nursing history, the nursing metaparadigm, major theories, and evidence-based practice',
+   topics:[
+    {label:'Nursing History & Leaders',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>Florence Nightingale</h4><p>"Mother of Modern Nursing" \u00b7 <strong>Environmental theory</strong>: clean air, light, sanitation promote healing. Pioneer of nursing statistics (Crimean War).</p></div>'
+      +'<div class="card"><h4>Clara Barton</h4><p>Founded the <strong>American Red Cross</strong>. Provided care and supplies during the Civil War.</p></div>'
+      +'<div class="card"><h4>Mary Mahoney</h4><p>First African-American registered nurse (1879). Advocated for equality in nursing education and practice.</p></div>'
+      +'<div class="card"><h4>Lillian Wald</h4><p>Founded <strong>Henry Street Settlement</strong> \u2014 pioneer of public health and community-based nursing.</p></div>'
+      +'<div class="card"><h4>Dorothea Dix</h4><p>Superintendent of Army Nurses (Civil War). Advocate for humane treatment of the mentally ill.</p></div>'
+      +'<div class="card"><h4>Linda Richards</h4><p>America\'s <strong>first trained nurse</strong> (1873). Introduced nursing notes and systematic patient records.</p></div>'
+      +'</div>'},
+    {label:'Nursing Metaparadigm',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Person</h4><p>The recipient of care \u2014 a biopsychosocial-spiritual being. Holistic view; the patient is the center of all care decisions.</p></div>'
+      +'<div class="card"><h4>Environment</h4><p>All internal and external conditions affecting the person: physical surroundings, culture, community, family, society.</p></div>'
+      +'<div class="card"><h4>Health</h4><p>Dynamic state of well-being across a continuum from wellness to illness. Subjective \u2014 defined by the patient, not the nurse.</p></div>'
+      +'<div class="card"><h4>Nursing</h4><p>The art and science of caring: actions and activities nurses use to promote, maintain, or restore health and prevent illness.</p></div>'
+      +'</div>'},
+    {label:'Major Nursing Theories',body:
+      '<div class="ts"><table><thead><tr><th>Theorist</th><th>Theory</th><th>Key Concept</th></tr></thead><tbody>'
+      +'<tr><td><b class="lbl">Abraham Maslow</b></td><td>Hierarchy of Needs</td><td>Physiological \u2192 Safety \u2192 Love/Belonging \u2192 Esteem \u2192 Self-Actualization. Lower needs must be met before higher ones.</td></tr>'
+      +'<tr><td><b class="lbl">Virginia Henderson</b></td><td>14 Basic Needs</td><td>Nurse helps patient meet 14 basic needs they would meet themselves if able (breathing, eating, moving, communicating, etc.).</td></tr>'
+      +'<tr><td><b class="lbl">Dorothea Orem</b></td><td>Self-Care Deficit</td><td>Nursing required when person cannot meet own self-care demands. Systems: Wholly compensatory \u00b7 Partly compensatory \u00b7 Educative-supportive.</td></tr>'
+      +'<tr><td><b class="lbl">Callista Roy</b></td><td>Adaptation Model</td><td>People adapt to stimuli through 4 modes: physiologic, self-concept, role function, interdependence.</td></tr>'
+      +'<tr><td><b class="lbl">Jean Watson</b></td><td>Theory of Human Caring</td><td>10 carative factors; caring is the essence of nursing; transpersonal caring relationship between nurse and patient.</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Evidence-Based Practice (EBP)',body:
+      '<div class="band-card"><div class="band-head">EBP = Best Research Evidence + Clinical Expertise + Patient Values</div>'
+      +'<div class="band-body"><p>EBP integrates the <strong>best available research</strong> with <strong>clinical expertise</strong> and <strong>patient/family preferences</strong> to deliver optimal care.</p>'
+      +'<ul>'
+      +'<li><strong>Step 1 \u2014 PICO Question:</strong> Patient/Problem \u00b7 Intervention \u00b7 Comparison \u00b7 Outcome</li>'
+      +'<li><strong>Step 2 \u2014 Search</strong> for best evidence (systematic reviews, RCTs, meta-analyses)</li>'
+      +'<li><strong>Step 3 \u2014 Appraise</strong> the evidence for validity and clinical applicability</li>'
+      +'<li><strong>Step 4 \u2014 Integrate</strong> evidence with clinical expertise and patient preferences</li>'
+      +'<li><strong>Step 5 \u2014 Evaluate</strong> patient outcomes and adjust practice accordingly</li>'
+      +'</ul></div></div>'
+      +'<div class="g2">'
+      +'<div class="card"><h4>Hierarchy of Evidence</h4><p>Strongest \u2192 Weakest:<br><strong>Systematic Reviews / Meta-analyses</strong> (Level I) \u2192 RCTs (II) \u2192 Quasi-experimental (III) \u2192 Case-control/Cohort (IV) \u2192 Descriptive (V) \u2192 Expert opinion (VI)</p></div>'
+      +'<div class="card"><h4>Research Types</h4><p><strong>Quantitative:</strong> numeric data, statistics, RCTs, surveys.<br><strong>Qualitative:</strong> subjective experiences, interviews, themes, narratives.<br><strong>Mixed Methods:</strong> combines both approaches.</p></div>'
+      +'</div>'}
+   ]},
+
+  /* \u2550\u2550 L2. NURSING PROCESS & CLINICAL JUDGMENT (cobalt) \u2550\u2550 */
+  {id:'sec-lec-process',title:'Nursing Process & Clinical Judgment',color:'cobalt',
+   obj:'Apply ADPIE, write correct nursing diagnoses, formulate SMART goals, and use the NCJMM for safe clinical reasoning',
+   topics:[
+    {label:'ADPIE \u2014 The Nursing Process',body:
+      '<div class="ts"><table><thead><tr><th>Phase</th><th>Actions</th><th>Nurse\'s Role</th></tr></thead><tbody>'
+      +'<tr><td><strong>A</strong>ssessment</td><td>Collect subjective &amp; objective data</td><td>Interview, physical exam, review records, consult family/team</td></tr>'
+      +'<tr><td><strong>D</strong>iagnosis</td><td>Analyze data; identify nursing diagnoses</td><td>Use NANDA labels; prioritize problems; distinguish medical vs. nursing Dx</td></tr>'
+      +'<tr><td><strong>P</strong>lanning</td><td>Set SMART goals; select interventions</td><td>Involve patient; set measurable, time-bound outcomes; write care plan</td></tr>'
+      +'<tr><td><strong>I</strong>mplementation</td><td>Carry out interventions</td><td>Independent, collaborative, dependent actions; delegate appropriately</td></tr>'
+      +'<tr><td><strong>E</strong>valuation</td><td>Compare outcomes to goals</td><td>Goal met / partially met / not met \u2192 revise plan as needed</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Nursing Diagnoses',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>3-Part (PES) Format</h4><p><strong>Problem</strong> (NANDA label) related to <strong>Etiology</strong> as evidenced by <strong>Signs &amp; Symptoms</strong>.<br><em>Example: Impaired Gas Exchange r/t fluid accumulation in alveoli AEB O2 sat 88%, bilateral crackles.</em></p></div>'
+      +'<div class="card"><h4>2-Part (PE) Format \u2014 Risk Dx</h4><p>Used for <strong>risk diagnoses</strong> (problem hasn\'t happened yet \u2014 no AEB).<br><strong>Problem</strong> r/t <strong>Etiology</strong>.<br><em>Example: Risk for Falls r/t altered gait and sedating medications.</em></p></div>'
+      +'</div>'
+      +'<div class="warn"><strong>Medical vs. Nursing Diagnosis:</strong> Medical Dx = disease identified by physician (e.g., pneumonia). Nursing Dx = human response to that disease (e.g., Impaired Gas Exchange). Nurses CANNOT diagnose medical conditions \u2014 they identify and treat human responses to illness.</div>'},
+    {label:'SMART Goals & Outcomes',body:
+      '<div class="mnem"><strong>SMART Goals: S</strong>pecific \u00b7 <strong>M</strong>easurable \u00b7 <strong>A</strong>chievable \u00b7 <strong>R</strong>ealistic \u00b7 <strong>T</strong>ime-bound<br><em>"Patient will ambulate 50 feet in the hallway with one-person assist by end of shift."</em></div>'
+      +'<ul>'
+      +'<li>Written from the <strong>patient\'s perspective</strong> ("Patient will\u2026" or "Patient demonstrates\u2026")</li>'
+      +'<li>Include a <strong>measurable criterion</strong> and a specific <strong>time frame</strong></li>'
+      +'<li><strong>Short-term:</strong> achievable within hours to days \u00b7 <strong>Long-term:</strong> weeks to months, discharge-focused</li>'
+      +'<li>Evaluation states: Goal <strong>Met</strong> \u00b7 <strong>Partially Met</strong> \u00b7 <strong>Not Met</strong> \u2192 revise care plan accordingly</li>'
+      +'</ul>'},
+    {label:'NCJMM \u2014 Clinical Judgment Model',body:
+      '<div class="band-card"><div class="band-head">Next Generation NCLEX \u2014 NCSBN Clinical Judgment Measurement Model</div>'
+      +'<div class="band-body">'
+      +'<div class="n116-steps">'
+      +'<div class="n116-step"><div class="n116-step-num">1</div><div><strong>Recognize Cues</strong> \u2014 What data is relevant? What matters most right now? Notice changes from baseline.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">2</div><div><strong>Analyze Cues</strong> \u2014 What does this mean? What client conditions are consistent with these cues? Interpret the significance.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">3</div><div><strong>Prioritize Hypotheses</strong> \u2014 Which issue is most urgent? Consider risk to life, safety, and urgency.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">4</div><div><strong>Generate Solutions</strong> \u2014 What interventions will address the priority? What outcomes are expected?</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">5</div><div><strong>Take Action</strong> \u2014 Implement the most appropriate, evidence-based intervention.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">6</div><div><strong>Evaluate Outcomes</strong> \u2014 Did the intervention work? Was the hypothesis correct? Revise the plan if needed.</div></div>'
+      +'</div>'
+      +'</div></div>'},
+    {label:'Priority-Setting Frameworks',body:
+      '<div class="g3">'
+      +'<div class="card"><h4>ABC Priority</h4><p><strong>A</strong>irway \u2192 <strong>B</strong>reathing \u2192 <strong>C</strong>irculation. Always address life-threatening physiologic needs first. An obstructed airway = absolute first priority.</p></div>'
+      +'<div class="card"><h4>Maslow\'s Hierarchy</h4><p>Physiologic (oxygen, water, food, warmth) before safety, before love/belonging, before psychosocial needs. Exception: an imminent safety threat may override.</p></div>'
+      +'<div class="card"><h4>Acute vs. Chronic</h4><p>New or worsening acute problems take priority over stable chronic conditions. A sudden change in patient status supersedes scheduled routine tasks.</p></div>'
+      +'</div>'
+      +'<div class="warn"><strong>CURE vs. CARE:</strong> Life-threatening (CURE) problems always take priority over comfort (CARE) problems. Stable comfort needs can wait; an airway cannot.</div>'}
+   ]},
+
+  /* \u2550\u2550 L3. DOCUMENTATION & QUALITY IMPROVEMENT (slate) \u2550\u2550 */
+  {id:'sec-lec-documentation',title:'Documentation & Quality Improvement',color:'slate',
+   obj:'Apply correct documentation principles, use SBAR for handoff communication, and describe QSEN competencies and quality improvement tools',
+   topics:[
+    {label:'Documentation Principles',body:
+      '<div class="band-card"><div class="band-head">The Medical Record Is a Legal Document</div>'
+      +'<div class="band-body"><ul>'
+      +'<li>Document <strong>factually</strong> \u2014 only what you assessed, performed, or directly observed</li>'
+      +'<li>Document <strong>promptly</strong> \u2014 as close to the time of care as possible</li>'
+      +'<li><strong>Never chart for someone else</strong> or complete a blank left by another nurse</li>'
+      +'<li>Errors: draw a <strong>single line through</strong>, write "error," add initials and date \u2014 <strong>never white-out or scribble out</strong></li>'
+      +'<li>Late entries: label clearly as "Late Entry" with the date and time of actual occurrence</li>'
+      +'<li>Document <strong>patient responses</strong>, not just the actions performed</li>'
+      +'<li>Use <strong>only approved abbreviations</strong> \u2014 the Joint Commission maintains a "Do Not Use" list</li>'
+      +'</ul></div></div>'},
+    {label:'Documentation Formats',body:
+      '<div class="ts"><table><thead><tr><th>Format</th><th>Structure</th><th>Use</th></tr></thead><tbody>'
+      +'<tr><td><strong>SOAP</strong></td><td>Subjective \u00b7 Objective \u00b7 Assessment \u00b7 Plan</td><td>Problem-oriented records; common in physician charting</td></tr>'
+      +'<tr><td><strong>DAR / Focus</strong></td><td>Data \u00b7 Action \u00b7 Response</td><td>Focus charting \u2014 organizes entries around a specific topic or problem</td></tr>'
+      +'<tr><td><strong>PIE</strong></td><td>Problem \u00b7 Intervention \u00b7 Evaluation</td><td>Integrates nursing care plan directly into progress notes</td></tr>'
+      +'<tr><td><strong>Narrative</strong></td><td>Chronological paragraph</td><td>Traditional format; used in some long-term care settings</td></tr>'
+      +'<tr><td><strong>CBE</strong></td><td>Charting by Exception</td><td>Document only abnormal findings; requires strong "normal" standards</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'SBAR Communication',body:
+      '<div class="band-card"><div class="band-head">SBAR \u2014 Standardized Handoff &amp; Escalation Tool</div>'
+      +'<div class="band-body">'
+      +'<div class="n116-steps">'
+      +'<div class="n116-step"><div class="n116-step-num">S</div><div><strong>Situation</strong> \u2014 "I\'m calling about Mr. Jones in Room 204. He is having increased shortness of breath."</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">B</div><div><strong>Background</strong> \u2014 Relevant history, reason for admission, current medications, allergies, recent vitals.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">A</div><div><strong>Assessment</strong> \u2014 "His O2 sat has dropped to 88%, RR 28, using accessory muscles. I suspect worsening pulmonary edema."</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">R</div><div><strong>Recommendation</strong> \u2014 "I recommend you come evaluate him now. I\'ve applied supplemental O2 and raised the HOB."</div></div>'
+      +'</div>'
+      +'</div></div>'
+      +'<div class="warn"><strong>Chain of Command:</strong> If a provider does not respond to a patient safety concern \u2192 escalate to charge nurse \u2192 supervisor \u2192 CNO. Never abandon a patient safety issue. Document every attempt to escalate.</div>'},
+    {label:'QSEN Competencies',body:
+      '<div class="ts"><table><thead><tr><th>Competency</th><th>Definition</th></tr></thead><tbody>'
+      +'<tr><td><strong>Patient-Centered Care</strong></td><td>Patient is an active partner; respect preferences, values, and individual needs</td></tr>'
+      +'<tr><td><strong>Teamwork &amp; Collaboration</strong></td><td>Function effectively within interprofessional teams; communicate openly</td></tr>'
+      +'<tr><td><strong>Evidence-Based Practice</strong></td><td>Integrate best evidence with clinical expertise and patient values</td></tr>'
+      +'<tr><td><strong>Quality Improvement</strong></td><td>Use data to monitor care outcomes and continuously improve processes</td></tr>'
+      +'<tr><td><strong>Safety</strong></td><td>Minimize risk of harm through system effectiveness and individual performance</td></tr>'
+      +'<tr><td><strong>Informatics</strong></td><td>Use information technology to communicate, manage knowledge, and prevent errors</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Quality Improvement Tools',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>PDSA Cycle</h4><p><strong>Plan \u2192 Do \u2192 Study \u2192 Act.</strong> Iterative model for testing small-scale improvements before full implementation. Repeat the cycle until the desired outcome is achieved.</p></div>'
+      +'<div class="card"><h4>Root Cause Analysis (RCA)</h4><p>Retrospective review after a <strong>sentinel event</strong> to identify the underlying <em>system failure</em> \u2014 not to blame individuals. Results in process changes to prevent recurrence.</p></div>'
+      +'<div class="card"><h4>FMEA</h4><p><strong>Failure Mode &amp; Effects Analysis</strong> \u2014 proactively identifies potential failures in a process <strong>before</strong> they cause harm. Preventive quality tool. Assigns risk priority numbers.</p></div>'
+      +'<div class="card"><h4>Just Culture</h4><p>Distinguishes: <strong>human error</strong> (system redesign), <strong>at-risk behavior</strong> (coaching/education), <strong>reckless behavior</strong> (discipline). Promotes near-miss reporting without fear of blame.</p></div>'
+      +'</div>'}
+   ]},
+
+  /* \u2550\u2550 L4. VITAL SIGNS & HEALTH ASSESSMENT (rust) \u2550\u2550 */
+  {id:'sec-lec-vitals',title:'Vital Signs & Health Assessment',color:'rust',
+   obj:'Accurately measure and interpret all vital signs, conduct a systematic health history, and apply the three levels of health promotion',
+   topics:[
+    {label:'Temperature',body:
+      '<div class="ts"><table><thead><tr><th>Route</th><th>Normal Range</th><th>Notes</th></tr></thead><tbody>'
+      +'<tr><td><strong>Oral</strong></td><td>36.5\u201337.5\u00b0C (97.7\u201399.5\u00b0F)</td><td>Most common; wait 15\u201330 min after eating or drinking anything hot/cold</td></tr>'
+      +'<tr><td><strong>Rectal</strong></td><td>37\u201338\u00b0C (98.6\u2013100.4\u00b0F)</td><td>Most accurate core temp; +0.5\u00b0C above oral; contraindicated after rectal surgery, thrombocytopenia, rectal disorders</td></tr>'
+      +'<tr><td><strong>Axillary</strong></td><td>36\u201337\u00b0C (96.8\u201398.6\u00b0F)</td><td>Least accurate; \u22120.5\u00b0C below oral; use for newborns or when other routes not feasible</td></tr>'
+      +'<tr><td><strong>Tympanic</strong></td><td>~37\u00b0C (98.6\u00b0F)</td><td>Convenient and quick; can be affected by cerumen buildup or ear infection</td></tr>'
+      +'<tr><td><strong>Temporal</strong></td><td>~37\u00b0C (98.6\u00b0F)</td><td>Non-invasive forehead scan; affected by sweating \u2014 unreliable in diaphoretic patient</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="g2">'
+      +'<div class="card"><h4>Hyperthermia / Fever</h4><p><strong>&gt;38.5\u00b0C (101.3\u00b0F).</strong> Causes: infection/sepsis, inflammation, medications, heat stroke. Interventions: antipyretics (acetaminophen, ibuprofen), cooling measures, increased fluids, treat underlying cause.</p></div>'
+      +'<div class="card"><h4>Hypothermia</h4><p><strong>&lt;35\u00b0C (95\u00b0F).</strong> Risk groups: elderly, newborns, post-op, cold/wet exposure. Interventions: warm blankets, warmed IV fluids, warm humidified O2, prevent shivering (increases O2 demand).</p></div>'
+      +'</div>'},
+    {label:'Pulse & Respirations',body:
+      '<div class="ts"><table><thead><tr><th>Parameter</th><th>Normal Adult</th><th>Key Points</th></tr></thead><tbody>'
+      +'<tr><td><strong>Radial Pulse</strong></td><td>60\u2013100 bpm</td><td>Assess rate, rhythm, amplitude: 0=absent \u00b7 1+=weak/thready \u00b7 2+=normal \u00b7 3+=full \u00b7 4+=bounding. Bradycardia &lt;60 \u00b7 Tachycardia &gt;100.</td></tr>'
+      +'<tr><td><strong>Apical Pulse</strong></td><td>60\u2013100 bpm (full min)</td><td>5th ICS, midclavicular line. Count for a full 60 sec. Required before giving digoxin \u2014 hold if &lt;60 bpm.</td></tr>'
+      +'<tr><td><strong>Respirations</strong></td><td>12\u201320 breaths/min</td><td>Count WITHOUT telling the patient \u2014 they can voluntarily alter rate. Count for 30 sec \u00d7 2 (full minute if irregular). Bradypnea &lt;12 \u00b7 Tachypnea &gt;20 \u00b7 Apnea = cessation.</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Blood Pressure',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>BP Classifications (AHA)</h4><p><strong>Normal:</strong> &lt;120/&lt;80 mmHg<br><strong>Elevated:</strong> 120\u2013129/&lt;80<br><strong>HTN Stage 1:</strong> 130\u2013139/80\u201389<br><strong>HTN Stage 2:</strong> \u2265140/\u226590<br><strong>Hypotension:</strong> &lt;90/60</p></div>'
+      +'<div class="card"><h4>Pulse Pressure &amp; MAP</h4><p><strong>Pulse Pressure</strong> = Systolic \u2212 Diastolic (normal: 30\u201340 mmHg). Wide PP \u2192 aortic regurgitation; Narrow PP \u2192 shock.<br><strong>MAP</strong> = Diastolic + (PP \u00f7 3). Normal \u226565 mmHg ensures organ perfusion.</p></div>'
+      +'</div>'
+      +'<div class="warn"><strong>Orthostatic Hypotension:</strong> BP drop \u226520 mmHg systolic or \u226510 mmHg diastolic when moving from lying \u2192 sitting \u2192 standing, with dizziness/lightheadedness. High fall risk \u2014 have the patient dangle legs at bedside before standing. Check orthostatic BPs before ambulation.</div>'},
+    {label:'SpO2 & Pain as the 5th Vital Sign',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>SpO2 \u2014 Pulse Oximetry</h4><p><strong>Normal: 95\u2013100%.</strong> COPD target: 88\u201392% (hypoxic drive). Probe sites: finger, toe, earlobe. Falsely low: poor perfusion, dark nail polish, motion artifact, CO poisoning, severe anemia. Always correlate with clinical picture.</p></div>'
+      +'<div class="card"><h4>Pain \u2014 5th Vital Sign</h4><p>Assess with every set of vitals. Scales: NRS (0\u201310), Wong-Baker FACES, FLACC (infants/non-verbal), CPOT (ICU). <strong>Pain is subjective</strong> \u2014 always believe the patient\'s self-report. Reassess after intervention (30 min for oral meds, 15 min for IV).</p></div>'
+      +'</div>'},
+    {label:'Health History & Assessment Interview',body:
+      '<div class="band-card"><div class="band-head">Components of a Comprehensive Health History</div>'
+      +'<div class="band-body"><ul>'
+      +'<li><strong>Chief Complaint (CC)</strong> \u2014 patient\'s primary reason for care, in their own words ("I have chest pain")</li>'
+      +'<li><strong>HPI</strong> \u2014 OLDCARTS: Onset \u00b7 Location \u00b7 Duration \u00b7 Character \u00b7 Aggravating/Alleviating \u00b7 Radiation \u00b7 Timing \u00b7 Severity</li>'
+      +'<li><strong>Past Medical/Surgical History</strong> \u2014 chronic conditions, prior surgeries, hospitalizations, OB history</li>'
+      +'<li><strong>Medications &amp; Allergies</strong> \u2014 current Rx, OTCs, herbals, supplements; document reaction TYPE for allergies</li>'
+      +'<li><strong>Family History</strong> \u2014 hereditary diseases: heart disease, diabetes, cancer, hypertension</li>'
+      +'<li><strong>Social History</strong> \u2014 tobacco/alcohol/drug use, occupation, living situation, activity level, diet, sexuality</li>'
+      +'<li><strong>Review of Systems (ROS)</strong> \u2014 systematic head-to-toe symptom review by body system</li>'
+      +'</ul></div></div>'},
+    {label:'Health Promotion & Levels of Prevention',body:
+      '<div class="ts"><table><thead><tr><th>Level</th><th>Goal</th><th>Examples</th></tr></thead><tbody>'
+      +'<tr><td><strong>Primary</strong></td><td>Prevent disease before it occurs</td><td>Immunizations \u00b7 health education \u00b7 smoking cessation \u00b7 fluoridated water \u00b7 safe sex education</td></tr>'
+      +'<tr><td><strong>Secondary</strong></td><td>Early detection &amp; prompt treatment</td><td>Mammograms \u00b7 BP screening \u00b7 colonoscopy \u00b7 blood glucose \u00b7 Pap smears \u00b7 TB testing \u00b7 vision screening</td></tr>'
+      +'<tr><td><strong>Tertiary</strong></td><td>Minimize disability; promote rehabilitation</td><td>Cardiac rehab \u00b7 physical therapy after stroke \u00b7 diabetes self-management classes \u00b7 support groups</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="mnem"><strong>Pender\'s Health Promotion Model:</strong> Behavior is shaped by individual characteristics, perceived benefits vs. barriers, self-efficacy, and interpersonal/situational influences. Nurses strengthen motivation and remove barriers to healthy behaviors.</div>'}
+   ]},
+
+  /* \u2550\u2550 L5. ETHICAL & LEGAL PRINCIPLES (plum) \u2550\u2550 */
+  {id:'sec-lec-ethics',title:'Ethical & Legal Principles in Nursing',color:'plum',
+   obj:'Apply the ANA Code of Ethics, ethical decision-making frameworks, and understand the legal boundaries of nursing practice',
+   topics:[
+    {label:'Ethical Principles',body:
+      '<div class="ts"><table><thead><tr><th>Principle</th><th>Definition</th><th>Clinical Example</th></tr></thead><tbody>'
+      +'<tr><td><strong>Autonomy</strong></td><td>Patient\'s right to make their own informed decisions</td><td>Respecting a patient\'s refusal of treatment, even when the nurse disagrees</td></tr>'
+      +'<tr><td><strong>Beneficence</strong></td><td>Do good; act in the patient\'s best interest</td><td>Providing adequate pain management; advocating for needed resources</td></tr>'
+      +'<tr><td><strong>Nonmaleficence</strong></td><td>"First, do no harm"</td><td>Checking allergies before administering a medication; safe restraint use</td></tr>'
+      +'<tr><td><strong>Justice</strong></td><td>Fair and equitable treatment for all persons</td><td>Providing the same quality of care regardless of race, religion, or financial status</td></tr>'
+      +'<tr><td><strong>Fidelity</strong></td><td>Keep promises; be trustworthy and loyal</td><td>Following through on commitments made to a patient during care</td></tr>'
+      +'<tr><td><strong>Veracity</strong></td><td>Truthfulness and honesty with patients and colleagues</td><td>Providing accurate information about diagnosis, prognosis, and treatment options</td></tr>'
+      +'<tr><td><strong>Accountability</strong></td><td>Answerable for one\'s own actions and decisions</td><td>Reporting a medication error you made; completing incident reports</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'ANA Code of Ethics \u2014 9 Provisions',body:
+      '<div class="band-card"><div class="band-head">ANA Code of Ethics for Nurses</div>'
+      +'<div class="band-body"><ul>'
+      +'<li><strong>1.</strong> Practice with compassion and respect for the dignity, worth, and uniqueness of every person</li>'
+      +'<li><strong>2.</strong> Primary commitment is to the <strong>patient</strong> (individual, family, group, or community)</li>'
+      +'<li><strong>3.</strong> Promote, advocate for, and protect the rights, health, and safety of patients</li>'
+      +'<li><strong>4.</strong> Has authority, accountability, and responsibility for nursing practice</li>'
+      +'<li><strong>5.</strong> Owes the same duties to self as to others \u2014 self-care, professional growth, integrity</li>'
+      +'<li><strong>6.</strong> Establishes and maintains a moral environment in the workplace; manages ethical concerns</li>'
+      +'<li><strong>7.</strong> Advances the profession through research, education, standards development, and policy</li>'
+      +'<li><strong>8.</strong> Collaborates with global health community to protect human rights and reduce disparities</li>'
+      +'<li><strong>9.</strong> The nursing profession must articulate its values and maintain the integrity of the discipline</li>'
+      +'</ul></div></div>'},
+    {label:'Legal Concepts in Nursing',body:
+      '<div class="ts"><table><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>'
+      +'<tr><td><strong>Negligence</strong></td><td>Failure to exercise the care that a reasonably prudent person would exercise in similar circumstances</td></tr>'
+      +'<tr><td><strong>Malpractice</strong></td><td>Professional negligence \u2014 failure to meet the standard of care resulting in patient harm. 4 elements: Duty \u00b7 Breach \u00b7 Causation \u00b7 Damages</td></tr>'
+      +'<tr><td><strong>Scope of Practice</strong></td><td>What a nurse is legally authorized to do, as defined by the state Nurse Practice Act (NPA). Never exceed your scope.</td></tr>'
+      +'<tr><td><strong>Standard of Care</strong></td><td>The minimum level of care that a reasonably prudent nurse would provide in the same or similar circumstances</td></tr>'
+      +'<tr><td><strong>Tort</strong></td><td>A civil wrong against a person. Intentional torts: assault, battery, false imprisonment. Unintentional: negligence/malpractice.</td></tr>'
+      +'<tr><td><strong>Battery</strong></td><td>Unauthorized physical contact \u2014 performing a procedure without valid consent constitutes battery</td></tr>'
+      +'<tr><td><strong>Respondeat Superior</strong></td><td>"Let the master respond" \u2014 employer is vicariously liable for employee actions performed within the scope of employment</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Informed Consent, Advance Directives & HIPAA',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Informed Consent</h4><p>The <strong>physician</strong> must explain: procedure, risks, benefits, alternatives, and right to refuse. Nurse\'s role: <strong>witness to signature</strong> only \u2014 ensure patient is alert, competent, and not coerced. If patient has questions \u2192 call the physician before proceeding.</p></div>'
+      +'<div class="card"><h4>Advance Directives</h4><p><strong>Living Will:</strong> written document specifying end-of-life treatment wishes.<br><strong>Healthcare Proxy / Durable POA:</strong> designates a decision-maker if patient loses capacity.<br><strong>POLST/MOLST:</strong> actionable physician order for life-sustaining treatment \u2014 travels with patient.</p></div>'
+      +'<div class="card"><h4>Competency vs. Capacity</h4><p><strong>Competency:</strong> legal determination by a court.<br><strong>Decision-making capacity:</strong> clinical assessment \u2014 patient can understand, appreciate, reason, and communicate a consistent choice. Psychiatric illness does NOT automatically mean incompetency.</p></div>'
+      +'<div class="card"><h4>Mandatory Reporting</h4><p>Nurses are <strong>mandated reporters</strong> of: child abuse/neglect, elder abuse, domestic violence, communicable diseases, gunshot wounds. Report <strong>suspicion</strong> \u2014 proof is not required. Failure to report is a crime.</p></div>'
+      +'</div>'
+      +'<div class="warn"><strong>HIPAA:</strong> Protects PHI (Protected Health Information). Share on a need-to-know basis only. Never discuss patient info in public areas, hallways, or elevators. Violations carry civil AND criminal penalties. This applies to electronic, paper, and verbal communication.</div>'}
+   ]},
+
+  /* \u2550\u2550 L6. PSYCHOSOCIAL HEALTH & COMMUNICATION (gold) \u2550\u2550 */
+  {id:'sec-lec-psychosocial',title:'Psychosocial Health & Communication',color:'gold',
+   obj:'Identify stress responses and coping strategies, describe self-concept components, apply therapeutic communication, and provide culturally competent care',
+   topics:[
+    {label:'Stress & Adaptation (GAS)',body:
+      '<div class="band-card"><div class="band-head">General Adaptation Syndrome \u2014 Hans Selye</div>'
+      +'<div class="band-body">'
+      +'<div class="n116-steps">'
+      +'<div class="n116-step"><div class="n116-step-num">1</div><div><strong>Alarm Stage</strong> \u2014 "Fight or flight." Hypothalamus activates sympathetic NS. \u2191HR, \u2191BP, \u2191blood glucose, dilated pupils, bronchodilation, decreased digestion, blood shunted to muscles.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">2</div><div><strong>Resistance Stage</strong> \u2014 Body attempts to return to homeostasis while adapting to the ongoing stressor. Cortisol and epinephrine remain elevated.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">3</div><div><strong>Exhaustion Stage</strong> \u2014 Resources depleted. Immune system suppressed, susceptibility to illness and infection increases, organ failure possible if prolonged.</div></div>'
+      +'</div>'
+      +'</div></div>'
+      +'<div class="g2">'
+      +'<div class="card"><h4>Coping Strategies</h4><p><strong>Problem-focused:</strong> address the stressor directly (information-seeking, problem-solving, action-taking).<br><strong>Emotion-focused:</strong> manage feelings about the stressor (relaxation, journaling, social support).<br><strong>Defense Mechanisms:</strong> unconscious strategies \u2014 denial, projection, rationalization, displacement, sublimation.</p></div>'
+      +'<div class="card"><h4>Nursing Interventions</h4><p>Active listening \u00b7 provide clear information to reduce uncertainty \u00b7 teach relaxation (guided imagery, deep breathing, progressive muscle relaxation) \u00b7 adequate sleep and nutrition support \u00b7 chaplain or social work referral as indicated.</p></div>'
+      +'</div>'},
+    {label:'Self-Concept',body:
+      '<div class="ts"><table><thead><tr><th>Component</th><th>Definition</th><th>Alteration Example</th></tr></thead><tbody>'
+      +'<tr><td><strong>Body Image</strong></td><td>Perception of own physical appearance and function</td><td>Post-mastectomy \u00b7 amputation \u00b7 new ostomy \u00b7 significant weight change</td></tr>'
+      +'<tr><td><strong>Self-Esteem</strong></td><td>How much one values, respects, and approves of oneself</td><td>Depression \u00b7 chronic illness \u00b7 unemployment \u00b7 abuse \u00b7 repeated failures</td></tr>'
+      +'<tr><td><strong>Role Performance</strong></td><td>How well one fulfills expected social roles (parent, spouse, worker)</td><td>Hospitalization prevents role function; role strain when multiple roles conflict</td></tr>'
+      +'<tr><td><strong>Personal Identity</strong></td><td>Sense of uniqueness and continuity of self over time</td><td>Dementia \u00b7 trauma \u00b7 crisis events altering the patient\'s sense of who they are</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="warn"><strong>Altered Self-Concept:</strong> Allow patient to express feelings without judgment; reinforce strengths; involve patient in care decisions; provide realistic hope; refer to support groups or counseling. Avoid platitudes ("You\'ll be fine!") \u2014 use therapeutic communication instead.</div>'},
+    {label:'Therapeutic Communication',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Therapeutic Techniques</h4><ul>'
+      +'<li><strong>Active listening</strong> \u2014 full attention, eye contact, therapeutic use of silence</li>'
+      +'<li><strong>Open-ended questions</strong> \u2014 "Tell me more about how you\'re feeling."</li>'
+      +'<li><strong>Reflection</strong> \u2014 mirror the feeling: "You seem frustrated by this."</li>'
+      +'<li><strong>Clarification</strong> \u2014 "Can you explain what you mean by that?"</li>'
+      +'<li><strong>Focusing</strong> \u2014 guide conversation to the most important concern</li>'
+      +'<li><strong>Summarizing</strong> \u2014 recap key points to verify understanding</li>'
+      +'<li><strong>Offering self</strong> \u2014 "I\'ll stay with you while we wait for results."</li>'
+      +'</ul></div>'
+      +'<div class="card"><h4>Non-Therapeutic Responses</h4><ul>'
+      +'<li><strong>Giving advice</strong> \u2014 "You should just do X."</li>'
+      +'<li><strong>False reassurance</strong> \u2014 "Everything will be fine, don\'t worry."</li>'
+      +'<li><strong>Changing the subject</strong> \u2014 deflects from the patient\'s concern</li>'
+      +'<li><strong>Agreeing/Disagreeing</strong> \u2014 judgmental; closes further communication</li>'
+      +'<li><strong>Probing</strong> \u2014 pressuring patient to disclose more than they want to</li>'
+      +'<li><strong>Clich\u00e9s</strong> \u2014 "I know exactly how you feel."</li>'
+      +'<li><strong>Defending</strong> \u2014 protecting the institution or staff rather than the patient</li>'
+      +'</ul></div>'
+      +'</div>'},
+    {label:'Cultural Competence & Diversity',body:
+      '<div class="band-card"><div class="band-head">Culturally Competent &amp; Culturally Humble Care</div>'
+      +'<div class="band-body"><p><strong>Cultural humility</strong> = ongoing self-reflection and openness to learning from patients about their culture. Avoid assuming all members of a cultural group share the same beliefs.</p>'
+      +'<ul>'
+      +'<li><strong>Culture:</strong> shared beliefs, values, customs, and practices of a group</li>'
+      +'<li><strong>Ethnicity:</strong> shared ancestry, language, and traditions</li>'
+      +'<li><strong>Stereotyping:</strong> assuming all members of a group are the same \u2014 actively AVOID</li>'
+      +'<li><strong>Campinha-Bacote ASKED:</strong> Cultural <strong>A</strong>wareness \u00b7 <strong>S</strong>kill \u00b7 <strong>K</strong>nowledge \u00b7 <strong>E</strong>ncounters \u00b7 <strong>D</strong>esire</li>'
+      +'</ul></div></div>'
+      +'<div class="g3">'
+      +'<div class="card"><h4>Language &amp; Interpreters</h4><p>Always use a <strong>professional/trained interpreter</strong>. <strong>Never</strong> use minor children, untrained family members, or translation apps for clinical communication. Document language preference in the chart.</p></div>'
+      +'<div class="card"><h4>Health Disparities</h4><p>Differences in health outcomes linked to social, economic, or environmental disadvantage (SDOH: housing, income, education, food, transportation). Nurses address SDOH at every encounter.</p></div>'
+      +'<div class="card"><h4>Spiritual Care</h4><p>Assess spiritual needs without imposing personal beliefs. Facilitate chaplain visits, prayer, cultural rituals. Respect dietary restrictions (halal, kosher, vegan). Religious beliefs may influence treatment decisions \u2014 respect autonomy.</p></div>'
+      +'</div>'}
+   ]},
+
+  /* \u2550\u2550 L7. SLEEP, REST & PAIN EXPANDED (forest) \u2550\u2550 */
+  {id:'sec-lec-comfort',title:'Sleep, Rest & Pain (Full Lecture)',color:'forest',
+   obj:'Understand sleep physiology, identify sleep disorders, and apply pharmacological and non-pharmacological pain management across the analgesic ladder',
+   topics:[
+    {label:'Sleep Physiology & Stages',body:
+      '<div class="ts"><table><thead><tr><th>Stage</th><th>Characteristics</th><th>% of Night</th></tr></thead><tbody>'
+      +'<tr><td><strong>NREM Stage 1</strong></td><td>Transition to sleep; easily awakened; hypnic jerks common; slow rolling eye movements</td><td>~5%</td></tr>'
+      +'<tr><td><strong>NREM Stage 2</strong></td><td>True sleep; sleep spindles; K-complexes; HR and RR slow; harder to awaken than Stage 1</td><td>45\u201355%</td></tr>'
+      +'<tr><td><strong>NREM Stage 3 (Slow-Wave)</strong></td><td>Deepest, most restorative sleep; growth hormone released; tissue repair and immune function; hardest to awaken</td><td>15\u201320%</td></tr>'
+      +'<tr><td><strong>REM Sleep</strong></td><td>Dreaming; rapid eye movements; muscle atonia (paralysis); memory consolidation; emotional processing</td><td>20\u201325%</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="mnem"><strong>Cycle:</strong> NREM 1 \u2192 2 \u2192 3 \u2192 2 \u2192 REM (~90 min/cycle). Most NREM 3 occurs early in the night; most REM occurs in the early morning. Adults need <strong>7\u20139 hours</strong>.</div>'},
+    {label:'Sleep Disorders',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Insomnia</h4><p>Most common sleep disorder. Difficulty falling or staying asleep. Causes: stress, pain, medications, caffeine, shift work, anxiety. Interventions: sleep hygiene education, CBT-I (first-line), limit long-term sedative use.</p></div>'
+      +'<div class="card"><h4>Obstructive Sleep Apnea (OSA)</h4><p>Airway collapses during sleep \u2192 apneic episodes \u2192 hypoxia. Risk factors: obesity, male gender, large neck circumference, snoring, HTN. Dx: polysomnography. Tx: CPAP. Complications: HTN, arrhythmias, daytime somnolence, stroke.</p></div>'
+      +'<div class="card"><h4>Narcolepsy</h4><p>Sudden uncontrollable daytime sleep attacks. Cataplexy = sudden muscle weakness triggered by strong emotion (laughter, surprise). REM intrudes into wakefulness.</p></div>'
+      +'<div class="card"><h4>Restless Legs Syndrome</h4><p>Uncontrollable urge to move legs, especially at rest or at night. Associated with iron deficiency, pregnancy, renal disease, peripheral neuropathy.</p></div>'
+      +'</div>'
+      +'<div class="band-card"><div class="band-head">Sleep Hygiene Interventions (Non-Pharmacological \u2014 First Line)</div>'
+      +'<div class="band-body"><ul>'
+      +'<li>Consistent sleep/wake schedule \u00b7 cool, dark, quiet environment</li>'
+      +'<li>Avoid caffeine, alcohol, heavy meals within 4\u20136 hours of bedtime</li>'
+      +'<li>Limit screen exposure 1 hour before sleep (blue light suppresses melatonin)</li>'
+      +'<li>Pre-sleep routine: warm bath, reading, relaxation techniques</li>'
+      +'<li><strong>In-hospital:</strong> cluster nursing care to minimize nighttime interruptions; dim lights after 2100</li>'
+      +'</ul></div></div>'},
+    {label:'Pain \u2014 Gate Control Theory & Types',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>Gate Control Theory (Melzack &amp; Wall, 1965)</h4><p>A "gate" in the spinal cord dorsal horn can open or close to modulate pain signals reaching the brain. <strong>Large-fiber stimulation</strong> (touch, massage, heat, TENS) CLOSES the gate \u2192 less pain perception. Emotional state, past experience, and focused attention also modulate the gate.</p></div>'
+      +'<div class="card"><h4>Pain Classification by Type</h4><p><strong>Nociceptive:</strong> normal response to tissue damage. <em>Somatic</em> = sharp, localized. <em>Visceral</em> = diffuse, crampy, may be referred.<br><strong>Neuropathic:</strong> from nerve damage \u2014 burning, shooting, electric, or tingling. Examples: diabetic neuropathy, phantom limb pain.<br><strong>Referred pain:</strong> felt at a site distant from the source (MI \u2192 left arm; liver \u2192 right shoulder).</p></div>'
+      +'</div>'},
+    {label:'Pain Management Approaches',body:
+      '<div class="band-card"><div class="band-head">WHO Analgesic Ladder \u2014 Step-Up Approach</div>'
+      +'<div class="band-body"><p><strong>Step 1 (Mild pain):</strong> Non-opioid \u00b1 adjuvant \u2014 acetaminophen, NSAIDs (ibuprofen, ketorolac)<br>'
+      +'<strong>Step 2 (Moderate pain):</strong> Weak opioid \u00b1 non-opioid \u2014 codeine, tramadol<br>'
+      +'<strong>Step 3 (Severe pain):</strong> Strong opioid \u00b1 non-opioid \u2014 morphine, oxycodone, fentanyl, hydromorphone</p></div></div>'
+      +'<div class="g2">'
+      +'<div class="card"><h4>Non-Pharmacological Methods</h4><ul>'
+      +'<li><strong>Heat:</strong> muscle relaxation, \u2191circulation (NOT on acute injury)</li>'
+      +'<li><strong>Cold (ice):</strong> \u2193inflammation, \u2193nerve conduction velocity (acute injuries)</li>'
+      +'<li><strong>TENS:</strong> transcutaneous electrical nerve stimulation \u2192 closes pain gate</li>'
+      +'<li><strong>Massage, repositioning, splinting</strong></li>'
+      +'<li>Distraction, music therapy, guided imagery, relaxation breathing</li>'
+      +'</ul></div>'
+      +'<div class="card"><h4>Opioid Safety</h4><ul>'
+      +'<li>Assess sedation level BEFORE giving any opioid</li>'
+      +'<li>Have <strong>naloxone (Narcan)</strong> at bedside for opioid reversal</li>'
+      +'<li><strong>Hold</strong> opioid if RR &lt;12/min or sedation score is concerning</li>'
+      +'<li>Anticipate: constipation (ALL patients \u2014 start bowel regimen), nausea, pruritus</li>'
+      +'<li>PCA: patient self-administers within RN-programmed limits</li>'
+      +'<li><strong>Physical dependence \u2260 addiction</strong> \u2014 dependence is physiologic</li>'
+      +'</ul></div>'
+      +'</div>'}
+   ]},
+
+  /* \u2550\u2550 L8. HEALTH PROMOTION, AGING & TEAM (orange) \u2550\u2550 */
+  {id:'sec-lec-aging',title:'Health Promotion, Aging & Interprofessional Care',color:'orange',
+   obj:'Describe normal aging changes by system, distinguish delirium from dementia, and apply the 5 rights of delegation and interprofessional collaboration',
+   topics:[
+    {label:'Normal Aging Changes by System',body:
+      '<div class="ts"><table><thead><tr><th>System</th><th>Age-Related Change</th><th>Nursing Implication</th></tr></thead><tbody>'
+      +'<tr><td><strong>Cardiovascular</strong></td><td>\u2193cardiac output \u00b7 arterial stiffness \u00b7 \u2191BP \u00b7 \u2193baroreceptor sensitivity</td><td>Orthostatic hypotension risk \u00b7 fall precautions \u00b7 monitor BP with position changes</td></tr>'
+      +'<tr><td><strong>Respiratory</strong></td><td>\u2193lung elasticity \u00b7 \u2193cough reflex \u00b7 \u2193cilia activity \u00b7 \u2193chest wall compliance</td><td>\u2191Pneumonia risk \u00b7 encourage deep breathing \u00b7 ensure vaccinations (flu, pneumococcal)</td></tr>'
+      +'<tr><td><strong>Renal</strong></td><td>\u2193GFR \u00b7 \u2193renal mass \u00b7 \u2193concentrating ability</td><td>Drug toxicity risk (renally cleared meds) \u00b7 monitor BUN/Cr \u00b7 assess I&amp;O</td></tr>'
+      +'<tr><td><strong>GI</strong></td><td>\u2193peristalsis \u00b7 \u2193gastric acid \u00b7 \u2193hepatic metabolism \u00b7 \u2193thirst sensation</td><td>Constipation risk \u00b7 dehydration risk \u00b7 altered drug metabolism \u2014 adjust doses</td></tr>'
+      +'<tr><td><strong>Musculoskeletal</strong></td><td>\u2193bone density (osteoporosis) \u00b7 \u2193muscle mass (sarcopenia) \u00b7 \u2193joint flexibility</td><td>Fall/fracture risk \u00b7 weight-bearing exercise \u00b7 calcium/vitamin D supplementation</td></tr>'
+      +'<tr><td><strong>Neurological</strong></td><td>\u2193nerve conduction \u00b7 \u2193reaction time \u00b7 \u2193sleep efficiency</td><td>\u2191Fall risk \u00b7 \u2191delirium risk \u00b7 safety home modifications</td></tr>'
+      +'<tr><td><strong>Integumentary</strong></td><td>\u2193collagen/elastin \u00b7 \u2193turgor \u00b7 \u2193sweating \u00b7 \u2193melanocytes \u00b7 \u2193subcutaneous fat</td><td>Skin breakdown risk \u00b7 pressure injury prevention \u00b7 thermoregulation impairment</td></tr>'
+      +'<tr><td><strong>Sensory</strong></td><td>Presbycusis (high-frequency hearing loss) \u00b7 presbyopia (farsightedness) \u00b7 \u2193taste/smell</td><td>Speak in lower register \u00b7 face patient \u00b7 large print \u00b7 adequate lighting \u00b7 appetite changes</td></tr>'
+      +'</tbody></table></div>'},
+    {label:'Delirium vs. Dementia vs. Depression',body:
+      '<div class="ts"><table><thead><tr><th>Feature</th><th>Delirium</th><th>Dementia</th><th>Depression</th></tr></thead><tbody>'
+      +'<tr><td><strong>Onset</strong></td><td>Acute (hours\u2013days)</td><td>Gradual (months\u2013years)</td><td>Weeks to months</td></tr>'
+      +'<tr><td><strong>Reversibility</strong></td><td>Usually <strong>reversible</strong></td><td>Usually irreversible</td><td>Treatable; usually reversible</td></tr>'
+      +'<tr><td><strong>Level of Consciousness</strong></td><td>Fluctuating</td><td>Normal until late stages</td><td>Normal</td></tr>'
+      +'<tr><td><strong>Attention</strong></td><td>Severely impaired</td><td>Mildly impaired (early)</td><td>May be impaired</td></tr>'
+      +'<tr><td><strong>Course</strong></td><td>Fluctuates through the day (worse at night \u2014 "sundowning")</td><td>Slowly progressive; stable day-to-day</td><td>Diurnal variation (often worse in AM)</td></tr>'
+      +'<tr><td><strong>Common Causes</strong></td><td>Infection (UTI), hypoxia, medications, post-op, metabolic</td><td>Alzheimer\'s, vascular, Lewy body, frontotemporal</td><td>Psychiatric, medical illness, medications, loss/grief</td></tr>'
+      +'</tbody></table></div>'
+      +'<div class="warn"><strong>THINK DELIRIUM in any acutely confused elder:</strong> Drugs \u00b7 Emotional (pain/fear) \u00b7 Low O2 \u00b7 Infection \u00b7 Retention (urine/stool) \u00b7 Immobility \u00b7 Underhydration/nutrition \u00b7 Metabolic imbalance. Find and treat the cause \u2014 delirium signals an underlying problem.</div>'},
+    {label:'Fall Prevention',body:
+      '<div class="band-card"><div class="band-head">Falls \u2014 #1 Preventable Safety Event in Healthcare</div>'
+      +'<div class="band-body"><p>Use a validated fall risk tool (Morse Fall Scale, Hendrich II). <strong>HIGH risk</strong> patients require enhanced interventions and a yellow fall-risk identifier.</p>'
+      +'<ul>'
+      +'<li>Bed in lowest position \u00b7 call light within reach \u00b7 non-slip footwear</li>'
+      +'<li>Hourly rounding (address: Pain, Position, Potty, Possessions, Pump)</li>'
+      +'<li>Keep glasses, phone, urinal/bedpan within reach</li>'
+      +'<li>Scheduled toileting to prevent urgency \u2014 most falls occur during bathroom trips</li>'
+      +'<li>Review and reduce fall-risk medications: <strong>sedatives, opioids, antihypertensives, diuretics, antipsychotics</strong></li>'
+      +'<li>Orthostatic BP checks before ambulation; have patient dangle before standing</li>'
+      +'<li>Bed and chair alarms for high-risk patients</li>'
+      +'</ul></div></div>'},
+    {label:'Patient & Family Education',body:
+      '<div class="band-card"><div class="band-head">Teaching-Learning Process</div>'
+      +'<div class="band-body">'
+      +'<div class="n116-steps">'
+      +'<div class="n116-step"><div class="n116-step-num">1</div><div><strong>Assess Readiness</strong> \u2014 Motivation, physical/emotional/cognitive ability. Address pain and anxiety FIRST \u2014 they block learning. Identify "teachable moments."</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">2</div><div><strong>Assess Learning Needs</strong> \u2014 What does the patient already know? What do they WANT to know? Health literacy level? Preferred learning style?</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">3</div><div><strong>Plan Teaching</strong> \u2014 SMART learning objectives. Choose appropriate methods and materials. Consider literacy, language, culture, and sensory limitations.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">4</div><div><strong>Implement</strong> \u2014 Use plain language (6th-grade level). Visual aids and demonstrations. Return demonstration for skills. Involve family/caregiver.</div></div>'
+      +'<div class="n116-step"><div class="n116-step-num">5</div><div><strong>Evaluate</strong> \u2014 Teach-back to verify understanding. Return demonstration for psychomotor skills. Document outcome and any need for re-teaching.</div></div>'
+      +'</div>'
+      +'</div></div>'
+      +'<div class="warn"><strong>Teach-Back Method:</strong> "I want to make sure I explained this clearly \u2014 can you tell me in your own words when you should take this medication?" Teach-back confirms <em>understanding</em>, not just recall. If the patient cannot demonstrate understanding \u2192 re-teach using a different approach.</div>'},
+    {label:'Delegation & Interprofessional Collaboration',body:
+      '<div class="g2">'
+      +'<div class="card"><h4>5 Rights of Delegation</h4><p>1. Right <strong>Task</strong> (appropriate for delegation)<br>2. Right <strong>Circumstances</strong> (stable patient, appropriate setting)<br>3. Right <strong>Person</strong> (competent, trained, within their scope)<br>4. Right <strong>Direction/Communication</strong> (clear, concise instructions)<br>5. Right <strong>Supervision/Evaluation</strong> (RN monitors and evaluates outcomes)<br><br><strong>Delegation transfers the TASK, not the accountability.</strong> The RN remains responsible for the outcome.</p></div>'
+      +'<div class="card"><h4>Cannot Be Delegated to AP</h4><ul>'
+      +'<li>Nursing assessment and clinical judgment</li>'
+      +'<li>Nursing diagnosis (NANDA)</li>'
+      +'<li>Care planning and care plan modification</li>'
+      +'<li>Patient and family education</li>'
+      +'<li>Evaluation of patient responses to care</li>'
+      +'<li>Administration of IV push medications</li>'
+      +'</ul></div>'
+      +'</div>'
+      +'<div class="mnem"><strong>TeamSTEPPS:</strong> Team Strategies &amp; Tools to Enhance Performance &amp; Patient Safety. Core competencies: Communication \u00b7 Leadership \u00b7 Situation Monitoring \u00b7 Mutual Support. Interprofessional Education (IPE): learning WITH, FROM, and ABOUT other professions.</div>'}
+   ]}
+
 ];
 
 var n116State={rendered:false};
@@ -1769,29 +2197,29 @@ function n116ApplyColor(html,color){
     .replace(/<table>/g,'<table class="t-'+color+'">');
 }
 
-function renderN116Sections(targetId,sections){
-  /* Render using the exact NUR 118 pattern:
-     study-sec \u2192 sec-hdr \u2192 .pg \u2192 .obj \u2192 .sub sub-{color} dividers between topics. */
-  var html=sections.map(function(s){
+function renderN116Sections(sections,tag){
+  tag=tag||'&#11088; Wrap-Up';
+  return sections.map(function(s){
     var topicsHtml=s.topics.map(function(t){
       return '<div class="sub sub-'+s.color+'">'+t.label+'</div>'
         +n116ApplyColor(t.body,s.color);
     }).join('');
     return '<section id="'+s.id+'" class="study-sec">'
-      +'<div class="sec-hdr sh-'+s.color+'">'+s.title+' <span class="lec-tag">&#11088; Wrap-Up</span></div>'
+      +'<div class="sec-hdr sh-'+s.color+'">'+s.title+' <span class="lec-tag">'+tag+'</span></div>'
       +'<div class="pg">'
       +'<div class="obj"><h4>&#9745; Objective</h4><p>'+s.obj+'</p></div>'
       +topicsHtml
       +'</div>'
       +'</section>';
   }).join('');
-  var target=document.getElementById(targetId);
-  if(target) target.innerHTML=html;
 }
 
 function initN116(){
   if(!n116State.rendered){
-    renderN116Sections('n116-wrapup-list',WRAPUP_SECTIONS);
+    var t=document.getElementById('n116-wrapup-list');
+    if(t) t.innerHTML=renderN116Sections(WRAPUP_SECTIONS)
+      +'<div class="n116-divider"><span>&#128218; Full Lecture Notes</span></div>'
+      +renderN116Sections(LECTURE_SECTIONS,'&#128218; Lecture Notes');
     n116State.rendered=true;
   }
 }
@@ -1804,14 +2232,22 @@ function toggleTopic(){}
 function toggleAllN116(){}
 
 var NUR116_SECTIONS=[
-  {id:'sec-nutrition',  label:'Nutrition & Feeding',       sub:''},
-  {id:'sec-elimination',label:'Elimination',                sub:''},
-  {id:'sec-safety',     label:'Patient Safety',             sub:''},
-  {id:'sec-pain',       label:'Pain',                       sub:''},
-  {id:'sec-legal',      label:'Legal & Ethical',            sub:''},
-  {id:'sec-stress',     label:'Stress, Grief & Psych',      sub:''},
-  {id:'sec-clinical',   label:'Clinical Skills & Process',  sub:''},
-  {id:'sec-other',      label:'Other Pros & Education',     sub:''}
+  {id:'sec-nutrition',         label:'Nutrition & Feeding',          sub:'⭐ Wrap-Up'},
+  {id:'sec-elimination',       label:'Elimination',                   sub:'⭐ Wrap-Up'},
+  {id:'sec-safety',            label:'Patient Safety',                sub:'⭐ Wrap-Up'},
+  {id:'sec-pain',              label:'Pain',                          sub:'⭐ Wrap-Up'},
+  {id:'sec-legal',             label:'Legal & Ethical',               sub:'⭐ Wrap-Up'},
+  {id:'sec-stress',            label:'Stress, Grief & Psych',         sub:'⭐ Wrap-Up'},
+  {id:'sec-clinical',          label:'Clinical Skills & Process',     sub:'⭐ Wrap-Up'},
+  {id:'sec-other',             label:'Other Pros & Education',        sub:'⭐ Wrap-Up'},
+  {id:'sec-lec-foundations',   label:'Foundations of Nursing',        sub:'📚 Lecture'},
+  {id:'sec-lec-process',       label:'Nursing Process & Judgment',    sub:'📚 Lecture'},
+  {id:'sec-lec-documentation', label:'Documentation & Quality',       sub:'📚 Lecture'},
+  {id:'sec-lec-vitals',        label:'Vital Signs & Assessment',      sub:'📚 Lecture'},
+  {id:'sec-lec-ethics',        label:'Ethical & Legal Principles',    sub:'📚 Lecture'},
+  {id:'sec-lec-psychosocial',  label:'Psychosocial & Communication',  sub:'📚 Lecture'},
+  {id:'sec-lec-comfort',       label:'Sleep, Rest & Pain',            sub:'📚 Lecture'},
+  {id:'sec-lec-aging',         label:'Health Promotion & Aging',      sub:'📚 Lecture'}
 ];
 function getSections(){return currentCourse==='NUR116'?NUR116_SECTIONS:NUR118_SECTIONS;}
 
