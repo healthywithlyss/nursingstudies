@@ -721,138 +721,23 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .qr-btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
 .qr-btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border)}
 
-/* ── NUR 116 — Two-tab study guide ── */
-.n116-wrap{padding:20px 24px 8px;max-width:1200px;margin:0 auto}
-/* Full-width tab bar */
-.n116-tabs{display:flex;gap:4px;background:var(--g50);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:18px;width:100%}
-.n116-tab{flex:1;background:transparent;border:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--text-muted);transition:background .15s,color .15s;white-space:nowrap}
-.n116-tab:hover{color:var(--text);background:rgba(0,0,0,.03)}
-.n116-tab.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px rgba(79,126,248,.4)}
-.n116-search-wrap{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.n116-search-input{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff}
-.n116-search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,126,248,.15)}
-.n116-action{padding:9px 14px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-muted);font-family:inherit;transition:background .15s,color .15s}
-.n116-action:hover{background:var(--g50);color:var(--text)}
-.n116-intro{background:#fefce8;border-left:4px solid #eab308;border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;line-height:1.5}
-.n116-intro-blue{background:#eff6ff;border-left-color:var(--cobalt)}
-.n116-cards{display:flex;flex-direction:column;gap:8px}
-.n116-empty{padding:40px 20px;text-align:center;color:var(--text-muted);font-size:14px}
-.tcard{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s,border-color .15s}
-.tcard.cat-clinical{border-left:4px solid var(--cobalt)}
-.tcard.cat-legal{border-left:4px solid var(--rust)}
-.tcard.cat-psycho{border-left:4px solid var(--plum)}
-.tcard.cat-pro{border-left:4px solid var(--forest)}
-.tcard:hover{box-shadow:0 2px 8px rgba(0,0,0,.08),0 12px 32px rgba(0,0,0,.06)}
-.tcard.hidden{display:none}
-.tcard-head{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;text-align:left;font-size:14px;font-weight:700;color:var(--text)}
-.tcard-head:hover{background:var(--g50)}
-.tcard-cat{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 7px;border-radius:20px;color:#fff;flex-shrink:0}
-.tcard.cat-clinical .tcard-cat{background:var(--cobalt)}
-.tcard.cat-legal .tcard-cat{background:var(--rust)}
-.tcard.cat-psycho .tcard-cat{background:var(--plum)}
-.tcard.cat-pro .tcard-cat{background:var(--forest)}
-.tcard-hy{display:inline-block;font-size:9px;font-weight:700;color:#b45309;background:#fefce8;padding:3px 7px;border-radius:20px;border:1px solid #fde68a;flex-shrink:0;letter-spacing:.04em}
-.tcard-title{flex:1;line-height:1.35}
-.tcard-arrow{margin-left:auto;font-size:11px;color:var(--text-muted);transition:transform .2s;flex-shrink:0}
-.tcard.open .tcard-arrow{transform:rotate(180deg)}
-.tcard-body{display:none;padding:4px 16px 18px;border-top:1px solid var(--border);background:#fafbfc}
-.tcard.open .tcard-body{display:block}
-.tcard-body p{margin-bottom:6px}
-.tcard-body ul,.tcard-body ol{padding-left:20px;margin-bottom:8px}
-.tcard-body li{margin-bottom:3px}
-.tcard-body h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:12px 0 6px}
-.tcard-body .card,.tcard-body .band-card{margin-bottom:8px}
-.tcard-body .g2,.tcard-body .g3{margin-bottom:8px}
-/* Section is always open; hide for search-no-match */
-.n116-sec.hidden{display:none}
-/* Each major group is clearly separated; content inside is dense */
-.n116-sec{padding:0;margin-bottom:48px}
-.n116-sec:last-child{margin-bottom:0}
-.n116-sec .sec-hdr{font-size:16px;padding:13px 18px;margin-bottom:0;border-radius:10px 10px 0 0}
-.n116-sec .sec-hdr .lec-tag{font-size:11px;padding:3px 9px}
-.n116-sec .pg{padding:14px 18px;margin-bottom:0;border-radius:0 0 10px 10px}
-/* Italic objective subtitle */
-.n116-sec .n116-sec-obj{font-size:13px;color:var(--text-muted);margin:0 0 14px;line-height:1.45}
-.n116-sec .n116-sec-obj em{font-style:italic}
-/* Topic sub-label: small, bold, tight to its content */
-.n116-sec .n116-topic{margin-bottom:14px}
-.n116-sec .n116-topic:last-child{margin-bottom:0}
-.n116-sec .n116-topic-label{font-size:12px;font-weight:700;color:var(--text);margin:0 0 6px;padding-bottom:3px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
-/* Plain content (lists/paragraphs) under a topic — no card wrapping */
-.n116-sec .n116-topic > p,.n116-sec .n116-topic > ul,.n116-sec .n116-topic > ol{font-size:13px;line-height:1.5;margin:0 0 6px}
-.n116-sec .n116-topic > p:last-child,.n116-sec .n116-topic > ul:last-child,.n116-sec .n116-topic > ol:last-child{margin-bottom:0}
-.n116-sec .n116-topic > ul,.n116-sec .n116-topic > ol{padding-left:18px}
-.n116-sec .n116-topic > ul li,.n116-sec .n116-topic > ol li{margin-bottom:2px}
-.n116-sec .n116-topic > h5{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:10px 0 5px}
-/* Compact cards — content sits close to header, less empty padding */
-.n116-sec .card{padding:11px 13px;font-size:13px;border-radius:8px}
-.n116-sec .card h4{font-size:12px;margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
-.n116-sec .card p{margin-bottom:4px;line-height:1.45}
-.n116-sec .card p:last-child{margin-bottom:0}
-.n116-sec .card ul,.n116-sec .card ol{padding-left:16px;margin-bottom:4px}
-.n116-sec .card ul:last-child,.n116-sec .card ol:last-child{margin-bottom:0}
-.n116-sec .card li{margin-bottom:2px;line-height:1.45}
-/* Band-cards (used sparingly) */
-.n116-sec .band-card{border-radius:8px}
-.n116-sec .band-card .band-head{padding:8px 13px;font-size:12px}
-.n116-sec .band-card .band-body{padding:10px 13px;font-size:13px;line-height:1.45}
-.n116-sec .band-card .band-body p{margin-bottom:4px}
-.n116-sec .band-card .band-body p:last-child{margin-bottom:0}
-.n116-sec .band-card .band-body ul,.n116-sec .band-card .band-body ol{padding-left:16px;margin-bottom:4px}
-.n116-sec .band-card .band-body li{margin-bottom:2px;line-height:1.45}
-.n116-sec .g2,.n116-sec .g3{gap:10px;margin-bottom:8px;align-items:start}
-.n116-sec .g2:last-child,.n116-sec .g3:last-child{margin-bottom:0}
-.n116-sec .warn,.n116-sec .mnem{padding:9px 13px;font-size:13px;margin:8px 0;border-radius:6px;line-height:1.45}
-.n116-sec .ts{margin-bottom:8px;border-radius:6px}
-.n116-sec .ts:last-child{margin-bottom:0}
-.n116-sec table{font-size:13px}
-.n116-sec th{padding:7px 10px;font-size:12px}
-.n116-sec td{padding:7px 10px;line-height:1.4}
-/* Numbered decision-tree steps */
-.n116-sec .n116-steps{display:flex;flex-direction:column;gap:5px;margin:0 0 8px}
-.n116-sec .n116-step{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:var(--g50);border-radius:6px;font-size:13px;line-height:1.45}
-.n116-sec .n116-step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;line-height:1}
-.n116-sec .n116-step-text{flex:1}
-.n116-color-teal   .n116-step{border-left:3px solid var(--teal)}   .n116-color-teal   .n116-step-num{background:var(--teal)}
-.n116-color-cobalt .n116-step{border-left:3px solid var(--cobalt)} .n116-color-cobalt .n116-step-num{background:var(--cobalt)}
-.n116-color-slate  .n116-step{border-left:3px solid var(--slate)}  .n116-color-slate  .n116-step-num{background:var(--slate)}
-.n116-color-plum   .n116-step{border-left:3px solid var(--plum)}   .n116-color-plum   .n116-step-num{background:var(--plum)}
-.n116-color-rust   .n116-step{border-left:3px solid var(--rust)}   .n116-color-rust   .n116-step-num{background:var(--rust)}
-.n116-color-gold   .n116-step{border-left:3px solid var(--gold)}   .n116-color-gold   .n116-step-num{background:var(--gold)}
-.n116-color-forest .n116-step{border-left:3px solid var(--forest)} .n116-color-forest .n116-step-num{background:var(--forest)}
-.n116-color-orange .n116-step{border-left:3px solid var(--orange)} .n116-color-orange .n116-step-num{background:var(--orange)}
-/* Per-section color theming — one consistent color for every card/band-card/table inside */
-.n116-color-teal    .card{border-top:3px solid var(--teal);   background:var(--teal-bg)}
-.n116-color-teal    .band-card .band-head,.n116-color-teal    .ts th{background:var(--teal)}
-.n116-color-cobalt  .card{border-top:3px solid var(--cobalt); background:var(--cobalt-bg)}
-.n116-color-cobalt  .band-card .band-head,.n116-color-cobalt  .ts th{background:var(--cobalt)}
-.n116-color-slate   .card{border-top:3px solid var(--slate);  background:var(--slate-bg)}
-.n116-color-slate   .band-card .band-head,.n116-color-slate   .ts th{background:var(--slate)}
-.n116-color-plum    .card{border-top:3px solid var(--plum);   background:var(--plum-bg)}
-.n116-color-plum    .band-card .band-head,.n116-color-plum    .ts th{background:var(--plum)}
-.n116-color-rust    .card{border-top:3px solid var(--rust);   background:var(--rust-bg)}
-.n116-color-rust    .band-card .band-head,.n116-color-rust    .ts th{background:var(--rust)}
-.n116-color-gold    .card{border-top:3px solid var(--gold);   background:#fef3c7}
-.n116-color-gold    .band-card .band-head,.n116-color-gold    .ts th{background:var(--gold)}
-.n116-color-forest  .card{border-top:3px solid var(--forest); background:var(--forest-bg)}
-.n116-color-forest  .band-card .band-head,.n116-color-forest  .ts th{background:var(--forest)}
-.n116-color-orange  .card{border-top:3px solid var(--orange); background:#fff7ed}
-.n116-color-orange  .band-card .band-head,.n116-color-orange  .ts th{background:var(--orange)}
-.n116-color-orange  .sec-hdr.sh-orange{background:var(--orange)}
+/* NUR 116 — orange section theming + decision-tree step blocks */
 .sh-orange{background:var(--orange)}
-@media print{
-  .n116-tabs,.n116-search-wrap{display:none!important}
-  .n116-tab-pane{display:block!important;page-break-before:always}
-  .n116-sec{display:block!important;break-inside:avoid;box-shadow:none}
-}
-@media(max-width:767px){
-  .n116-wrap{padding:14px}
-  .n116-tabs{max-width:100%}
-  .n116-tab{padding:9px 10px;font-size:12px}
-  .tcard-head{font-size:13px;padding:11px 13px;flex-wrap:wrap}
-  .tcard-body{padding:4px 13px 14px}
-  .n116-search-input{min-width:140px}
-}
+.sub-orange{background:var(--orange)}
+.t-orange th{background:var(--orange)}
+.card-orange{border-top:3px solid var(--orange);background:#fff7ed}
+.bh-orange .band-head{background:var(--orange)}
+.n116-steps{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.n116-step{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;background:var(--g50);border-left:3px solid var(--text-muted);border-radius:6px;font-size:13px;line-height:1.5}
+.n116-step-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--text-muted);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;line-height:1}
+#sec-nutrition   .n116-step{border-left-color:var(--teal)}   #sec-nutrition   .n116-step-num{background:var(--teal)}
+#sec-elimination .n116-step{border-left-color:var(--cobalt)} #sec-elimination .n116-step-num{background:var(--cobalt)}
+#sec-safety      .n116-step{border-left-color:var(--slate)}  #sec-safety      .n116-step-num{background:var(--slate)}
+#sec-pain        .n116-step{border-left-color:var(--plum)}   #sec-pain        .n116-step-num{background:var(--plum)}
+#sec-legal       .n116-step{border-left-color:var(--rust)}   #sec-legal       .n116-step-num{background:var(--rust)}
+#sec-stress      .n116-step{border-left-color:var(--gold)}   #sec-stress      .n116-step-num{background:var(--gold)}
+#sec-clinical    .n116-step{border-left-color:var(--forest)} #sec-clinical    .n116-step-num{background:var(--forest)}
+#sec-other       .n116-step{border-left-color:var(--orange)} #sec-other       .n116-step-num{background:var(--orange)}
 </style>
 </head>
 <body>
@@ -1210,26 +1095,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     </div><!-- /sg-nur118 -->
 
     <div id="sg-nur116" style="display:none">
-      <div class="n116-wrap">
-        <div class="n116-tabs">
-          <button class="n116-tab active" id="ntab-wrapup" type="button" onclick="switchN116Tab('wrapup')">&#11088; Wrap-Up Priority</button>
-          <button class="n116-tab" id="ntab-lectures" type="button" onclick="switchN116Tab('lectures')">&#128218; Full Lecture Notes</button>
-        </div>
-        <div class="n116-search-wrap">
-          <input id="n116-search" class="n116-search-input" type="text" placeholder="&#128269; Search topics or keywords..." oninput="filterN116Topics(this.value)" autocomplete="off">
-          <button class="n116-action" type="button" onclick="clearN116Search()">Clear</button>
-        </div>
-        <div id="n116-tab-wrapup" class="n116-tab-pane active">
-          <div class="n116-intro"><strong>&#11088; Wrap-Up Priority Topics</strong> &mdash; pulled directly from the final exam review slides. Highest yield for the exam.</div>
-          <div id="n116-wrapup-list" class="n116-cards"></div>
-          <div id="n116-wrapup-empty" class="n116-empty" style="display:none">No topics match your search.</div>
-        </div>
-        <div id="n116-tab-lectures" class="n116-tab-pane" style="display:none">
-          <div class="n116-intro n116-intro-blue">&#128218; <strong>Full Lecture Notes</strong> &mdash; covers all lecture material. The Wrap-Up tab is highest priority for the exam.</div>
-          <div id="n116-lectures-list" class="n116-cards"></div>
-          <div id="n116-lectures-empty" class="n116-empty" style="display:none">No topics match your search.</div>
-        </div>
-      </div>
+      <div id="n116-wrapup-list"></div>
     </div><!-- /sg-nur116 -->
 
     </div><!-- /page-study -->
@@ -1892,53 +1758,29 @@ var LECTURE_TOPICS=[
    body:'<p>Loading topic\u2026</p><p style="color:var(--text-muted);font-size:12px">This is a placeholder card. Real lecture content will be added in Step 3.</p>'}
 ];
 
-var n116State={currentTab:'wrapup',wrapupRendered:false,lecturesRendered:false};
+var n116State={rendered:false};
 
-function n116CatColor(c){
-  if(c==='clinical') return 'teal';
-  if(c==='legal') return 'rust';
-  if(c==='psycho') return 'plum';
-  if(c==='pro') return 'cobalt';
-  return 'slate';
-}
-
-function n116CatLabel(c){
-  if(c==='clinical') return 'Clinical';
-  if(c==='legal') return 'Legal / Ethical';
-  if(c==='psycho') return 'Psychosocial';
-  if(c==='pro') return 'Professional';
-  return c;
-}
-
-function n116EscapeAttr(s){
-  return (s||'').replace(/[<>"'&]/g,function(c){
-    return {'<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','&':'&amp;'}[c];
-  });
-}
-
-function n116FindTopic(id){
-  var i;
-  for(i=0;i<WRAPUP_TOPICS.length;i++) if(WRAPUP_TOPICS[i].id===id) return WRAPUP_TOPICS[i];
-  for(i=0;i<LECTURE_TOPICS.length;i++) if(LECTURE_TOPICS[i].id===id) return LECTURE_TOPICS[i];
-  return null;
+function n116ApplyColor(html,color){
+  /* Inject color suffix into card / band-card / table classes so they
+     adopt the section color (matches NUR 118: card-teal, bh-teal, t-teal). */
+  return html
+    .replace(/class="card"/g,'class="card card-'+color+'"')
+    .replace(/class="band-card"/g,'class="band-card bh-'+color+'"')
+    .replace(/<table>/g,'<table class="t-'+color+'">');
 }
 
 function renderN116Sections(targetId,sections){
-  /* Render grouped sections \u2014 one big colored sec-hdr per group, italic obj subtitle,
-     bold topic labels (no colored boxes), content cards within. */
+  /* Render using the exact NUR 118 pattern:
+     study-sec \u2192 sec-hdr \u2192 .pg \u2192 .obj \u2192 .sub sub-{color} dividers between topics. */
   var html=sections.map(function(s){
     var topicsHtml=s.topics.map(function(t){
-      return '<div class="n116-topic">'
-        +'<h3 class="n116-topic-label">'+t.label+'</h3>'
-        +t.body
-        +'</div>';
+      return '<div class="sub sub-'+s.color+'">'+t.label+'</div>'
+        +n116ApplyColor(t.body,s.color);
     }).join('');
-    var raw=(s.title+' '+s.obj+' '+s.topics.map(function(t){return t.label+' '+t.body;}).join(' ')).toLowerCase().replace(/<[^>]*>/g,' ');
-    var search=n116EscapeAttr(raw);
-    return '<section id="'+s.id+'" class="study-sec n116-sec n116-color-'+s.color+'" data-search="'+search+'">'
-      +'<div class="sec-hdr sh-'+s.color+'">'+s.title+'<span class="lec-tag">\u2b50 HIGH YIELD</span></div>'
+    return '<section id="'+s.id+'" class="study-sec">'
+      +'<div class="sec-hdr sh-'+s.color+'">'+s.title+' <span class="lec-tag">&#11088; Wrap-Up</span></div>'
       +'<div class="pg">'
-      +'<p class="n116-sec-obj"><em>'+s.obj+'</em></p>'
+      +'<div class="obj"><h4>&#9745; Objective</h4><p>'+s.obj+'</p></div>'
       +topicsHtml
       +'</div>'
       +'</section>';
@@ -1947,106 +1789,31 @@ function renderN116Sections(targetId,sections){
   if(target) target.innerHTML=html;
 }
 
-/* Backward-compat: old function name still used for the placeholder lectures tab */
-function renderN116Topics(targetId,topics){
-  /* Lectures tab still uses the old per-topic layout; will be rebuilt in Step 3 */
-  var html=topics.map(function(t){
-    var color=n116CatColor(t.cat);
-    var raw=(t.title+' '+(t.body||'')).toLowerCase().replace(/<[^>]*>/g,' ');
-    var search=n116EscapeAttr(raw);
-    var tag=t.hy?'\u2b50 HIGH YIELD':(t.tag||n116CatLabel(t.cat));
-    return '<section id="'+t.id+'" class="study-sec n116-sec n116-'+t.cat+'" data-search="'+search+'">'
-      +'<div class="sec-hdr sh-'+color+'">'+t.title+'<span class="lec-tag">'+tag+'</span></div>'
-      +'<div class="pg">'
-      +(t.obj?'<p class="n116-sec-obj"><em>'+t.obj+'</em></p>':'')
-      +t.body
-      +'</div>'
-      +'</section>';
-  }).join('');
-  var target=document.getElementById(targetId);
-  if(target) target.innerHTML=html;
+function initN116(){
+  if(!n116State.rendered){
+    renderN116Sections('n116-wrapup-list',WRAPUP_SECTIONS);
+    n116State.rendered=true;
+  }
 }
 
-/* Content is always open \u2014 toggle helpers kept as no-ops for backward compat */
+/* No-ops kept so any stale references won't error */
+function switchN116Tab(){}
+function filterN116Topics(){}
+function clearN116Search(){}
 function toggleTopic(){}
 function toggleAllN116(){}
 
-function clearN116Search(){
-  var input=document.getElementById('n116-search');
-  if(input) input.value='';
-  filterN116Topics('');
-}
-
-function filterN116Topics(query){
-  var q=(query||'').toLowerCase().trim();
-  var pane=n116State.currentTab==='wrapup'?'n116-tab-wrapup':'n116-tab-lectures';
-  var paneEl=document.getElementById(pane);
-  if(!paneEl) return;
-  var secs=paneEl.querySelectorAll('.n116-sec');
-  var visible=0;
-  secs.forEach(function(sec){
-    if(!q){sec.classList.remove('hidden');visible++;return;}
-    var data=sec.dataset.search||'';
-    if(data.indexOf(q)>=0){sec.classList.remove('hidden');visible++;}
-    else sec.classList.add('hidden');
-  });
-  var emptyId=n116State.currentTab==='wrapup'?'n116-wrapup-empty':'n116-lectures-empty';
-  var empty=document.getElementById(emptyId);
-  if(empty) empty.style.display=visible===0?'block':'none';
-}
-
-function switchN116Tab(tab){
-  n116State.currentTab=tab;
-  var btnW=document.getElementById('ntab-wrapup');
-  var btnL=document.getElementById('ntab-lectures');
-  if(btnW) btnW.classList.toggle('active',tab==='wrapup');
-  if(btnL) btnL.classList.toggle('active',tab==='lectures');
-  var paneW=document.getElementById('n116-tab-wrapup');
-  var paneL=document.getElementById('n116-tab-lectures');
-  if(paneW) paneW.style.display=tab==='wrapup'?'':'none';
-  if(paneL) paneL.style.display=tab==='lectures'?'':'none';
-  /* Lazy render lectures the first time the tab is clicked */
-  if(tab==='lectures' && !n116State.lecturesRendered){
-    renderN116Topics('n116-lectures-list',LECTURE_TOPICS);
-    n116State.lecturesRendered=true;
-  }
-  /* Re-apply active search filter to the now-visible pane */
-  var search=document.getElementById('n116-search');
-  if(search && search.value) filterN116Topics(search.value);
-  else filterN116Topics('');
-  /* Refresh sidebar context if it's showing NUR116 */
-  if(typeof renderCtx==='function' && typeof currentCourse!=='undefined'
-     && currentCourse==='NUR116' && currentPage==='study') renderCtx('study');
-}
-
-function initN116(){
-  if(!n116State.wrapupRendered){
-    renderN116Sections('n116-wrapup-list',WRAPUP_SECTIONS);
-    n116State.wrapupRendered=true;
-  }
-}
-
-var NUR116_WRAPUP_NAV=[
-  {id:'sec-nutrition',  label:'Nutrition & Feeding',         sub:'1'},
-  {id:'sec-elimination',label:'Elimination',                  sub:'2'},
-  {id:'sec-safety',     label:'Patient Safety',               sub:'3'},
-  {id:'sec-pain',       label:'Pain',                         sub:'4'},
-  {id:'sec-legal',      label:'Legal & Ethical',              sub:'5'},
-  {id:'sec-stress',     label:'Stress, Grief & Psych',        sub:'6'},
-  {id:'sec-clinical',   label:'Clinical Skills & Process',    sub:'7'},
-  {id:'sec-other',      label:'Other Pros & Education',       sub:'8'}
+var NUR116_SECTIONS=[
+  {id:'sec-nutrition',  label:'Nutrition & Feeding',       sub:''},
+  {id:'sec-elimination',label:'Elimination',                sub:''},
+  {id:'sec-safety',     label:'Patient Safety',             sub:''},
+  {id:'sec-pain',       label:'Pain',                       sub:''},
+  {id:'sec-legal',      label:'Legal & Ethical',            sub:''},
+  {id:'sec-stress',     label:'Stress, Grief & Psych',      sub:''},
+  {id:'sec-clinical',   label:'Clinical Skills & Process',  sub:''},
+  {id:'sec-other',      label:'Other Pros & Education',     sub:''}
 ];
-var NUR116_LECTURES_NAV=[
-  {id:'lec-placeholder-1',label:'Lecture Notes (coming soon)',sub:''}
-];
-var NUR116_SECTIONS=NUR116_WRAPUP_NAV;
-function getSections(){
-  if(currentCourse!=='NUR116') return NUR118_SECTIONS;
-  /* For NUR 116, return the nav list for the currently active tab */
-  return (typeof n116State!=='undefined' && n116State.currentTab==='lectures')
-    ? NUR116_LECTURES_NAV
-    : NUR116_WRAPUP_NAV;
-}
+function getSections(){return currentCourse==='NUR116'?NUR116_SECTIONS:NUR118_SECTIONS;}
 
 var currentPage='study';
 
@@ -2147,13 +1914,6 @@ function goToAndFilter(key){
 }
 
 function scrollToSec(id){
-  /* NUR116 — sidebar links route to tab panes, switch tab + scroll to top */
-  if(id==='n116-tab-wrapup' || id==='n116-tab-lectures'){
-    if(typeof switchN116Tab==='function') switchN116Tab(id==='n116-tab-wrapup'?'wrapup':'lectures');
-    var mc1=document.getElementById('main-content');
-    if(mc1) mc1.scrollTo({top:0,behavior:'smooth'});
-    return;
-  }
   var el=document.getElementById(id);
   var mc=document.getElementById('main-content');
   if(el) mc.scrollTo({top:el.offsetTop-20,behavior:'smooth'});
