@@ -4310,6 +4310,21 @@ function renderSidebarObjList(){
     +'<span class="sl-sub">'+fcAllCards.length+'</span>'
     +'</button>';
 
+  /* Wrap-Up Priority row — NUR116 only */
+  if(currentCourse==='NUR116'){
+    var wrapCards=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;});
+    if(wrapCards.length){
+      var wrapMastered=wrapCards.filter(function(c){return(sess&&sess.cardState&&(sess.cardState[c.id]||{}).status==='mastered');}).length;
+      var wrapPct=Math.round(wrapMastered/wrapCards.length*100);
+      var wrapDot=wrapMastered===0?'rgba(255,255,255,.18)':wrapPct>=80?'var(--got)':wrapPct>=50?'var(--unsure)':'var(--missed)';
+      h+='<button class="section-link'+(filter==='__wrapup__'?' active':'')+'" onclick="startSessionForFilter(\'__wrapup__\')">'
+        +'<span class="dot" style="opacity:1;background:'+wrapDot+'"></span>'
+        +'<span class="sl-text">⭐ Wrap-Up Priority</span>'
+        +'<span class="sl-sub">'+wrapMastered+'/'+wrapCards.length+'</span>'
+        +'</button>';
+    }
+  }
+
   /* Per-lecture rows in spec order */
   var og=getObjGroups();
   Object.keys(og).forEach(function(key){
@@ -4687,6 +4702,19 @@ function initPractice(){
 function startSessionForFilter(filter){
   filter=filter||'';
   if(filter==='__review__'){startReviewSession();return;}
+  if(filter==='__wrapup__'){
+    var cards=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;});
+    if(!cards.length){showToast('No wrap-up cards found.');return;}
+    var saved=lsLoad('__wrapup__');
+    if(saved&&saved.cardState){
+      var mastered=0;
+      cards.forEach(function(c){if((saved.cardState[c.id]||{}).status==='mastered') mastered++;});
+      if(mastered<cards.length){showResumePrompt(cards,saved,'__wrapup__');return;}
+      else lsClear('__wrapup__');
+    }
+    startSession(cards,'__wrapup__');
+    return;
+  }
   var cards=filter?fcAllCards.filter(function(c){
     var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
     return pre===filter;
@@ -5025,6 +5053,11 @@ function renderDeckDropdown(){
     groups[pre]=(groups[pre]||0)+1;
   });
   var html='<option value="">All Cards ('+fcAllCards.length+')</option>';
+  /* Wrap-Up Priority option — NUR116 only */
+  if(currentCourse==='NUR116'){
+    var wrapCnt=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;}).length;
+    if(wrapCnt) html+='<option value="__wrapup__">⭐ Wrap-Up Priority ('+wrapCnt+')</option>';
+  }
   Object.keys(og).forEach(function(key){
     var cnt=groups[key]||0;
     if(cnt) html+='<option value="'+key+'">'+og[key]+' ('+cnt+')</option>';
@@ -5051,8 +5084,8 @@ function switchDeckFromDropdown(){
   var curFilter=sess.deckFilter||'';
   if(newFilter===curFilter) return;
   var og=getObjGroups();
-  var toName=newFilter==='__review__'?'Needs Review':newFilter?(og[newFilter]||newFilter):'All Cards';
-  var fromName=curFilter==='__review__'?'Needs Review':curFilter?(og[curFilter]||curFilter):'All Cards';
+  var toName=newFilter==='__review__'?'Needs Review':newFilter==='__wrapup__'?'Wrap-Up Priority':newFilter?(og[newFilter]||newFilter):'All Cards';
+  var fromName=curFilter==='__review__'?'Needs Review':curFilter==='__wrapup__'?'Wrap-Up Priority':curFilter?(og[curFilter]||curFilter):'All Cards';
   if(!confirm('Switch to "'+toName+'" deck?\n\nYour "'+fromName+'" session progress is saved.')){
     sel.value=curFilter; /* revert */
     return;
