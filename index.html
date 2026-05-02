@@ -867,19 +867,13 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .n116-search-input{min-width:140px}
 }
 
-/* ── NUR118 Unit switcher ── */
-.nur118-unit-bar{display:flex;align-items:center;gap:8px;
-  padding:14px 20px;background:#fff;border-bottom:2px solid var(--border);
-  position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-.nur118-unit-bar-label{font-size:11px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--text-muted);margin-right:4px;white-space:nowrap}
-.nur118-unit-btn{padding:9px 22px;border:2px solid var(--border);border-radius:8px;
-  background:var(--g50);font-size:13px;font-weight:700;color:var(--text-muted);
-  cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
-.nur118-unit-btn:hover{border-color:var(--accent);color:var(--accent);background:#f0f4ff}
-.nur118-unit-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);
-  box-shadow:0 2px 8px rgba(79,126,248,.35)}
-@media(max-width:767px){.nur118-unit-bar{padding:10px 12px;flex-wrap:wrap}}
+/* ── NUR118 Unit divider header ── */
+.nur118-unit-hdr{display:flex;align-items:center;gap:12px;padding:13px 20px;
+  color:#fff;font-size:17px;font-weight:800;letter-spacing:-.01em;
+  margin:0 0 0;position:sticky;top:0;z-index:100}
+.nur118-unit-hdr .lec-tag{font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px}
+@media(max-width:767px){.nur118-unit-hdr{font-size:14px;padding:10px 14px}}
 </style>
 </head>
 <body>
@@ -948,14 +942,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <!-- ══════════════ STUDY PAGE ══════════════ -->
     <div id="page-study" class="page active">
     <div id="sg-nur118">
-      <div class="nur118-unit-bar">
-        <span class="nur118-unit-bar-label">NUR 118</span>
-        <button class="nur118-unit-btn" id="nur118-u1-btn" onclick="switchNur118Unit(1)">&#128218; Unit 1 &mdash; Lec 1&ndash;6</button>
-        <button class="nur118-unit-btn active" id="nur118-u2-btn" onclick="switchNur118Unit(2)">&#128218; Unit 2 &mdash; Lec 7&ndash;12</button>
-      </div>
-
-      <!-- ══ UNIT 1 sections (hidden by default, shown when Unit 1 tab active) ══ -->
-      <div id="nur118-u1" style="display:none">
+      <!-- ══ UNIT 1 sections ══ -->
+      <div id="nur118-u1">
+        <div class="nur118-unit-hdr sh-cobalt">Unit 1 &mdash; Lectures 1&ndash;6 <span class="lec-tag">Infection &middot; Wounds &middot; Pharm &middot; Mobility &middot; Periop &middot; Pain</span></div>
 <section id="sec-u1-s0" class="study-sec">
   <div class="sec-hdr sh-teal">Body Defense &amp; Infection Control <span class="lec-tag">Lecture 1</span></div>
 
@@ -3313,6 +3302,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
       <!-- ══ UNIT 2 sections ══ -->
       <div id="nur118-u2">
+        <div class="nur118-unit-hdr sh-plum">Unit 2 &mdash; Lectures 7&ndash;12 <span class="lec-tag">Oxygenation &middot; Cardio &middot; ABG &middot; Fluids &middot; IV &middot; Mgmt</span></div>
 
       <!-- SEC: OXYGENATION -->
       <section id="sec-oxygen" class="study-sec">
@@ -4443,27 +4433,20 @@ var NUR116_LECTURES_NAV=[
   {id:'lec-placeholder-1',label:'Lecture Notes (coming soon)',sub:''}
 ];
 var NUR116_SECTIONS=NUR116_WRAPUP_NAV;
-var currentNur118Unit=2;
+/* currentNur118Unit retained as no-op for switchCourse compat */
+var currentNur118Unit=1;
 function getSections(){
   if(currentCourse==='NUR116'){
     return (typeof n116State!=='undefined' && n116State.currentTab==='lectures')
       ? NUR116_LECTURES_NAV
       : NUR116_WRAPUP_NAV;
   }
-  return currentNur118Unit===1 ? NUR118_U1_SECTIONS : NUR118_SECTIONS;
+  return NUR118_U1_SECTIONS.concat(NUR118_SECTIONS);
 }
 function switchNur118Unit(u){
-  currentNur118Unit=u;
-  var u1=document.getElementById('nur118-u1');
-  var u2=document.getElementById('nur118-u2');
-  if(u1) u1.style.display=(u===1?'':'none');
-  if(u2) u2.style.display=(u===2?'':'none');
-  ['1','2'].forEach(function(n){
-    var btn=document.getElementById('nur118-u'+n+'-btn');
-    if(btn) btn.classList.toggle('active', String(u)===n);
-  });
-  document.getElementById('main-content').scrollTop=0;
-  if(currentPage==='study') renderCtx('study');
+  var target=document.getElementById(u===1?'nur118-u1':'nur118-u2');
+  var mc=document.getElementById('main-content');
+  if(target&&mc) mc.scrollTo({top:target.offsetTop,behavior:'smooth'});
 }
 
 var currentPage='study';
@@ -4895,13 +4878,24 @@ function buildCycle(){
 function initPractice(){
   if(fcLoaded) return;
   fcSetLoading();
-  var url='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
-  sbFetch(url)
-    .then(function(r){return r.json();})
-    .then(function(data){
+  var cardUrl='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
+  var fetches=[sbFetch(cardUrl).then(function(r){return r.json();})];
+  /* For NUR116: also fetch objectives to get lecture names dynamically */
+  if(currentCourse==='NUR116'){
+    fetches.push(sbFetch('/rest/v1/objectives?select=id,lecture&id=like.NUR116*&order=id.asc').then(function(r){return r.json();}));
+  }
+  Promise.all(fetches)
+    .then(function(results){
+      var data=results[0];
       if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found.');return;}
+      /* Build NUR116_OBJ_GROUPS from objectives table so names come from DB */
+      if(currentCourse==='NUR116'&&results[1]&&Array.isArray(results[1])){
+        var map={};
+        results[1].forEach(function(o){if(o.id&&o.lecture) map[o.id]=o.lecture;});
+        if(Object.keys(map).length) NUR116_OBJ_GROUPS=map;
+      }
       fcAllCards=data; fcLoaded=true;
-      fcReviewCardIds=null; /* reset so dropdown re-fetches on load */
+      fcReviewCardIds=null;
       renderSidebarObjList();
       renderDeckDropdown();
       if(fcPendingIds){var ids=fcPendingIds;fcPendingIds=null;startSessionWithIds(ids);return;}
@@ -5469,7 +5463,8 @@ function switchCourse(course){
   if(s118) s118.style.display=(course==='NUR118'?'':'none');
   if(s116) s116.style.display=(course==='NUR116'?'':'none');
   /* When switching back to NUR118, always default to Unit 2 view */
-  if(course==='NUR118' && currentNur118Unit!==2) switchNur118Unit(2);
+  /* scroll to top of study content on course switch */
+  var mc=document.getElementById('main-content'); if(mc) mc.scrollTop=0;
   /* Lazy-init NUR116 study guide on first switch to it */
   if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
