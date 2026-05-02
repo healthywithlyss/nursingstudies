@@ -1,0 +1,2803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUR 118 Unit 1 — Study Guide</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0f766e;--teal-lt:#ccfbf1;--teal-bg:#f0fdfa;
+  --plum:#7e22ce;--plum-lt:#f3e8ff;--plum-bg:#faf5ff;
+  --rust:#b91c1c;--rust-lt:#fee2e2;--rust-bg:#fff5f5;
+  --forest:#15803d;--forest-lt:#dcfce7;--forest-bg:#f0fdf4;
+  --cobalt:#1d4ed8;--cobalt-lt:#dbeafe;--cobalt-bg:#eff6ff;
+  --slate:#334155;--slate-lt:#f1f5f9;--slate-bg:#f8fafc;
+  --gold:#b45309;--gold-lt:#fef3c7;--gold-bg:#fffbeb;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g400:#9ca3af;--g700:#374151;--g900:#111827;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:14px;line-height:1.6;color:var(--g700);background:var(--g100);min-height:100vh}
+.app-header{background:var(--g900);color:#fff;padding:12px 20px 0;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.app-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  opacity:.6;margin-bottom:10px}
+.tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:0}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;background:transparent;color:rgba(255,255,255,.5);
+  font-size:12px;font-weight:600;padding:8px 13px 10px;cursor:pointer;
+  border-radius:6px 6px 0 0;transition:background .15s,color .15s;
+  white-space:nowrap;letter-spacing:.02em}
+.tab-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.tab-btn.active{background:var(--tc,#fff);color:#fff}
+.panel{display:none;padding:20px 16px 48px;max-width:1200px;margin:0 auto}
+.panel.active{display:block}
+.sec-head{font-size:17px;font-weight:800;padding:13px 18px;border-radius:var(--r);
+  margin-bottom:16px;color:#fff;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lec-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);
+  padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.sh-teal{background:var(--teal)}.sh-plum{background:var(--plum)}
+.sh-rust{background:var(--rust)}.sh-forest{background:var(--forest)}
+.sh-cobalt{background:var(--cobalt)}.sh-slate{background:var(--slate)}
+.sh-gold{background:var(--gold)}
+.pg,.pg-wide{background:#fff;border-radius:var(--r);padding:18px 20px;
+  box-shadow:var(--sh);margin-bottom:14px}
+.sub{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  padding:5px 12px;border-radius:4px;margin:16px 0 10px;display:block}
+.sub-teal{background:var(--teal);color:#fff}.sub-plum{background:var(--plum);color:#fff}
+.sub-rust{background:var(--rust);color:#fff}.sub-forest{background:var(--forest);color:#fff}
+.sub-cobalt{background:var(--cobalt);color:#fff}.sub-slate{background:var(--slate);color:#fff}
+.sub-gold{background:var(--gold);color:#fff}
+.obj{background:var(--g50);border-left:4px solid var(--g200);
+  border-radius:0 var(--r) var(--r) 0;padding:11px 15px;margin-bottom:14px;font-size:13px}
+.obj h4{font-size:13px;margin-bottom:4px;color:var(--g900)}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(min-width:701px) and (max-width:1024px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--g50);border:1px solid var(--g200);border-radius:var(--r);padding:13px}
+.card h4{font-size:13px;font-weight:700;margin-bottom:7px}
+.card ul,.card ol{padding-left:17px}.card li{margin-bottom:2px}
+.card p{margin-bottom:5px}
+.card-teal{border-top:3px solid var(--teal);background:var(--teal-bg)}
+.card-plum{border-top:3px solid var(--plum);background:var(--plum-bg)}
+.card-rust{border-top:3px solid var(--rust);background:var(--rust-bg)}
+.card-forest{border-top:3px solid var(--forest);background:var(--forest-bg)}
+.card-cobalt{border-top:3px solid var(--cobalt);background:var(--cobalt-bg)}
+.card-slate{border-top:3px solid var(--slate);background:var(--slate-bg)}
+.card-gold{border-top:3px solid var(--gold);background:var(--gold-bg)}
+.card-teal h4{color:var(--teal)}.card-plum h4{color:var(--plum)}
+.card-rust h4{color:var(--rust)}.card-forest h4{color:var(--forest)}
+.card-cobalt h4{color:var(--cobalt)}.card-slate h4{color:var(--slate)}
+.card-gold h4{color:var(--gold)}
+.band-card{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:4px}
+.band-head{font-weight:800;font-size:13px;padding:9px 14px;color:#fff}
+.band-body{background:#fff;padding:11px 14px;border:1px solid var(--g200);border-top:none}
+.band-body p{margin-bottom:4px}.band-body ul{padding-left:17px}
+.bh-teal .band-head{background:var(--teal)}.bh-plum .band-head{background:var(--plum)}
+.bh-rust .band-head{background:var(--rust)}.bh-forest .band-head{background:var(--forest)}
+.bh-cobalt .band-head{background:var(--cobalt)}.bh-slate .band-head{background:var(--slate)}
+.bh-gold .band-head{background:var(--gold)}
+.warn{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:#9a3412}
+.mnem{background:#fefce8;border:1px solid #fde68a;border-left:4px solid #eab308;
+  border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;
+  color:#713f12;font-style:italic}
+.emerg{color:#dc2626!important;font-weight:700}
+td.emerg{background:#fff5f5}
+.lbl{font-weight:700}
+.norm{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;
+  font-weight:600;margin:2px;background:var(--g200);color:var(--g700)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;
+  box-shadow:var(--sh);border-radius:var(--r);overflow:hidden}
+th{background:var(--g700);color:#fff;padding:8px 11px;text-align:left;
+  font-size:12px;font-weight:700;letter-spacing:.02em}
+td{padding:7px 11px;border-bottom:1px solid var(--g200);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--g50)}
+tr:nth-child(odd) td{background:#fff}
+.t-teal th{background:var(--teal)}.t-plum th{background:var(--plum)}
+.t-rust th{background:var(--rust)}.t-forest th{background:var(--forest)}
+.t-cobalt th{background:var(--cobalt)}.t-slate th{background:var(--slate)}
+.t-gold th{background:var(--gold)}
+.ts{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px}
+.ts table{min-width:580px}
+.drug-class{display:block;font-size:11px;color:#64748b;font-style:italic;margin-top:2px}
+p{margin-bottom:5px}ul{padding-left:17px;margin-bottom:5px}
+ol{padding-left:17px;margin-bottom:5px}li{margin-bottom:2px}
+h4{font-size:14px}strong{font-weight:700}
+#fc-wrap{max-width:660px;margin:0 auto;padding-top:4px}
+.fc-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.fc-controls select{padding:7px 11px;border-radius:6px;border:1px solid var(--g200);font-size:13px;cursor:pointer;background:#fff}
+.fc-ctrl-btn{padding:7px 13px;border-radius:6px;border:1px solid var(--g700);background:var(--g900);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.fc-ctrl-btn:hover{opacity:.85}
+.fc-progress{margin-bottom:14px}
+.fc-progress-bar{height:7px;background:var(--g200);border-radius:4px;overflow:hidden;margin-top:5px}
+.fc-progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .3s}
+.fc-progress-label{font-size:12px;color:var(--g400)}
+.fc-face{border-radius:var(--r);padding:28px 24px;min-height:180px;margin-bottom:12px;cursor:pointer}
+.fc-front{background:#fff;border:2px solid var(--g200);box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:center}
+.fc-back{background:var(--teal-bg);border:2px solid var(--teal);box-shadow:var(--sh);display:none}
+.fc-hint{font-size:11px;color:var(--g400);text-align:center;margin-bottom:10px}
+.fc-q{font-size:15px;font-weight:600;text-align:center;color:var(--g900);line-height:1.6}
+.fc-a-head{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.fc-a{font-size:14px;color:var(--g700);line-height:1.7}
+.fc-btns{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.fc-btns button{flex:1;max-width:140px;padding:11px 8px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-got{background:#16a34a;color:#fff}.btn-unsure{background:#d97706;color:#fff}.btn-missed{background:#dc2626;color:#fff}
+.fc-btns button:hover{opacity:.85}
+#fc-summary{text-align:center;padding:32px 16px;background:#fff;border-radius:var(--r);box-shadow:var(--sh)}
+#fc-summary h3{font-size:20px;font-weight:800;margin-bottom:16px;color:var(--g900)}
+.sum-stat{display:inline-block;padding:10px 18px;border-radius:8px;margin:4px;font-size:14px;font-weight:600}
+.sum-got{background:#dcfce7;color:#16a34a}.sum-unsure{background:#fef3c7;color:#d97706}.sum-missed{background:#fee2e2;color:#dc2626}
+#db-wrap{max-width:860px;margin:0 auto}
+.db-lecture-group{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.db-lec-head{padding:11px 16px;font-weight:800;font-size:13px;color:#fff}
+.db-obj-row{padding:10px 16px;border-bottom:1px solid var(--g200)}
+.db-obj-row:last-child{border-bottom:none}
+.db-obj-label{font-size:12px;color:var(--g700);margin-bottom:5px}
+.db-bar-wrap{display:flex;align-items:center;gap:10px}
+.db-bar-bg{flex:1;height:12px;background:var(--g200);border-radius:6px;overflow:hidden}
+.db-bar-fill{height:100%;border-radius:6px;transition:width .4s}
+.db-bar-pct{font-size:12px;font-weight:700;min-width:36px;text-align:right}
+.db-bar-notstarted .db-bar-fill{background:var(--g400);width:0%!important}
+.db-green .db-bar-fill{background:#16a34a}.db-yellow .db-bar-fill{background:#d97706}.db-red .db-bar-fill{background:#dc2626}
+.db-green .db-bar-pct{color:#16a34a}.db-yellow .db-bar-pct{color:#d97706}.db-red .db-bar-pct{color:#dc2626}
+.db-bar-notstarted .db-bar-pct{color:var(--g400)}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">NUR 118 · Unit 1 Study Guide — Lectures 1–6</div>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" style="--tc:#0f766e" onclick="show(0,this)">Infection Control</button>
+    <button class="tab-btn" style="--tc:#7e22ce" onclick="show(1,this)">Skin &amp; Wounds</button>
+    <button class="tab-btn" style="--tc:#b91c1c" onclick="show(2,this)">Pharmacology</button>
+    <button class="tab-btn" style="--tc:#15803d" onclick="show(3,this)">Mobility</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(4,this)">Periop Part 1</button>
+    <button class="tab-btn" style="--tc:#334155" onclick="show(5,this)">Periop + Pain</button>
+    <button class="tab-btn" style="--tc:#b45309" onclick="show(6,this)">Medications</button>
+    <button class="tab-btn" style="--tc:#0f766e" onclick="show(7,this)" id="fc-tab">&#127794; Flashcards</button>
+    <button class="tab-btn" style="--tc:#1d4ed8" onclick="show(8,this)" id="db-tab">&#128202; Dashboard</button>
+  </div>
+</div>
+
+<!-- ═══ LECTURE 1 — INFECTION CONTROL ═══ -->
+<div id="s0" class="panel active">
+  <div class="sec-head sh-teal">Body Defense &amp; Infection Control <span class="lec-tag">Lecture 1</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Describe infection &amp; risk factors &nbsp;·&nbsp; HAI vs. Nosocomial &nbsp;·&nbsp; Six links in chain of infection &nbsp;·&nbsp; Stages of infectious process (5) &nbsp;·&nbsp; Classifications: local vs systemic, acute vs chronic, latent &nbsp;·&nbsp; Body's lines of defense &nbsp;·&nbsp; Factors placing patient at risk &nbsp;·&nbsp; Activities promoting immune function &nbsp;·&nbsp; Medical vs surgical asepsis + sterile principles &nbsp;·&nbsp; Standard Precautions &nbsp;·&nbsp; Transmission-based precautions (3 examples each) &nbsp;·&nbsp; Transmission-based vs Protective Environment &nbsp;·&nbsp; Nursing interventions for asepsis &amp; host defenses</p>
+    </div>
+
+    <span class="sub sub-teal">HAI vs. Nosocomial &amp; Source of Infection</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">HAI — Healthcare-Associated Infection</div>
+        <div class="band-body">
+          <p>Infection contracted in <strong>ANY</strong> healthcare setting</p>
+          <p>Includes: nursing home, rehab, dialysis, urgent care, detox, home care, doctor's office</p>
+          <p><b class="lbl">Greatest risk:</b> chronically ill, elderly, pts on steroids, diabetics, immunocompromised</p>
+          <p><b class="lbl">Impact:</b> aggravate existing illness, lengthen stay &amp; recovery, increase cost; one of the 10 leading causes of death in the US</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">Nosocomial — Hospital-Only</div>
+        <div class="band-body">
+          <p>Infection acquired in the <strong>HOSPITAL only</strong></p>
+          <p><b class="lbl">Examples:</b> CLABSI (central line), SSI (surgical site), CAUTI (catheter UTI), VAP (ventilator pneumonia), MDROs, C-Diff</p>
+          <p><b class="lbl">C. difficile:</b> most common &amp; serious nosocomial; elderly on antibiotics = highest risk</p>
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>Endogenous Infection</h4>
+        <p>Source is <strong>inside</strong> the patient — normal flora altered (e.g., antibiotics disrupt gut flora → C. diff)</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Exogenous Infection</h4>
+        <p>Source is <strong>outside</strong> the patient — environmental organisms (e.g., staph from surfaces, hands, equipment)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Six Links — Chain of Infection (ALL 6 must be present for spread)</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">1 · Infectious Agent (Pathogen)</div>
+        <div class="band-body">
+          <p>Bacteria, viruses, fungi, yeast, mold</p>
+          <p><b class="lbl">Resident flora:</b> live on/in us (intestines, skin) — normally harmless</p>
+          <p><b class="lbl">Transient flora:</b> temporary; removed by handwashing</p>
+          <p>Normal flora becomes pathogenic when it goes where it doesn't belong</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">2 · Reservoir</div>
+        <div class="band-body">
+          <p>Where pathogens live &amp; multiply</p>
+          <p><b class="lbl">Living:</b> humans, animals, insects — warm, dark, moist environments</p>
+          <p><b class="lbl">Nonliving:</b> food, soil, water, sinks, toilets, bed rails, overbed tables, linens, wound dressings, stethoscope</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">3 · Portal of Exit</div>
+        <div class="band-body">
+          <p>How the pathogen leaves the reservoir</p>
+          <p><b class="lbl">Body fluids:</b> blood, mucus, urine, feces, breast milk, emesis, semen</p>
+          <p>Coughing, sneezing, saliva, wound drainage, tubes, IV lines</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">4 · Mode of Transmission</div>
+        <div class="band-body">
+          <p><b class="lbl">Contact — Direct:</b> touching, kissing, sexual contact, wound drainage, scratch, bite</p>
+          <p><b class="lbl">Contact — Indirect:</b> fomite — contaminated object (stethoscope, thermometer, keyboard, pen, overbed table)</p>
+          <p><b class="lbl">Droplet:</b> water droplets when person exhales/coughs/sneezes/talks; suctioning &amp; oral care</p>
+          <p><b class="lbl">Airborne:</b> aerosolized particles — travel &gt;6 ft</p>
+          <p><b class="lbl">Vector:</b> ticks, fleas, mosquito, mites</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">5 · Portal of Entry</div>
+        <div class="band-body">
+          <p><b class="lbl">Normal openings:</b> eye, nares, mouth, urethra, vagina, anus</p>
+          <p><b class="lbl">Abnormal openings:</b> wounds, cuts, scrapes, surgical incisions, IV/drainage tube sites, urinary catheters, bite from vector</p>
+          <p><b class="lbl">Common in healthcare:</b> wounds, surgical sites, urinary catheters, IV lines, GI tubes</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">6 · Susceptible Host</div>
+        <div class="band-body">
+          <p>Person with inadequate defenses</p>
+          <p><b class="lbl">Most susceptible:</b> very old, very young, immunocompromised, immune deficiency</p>
+          <p><b class="lbl">4 determining factors:</b> virulence, organism's ability to survive in host, number of organisms, host's defenses</p>
+        </div>
+      </div>
+    </div>
+    <div class="mnem">Break ANY link → stop the spread. Nursing interventions target every link: hand hygiene (agent/transmission), PPE (portal of exit/entry), isolation (reservoir), immunization (host).</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Stages of Infection</span>
+    <div class="ts"><table class="t-teal">
+      <tr><th>#</th><th>Stage</th><th>What Happens</th><th>Key Points</th></tr>
+      <tr><td><strong>1</strong></td><td><strong>Incubation</strong></td><td>Entry of pathogen → first signs/symptoms</td><td>Can spread with NO s/s; may last a day (flu) to months/years (TB); COVID example</td></tr>
+      <tr><td><strong>2</strong></td><td><strong>Prodromal</strong></td><td>Vague, nonspecific s/s appear</td><td>Mild sore throat, fatigue — not all diseases have this stage</td></tr>
+      <tr><td><strong>3</strong></td><td><strong>Illness</strong></td><td>Obvious, full s/s present</td><td>If defenses &amp; treatment ineffective → can end in death</td></tr>
+      <tr><td><strong>4</strong></td><td><strong>Decline</strong></td><td>Pathogens decrease; s/s normalize/fade</td><td>Body/treatment gaining control</td></tr>
+      <tr><td><strong>5</strong></td><td><strong>Convalescence</strong></td><td>Tissue repair; return to health</td><td>Microorganisms reach zero</td></tr>
+    </table></div>
+
+    <span class="sub sub-teal">Classifications of Infection</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Local vs. Systemic</h4>
+        <p><b class="lbl">Local s/s:</b> redness, edema, warm to touch, pain, drainage (if wound)</p>
+        <p><b class="lbl">Systemic s/s:</b> temp &gt;100.4°F, tachycardia &gt;100, WBC &gt;10,000, fatigue</p>
+        <p>Untreated local → can become systemic</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Acute vs. Chronic</h4>
+        <p><b class="lbl">Acute:</b> rapid onset, short duration (common cold)</p>
+        <p><b class="lbl">Chronic:</b> slow development, long duration; may recur (osteomyelitis, abscess)</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Latent</h4>
+        <p>Present but no symptoms for long periods</p>
+        <p><b class="lbl">Examples:</b> HIV/AIDS, TB, shingles (herpes zoster)</p>
+        <p>Can reactivate when immune function drops</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Body's Lines of Defense</span>
+    <div class="band-card bh-teal">
+      <div class="band-head">PRIMARY (1st Line) — Physical &amp; Anatomical Barriers</div>
+      <div class="band-body">
+        <div class="g3">
+          <div>
+            <p><b class="lbl">Normal Flora</b> — protective competition</p>
+            <p><b class="lbl">Skin (intact)</b> — prevents pathogen entry</p>
+            <p><b class="lbl">Respiratory tree</b> — mucous membranes trap; nose hairs filter; cilia sweep upward; cough/sneeze expel</p>
+          </div>
+          <div>
+            <p><b class="lbl">Eyes</b> — lysozymes in tears</p>
+            <p><b class="lbl">Mouth</b> — lysozymes in saliva</p>
+            <p><b class="lbl">GI tract</b> — acidity, bile, vomiting, diarrhea</p>
+          </div>
+          <div>
+            <p><b class="lbl">GU tract</b> — mucous membranes, vaginal acidity, acid &amp; lysozymes in urine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">SECONDARY (2nd Line) — Chemical Activation When Pathogens Pass Primary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div class="card">
+            <h4>Phagocytosis</h4>
+            <p>Special WBCs attack &amp; kill pathogens — may see WBC &gt;10,000</p>
+          </div>
+          <div class="card">
+            <h4>Complement Cascade</h4>
+            <p>Blood proteins trigger chemicals to attack &amp; rupture pathogen cell membranes; signals basophils → release histamine → inflammation; may see elevated basophils</p>
+          </div>
+          <div class="card">
+            <h4>Inflammation</h4>
+            <p>Histamine from damaged cells → vessels dilate → redness, warmth, edema, pain</p>
+          </div>
+          <div class="card">
+            <h4>Fever</h4>
+            <p>Raises core body temp → increases metabolism → inhibits pathogen growth; assess temp &gt;100.4°F</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">TERTIARY (3rd Line) — Immune Memory (Antibodies)</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">ACTIVE — body makes its own antibodies/T-cells</b></p>
+            <ul>
+              <li><b class="lbl">Natural Active:</b> got ill → body made antibodies (influenza, chicken pox)</li>
+              <li><b class="lbl">Artificial Active:</b> vaccine triggers antibody production (measles, mumps, polio, tetanus)</li>
+            </ul>
+            <br>
+            <p><b class="lbl">PASSIVE — antibodies received from another source</b></p>
+            <ul>
+              <li><b class="lbl">Natural Passive:</b> placenta or breast milk</li>
+              <li><b class="lbl">Artificial Passive:</b> serum from another person/animal (rabies, botulism, hepatitis A immune globulin)</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Types of Specific Immunity:</b></p>
+            <ul>
+              <li><b class="lbl">Specific immunity:</b> immune system learns to ID &amp; kill previously encountered pathogens; specific to lymphocytes</li>
+              <li><b class="lbl">Humoral immunity:</b> antibody response; circulates antibodies to kill pathogens; specific to WBC leukocytes</li>
+              <li><b class="lbl">Cellular immunity:</b> cell-mediated, no antibodies; specific to phagocytes, T &amp; B cells; targets cancer, viruses, fungi, protozoans</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Risk Factors for Infection (12)</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Patient Characteristics</h4>
+        <ul>
+          <li><b class="lbl">Age:</b> very young (limited exposures, no immunizations); very old (↓ immune function, chronic illness, dehydrated skin)</li>
+          <li><b class="lbl">Immunosuppressant drugs:</b> chemo, biologics, steroids/prednisone, inhalers</li>
+          <li><b class="lbl">Immune deficiency disease:</b> HIV, autoimmune</li>
+          <li><b class="lbl">Substance abuse:</b> IV drugs, alcohol</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Behaviors &amp; Conditions</h4>
+        <ul>
+          <li><b class="lbl">Lifestyle:</b> unprotected risky behaviors, multiple partners, smoking, alcohol</li>
+          <li><b class="lbl">Stress:</b> physical or mental</li>
+          <li><b class="lbl">Invasive surgical procedures</b></li>
+          <li><b class="lbl">Improper antibiotic use:</b> taking ABT for viral infections</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Environmental &amp; Physical</h4>
+        <ul>
+          <li><b class="lbl">Living/work environment:</b> homeless, no running water, coal mine</li>
+          <li><b class="lbl">Skin breakdown:</b> pressure injury = portal of entry</li>
+          <li><b class="lbl">Inadequate nutrition:</b> low albumin = no cell repair; dehydration</li>
+          <li><b class="lbl">Travel outside the country</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-teal">Activities That Promote Immune Function</span>
+    <div class="g3">
+      <div class="card card-teal">
+        <h4>Adequate Nutrition</h4>
+        <p>Monitor food &amp; fluid intake; protein, vitamins, minerals, water manufacture immune cells; replaces lost stores, maintains WBC production, repairs tissue; fever &amp; ↑ mucus increase water loss</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Balanced Hygiene</h4>
+        <p>Teach hand hygiene; sufficient to decrease skin bacterial count; <strong>NOT overzealous</strong> — causes skin cracking, diminishes natural oils</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Rest &amp; Exercise</h4>
+        <p>Educate 6–9 hrs sleep &amp; regular exercise; renews body &amp; mind, conserves strength</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Reducing Stress</h4>
+        <p>Physical or mental stress decreases immune defenses; laughing increases oxygenation, body movement, immune responses</p>
+      </div>
+      <div class="card card-teal">
+        <h4>Immunization</h4>
+        <p>Encourage patients; protects against measles, mumps, childhood diseases, pneumonia, influenza, smallpox, shingles; ≥85% of population must be immunized to protect entire population</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Asepsis — Medical vs. Surgical</span>
+    <div class="g2">
+      <div class="band-card bh-teal">
+        <div class="band-head">Medical Asepsis — "Clean Technique"</div>
+        <div class="band-body">
+          <p>Practices that <strong>REDUCE</strong> number of microorganisms &amp; decrease spread</p>
+          <p>Microorganisms exist everywhere except on sterilized objects</p>
+          <p><b class="lbl">Best method:</b> frequent handwashing</p>
+          <p><b class="lbl">Practices:</b> hand hygiene, cleaning environment, disinfecting equipment between pts, wearing PPE, standard precautions, transmission-based isolation</p>
+        </div>
+      </div>
+      <div class="band-card bh-teal">
+        <div class="band-head">Surgical Asepsis — "Sterile Technique"</div>
+        <div class="band-body">
+          <p>Practices that <strong>DESTROY &amp; ELIMINATE</strong> all microorganisms &amp; spores</p>
+          <p><b class="lbl">Sterilization:</b> autoclave for surgical instruments; liquid chemicals for scoping</p>
+          <p><b class="lbl">Critical nursing uses:</b> inserting IV, urinary catheters, specific wound care, central line dressings, chest tubes</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-teal">7 Surgical Asepsis Principles</span>
+    <div class="ts"><table class="t-teal">
+      <tr><th>#</th><th>Principle</th></tr>
+      <tr><td>1</td><td>Sterile object remains sterile <strong>only</strong> when touched by another sterile object</td></tr>
+      <tr><td>2</td><td>Only sterile objects placed on a sterile field</td></tr>
+      <tr><td>3</td><td>Sterile object/field out of vision OR held below waist = <strong>contaminated</strong></td></tr>
+      <tr><td>4</td><td>Sterile object/field becomes contaminated by prolonged exposure to air</td></tr>
+      <tr><td>5</td><td>When sterile surface contacts a wet contaminated surface → contaminated by <strong>capillary action</strong></td></tr>
+      <tr><td>6</td><td>Fluid flows in the direction of <strong>gravity</strong></td></tr>
+      <tr><td>7</td><td>Edges of sterile field/container are contaminated — <strong>1-inch border</strong></td></tr>
+    </table></div>
+    <div class="warn">Other sterile rules: Don't talk, laugh, sneeze, cough over a sterile field · Hold hands above elbows during surgical scrub (gravity) · Don't touch edge of container after removing sterile items · Never turn back on sterile field; never leave it unattended</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Standard Precautions — 1st Tier (EVERY patient, ALL settings)</span>
+    <p>Assume ALL blood, body fluids, secretions, open skin, mucous membranes may contain pathogens.</p>
+    <br>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>When to Use What PPE</h4>
+        <p><b class="lbl">Gloves:</b> anticipating contact with blood/body fluids; broken skin on hands; applying medication/lotion</p>
+        <p><b class="lbl">Gown + eye protection:</b> when splashing of urine, stool, emesis is anticipated</p>
+        <p><b class="lbl">Also includes:</b> safe injection practices; respiratory hygiene/cough etiquette; mask during lumbar puncture</p>
+      </div>
+      <div>
+        <div class="card card-teal" style="margin-bottom:10px">
+          <h4>DONNING PPE — "Bottoms Up" (Putting On)</h4>
+          <ol>
+            <li>GOWN</li>
+            <li>MASK</li>
+            <li>GOGGLES / EYE SHIELD</li>
+            <li>GLOVES</li>
+          </ol>
+        </div>
+        <div class="card card-teal">
+          <h4>DOFFING PPE — "Alphabetical Order" (Taking Off)</h4>
+          <ol>
+            <li>GLOVES</li>
+            <li>GOGGLES</li>
+            <li>GOWN</li>
+            <li>MASK</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="mnem">Donning: Gown first (protect clothes), Gloves last (touch everything). Doffing: Gloves first (most contaminated), Mask last (protect face/airway).</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Transmission-Based Precautions — 2nd Tier (ADDED to Standard)</span>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">CONTACT PRECAUTIONS — Direct or Indirect Contact</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">PPE:</b> gloves &amp; gown (eye protection if splashing)</p>
+            <p><b class="lbl">Room:</b> private OR cohort with like infections</p>
+            <p><b class="lbl">Equipment:</b> disposable OR clean/disinfect between pts; disinfect on removal from room</p>
+            <p><b class="lbl">Supplies:</b> double-bag linens, specimens, soiled supplies; limit transport</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples (MDROs):</b></p>
+            <ul>
+              <li>MRSA (methicillin-resistant staph aureus)</li>
+              <li>VRE (vancomycin-resistant enterococcus)</li>
+              <li>ESBL (extended spectrum beta-lactamase)</li>
+              <li>C-Diff (Clostridium difficile)</li>
+            </ul>
+            <p class="warn" style="margin-top:8px"><strong>C-Diff SPECIAL:</strong> Highly contagious via spores · Requires <strong>BLEACH</strong> for surfaces · Use <strong>SOAP &amp; WATER</strong> (NOT alcohol foam) · Often nosocomial from antibiotic use</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">DROPLET PRECAUTIONS — Large Particles &gt;5 Microns, Travel 3–6 Feet</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Source:</b> cough, sneeze, talk, suctioning</p>
+            <p><b class="lbl">PPE:</b> surgical mask</p>
+            <p><b class="lbl">Room:</b> private OR cohort</p>
+            <p><b class="lbl">Transport:</b> patient wears surgical mask; disinfect equipment on removal</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples:</b></p>
+            <ul>
+              <li>Influenza (flu)</li>
+              <li>Pertussis (whooping cough)</li>
+              <li>Meningitis</li>
+              <li>Mumps</li>
+              <li>Measles (Rubella/German measles)</li>
+              <li>Strep throat</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal" style="margin-bottom:10px">
+      <div class="band-head">AIRBORNE PRECAUTIONS — Aerosolized Particles Travel &gt;6 Feet</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Source:</b> resp secretions, coughing, resp treatments, suctioning, BiPAP, AC, sweeping, fans, shaking linens</p>
+            <p><b class="lbl">PPE:</b> N95 respirator (PAPR if not fit-tested) — <strong>must be FIT TESTED</strong></p>
+            <p><b class="lbl">Room:</b> private <strong>NEGATIVE PRESSURE</strong> room ALONE; 6–12 air exchanges/hr; doors closed</p>
+            <p><b class="lbl">Transport:</b> limit; pt wears <strong>SURGICAL mask</strong> (not fit-tested for N95); disinfect equipment on removal</p>
+          </div>
+          <div>
+            <p><b class="lbl">Examples — MTV + C SARS:</b></p>
+            <ul>
+              <li><strong>M</strong>easles (Rubeola)</li>
+              <li><strong>T</strong>uberculosis</li>
+              <li><strong>V</strong>aricella (chicken pox); open shingles (Herpes Zoster — disseminated = wider spread)</li>
+              <li><strong>C</strong>OVID</li>
+              <li><strong>SARS</strong> (coronaviruses)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-teal">
+      <div class="band-head">PROTECTIVE ENVIRONMENT — Reverse / Neutropenic Isolation</div>
+      <div class="band-body">
+        <p>For <strong>IMMUNOCOMPROMISED</strong> patients — to <strong>PROTECT THEM</strong> from organisms</p>
+        <div class="g2">
+          <div>
+            <p><b class="lbl">PPE for staff &amp; visitors:</b> hand hygiene, gloves, gown, mask; signage; individual equipment OR disinfect ALL equipment before bringing in</p>
+            <p><b class="lbl">Restrict:</b> sick visitors (even common cold); limit transport; transporters wear PPE</p>
+          </div>
+          <div>
+            <p><b class="lbl">PROHIBITED in room:</b></p>
+            <ul>
+              <li>NO fresh fruits, salads, or vegetables</li>
+              <li>NO live plants or fresh flowers</li>
+              <li>NO standing water</li>
+              <li>NO invasive procedures</li>
+            </ul>
+          </div>
+        </div>
+        <div class="warn">ALWAYS assess how the patient is coping with isolation — it is a frightening and unknown experience.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-teal">Nursing Interventions — Medical &amp; Surgical Asepsis + Supporting Host Defenses</span>
+    <div class="g2">
+      <div class="card card-teal">
+        <h4>Infection Prevention Actions</h4>
+        <ul>
+          <li>Hand hygiene before &amp; after patient contact</li>
+          <li>Soap &amp; water at shift start/end, C-Diff, visibly soiled hands</li>
+          <li>Medical &amp; surgical asepsis (disinfect environment &amp; equipment; teach pt/visitors handwashing)</li>
+          <li>Appropriate precautions &amp; PPE (only transmissible infections &amp; reverse/protective iso require private room)</li>
+          <li>Administer ordered meds (antibiotics q8h, fever, pain)</li>
+          <li>Monitor V/S q4h; monitor lab values daily</li>
+        </ul>
+      </div>
+      <div class="card card-teal">
+        <h4>Supporting Host Defenses</h4>
+        <ul>
+          <li>Maintain skin integrity (T&amp;P q2h; keep dry if incontinent)</li>
+          <li>Reduce stress/anxiety (explain isolation/procedures/treatments; allow rest; keep informed; therapeutic communication)</li>
+          <li>Promote immune function: diet, activity, sleep, lifestyle</li>
+          <li>Encourage immunizations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- end s0 -->
+
+<!-- ═══ LECTURE 2 — SKIN INTEGRITY / WOUND CARE / PRESSURE INJURIES ═══ -->
+<div id="s1" class="panel">
+  <div class="sec-head sh-plum">Skin Integrity, Wound Care &amp; Pressure Injuries <span class="lec-tag">Lecture 2</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives — Wound Care</h4>
+      <p>12 factors affecting skin integrity · Classifications of wounds (4 ways) · Types of wound drainage · Types of wound healing · Phases of wound healing · Complications of wound healing</p>
+    </div>
+    <div class="obj">
+      <h4>&#9745; Objectives — Pressure Injuries</h4>
+      <p>Define pressure injury · Intrinsic &amp; extrinsic factors · Stages of pressure injuries · Braden Scale &amp; 6 categories · Interventions to prevent · Indications for heat and cold therapy</p>
+    </div>
+
+    <span class="sub sub-plum">12 Factors That Affect Skin Integrity</span>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>1. Age</h4>
+        <p>Older adults: ↓ sebaceous/sweat glands (dry skin), thinning subQ layer, weakened epidermis-dermis bond, slower healing, chronic disease interferes with healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>2. Impaired Mobility</h4>
+        <p>Body weight → pressure → breakdown; altered sensory perception, paralysis, sedation, disease processes limiting mobility</p>
+      </div>
+      <div class="card card-plum">
+        <h4>3. Nutrition</h4>
+        <p>Protein to maintain/repair/preserve intravascular volume; ALBUMIN level; adequate caloric intake; ascorbic acid, zinc, copper for wound healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>4. Hydration</h4>
+        <p>Both over AND under cause breakdown: <b class="lbl">Edema</b> = poor microcirculation, ↓ O2/nutrients; <b class="lbl">Dehydration</b> = no elasticity, low fluid/blood flow</p>
+      </div>
+      <div class="card card-plum">
+        <h4>5. Diminished Sensation</h4>
+        <p>Diabetics, PVD, stroke, spinal cord injury, fractures — difficulty feeling hot/cold/pain; pressure from ill-fitting clothing/shoes</p>
+      </div>
+      <div class="card card-plum">
+        <h4>6. Diminished Cognition</h4>
+        <p>Alzheimer's, dementia — unaware of need to reposition; higher risk for breakdown</p>
+      </div>
+      <div class="card card-plum">
+        <h4>7. Impaired Circulation</h4>
+        <p>Main cause of chronic wounds; arterial impairs O2/nutrient delivery; venous causes edema &amp; stasis with waste products</p>
+      </div>
+      <div class="card card-plum">
+        <h4>8. Medication</h4>
+        <p>Pruritus, rashes, photosensitivity, pigmentation changes; BP meds, NSAIDs, steroids (inhibit healing), anticoagulants (heparin, warfarin), chemotherapeutic agents</p>
+      </div>
+      <div class="card card-plum">
+        <h4>9. Moisture</h4>
+        <p>Causes maceration (softening of skin); incontinence &amp; fever are most common causes</p>
+      </div>
+      <div class="card card-plum">
+        <h4>10. Fever</h4>
+        <p>Sweating = maceration; ↑ metabolic rate raises tissue O2 demand</p>
+      </div>
+      <div class="card card-plum">
+        <h4>11. Infection</h4>
+        <p>Microorganism present, wound contamination, ↑ metabolic demands, makes skin more vulnerable, impedes healing</p>
+      </div>
+      <div class="card card-plum">
+        <h4>12. Lifestyle</h4>
+        <p>Tanning, bathing too much/little, diet, smoking, piercings, tattoos</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Classification of Wounds — 4 Ways</span>
+    <div class="g2">
+      <div class="band-card bh-plum">
+        <div class="band-head">By Skin Integrity</div>
+        <div class="band-body">
+          <p><b class="lbl">Open:</b> break in skin or mucous membrane</p>
+          <p><b class="lbl">Closed:</b> no break — bruise, edema, hematoma</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Length of Time for Healing</div>
+        <div class="band-body">
+          <p><b class="lbl">Acute:</b> short, no complications; all 3 healing phases occur (inflammation, proliferation, maturation)</p>
+          <p><b class="lbl">Chronic:</b> longer to heal due to interrupted healing — infection, trauma, edema, ischemia; pressure ulcers, diabetics, corticosteroids, PAD, PVD</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Level of Contamination</div>
+        <div class="band-body">
+          <p><b class="lbl">Clean:</b> no infection, limited inflammation = LOW infection risk</p>
+          <p><b class="lbl">Clean contaminated:</b> surgical incisions of GI/resp/GU = INCREASED risk</p>
+          <p><b class="lbl">Contaminated:</b> open wounds, pressure ulcers, trauma, surgeries with break in asepsis</p>
+          <p><b class="lbl">Infected:</b> bacteria &gt;100,000 per gm tissue; s/s = REEDA &amp; COCAF + pain</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">By Depth of Wound</div>
+        <div class="band-body">
+          <p><b class="lbl">Superficial:</b> epidermis only</p>
+          <p><b class="lbl">Partial thickness:</b> epidermis + dermis</p>
+          <p><b class="lbl">Full thickness:</b> through dermis into subcutaneous tissue</p>
+          <p><b class="lbl">Penetrating:</b> through to underlying organs/cavity</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Types of Wound Drainage — COCAF (Color · Odor · Consistency · Amount · Frequency)</span>
+    <div class="ts"><table class="t-plum">
+      <tr><th>Type</th><th>Appearance</th><th>Significance</th></tr>
+      <tr><td><strong>Serous</strong></td><td>Watery, clear to straw colored</td><td>Clean wounds — normal</td></tr>
+      <tr><td><strong>Sanguineous</strong></td><td>Blood, bright red to dark red/brown</td><td>Fresh bleeding</td></tr>
+      <tr><td><strong>Serosanguineous</strong></td><td>Combo of blood &amp; serous</td><td>New wounds — expected early on</td></tr>
+      <tr><td><strong>Purulent</strong></td><td>Thick, odorous, white/yellow/grey</td><td class="emerg">INFECTION</td></tr>
+      <tr><td><strong>Purosanguineous</strong></td><td>Red-tinged pus &amp; blood</td><td>Infection + new wound</td></tr>
+    </table></div>
+
+    <span class="sub sub-plum">Types of Wound Healing</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Regenerative / Epithelial</h4>
+        <p>Epidermis &amp; dermis regeneration; partial thickness wounds</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Primary Intention</h4>
+        <p>Clean, approximated edges = surgical wound; minimum scarring; <strong>LEAST</strong> infection risk</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Secondary Intention</h4>
+        <p>Greatest tissue loss, wide wound base; heals from base by filling with granulation tissue inside-out; NOT approximated; example = pressure ulcer</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Tertiary Intention (Delayed Closure)</h4>
+        <p>Open wound, can't close incision; allow secondary intention healing first, then suture once no s/s of infection/inflammation</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Phases of Wound Healing</span>
+    <div class="g3">
+      <div class="band-card bh-plum">
+        <div class="band-head">1. Inflammatory (Cleansing) — 1–5 days</div>
+        <div class="band-body">
+          <p><b class="lbl">Hemostasis:</b> vessels constrict, platelets aggregate to slow bleeding, clotting mechanism activates</p>
+          <p><b class="lbl">Inflammation:</b> edema, erythema, pain, ↑ temp, WBCs to area; macrophages do phagocytosis; scab forms</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">2. Proliferative (Granulation) — 5–21 days</div>
+        <div class="band-body">
+          <p><strong>HIGHER risk of infection</strong> here due to time</p>
+          <p>Cells develop &amp; grow to fill from base</p>
+          <p><b class="lbl">Granulation tissue:</b> fibroblasts, new blood/lymph vessels — beefy red, bleeds easily</p>
+          <p><b class="lbl">Epithelialization:</b> epithelial cells grow from edges, seal wound</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">3. Maturation (Remodeling) — 14–21 days → 3–6 months</div>
+        <div class="band-body">
+          <p>Collagen fibers broken down &amp; reorganized</p>
+          <p>Increases tensile strength of wound</p>
+          <p>Scar tissue formation</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Complications of Wound Healing</span>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>Hemorrhage</h4>
+        <p>Rapid blood loss, severed/injured vessel; know pt history — bleeding/clotting disorder, anticoagulants</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Infection</h4>
+        <p>Microorganisms present; wound not healing; REEDA/COCAF + systemic (fever, ↑ WBC)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Dehiscence</h4>
+        <p>Rupture/separation of wound layers (NOT total)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Evisceration</h4>
+        <p>Total separation with protrusion of viscera through wound — <strong class="emerg">SURGICAL EMERGENCY</strong></p>
+      </div>
+      <div class="card card-plum">
+        <h4>Fistula Formation</h4>
+        <p>Abnormal passage connecting two body cavities; d/t infection/debris → pressure → abnormal passageway; GI &amp; GU tracts</p>
+      </div>
+    </div>
+
+    <span class="sub sub-plum">Assessment Tools</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>REEDA — Surgical Wound Assessment</h4>
+        <ul>
+          <li><b class="lbl">R</b> = Redness</li>
+          <li><b class="lbl">E</b> = Edema</li>
+          <li><b class="lbl">E</b> = Ecchymosis</li>
+          <li><b class="lbl">D</b> = Drainage</li>
+          <li><b class="lbl">A</b> = Approximation</li>
+        </ul>
+      </div>
+      <div class="card card-plum">
+        <h4>Surgical Wound Care Notes</h4>
+        <ul>
+          <li><strong>Surgeon</strong> changes the 1st dressing</li>
+          <li>Surgical dressings are sterile</li>
+          <li>If original dressing soiled: mark outline of drainage; reinforce with dry sterile gauze; report COCAF to surgeon</li>
+          <li>Assess: REEDA, count sutures/staples/steri-strips, document drain length</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Pressure Injuries — Definition &amp; Staging</span>
+    <p><b class="lbl">Definition:</b> Localized injury to skin &amp; underlying tissue, usually over a bony prominence. Pressure → tissue ischemia → tissue cell death. Can occur in as little as <strong>2 hours</strong>.</p>
+    <p style="margin-top:6px"><b class="lbl">Reactive Hyperemia:</b> Start of ischemia — skin intact; pressure causes pale/cool skin; when pressure relieved → vasodilation → red. If redness doesn't disappear quickly = tissue damage = <strong>NONBLANCHABLE</strong>.</p>
+    <br>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Intrinsic Factors (Internal — Patient Health)</h4>
+        <ul>
+          <li>Chronic illness (diabetes, medications such as corticosteroids)</li>
+          <li>Impaired circulation (diabetes, atherosclerosis, low BP)</li>
+          <li>Reduced O2 supply in blood (tobacco users, anemic)</li>
+          <li>Limited mobility or reduced sensation (nerve damage, head injury, stroke, SCI, contractures)</li>
+          <li>Impaired cognition (Alzheimer's, dementia, altered LOC)</li>
+          <li>Plus: immobility, poor nutrition, edema, age, fever/sepsis</li>
+        </ul>
+      </div>
+      <div class="card card-plum">
+        <h4>Extrinsic Factors (External — Environment)</h4>
+        <ul>
+          <li><b class="lbl">Friction:</b> skin rubbing against surface</li>
+          <li><b class="lbl">Shearing:</b> pt sliding downward; epidermis and dermis separate</li>
+          <li><b class="lbl">Moisture:</b> incontinence, sweat</li>
+          <li><b class="lbl">Compression:</b> over bony prominences AND under medical devices (ET tubes, casts, catheters)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warn">Healing ulcers are <strong>NOT reverse-staged</strong> — a stage 4 healing wound stays documented as "Stage 4: healing." Never downgrade the stage.</div>
+
+    <div class="ts"><table class="t-plum">
+      <tr><th>Stage</th><th>Layers</th><th>Skin</th><th>Depth</th><th>Key Features</th></tr>
+      <tr><td><strong>Stage I</strong></td><td>1 layer</td><td>INTACT</td><td>Epidermis only</td><td>NONBLANCHABLE — does not change color when pressed</td></tr>
+      <tr><td><strong>Stage II</strong></td><td>2 layers</td><td>OPEN</td><td>Epidermis + dermis (partial thickness)</td><td>Shallow, red-pink wound bed; no slough; may be intact/ruptured serum-filled blister</td></tr>
+      <tr><td><strong>Stage III</strong></td><td>3 layers</td><td>OPEN</td><td>Epidermis + dermis + subQ (full thickness)</td><td>May see fascia; no muscle, bone, or tendon visible</td></tr>
+      <tr><td><strong>Stage IV</strong></td><td>4+ layers</td><td>OPEN</td><td>Through muscle; may involve fascia, bone, tendons, joint capsules</td><td>Slough or eschar may be present; undermining and sinus tracts common</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Braden Scale</span>
+    <p>Tool to assess skin impairment &amp; pressure injury risk. <strong>LOWER score = MORE likely to develop pressure injury.</strong></p>
+    <div class="g3">
+      <div class="card card-plum">
+        <h4>6 Categories</h4>
+        <ol>
+          <li>Sensory Perception</li>
+          <li>Moisture</li>
+          <li>Activity</li>
+          <li>Mobility</li>
+          <li>Nutrition</li>
+          <li>Friction &amp; Shear</li>
+        </ol>
+      </div>
+      <div class="card card-plum">
+        <h4>Score Thresholds</h4>
+        <p><b class="lbl">≤18</b> = at risk for skin breakdown</p>
+        <p><b class="lbl">&lt;12</b> = high risk</p>
+        <p><b class="lbl">When:</b> every shift / every 8 hours (per facility policy)</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Interventions — Prevention</h4>
+        <ul>
+          <li>Inspect skin daily; q1–2h if at greater risk</li>
+          <li>T&amp;P q2h</li>
+          <li>Manage moisture (incontinence care, barrier cream)</li>
+          <li>Lotion &amp; massage — <strong>do NOT massage over bony prominences</strong></li>
+          <li>Monitor labs, nutrition, hydration</li>
+          <li>Pressure-limiting &amp; positioning devices</li>
+          <li>Side-lying: prevent direct pressure on trochanter</li>
+          <li>HOB at lowest degree consistent with condition</li>
+          <li>Use Hoyer lift when possible</li>
+          <li>Totally relieve pressure on heels (raise off bed)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-plum">Heat &amp; Cold Therapy</span>
+    <div class="g2">
+      <div class="band-card bh-plum">
+        <div class="band-head">Heat Therapy</div>
+        <div class="band-body">
+          <p><b class="lbl">Effects:</b> vasodilation · ↑ capillary permeability · ↑ cellular metabolism · ↑ inflammation</p>
+          <p><b class="lbl">Indications:</b> joint stiffness, contractures, low back pain</p>
+          <p>Increases blood flow → brings O2 and WBCs → aids healing; promotes relaxation, ↓ stiffness/muscle tension</p>
+          <p>Moist heat (washcloth, gauze compress, soaks) or dry heat</p>
+        </div>
+      </div>
+      <div class="band-card bh-plum">
+        <div class="band-head">Cold Therapy</div>
+        <div class="band-body">
+          <p><b class="lbl">Effects:</b> vasoconstriction · ↓ capillary permeability · ↓ cellular metabolism · slowed bacterial growth · ↓ inflammation/edema · local anesthetic effect</p>
+          <p><b class="lbl">Indications:</b> fractures, post-injury swelling, bleeding, sprains, strains</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-plum" style="margin-top:8px">
+      <h4>Heat/Cold Nursing Interventions</h4>
+      <ul>
+        <li>PCP prescription required: body site, type, frequency, duration</li>
+        <li>Assess site and patient's perception of temp changes</li>
+        <li>V/S pre &amp; post treatment; inspect skin every 15 min</li>
+        <li>Receptors adapt to temp ~15 min — warn patient NOT to change temp (can cause tissue injury)</li>
+        <li><b class="lbl">Monitor carefully:</b> extremes of age, sensory impairment, highly vascular areas (fingers, hand, face, perineum), large body area, injured skin/wounds</li>
+      </ul>
+    </div>
+
+    <span class="sub sub-plum">Hyperbaric Treatment &amp; Wound Culture</span>
+    <div class="g2">
+      <div class="card card-plum">
+        <h4>Hyperbaric Oxygen</h4>
+        <p>Body exposed to 100% O2 at greater than normal pressure</p>
+        <p>Speeds healing by stimulating new blood vessel growth</p>
+        <p><b class="lbl">Used for:</b> diabetic wounds, burns</p>
+      </div>
+      <div class="card card-plum">
+        <h4>Wound Culture &amp; Diagnostics</h4>
+        <p>Obtain <strong>AFTER</strong> wound is irrigated/cleaned</p>
+        <p><strong>BEST</strong> obtained PRIOR to antibiotic administration</p>
+        <p><b class="lbl">Other dx:</b> needle aspiration, tissue biopsy</p>
+        <p><b class="lbl">Labs:</b> albumin (protein), WBC (infection), coagulation (bleeding), glucose (diabetes)</p>
+      </div>
+    </div>
+  </div>
+</div><!-- end s1 -->
+
+<!-- ═══ LECTURE 3 — PHARMACOLOGY ═══ -->
+<div id="s2" class="panel">
+  <div class="sec-head sh-rust">Pharmacology <span class="lec-tag">Lecture 3</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Sources of drug information · 3 ways drugs are named · Classification of drugs · Routes of administration · 4 concepts of pharmacokinetics · Drug concentration terms (peak, trough, half-life, onset, duration) · Pharmacodynamics: primary &amp; secondary effects · Drug interactions: antagonistic, synergistic, agonist, incompatibilities</p>
+    </div>
+
+    <span class="sub sub-rust">Sources of Drug Information</span>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>Reliable Sources</h4>
+        <ul>
+          <li>US Pharmacopeia (USP) National Formulary (NF)</li>
+          <li>Physician's Desk Reference (PDR)</li>
+          <li>Package inserts (important for home care)</li>
+          <li>Nursing drug handbooks</li>
+          <li>Electronic databases: Medline (US National Library of Medicine), DailyMed</li>
+          <li>Clinical pharmacist</li>
+          <li>Facility policies &amp; procedures</li>
+        </ul>
+      </div>
+      <div class="card card-rust">
+        <h4>Information Found in Drug References</h4>
+        <ul>
+          <li>Description &amp; Action (target in cell, enzyme, cell function)</li>
+          <li>Indication for use</li>
+          <li>Interactions &amp; Contraindications</li>
+          <li>Precautions</li>
+          <li>Side effects &amp; Adverse reactions</li>
+          <li>Dosage and routes of administration</li>
+          <li>How to store</li>
+        </ul>
+        <div class="warn" style="margin-top:8px"><strong>NOT reliable:</strong> Google, Facebook, Instagram, TikTok</div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">3 Ways Drugs Are Named</span>
+    <div class="g3">
+      <div class="card card-rust">
+        <h4>Chemical Name</h4>
+        <p>Exact chemical composition; rarely used in nursing</p>
+        <p><em>Example: isobutylphenyl propionic acid</em></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Generic Name</h4>
+        <p>Official/common name; first letter <strong>NOT</strong> capitalized; how listed in US Pharmacopeia</p>
+        <p><em>Example: ibuprofen</em></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Trade (Brand) Name</h4>
+        <p>Capitalized; trademark symbol; what drug is sold as in stores</p>
+        <p><em>Example: Motrin, Advil</em></p>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Classification of Drugs</span>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>4 Classification Systems</h4>
+        <ul>
+          <li>Body system</li>
+          <li>Clinical indication / therapeutic use</li>
+          <li>Physiologic / chemical action</li>
+          <li>Prescription / non-prescription / illegal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Routes of Administration</span>
+    <div class="g2">
+      <div class="band-card bh-rust">
+        <div class="band-head">Oral</div>
+        <div class="band-body">
+          <p>Swallowed; absorbed in stomach or small intestines</p>
+          <p>Forms: pill, capsule, tablet, syrup, suspension, elixir, extract, tincture, solution, powder in liquid</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Enteral</div>
+        <div class="band-body">
+          <p>Given directly into stomach or intestines via tube (NG, G-tube); liquids only</p>
+          <p>Must check if pills can be crushed or capsules opened</p>
+          <p>Use for swallowing impairment (alternative to parenteral)</p>
+          <p><b class="lbl">Disadvantages:</b> not all tabs/caps can be crushed (can clog NG); NG = aspiration risk</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Transmucosal</div>
+        <div class="band-body">
+          <p><b class="lbl">Sublingual:</b> under tongue; do NOT swallow; allow to dissolve &amp; absorb; example = <strong>NITROGLYCERIN</strong></p>
+          <p><b class="lbl">Buccal:</b> held against mucous membrane in cheek; liquid, lozenges, spray, drops; examples = liquid Roxinol (end-of-life), Methyltestosterone</p>
+          <p>Can also be sprayed into nasal/pharyngeal mucosa</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Topical</div>
+        <div class="band-body">
+          <p><b class="lbl">Skin:</b> creams, lotions, ointment, transdermal patch, foam/spray, paste</p>
+          <p><b class="lbl">Instillations</b> (into a body cavity): eye, ear, nose, rectum, vagina, bladder — drops, spray, suppository, liquid</p>
+          <p><b class="lbl">Inhalation:</b> drug broken into fine particles via nebulizer; aerosols, inhalers, anesthesia gases</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Parenteral — Into Body WITHOUT Digestive System</div>
+        <div class="band-body">
+          <div class="g2">
+            <div>
+              <p><b class="lbl">IV (Intravenous):</b> directly in vein; rapid effect &amp; absorption; one stick for multiple doses; risk of infection, vein problems; antibiotics, IV fluids, antineoplastics</p>
+              <p><b class="lbl">IM (Intramuscular):</b> into muscle mass; larger volume; risk of nerve damage; can be irritating; CAN'T use where tissue is damaged; vaccines, antibiotics, opioids, antiemetics — example Prochlorperazine</p>
+            </div>
+            <div>
+              <p><b class="lbl">SQ (Subcutaneous):</b> into subQ tissue; faster than oral; absorption SLOW; small amounts only; <strong>INSULIN, HEPARIN, LOVENOX</strong>; epinephrine</p>
+              <p><b class="lbl">ID (Intradermal):</b> under skin into dermis; very small amounts; slowly absorbed; PPD (TB test), allergy testing, lidocaine for local anesthesia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">Parenteral — Other Routes</div>
+        <div class="band-body">
+          <p><b class="lbl">Intraspinal:</b> into spinal canal</p>
+          <p><b class="lbl">Intrathecal:</b> into subarachnoid space around spinal cord</p>
+          <p><b class="lbl">Epidural:</b> between vertebral spines into extradural space; regional anesthesia &amp; pain control</p>
+          <p><b class="lbl">Rectal:</b> in rectum — example Bisacodyl</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Absorption Sites (Table 2.1)</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Route</th><th>Site</th><th>Example Drug</th></tr>
+      <tr><td>Sublingual</td><td>Under tongue</td><td>Nitroglycerin</td></tr>
+      <tr><td>Buccal</td><td>In cheek</td><td>Methyltestosterone</td></tr>
+      <tr><td>Oral</td><td>Stomach / intestine</td><td>Ibuprofen</td></tr>
+      <tr><td>IM</td><td>Muscle</td><td>Prochlorperazine</td></tr>
+      <tr><td>SubQ</td><td>Under skin</td><td>Epinephrine, Insulin</td></tr>
+      <tr><td>IV</td><td>Bloodstream</td><td>Antibiotics, antineoplastics</td></tr>
+      <tr><td>Topical</td><td>Through skin</td><td>Nitrodisc, hydrocortisone ointment</td></tr>
+      <tr><td>Rectal</td><td>Rectum</td><td>Bisacodyl</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Pharmacokinetics — "ADME"</span>
+    <p>Branch of pharmacology concerned with the <strong>movement of drugs within the body</strong>. 4 processes determine intensity &amp; duration of drug actions.</p>
+    <br>
+    <div class="g2">
+      <div class="band-card bh-rust">
+        <div class="band-head">A — Absorption</div>
+        <div class="band-body">
+          <p>Movement of drug from route of administration <strong>INTO bloodstream</strong>; when drug becomes available systemically to do its intended action</p>
+          <p><b class="lbl">Absorption depends on:</b></p>
+          <ul>
+            <li><b class="lbl">Route:</b> IV faster than oral</li>
+            <li><b class="lbl">Drug solubility:</b> water-soluble = faster in GI; lipid-soluble = penetrate cell membranes; enteric-coated = dissolves in intestines (delays); time-release = slow, small amounts over hours</li>
+            <li><b class="lbl">Blood flow to area:</b> poor blood supply = poor absorption</li>
+            <li><b class="lbl">Age:</b> older adults have ↓ stomach acid, ↓ intestinal motility, ↓ muscle mass &amp; subQ tissue</li>
+            <li><b class="lbl">Patient condition</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">D — Distribution</div>
+        <div class="band-body">
+          <p>How drug is delivered/moved in the bloodstream/circulatory system to the desired site</p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">M — Metabolism</div>
+        <div class="band-body">
+          <p>Once at site, drug breaks down &amp; prepares for excretion</p>
+          <p><strong>PRIMARY SITE = LIVER</strong></p>
+        </div>
+      </div>
+      <div class="band-card bh-rust">
+        <div class="band-head">E — Excretion</div>
+        <div class="band-body">
+          <p>Removal/elimination of drug from the body</p>
+          <p><strong>PRIMARY SITE = KIDNEYS</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Drug Concentration Terms</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Term</th><th>Definition</th><th>Key Detail</th></tr>
+      <tr><td><strong>Onset of Action</strong></td><td>TIME for drug to reach minimum effective concentration in blood</td><td>When effects first appear</td></tr>
+      <tr><td><strong>Peak</strong></td><td>Drug at HIGHEST concentration in bloodstream (rate of absorption = rate of elimination)</td><td>Blood drawn <strong>2 hours AFTER</strong> dose administered</td></tr>
+      <tr><td><strong>Duration of Action</strong></td><td>TIME drug is effective; occurs BEFORE metabolism &amp; excretion</td><td>Window of therapeutic effect</td></tr>
+      <tr><td><strong>Trough</strong></td><td>Drug at LOWEST concentration; next dose is due</td><td>Blood drawn <strong>30 minutes BEFORE next dose</strong></td></tr>
+      <tr><td><strong>Therapeutic Level</strong></td><td>Drug causes desired effect WITHOUT toxicity</td><td>The sweet spot</td></tr>
+      <tr><td><strong>Therapeutic Range</strong></td><td>Range of therapeutic concentrations</td><td>Between minimum effective and toxic levels</td></tr>
+      <tr><td><strong>Half-Life</strong></td><td>TIME for HALF the drug to be eliminated from the body</td><td>Used to determine dosing frequency</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Pharmacodynamics</span>
+    <p><b class="lbl">Definition:</b> Study of how meds obtain effects in the body &amp; how the body interacts/responds — the drug's biochemical &amp; physiological effects on the body. (<em>What the drug does to your body.</em>)</p>
+    <p style="margin-top:4px">Affected by: disorder/disease · aging process · other drugs</p>
+    <br>
+    <div class="g2">
+      <div class="card card-rust">
+        <h4>Primary Effects</h4>
+        <p>Also called therapeutic effect — <strong>PREDICTED, DESIRED, INTENDED</strong></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Secondary Effects — All Unintended</h4>
+        <p>ALL effects different from what was intended</p>
+      </div>
+    </div>
+
+    <span class="sub sub-rust">Types of Secondary Effects</span>
+    <div class="ts"><table class="t-rust">
+      <tr><th>Type</th><th>Definition</th><th>Key Points</th></tr>
+      <tr><td><strong>Side Effects</strong></td><td>Unintended but <strong>PREDICTABLE</strong> physiological effects; usually well tolerated</td><td>Can CONTINUE drug; most common: nausea, vomiting, diarrhea, dizziness, drowsiness, dry mouth, constipation; not life-threatening</td></tr>
+      <tr><td><strong>Adverse Reactions</strong></td><td>Unintended &amp; <strong>HARMFUL</strong>; usually unpredicted; more severe than side effects</td><td>MUST STOP drug; severe ones are life-threatening — require intervention to prevent permanent impairment/death</td></tr>
+      <tr><td><strong>Toxic Reactions</strong></td><td>DAMAGE organs &amp; tissue; can cause death</td><td>From overdosing (e.g., resp depression from excess morphine, hypoglycemia from too much insulin), accumulation in tissues, abnormal sensitivity</td></tr>
+      <tr><td><strong>Allergic Reactions</strong></td><td>IMMUNE SYSTEM reaction; common with antibiotics, biological agents, diagnostic agents</td><td>Minor → severe: hives (urticaria), itching (pruritus), edema, rhinitis → <strong class="emerg">ANAPHYLAXIS</strong>: laryngeal edema, bronchoconstriction, hypotension</td></tr>
+      <tr><td><strong>Idiosyncratic Reactions</strong></td><td>UNEXPECTED, abnormal, peculiar response</td><td>Can be extreme sensitivity, lack of response, or <strong>PARADOXICAL</strong> (opposite of expected) — e.g., Benadryl causing hyperactivity in a child</td></tr>
+      <tr><td><strong>Cumulative Effect</strong></td><td>INCREASED response from repeated doses when rate of administration &gt; rate of metabolism/excretion</td><td>Seen in liver/kidney failure; elderly d/t ↓ kidney function or metabolism</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-rust">Drug Interactions</span>
+    <div class="g3">
+      <div class="card card-rust">
+        <h4>Agonist — 1+1=2</h4>
+        <p>Desired combined effects; drugs work together as intended</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Antagonistic — 1+1=1</h4>
+        <p>One drug <strong>LIMITS or BLOCKS</strong> effects of another; combined effect LESS than either alone</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Synergistic — 1+1=3</h4>
+        <p>Additional/additive effects; both together <strong>GREATER</strong> than individual effects</p>
+      </div>
+      <div class="card card-rust">
+        <h4>Potentiating — A+B=AAAAAA</h4>
+        <p>One drug significantly enhances the other to the point of <strong>TOXICITY</strong></p>
+      </div>
+      <div class="card card-rust">
+        <h4>Incompatibilities — 1+1=0</h4>
+        <p>Mixed drugs cause <strong>chemical deterioration</strong></p>
+        <ul>
+          <li>Recognize: clear IV gets cloudy, particles in solution</li>
+          <li>Do NOT administer — consult compatibility charts BEFORE mixing</li>
+          <li>After mixing, double-check for changes</li>
+          <li>Administering incompatible meds = <strong>MEDICATION ERROR</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- end s2 -->
+
+<!-- ═══ LECTURE 4 — MOBILITY ═══ -->
+<div id="s3" class="panel">
+  <div class="sec-head sh-forest">Mobility <span class="lec-tag">Lecture 4</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Good body mechanics · Purpose of ROM · Difference between AROM &amp; PROM · Factors affecting mobility · Complications &amp; interventions of immobility by system: Musculoskeletal, Cardiovascular, Respiratory, Metabolic, GI, GU, Integumentary, Psychosocial</p>
+    </div>
+
+    <span class="sub sub-forest">Physiology of Movement</span>
+    <p>Mobility depends on successful interaction among the <strong>Skeleton, Muscles, and Nervous System</strong>.</p>
+    <br>
+    <div class="g3">
+      <div class="card card-forest">
+        <h4>Skeletal System</h4>
+        <ul>
+          <li><b class="lbl">Bones:</b> 206; hard outer shell with spongy interior</li>
+          <li><b class="lbl">Joints:</b> where 2 bones articulate (hip, knee)</li>
+          <li><b class="lbl">Cartilage:</b> connective tissue; cushion around joints</li>
+          <li><b class="lbl">Ligaments:</b> fibrous tissue that <strong>connect movable joints</strong> (bone to bone)</li>
+          <li><b class="lbl">Tendons:</b> fibrous connective tissue that <strong>connect muscle to bone</strong></li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Muscles</h4>
+        <ul>
+          <li>~Half of body weight</li>
+          <li>Contract → cause movement</li>
+          <li><b class="lbl">3 types:</b> skeletal (moves bones/joints), smooth, cardiac</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Motor Nervous System</h4>
+        <ul>
+          <li>Controls movement of musculoskeletal system</li>
+          <li>Motor nerves: autonomic OR somatic</li>
+          <li><b class="lbl">Somatic NS:</b> controls voluntary skeletal muscles</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-forest">Body Mechanics</span>
+    <p><b class="lbl">Definition:</b> The way we move our bodies; allows movement without injury if done properly. <strong>4 components:</strong> body alignment, balance, coordination, joint mobility.</p>
+    <p style="margin-top:4px"><em>ANA (2013): Use mechanical equipment (transfer board, lift) OR get assistance whenever possible. Do not rely on body mechanics alone.</em></p>
+    <br>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Avoiding Injury — Key Principles</h4>
+        <ul>
+          <li>Use proper alignment = neutral spine posture</li>
+          <li>Wide base of support (feet spread apart) = balance</li>
+          <li>Avoid bending and twisting; face the object</li>
+          <li>Squat to lift (lowers center of gravity; position close to object)</li>
+          <li>Keep objects close when lifting; raise bed to waist height</li>
+          <li>Push, slide, or pull rather than lift whenever possible</li>
+          <li>Maintain good grip before moving</li>
+          <li>Keep elbows bent when carrying</li>
+          <li>Smooth &amp; even movements (avoid jerky) = COORDINATION</li>
+          <li>Use mechanical equipment or get assistance</li>
+          <li>Teach patients/families too</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Assess Patient Before Transfer</h4>
+        <ul>
+          <li>Patient's ability to assist in transfer</li>
+          <li>Patient's strength &amp; ability to bear weight</li>
+          <li>Height &amp; weight factor into safe transfer</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Range of Motion (ROM)</span>
+    <p><b class="lbl">Goal:</b> Exercise &amp; keep body in best possible physical condition when bed rest or immobility is present. Improve joint mobility, increase circulation, help maintain function, prevent contractures.</p>
+    <p><b class="lbl">ROM</b> = the maximum movement possible at a joint.</p>
+    <br>
+    <div class="g2">
+      <div class="band-card bh-forest">
+        <div class="band-head">AROM — Active Range of Motion</div>
+        <div class="band-body">
+          <p>Done <strong>BY PATIENT WITHOUT ASSISTANCE</strong></p>
+          <p>Patient independently moves joints through flexion, extension, abduction, adduction, circular motions</p>
+          <p>Often in rehab as pt recovering from illness, injury, surgery</p>
+          <p>Must teach patient what to do and how often</p>
+        </div>
+      </div>
+      <div class="band-card bh-forest">
+        <div class="band-head">PROM — Passive Range of Motion</div>
+        <div class="band-body">
+          <p>Done <strong>BY ANOTHER PERSON FOR PATIENT</strong> because they CANNOT do it themselves</p>
+          <p>Intervention to prevent complications of disuse &amp; promote joint mobility</p>
+          <p>Prevents contractures, muscle atrophy</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-forest">Factors Affecting Activity &amp; Mobility</span>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Patient Factors</h4>
+        <ol>
+          <li><b class="lbl">Developmental Stage (age):</b> older adults least active; 30 min/day recommended; incorporate resistance &amp; balance training to prevent falls</li>
+          <li><b class="lbl">Cognitive status:</b> can pt participate?</li>
+          <li><b class="lbl">Nutrition:</b> obesity &amp; chronic disease d/t inadequate protein stores (albumin)</li>
+          <li><b class="lbl">Lifestyle:</b> sedentary</li>
+        </ol>
+      </div>
+      <div class="card card-forest">
+        <h4>External Factors</h4>
+        <ol start="5">
+          <li><b class="lbl">Stress:</b> releases cortisol/adrenaline → muscle tension, fatigue, anxiety, brain damage, balance deficits</li>
+          <li><b class="lbl">Environmental factors</b></li>
+          <li><b class="lbl">Diseases &amp; abnormalities</b></li>
+          <li><b class="lbl">Respiratory disorders, circulatory disorders, fatigue, bed rest</b></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Complications of Immobility by System</span>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Musculoskeletal — First Systems Affected</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Balance problems; loss of endurance</li>
+              <li>Decreased muscle mass / <strong>ATROPHY</strong> — 10% muscle strength loss <strong>per week</strong></li>
+              <li>Wasting of gastrocnemius, soleus, leg muscles (control hip/knee/ankle)</li>
+              <li>Joints become stiff; decreased stability</li>
+              <li>Joint <strong>contractures</strong> — strongest muscles/flexors pull joints → ankylosis</li>
+              <li>Disuse <strong>osteoporosis</strong> — bones that don't bear weight release calcium</li>
+              <li>Hypercalcemia</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Assist pt to standing &amp; ambulation as tolerated</li>
+              <li>Prevent orthostatic hypotension</li>
+              <li>Use positioning devices to maintain body alignment</li>
+              <li>AROM, PROM</li>
+              <li>Assistive devices: walker, crutches, cane, bathing/toileting devices</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Respiratory</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>↓ lung expansion &amp; generalized respiratory muscle weakness</li>
+              <li>Stasis &amp; pooling of secretions</li>
+              <li>Risk for atelectasis (collapse of air sacs) or pneumonia</li>
+              <li>Pooled secretions block alveoli → ↓ gas exchange</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Chest movement restricted by bed; abdominal organs press on diaphragm; chest muscles weaken; secretions pool in bronchi → can't be expelled → atelectasis &amp; pneumonia.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Orthopneic position</li>
+              <li>T&amp;P q2h</li>
+              <li>Cough &amp; deep breathe</li>
+              <li>Incentive spirometer</li>
+              <li>Increase fluids to liquefy secretions (as tolerated)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Cardiovascular</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Edema; venous stasis</li>
+              <li>Thrombus formation (DVT)</li>
+              <li>Orthostatic hypotension; blood pooling</li>
+              <li>↑ heart rate</li>
+              <li>↓ Cardiac reserve (heart less able to respond to body's demands)</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Muscle contraction needed to pump blood back to heart. Immobility → blood stagnant, pools in leg veins → edema, stasis → thrombus.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>DVT prophylaxis</li>
+              <li>ROM to help prevent edema</li>
+              <li>Monitor heart rate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Metabolic</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>↓ Serum albumin = edema (low protein → water leaves vessels into tissues)</li>
+              <li>↓ Protein stores = muscle loss/atrophy</li>
+              <li>Calcium leaves bones = hypercalcemia, osteoporosis, renal calculi, calcium deposits in joints</li>
+              <li>↓ BMR (Basal Metabolic Rate)</li>
+              <li>Protein &amp; glycogen synthesis ↓; fat stores ↑</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>See GI interventions</li>
+              <li>Osteoporosis: weight-bearing exercise (especially older women) to improve bone density &amp; reduce bone loss</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Gastrointestinal</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li><b class="lbl">Anorexia:</b> appetite diminishes; digestion slows from ↓ metabolic rate → ↓ calorie intake; muscle broken down as fuel</li>
+              <li><b class="lbl">Constipation:</b> slows peristalsis → constipation, gas, difficulty evacuating</li>
+              <li><strong>PARALYTIC ILEUS</strong> — cessation of peristalsis — can occur</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Small frequent meals; high calorie, high protein diet</li>
+              <li>Monitor weight</li>
+              <li>↑ fluids as tolerated; ↑ fiber in diet</li>
+              <li>Monitor BMs (COCAF)</li>
+              <li>Stool softeners as needed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Genitourinary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Renal calculi; decreased urinary output</li>
+              <li>Urinary stasis; UTIs</li>
+              <li>Urinary retention (↓ muscle tone → ↓ bladder tone)</li>
+            </ul>
+            <p style="margin-top:6px"><em>Why: Supine position inhibits drainage of urine from kidney/bladder → stagnant urine = ideal for infection. ↑ Calcium → stone formation. Many pts have difficulty voiding in bedpan/urinal.</em></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Monitor I&amp;O</li>
+              <li>Encourage &amp; increase fluids per patient condition</li>
+              <li>Sit upright or get OOB to urinate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest" style="margin-bottom:10px">
+      <div class="band-head">Integumentary</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Pressure injuries — pressure over bony prominences compresses capillaries → ↓ circulation → tissue hypoxia → tissue damage</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>T&amp;P q2h</li>
+              <li>Pressure-reducing devices; trapeze; turn sheets; friction-reducing devices</li>
+              <li>If incontinent: keep area clean &amp; dry</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-forest">
+      <div class="band-head">Psychosocial</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Complications:</b></p>
+            <ul>
+              <li>Depression; behavioral changes; sleep disturbances; coping problems</li>
+              <li>Isolation; sensory deprivation; increased dependence</li>
+              <li><b class="lbl">Affect:</b> moodiness, anxiety, hostility, apathy, poor body concept</li>
+              <li><b class="lbl">Cognition:</b> ↓ concentration, recall, problem-solving</li>
+              <li><b class="lbl">Self-care:</b> reduced ability to perform</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Provide socialization; place in room with others</li>
+              <li>Social worker consult</li>
+              <li>Activities</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-forest">Mobility Assessment</span>
+    <div class="g2">
+      <div class="card card-forest">
+        <h4>Assess on Admission &amp; Each Shift</h4>
+        <ul>
+          <li>Level of comfort; LOC</li>
+          <li>Restrictions in movement/position</li>
+          <li>Physical size of patient; presence of equipment</li>
+          <li>Side effects of medication; vital signs (orthostatic hypotension)</li>
+          <li>Risk factors for falls; underlying health conditions</li>
+          <li>Use of assistive devices</li>
+          <li>Body alignment, posture; joint function &amp; ROM</li>
+          <li>Muscle strength (push/pull against your hands)</li>
+          <li>Compare muscle mass right &amp; left</li>
+          <li>Activity tolerance (vital signs)</li>
+        </ul>
+      </div>
+      <div class="card card-forest">
+        <h4>Patients on Bed Rest</h4>
+        <p>Regularly monitor <strong>ALL body systems</strong> for complications of immobility — musculoskeletal, respiratory, cardiovascular, metabolic, GI, GU, integumentary, psychosocial.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- end s3 -->
+
+<!-- ═══ LECTURE 5 — PERIOPERATIVE NURSING PART 1 ═══ -->
+<div id="s4" class="panel">
+  <div class="sec-head sh-cobalt">Perioperative Nursing — Part 1 <span class="lec-tag">Lecture 5</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives</h4>
+      <p>Name &amp; differentiate the 3 phases of the perioperative period · Describe 4 ways surgeries are classified · Discuss factors that affect surgical risk · Describe nursing interventions/responsibilities in the preoperative period · Discuss informed consent &amp; roles of surgeon &amp; nurse · Universal Protocol &amp; Time Out · Roles in OR: circulating nurse, scrub nurse · Role of PACU nurse</p>
+    </div>
+
+    <span class="sub sub-cobalt">3 Phases of the Perioperative Period</span>
+    <div class="g3">
+      <div class="band-card bh-cobalt">
+        <div class="band-head">1. Preoperative</div>
+        <div class="band-body">
+          <p>Begins: client's decision to have surgery</p>
+          <p>Ends: patient enters the operating room</p>
+        </div>
+      </div>
+      <div class="band-card bh-cobalt">
+        <div class="band-head">2. Intraoperative</div>
+        <div class="band-body">
+          <p>Begins: patient enters operating suite</p>
+          <p>Ends: admitted to PACU</p>
+        </div>
+      </div>
+      <div class="band-card bh-cobalt">
+        <div class="band-head">3. Postoperative</div>
+        <div class="band-body">
+          <p>Begins: patient enters PACU</p>
+          <p>Ends: healed from surgical procedure</p>
+          <p><b class="lbl">Part 1:</b> Recovery from anesthesia (PACU)</p>
+          <p><b class="lbl">Part 2:</b> Recovery from surgery (surgical unit)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">4 Ways Surgeries Are Classified</span>
+
+    <div class="g2">
+      <div class="band-card bh-cobalt">
+        <div class="band-head">By Purpose</div>
+        <div class="band-body">
+          <div class="ts"><table>
+            <tr><th>Type</th><th>Definition</th><th>Examples</th></tr>
+            <tr><td><strong>Ablative</strong></td><td>Removal of diseased body part</td><td>Appendectomy, cholecystectomy, splenectomy</td></tr>
+            <tr><td><strong>Diagnostic</strong></td><td>Confirm or rule out diagnosis</td><td>Biopsy, fine-needle aspiration, cardiac cath</td></tr>
+            <tr><td><strong>Palliative</strong></td><td>Relieves symptoms — NOT curative</td><td>Nerve root destruction for chronic pain, tumor debulking</td></tr>
+            <tr><td><strong>Reconstructive</strong></td><td>Restores function</td><td>Rotator cuff repair, torn ligament repair</td></tr>
+            <tr><td><strong>Cosmetic</strong></td><td>Improves appearance</td><td>Facelift</td></tr>
+            <tr><td><strong>Transplant</strong></td><td>Replaces malfunctioning organ</td><td>Kidney transplant, total joint</td></tr>
+            <tr><td><strong>Procurement</strong></td><td>Organ/tissue harvested for transplant</td><td>Organ donation</td></tr>
+          </table></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="band-card bh-cobalt" style="margin-bottom:10px">
+          <div class="band-head">By Degree of Urgency</div>
+          <div class="band-body">
+            <p><b class="lbl">Elective:</b> recommended but NOT time-sensitive; pt may delay — rotator cuff, lipo, polypectomy, removal of rectal polyps</p>
+            <p><b class="lbl">Urgent:</b> within 24–48 hours — cancerous breast removal, internal fixation of fracture</p>
+            <p><b class="lbl">Emergency:</b> ASAP to preserve life or function — trauma, organ rupture, open fractures, internal hemorrhage, bowel perforation</p>
+          </div>
+        </div>
+
+        <div class="band-card bh-cobalt" style="margin-bottom:10px">
+          <div class="band-head">By Degree of Risk</div>
+          <div class="band-body">
+            <p><b class="lbl">Major:</b> HIGH risk; significant blood loss, prolonged/complex, vital organs — CABG, nephrectomy, colon resection</p>
+            <p><b class="lbl">Minor:</b> LOW risk; often outpatient; few complications — arthroscopy, breast biopsy, inguinal hernia repair, endoscopies</p>
+          </div>
+        </div>
+
+        <div class="band-card bh-cobalt">
+          <div class="band-head">By Body System</div>
+          <div class="band-body">
+            <p>Helps determine surgical risk — heart surgery vs. toe surgery carry very different risk profiles</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Factors Contributing to Surgical Risk</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>General Risk Factors</h4>
+        <ul>
+          <li><b class="lbl">Age:</b> very young &amp; very old are at greatest risk</li>
+          <li><b class="lbl">Type of wound:</b> pre-existing or post-op</li>
+          <li><b class="lbl">Pre-existing conditions:</b> active infections, pneumonia, cardiac, COPD, coagulation, diabetes, liver, kidney, neurological, spinal cord injury, seizure</li>
+          <li><b class="lbl">Mental status:</b> confused/mental illness may not comprehend pre-op instructions or give informed consent; antipsychotics may interact with anesthetics</li>
+          <li><b class="lbl">Personal habits:</b> smoking (pulmonary), alcohol (liver/bleeding), drug interactions</li>
+          <li><b class="lbl">Allergies:</b> antibiotics, analgesics, latex, anesthesia, shellfish</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Medication Risks</h4>
+        <ul>
+          <li><b class="lbl">Anticoagulants</b> → ↑ bleeding</li>
+          <li><b class="lbl">Antihypertensives</b> → ↑ hypotension during surgery; may interact with anesthesia → bradycardia, impaired circulation</li>
+          <li><b class="lbl">Aspirin</b> → ↑ bleeding</li>
+          <li><b class="lbl">Corticosteroids</b> → delay wound healing, ↑ infection risk</li>
+          <li><b class="lbl">Opioids</b> → ↑ respiratory depression</li>
+          <li><b class="lbl">Antibiotics</b> → may potentiate anesthetic agents &amp; mask new infections</li>
+          <li><b class="lbl">Antidysrhythmics</b> → may impair cardiac function during anesthesia</li>
+          <li><b class="lbl">Diuretics</b> → alter fluid &amp; electrolyte balance (especially potassium)</li>
+          <li><b class="lbl">NSAIDs</b> → inhibit platelet aggregation, ↑ bleeding</li>
+          <li><b class="lbl">Tranquilizers</b> → ↑ respiratory depression</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Older Adult Surgical Risk Factors</span>
+    <div class="g3">
+      <div class="card card-cobalt">
+        <h4>Cardiovascular &amp; Respiratory</h4>
+        <ul>
+          <li>Coronary artery disease; ↑ risk hypotension, falls</li>
+          <li><strong>DELIRIUM</strong> — most common surgical complication in older adults</li>
+          <li>↓ Chest wall compliance, ↓ FVC, ↓ diaphragm strength → risk for pneumonia, atelectasis</li>
+          <li>↓ Cardiac output; ↑ peripheral vascular resistance</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Skin, Musculoskeletal &amp; CNS</h4>
+        <ul>
+          <li>Dry, fragile skin, ↓ turgor → risk for pressure ulcer, impaired skin integrity</li>
+          <li>↓ Bone &amp; muscle mass → risk for falls, impaired mobility</li>
+          <li>CNS comorbidities → risk dementia, acute confusion</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>GI &amp; GU</h4>
+        <ul>
+          <li>↓ GI motility → risk ileus, aspiration from vomiting</li>
+          <li>↓ GU function → risk medication side effects, renal complications, UTI</li>
+          <li>↓ Kidney function → slower drug excretion → toxicity risk</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Preoperative Nursing Responsibilities</span>
+    <p>History &amp; physical · Lab &amp; diagnostic tests · Pre-op teaching · Informed consent · Prepare client physically &amp; mentally</p>
+    <br>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>History</h4>
+        <ul>
+          <li>Health history (pre-existing medical &amp; surgical history)</li>
+          <li>Physical, cognitive, and psychological status</li>
+          <li>Review &amp; document <strong>ALLERGIES</strong></li>
+          <li>Review &amp; document <strong>ALL MEDICATIONS</strong> patient currently takes</li>
+          <li>Mental status — alert, oriented, or confused?</li>
+          <li>Understanding of surgery — do they know what procedure they're having?</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Physical Assessment</h4>
+        <ul>
+          <li>Head-to-toe assessment</li>
+          <li>Respiratory status &amp; vital signs</li>
+          <li><b class="lbl">Risk for thrombophlebitis — assess ALL patients for:</b></li>
+          <li>Immobility, dehydration, long surgeries, heart failure</li>
+          <li>Varicose veins, pregnancy or recent childbirth, smoker</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Preoperative Diagnostic Testing</span>
+    <div class="ts"><table class="t-cobalt">
+      <tr><th>Test</th><th>Purpose</th></tr>
+      <tr><td><strong>CBC</strong></td><td>Hgb &amp; Hct (anemia risk); WBC (infection &amp; immune status); platelets (clotting)</td></tr>
+      <tr><td><strong>Urinalysis</strong></td><td>Detects UTI, glucose/protein (diabetes, renal disease, pregnancy — done for all non-postmenopausal women)</td></tr>
+      <tr><td><strong>Comprehensive Metabolic Panel</strong></td><td>Electrolytes, blood glucose, liver function (ALT, AST), serum albumin &amp; protein, renal function (BUN &amp; creatinine)</td></tr>
+      <tr><td><strong>Fasting Blood Sugar</strong></td><td>Detects diabetes or poorly controlled DM</td></tr>
+      <tr><td><strong>Blood Type &amp; Crossmatch</strong></td><td>Identifies blood type in case transfusion needed</td></tr>
+      <tr><td><strong>Serum Electrolytes</strong></td><td>Na, K, Cl, Mg, Ca, pH — evaluates CV, renal, fluid/electrolyte status</td></tr>
+      <tr><td><strong>ECG</strong></td><td>Detects cardiac dysrhythmias and other cardiac pathology</td></tr>
+      <tr><td><strong>Chest X-ray</strong></td><td>Detects/evaluates underlying pulmonary disease; reveals heart size</td></tr>
+      <tr><td><strong>Serum Albumin</strong></td><td>Evaluates nutritional status</td></tr>
+      <tr><td><strong>Medical Clearance</strong></td><td>Physician sign-off that patient is safe for surgery</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Preparing the Patient Physically</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>Physical Prep Checklist</h4>
+        <ul>
+          <li>Maintaining normothermia (check temp pre-op; hypo/hyperthermia = complications)</li>
+          <li>Ensuring <strong>NPO status</strong> (after midnight; some 6–8 hrs pre-op)</li>
+          <li>Skin prep (pre-op bath/shower; chlorhexidine wipes over surgical area)</li>
+          <li>Bowel prep (enema, laxatives, low-residue diet 48 hrs prior)</li>
+          <li>Last void or catheterization (empty bladder pre-op)</li>
+          <li>Pre-op meds (antibiotics or cardiac meds may be ordered with sip of water)</li>
+          <li>Status of routine medications (which to take with sip)</li>
+          <li>Anti-embolism stockings or sequential compression devices</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Items to REMOVE Before Surgery</h4>
+        <ul>
+          <li>Dentures</li>
+          <li>Artificial limbs</li>
+          <li>Contact lenses</li>
+          <li>Wigs</li>
+          <li>Jewelry</li>
+          <li>Nail polish</li>
+          <li>Eyeglasses</li>
+          <li>Hearing aids (label if kept nearby)</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Pre-Op Teaching</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>Breathing &amp; Airway</h4>
+        <ul>
+          <li><b class="lbl">Pain management — PRIORITY</b> to help pt cough, deep breathe, ambulate</li>
+          <li><b class="lbl">Cough &amp; deep breathe:</b> Fowler's/semi-Fowler's, shoulders relaxed; diaphragmatic breathing — hands along lower rib cage, deep breath through nose, hold 2–5 sec, slow exhale through mouth; cough: 2–3 cycles deep breathing, lean forward, cough rapidly through open mouth</li>
+          <li><b class="lbl">Incentive spirometer:</b> INSPIRATION exercise to open ALVEOLI; prevents ATELECTASIS (alveoli collapse → pneumonia)</li>
+          <li><b class="lbl">Splinting:</b> folded blanket/pillow over chest or abdominal incision; helps pain, ↓ dehiscence risk</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>DVT Prevention &amp; Other Teaching</h4>
+        <ul>
+          <li><b class="lbl">Leg exercises:</b> prevents DVT — ankle circles &amp; pump, knee bends</li>
+          <li><b class="lbl">Anti-embolism stockings:</b> increase venous return, prevent DVT; must measure for fit</li>
+          <li><b class="lbl">Sequential compression devices (SCDs)</b></li>
+          <li><b class="lbl">Post-op dressings, equipment, monitoring devices</b> — teach what to expect</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Pre-Op Medications</span>
+    <div class="ts"><table class="t-cobalt">
+      <tr><th>Class</th><th>Purpose</th><th>Examples</th></tr>
+      <tr><td><strong>Opioids</strong></td><td>Pain relief &amp; sedation; assists anesthesia induction</td><td>morphine, meperidine, fentanyl</td></tr>
+      <tr><td><strong>Anti-infective / Antibiotics</strong></td><td>Reduce microbial burden during surgery when pt is most vulnerable</td><td>ampicillin, vancomycin, cefazolin, azithromycin</td></tr>
+      <tr><td><strong>Anesthetic Sedation</strong></td><td>Sedation before &amp; during surgery</td><td>midazolam (VERSED) — anxiolytic, benzo, amnesiac; Propofol (DIPRIVAN) — moderate sedation</td></tr>
+      <tr><td><strong>Anticholinergic</strong></td><td>Decreases oral &amp; pulmonary secretions; ↓ chance of aspiration pneumonia</td><td>atropine</td></tr>
+      <tr><td><strong>Antiemetic</strong></td><td>Prevents vomiting → aspiration → pneumonia; also used post-op for N&amp;V</td><td>ondansetron</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Informed Consent / Surgical Consent</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>What Consent Includes</h4>
+        <ul>
+          <li>Type of surgery</li>
+          <li>Risks &amp; benefits</li>
+          <li>Statement that patient has the right to refuse</li>
+        </ul>
+        <h4 style="margin-top:10px">Purpose</h4>
+        <ul>
+          <li>Protects patient from unwanted or misunderstood surgery</li>
+          <li>Protects healthcare agency &amp; workers from later claims of non-consent</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Roles</h4>
+        <p><b class="lbl">SURGEON:</b> explains procedure, risks &amp; benefits; obtains patient signature; determines patient's competence to make an informed decision</p>
+        <p><b class="lbl">NURSE:</b> verifies consent has been signed &amp; witnessed; can witness the signing; verifies it is in the medical record</p>
+        <div class="warn" style="margin-top:8px">The RN does <strong>NOT</strong> explain the procedure, risks, or benefits. Nurse's role: ask pt to state what the procedure is and what they were told → witness signature → sign own name after.<br><br>If pt says they do NOT understand or do NOT know what the surgery is → <strong>STOP the consent process &amp; notify the surgeon. Do NOT send to the OR.</strong></div>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Universal Protocol &amp; Time Out</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>Site Marking</h4>
+        <p>Responsibility of <strong>PRACTITIONER</strong> to mark the surgical site; nurse <strong>VERIFIES</strong></p>
+        <p>Involve patient — have them verify with you</p>
+      </div>
+      <div class="card card-cobalt">
+        <h4>TIME OUT — Occurs Intraoperatively</h4>
+        <p>A pause/STOP immediately before the procedure begins</p>
+        <p>ALL operative team members participate</p>
+        <p>Each member identifies: <strong>PATIENT · SITE · VERBALIZES PROCEDURE</strong> being performed</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Intraoperative — Nursing Roles in the OR</span>
+    <div class="g2">
+      <div class="band-card bh-cobalt">
+        <div class="band-head">Circulating Nurse — "CLEAN Team"</div>
+        <div class="band-body">
+          <ul>
+            <li>Does <strong>NOT</strong> enter sterile field — functions around it</li>
+            <li>Client advocate</li>
+            <li>Coordinator of activities</li>
+            <li>Maintains safe environment</li>
+            <li>Continually monitors client &amp; sterile field</li>
+            <li>Attends to patient during induction of anesthesia</li>
+            <li>Documents; handles specimens</li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-cobalt">
+        <div class="band-head">Scrub Nurse — "STERILE Team"</div>
+        <div class="band-body">
+          <ul>
+            <li>Sets up sterile field</li>
+            <li>Prepares instruments</li>
+            <li>Responds to surgeon's needs (passing instruments)</li>
+            <li>Maintains integrity of sterile field</li>
+            <li>Boss of the sterile field</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Types of Anesthesia</span>
+    <div class="ts"><table class="t-cobalt">
+      <tr><th>Type</th><th>Description</th><th>Examples / Notes</th></tr>
+      <tr><td><strong>Local</strong></td><td>Loss of pain at desired site only; minor procedures; injected or topical</td><td>LIDOCAINE, BENZOCAINE</td></tr>
+      <tr><td><strong>Moderate / Conscious Sedation</strong></td><td>Sedation + analgesia; pt sleepy but aware; easily aroused; rapid recovery</td><td>Endoscopies, dental surgeries; Propofol often used</td></tr>
+      <tr><td><strong>Regional</strong></td><td>Interrupts nerve impulses to/from area; pt awake/alert, numb at surgical site</td><td>Nerve blocks, spinal, EPIDURAL; low cost, easy to administer; not for very anxious pts</td></tr>
+      <tr><td><strong>General</strong></td><td>Rapid unconsciousness &amp; loss of sensation; inhaled &amp; IV meds suppress CNS; requires INTUBATION</td><td>Pt and muscles relaxed; risk of stroke, death, MI</td></tr>
+    </table></div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-cobalt">Postoperative Phase 1 — PACU (Post Anesthesia Care Unit)</span>
+    <div class="warn"><strong>PHASE ONE = patient at HIGHEST risk for respiratory &amp; cardiac compromise.</strong> Anesthesiologist &amp; circulating nurse bring pt to PACU and give report. PACU nurse takes over: assessment q5–15 min. If unconscious: position on side.</div>
+    <br>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>PACU Priority Assessment — ABC + Nausea/Pain</h4>
+        <ol>
+          <li><b class="lbl">Airway:</b> if unconscious, turn on side; patency, artificial airway, ventilator settings; assess chest rising and falling</li>
+          <li><b class="lbl">Breathing:</b> respiratory rate, lung sounds, skin color; pulse oximetry (&gt;90%)</li>
+          <li><b class="lbl">Circulation:</b> BP, pulse rate; drainage on dressing; peripheral pulses, swelling, hematoma</li>
+          <li><b class="lbl">Nausea &amp; Pain:</b> vomiting can obstruct airway (pt may be asleep/drowsy/intubated)</li>
+        </ol>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Evidence of Recovery from Anesthesia</h4>
+        <ul>
+          <li><b class="lbl">Airway:</b> pt maintains patent airway independently; can deep-breathe, cough, expectorate</li>
+          <li><b class="lbl">LOC:</b> conscious and easily reoriented; may drift to sleep but easily reorient</li>
+          <li><b class="lbl">Vital signs:</b> stable, within acceptable range</li>
+          <li><b class="lbl">Mobility &amp; sensation:</b> can move all extremities they could pre-op; regains movement once spinal/epidural wears off</li>
+          <li><b class="lbl">Fluid balance (I&amp;O):</b> urinating ≥30 mL/hr, in relative balance</li>
+          <li><b class="lbl">Dressings &amp; drains:</b> dry &amp; intact OR wound drainage appropriate for procedure</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">PACU Report Includes</span>
+    <div class="g2">
+      <div class="card card-cobalt">
+        <h4>Surgical &amp; Anesthesia Info</h4>
+        <ul>
+          <li>Procedure performed; type of anesthesia</li>
+          <li>Medications administered in surgical suite</li>
+          <li>Duration of procedure &amp; anesthesia</li>
+          <li>Estimated blood loss; fluid I&amp;O (urine, stool, gastric losses)</li>
+          <li>Surgical complications</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Patient Status Info</h4>
+        <ul>
+          <li>Post-op vital signs; pulse oximetry values</li>
+          <li>Allergies; lab values</li>
+          <li>Pre-op mobility status, skin integrity, sensory perception abilities</li>
+          <li>Presence of tubes, drains, catheters; existing IV lines</li>
+          <li>Post-op prescriptions</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-cobalt">Nursing Diagnoses — Perioperative</span>
+    <div class="g3">
+      <div class="card card-cobalt">
+        <h4>Pre-op</h4>
+        <ul>
+          <li>Knowledge deficit r/t surgical procedure</li>
+          <li>Anxiety r/t fear of uncertain outcome</li>
+          <li>Pain r/t physical injury (e.g., fracture femur)</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Intra-op</h4>
+        <ul>
+          <li>Risk for injury r/t length of surgery and operative positioning</li>
+        </ul>
+      </div>
+      <div class="card card-cobalt">
+        <h4>Post-op</h4>
+        <ul>
+          <li>Acute Pain r/t disruption of tissue &amp; muscle integrity</li>
+          <li>Ineffective breathing pattern r/t ↓ lung expansion</li>
+          <li>Fluid volume deficit r/t blood loss, NPO, drains</li>
+          <li>Infection r/t surgical incision, immobility</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- end s4 -->
+
+<!-- ═══ LECTURE 6 — PERIOP PART 2 + PAIN MANAGEMENT ═══ -->
+<div id="s5" class="panel">
+  <div class="sec-head sh-slate">Perioperative Part 2 &amp; Pain Management <span class="lec-tag">Lecture 6</span></div>
+
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objectives — Periop Part 2</h4>
+      <p>Responsibilities of nurse on surgical floor · Diet progression &amp; what to assess before starting · 3 drains &amp; nurse's responsibilities · Wound assessment: REEDA · Dehiscence vs evisceration &amp; interventions · Post-op complications: S&amp;S, prevention &amp; treatment — Hemorrhage, Infection, Thrombi, Respiratory</p>
+    </div>
+    <div class="obj">
+      <h4>&#9745; Objectives — Pain Management</h4>
+      <p>3 ways pain is classified · 4 pain assessment scales &amp; when to use · 16 non-pharmacologic interventions · Non-opioid pain medications · Opioid pain medications · PCA function, Pros &amp; Cons</p>
+    </div>
+
+    <span class="sub sub-slate">Nurse Responsibilities on the Surgical Floor</span>
+    <div class="g2">
+      <div class="card card-slate">
+        <h4>Vital Signs &amp; Assessment on Arrival</h4>
+        <ul>
+          <li>Assess <strong>IMMEDIATELY</strong> on arrival</li>
+          <li>Q15 min for first hour</li>
+          <li>Q30 min for next 2 hours</li>
+          <li>Q1 hour for next 4 hours</li>
+          <li>Then q4 hours</li>
+          <li>Assessment = physical head-to-toe including all lines, tubes, dressings, output, input</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Ongoing Patient Interventions</h4>
+        <ul>
+          <li>Pain control</li>
+          <li>Cough, deep breathe, incentive spirometer, splinting</li>
+          <li>Leg exercises, anti-embolism stockings, SCDs</li>
+          <li>Control of nausea &amp; vomiting</li>
+        </ul>
+      </div>
+    </div>
+
+    <span class="sub sub-slate">Progressive Ambulation</span>
+    <p>Per HCP order or post-op protocols. Ensure pt awake, alert, can follow directions. Check VS stable. Assess pre-op ability and assistive device use. PT consult as needed.</p>
+    <br>
+    <div class="g4">
+      <div class="card card-slate"><h4>Step 1</h4><p>Sit &amp; dangle feet at bedside — assess for orthostatic hypotension, dizziness, pain</p></div>
+      <div class="card card-slate"><h4>Step 2</h4><p>Sit in chair (OOB)</p></div>
+      <div class="card card-slate"><h4>Step 3</h4><p>Walk in room</p></div>
+      <div class="card card-slate"><h4>Step 4</h4><p>Walk in hallway</p></div>
+    </div>
+    <div class="warn">Must be assisted with all transfers and ambulation.</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">Diet Progression Post-Op</span>
+    <p>NPO post-op → progress as follows: Clear Liquids → Full Liquids → Soft Diet → Prescribed/Regular Diet</p>
+    <br>
+    <div class="g3">
+      <div class="card card-slate">
+        <h4>Clear Liquids</h4>
+        <ul>
+          <li>Coffee — BLACK only</li>
+          <li>Tea — PLAIN only</li>
+          <li>Carbonated drinks</li>
+          <li>Bouillon/broth</li>
+          <li>Clear fruit juice</li>
+          <li>Popsicle; gelatin; hard candy</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Full Liquids</h4>
+        <p>All clear liquids PLUS:</p>
+        <ul>
+          <li>Milk/dairy products</li>
+          <li>Vegetable juices</li>
+          <li>Cream, butter</li>
+          <li>Yogurt, puddings, custard</li>
+          <li>Cream of wheat</li>
+          <li>Ice cream and sherbet</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Soft Diet</h4>
+        <p>All CL and FL PLUS:</p>
+        <ul>
+          <li>Soft meats</li>
+          <li>Vegetables; fruits</li>
+          <li>Breads and cereals</li>
+          <li>Pureed foods</li>
+        </ul>
+        <p style="margin-top:6px">Encourage: <strong>protein, vitamins A &amp; C, zinc</strong></p>
+      </div>
+    </div>
+
+    <span class="sub sub-slate">Assess BEFORE Starting Any Diet</span>
+    <div class="g2">
+      <div class="card card-slate">
+        <h4>6 Things to Check</h4>
+        <ol>
+          <li><b class="lbl">HCP orders</b></li>
+          <li><b class="lbl">LOC</b> — would you give an unconscious person a drink? NO</li>
+          <li><b class="lbl">Can they swallow?</b> If can't swallow saliva → can't swallow food/liquid</li>
+          <li><b class="lbl">Gag reflex?</b> Without gag reflex → choke and aspirate</li>
+          <li><b class="lbl">GI tract functioning?</b> Bowel sounds, belching/burping, passing flatus</li>
+          <li><b class="lbl">Nauseous or vomiting?</b></li>
+        </ol>
+      </div>
+      <div class="card card-slate">
+        <h4>Why This Matters</h4>
+        <p>Aspiration pneumonia results from inhaling gastric contents — caused by absent gag reflex secondary to anesthesia. This is why we assess ALL these factors before any oral intake.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">3 Surgical Drains — Nurse Responsibilities</span>
+    <p>Surgically-placed drains let fluids/exudate exit wounds → ↓ pressure → prevents infection, dehiscence, evisceration.</p>
+    <div class="warn"><strong>Maintain ALL drains BELOW the incision site.</strong> Report any significant change in amount or character of drainage to the provider. If no drainage, may be occluded — remove kinks.</div>
+    <br>
+    <div class="g3">
+      <div class="band-card bh-slate">
+        <div class="band-head">1. Penrose Drain</div>
+        <div class="band-body">
+          <p>Flat flexible tube — <strong>LATEX</strong> (know allergies pre-op)</p>
+          <p>Positioned in wound bed — <strong>NOT sutured</strong></p>
+          <p>Measure exposed parts to track from assessment to assessment</p>
+          <p>May be advanced if ordered</p>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">2. Jackson-Pratt (JP)</div>
+        <div class="band-body">
+          <p>Removes fluid via <strong>SUCTION</strong> — must COMPRESS the device for suction</p>
+          <p>Measure at intervals ordered or per shift</p>
+          <p><strong>EMPTY when ½ FULL</strong> — never wait until completely full (no suction)</p>
+          <p>Check: full? compressed? tubing kinked? change in drainage or pain?</p>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">3. Hemovac</div>
+        <div class="band-body">
+          <p>Removes fluid via <strong>SUCTION</strong> — must compress device for suction</p>
+          <p>Measure at intervals ordered or per shift</p>
+          <p>Check: full? compressed? tubing kinked? change in drainage or pain?</p>
+          <p>Any significant change → report to provider</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">Dehiscence vs. Evisceration</span>
+    <div class="g2">
+      <div class="band-card bh-slate">
+        <div class="band-head">Dehiscence — Wound Layer Separation</div>
+        <div class="band-body">
+          <p><b class="lbl">Definition:</b> Separation of ONE OR MORE layers of wound (NOT total)</p>
+          <p><b class="lbl">Causes:</b> poor nutrition, obesity, strain on suture line, inadequate closure, infection</p>
+          <p><b class="lbl">Interventions:</b></p>
+          <ul>
+            <li>Cover with <strong>DRY STERILE DRESSING</strong></li>
+            <li>Maintain BEDREST; HOB at 20° &amp; knees flexed</li>
+            <li>Apply BINDER to prevent evisceration</li>
+            <li>Notify provider; continue to monitor</li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">Evisceration — SURGICAL EMERGENCY</div>
+        <div class="band-body">
+          <p><b class="lbl">Definition:</b> TOTAL separation of wound layers with internal viscera protruding through</p>
+          <p><b class="lbl">Interventions:</b></p>
+          <ul>
+            <li><strong>IMMEDIATELY</strong> cover with STERILE TOWELS soaked with <strong>STERILE SALINE</strong> (prevents organs from drying &amp; contamination)</li>
+            <li>Bedrest with KNEES BENT (prevent strain on incision)</li>
+            <li>HOB 20 degrees</li>
+            <li><strong>DO NOT apply a binder</strong></li>
+            <li>Notify surgeon and <strong>PREP FOR SURGERY</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-slate">Post-Op Complications</span>
+
+    <div class="band-card bh-slate" style="margin-bottom:10px">
+      <div class="band-head">Hemorrhage — Risk Greatest First 24–48 Hours</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">EXTERNAL (visible):</b></p>
+            <ul>
+              <li>Dressing saturated with bright red blood</li>
+              <li>Increased blood in drains</li>
+              <li>Dependent drainage — ALWAYS check <strong>under pt</strong> for pooled drainage if dressing has blood</li>
+            </ul>
+            <p style="margin-top:6px"><b class="lbl">INTERNAL (not easily detected):</b></p>
+            <ul>
+              <li>Increased pain; edema/swelling around incision; hematoma; ecchymosis</li>
+            </ul>
+            <p style="margin-top:6px"><b class="lbl">Vital signs:</b> <strong>TACHYCARDIA + FALLING BP (HYPOTENSION)</strong></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Assess pt post-op; monitor vital signs</li>
+              <li>Assess dressing, wound drainage, skin around incision, drains</li>
+              <li>Patient who is unresponsive, nonverbal, or confused can't tell you what they feel — <strong>you must assess</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-slate" style="margin-bottom:10px">
+      <div class="band-head">Infection</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">S/S:</b> swelling, redness, heat, pain, fever &gt;100.4°F, ↑ HR, foul/purulent drainage, wound not healing</p>
+            <p>Contaminated/traumatic wound: symptoms in <strong>2–3 days</strong></p>
+            <p>Clean surgical wound: usually not until the <strong>4th or 5th post-op day</strong></p>
+          </div>
+          <div>
+            <p><b class="lbl">Interventions:</b></p>
+            <ul>
+              <li>Monitor for s/s; monitor V/S</li>
+              <li>STERILE technique for dressing changes</li>
+              <li>Hand hygiene; culture if prescribed</li>
+              <li>Labs (WBC will be elevated)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-slate" style="margin-bottom:10px">
+      <div class="band-head">Thrombus — Thrombophlebitis → Pulmonary Embolism</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Thrombophlebitis</b> (blood clot + vein inflammation):</p>
+            <ul>
+              <li>Caused by stasis of blood</li>
+              <li>S/S: leg red, hot to touch, edematous, aching, cramping</li>
+              <li>Treatment: immobilize limb; may have HEPARIN</li>
+            </ul>
+          </div>
+          <div>
+            <p><b class="lbl">Pulmonary Embolism</b> (clot occludes blood flow to lungs):</p>
+            <ul>
+              <li>Usually a clot from lower extremities that breaks loose and migrates</li>
+              <li>S/S: <strong>SUDDEN</strong> onset dyspnea, SOB, chest pain, hypotension, tachycardia, ↓ SaO2, cyanosis</li>
+              <li>Prevention = prevent DVT (leg exercises, stockings, SCDs, early ambulation)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="band-card bh-slate">
+      <div class="band-head">Respiratory Complications</div>
+      <div class="band-body">
+        <div class="g2">
+          <div>
+            <p><b class="lbl">Pneumonia:</b> Inflammation of alveoli d/t infection; caused by HYPOVENTILATION secondary to anesthesia &amp; opioids; small airways fill with solid material instead of air</p>
+            <p><b class="lbl">S/S:</b> productive cough (blood-tinged or purulent), fever/chills, ↑ WBC, ↓ or absent lung sounds, low SaO2, dyspnea, tachycardia, tachypnea, malaise, pleural pain</p>
+          </div>
+          <div>
+            <p><b class="lbl">Aspiration Pneumonia:</b> Airway inflammation from inhaling gastric secretions (HCl) d/t absent gag reflex secondary to anesthesia</p>
+            <p><b class="lbl">S/S:</b> cough, fever, ↑ WBC, ↓ breath sounds, ↓ SaO2, tachypnea, dyspnea, blood-tinged sputum</p>
+            <p><b class="lbl">Prevention:</b> NPO ≥8 hrs pre-op; continue NPO until motility returns; side-lying if sedated; antiemetics; prevent N&amp;V</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">Pain — Classification (3 Ways)</span>
+    <div class="g3">
+      <div class="band-card bh-slate">
+        <div class="band-head">By Origin</div>
+        <div class="band-body">
+          <ul>
+            <li><b class="lbl">Cutaneous/superficial:</b> skin, subQ — burn, abrasion, IV infiltration</li>
+            <li><b class="lbl">Deep somatic:</b> ligaments, tendons, nerve, bone, blood vessels — fracture, torn ACL, sprain</li>
+            <li><b class="lbl">Visceral:</b> deep internal pain receptors (organs) — abdominal cramps, labor, GI infection</li>
+            <li><b class="lbl">Radiating/referred:</b> starts in one area, extends to another — sciatica back→leg; GERD epigastric→chest</li>
+            <li><b class="lbl">Phantom:</b> pain/burning/itching in a MISSING extremity</li>
+            <li><b class="lbl">Psychogenic:</b> no physical cause identified; perceived as severe as physical pain</li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">By Cause</div>
+        <div class="band-body">
+          <p><b class="lbl">Nociceptive:</b> pain receptors respond to potentially damaging stimuli; injury to body tissue — trauma, surgery, inflammation</p>
+          <p><b class="lbl">Neuropathic:</b> complex, usually chronic; injury to nerves; repeated pain signals in absence of stimuli; burning, numbness, pins/needles — DM, stroke, tumor, shingles, spinal</p>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">By Duration</div>
+        <div class="band-body">
+          <p><b class="lbl">Acute:</b> rapid onset, short duration (up to 6 months); r/t injury &amp; surgery</p>
+          <p><b class="lbl">Chronic:</b> 3–6 months or longer; interferes with daily living; progressive disorders or neuropathic</p>
+          <p><b class="lbl">Intractable:</b> chronic &amp; highly resistant to relief; needs multiple pain relief methods</p>
+        </div>
+      </div>
+    </div>
+
+    <span class="sub sub-slate">Factors That Influence Pain</span>
+    <div class="g3">
+      <div class="card card-slate">
+        <h4>Emotions</h4>
+        <p>Fear (death, intolerable suffering, addiction, judgment); confusion &amp; helplessness; anger, guilt, loneliness; anxiety &amp; depression</p>
+      </div>
+      <div class="card card-slate">
+        <h4>Past Experience</h4>
+        <p>Anxiety &amp; fear of experiencing pain again; increased sensitivity to pain</p>
+      </div>
+      <div class="card card-slate">
+        <h4>Developmental Stage</h4>
+        <p>Older adults often have daily pain interfering with ADLs; cognitively impaired can't properly report pain</p>
+      </div>
+      <div class="card card-slate">
+        <h4>Sociocultural Factors</h4>
+        <p>Every patient reacts differently; pain beliefs play a role (some smile, deny, yell, cry); be mindful of your own beliefs — don't judge others' response</p>
+      </div>
+      <div class="card card-slate">
+        <h4>Cognitive Impairment</h4>
+        <p>May fail to interpret sensations; can't communicate pain; unable to recall pain — may be climbing OOB, yelling, irritable, refusing to move</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">4 Pain Assessment Scales</span>
+    <div class="ts"><table class="t-slate">
+      <tr><th>Scale</th><th>Description</th><th>Best Used For</th></tr>
+      <tr><td><strong>Numeric Rating Scale (NRS)</strong></td><td>Line numbered 0–10; 0=no pain, 10=worst possible; mild 1–3, moderate 4–6, severe 7–10</td><td>Adults who can count to 10; must explain endpoints; 0–5 scale may help cognitively impaired</td></tr>
+      <tr><td><strong>Visual Analog Scale (VAS)</strong></td><td>10-cm horizontal line; "No pain" left end, "Worst pain imaginable" right; pt points to location</td><td>Simple and quick; may be too abstract for some pts</td></tr>
+      <tr><td><strong>Wong-Baker FACES</strong></td><td>Simple illustrated faces from happy (0) to crying (5 = "hurts as much as you can imagine")</td><td>Children &gt;3 years; adults with communication or cognitive impairment; no reading or number skill needed</td></tr>
+      <tr><td><strong>FLACC Scale</strong></td><td>Behavioral scale: Face, Legs, Activity, Cry, Consolability — each scored 0, 1, or 2</td><td>Children 2 months–7 years; nonverbal/pre-verbal patients; ventilated, unresponsive, or confused individuals</td></tr>
+    </table></div>
+
+    <span class="sub sub-slate">Nonverbal Indicators of Pain</span>
+    <div class="g3">
+      <div class="card card-slate">
+        <h4>Physiological Responses (Acute / Sympathetic)</h4>
+        <ul>
+          <li>↑ Systolic BP; ↑ HR &amp; force of contraction</li>
+          <li>↑ RR, shallow breathing; dilated pupils</li>
+          <li>Rapid speech; impaired GI motility</li>
+          <li><b class="lbl">Prolonged pain →</b> ↓ BP &amp; pulse, withdrawal, constricted pupils</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Behavioral Responses</h4>
+        <ul>
+          <li>Moaning / groaning</li>
+          <li>Facial grimacing / frowning</li>
+          <li>Crying; agitation / fidgeting</li>
+          <li>Withdrawal from painful stimuli</li>
+          <li>Guarding or rubbing the painful area</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Cognitively Impaired — Less Obvious</h4>
+        <ul>
+          <li>Facial expressions (sad/frightened, rapid eye blinking)</li>
+          <li>Vocalizations (noisy breathing, profanity, verbally abusive)</li>
+          <li>Changes in activity (fidgeting, pacing, rocking, disruptive)</li>
+          <li>Changes in routines (refusing food, difficulty sleeping)</li>
+          <li>Mental status changes (increased confusion)</li>
+          <li>Physiological cues (↑ BP, RR, pulse)</li>
+        </ul>
+        <div class="warn" style="margin-top:6px"><strong>Absence of these cues does NOT automatically mean pain is absent.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">16 Non-Pharmacologic Pain Interventions</span>
+    <div class="g4">
+      <div class="card card-slate"><h4>1</h4><p>Positioning/posture (T&amp;P for comfort, pillows)</p></div>
+      <div class="card card-slate"><h4>2</h4><p>Education / anticipatory guidance</p></div>
+      <div class="card card-slate"><h4>3</h4><p>Touch — gentle pressure or massage (back rub)</p></div>
+      <div class="card card-slate"><h4>4</h4><p>Relaxation / distraction / music / pet therapy (TV, prayer)</p></div>
+      <div class="card card-slate"><h4>5</h4><p>Meditation / guided imagery</p></div>
+      <div class="card card-slate"><h4>6</h4><p>Aromatherapy</p></div>
+      <div class="card card-slate"><h4>7</h4><p>Acupuncture / acupressure</p></div>
+      <div class="card card-slate"><h4>8</h4><p>TENS (transcutaneous electrical nerve stimulator)</p></div>
+      <div class="card card-slate"><h4>9</h4><p>PENS (percutaneous electrical nerve stimulation)</p></div>
+      <div class="card card-slate"><h4>10</h4><p>Heat / cold treatment (ice pack, hot pack)</p></div>
+      <div class="card card-slate"><h4>11</h4><p>Contralateral stimulation</p></div>
+      <div class="card card-slate"><h4>12</h4><p>Progressive muscle relaxation</p></div>
+      <div class="card card-slate"><h4>13</h4><p>Hypnosis</p></div>
+      <div class="card card-slate"><h4>14</h4><p>Journaling</p></div>
+      <div class="card card-slate"><h4>15</h4><p>Humor</p></div>
+      <div class="card card-slate"><h4>16</h4><p>Oral sucrose</p></div>
+    </div>
+    <div class="mnem">Use non-pharmacologic interventions IN CONJUNCTION with medications — not instead of them.</div>
+  </div>
+
+  <div class="pg">
+    <span class="sub sub-slate">Opioid Analgesics</span>
+    <div class="g2">
+      <div class="card card-slate">
+        <h4>Side Effects</h4>
+        <ul>
+          <li>Respiratory depression</li>
+          <li>Sedation; nausea; vomiting</li>
+          <li>Constipation; urinary retention</li>
+          <li>Facial flushing; itching</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>Nursing Responsibilities</h4>
+        <ul>
+          <li>Baseline vital signs before administration</li>
+          <li>Pain assessment BEFORE &amp; AFTER</li>
+          <li>Stool softeners, fluids, dietary fiber</li>
+          <li><b class="lbl">Reversal agent:</b> Naloxone (Narcan)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn"><strong>OPIOIDS CAN CAUSE RESPIRATORY DEPRESSION.</strong> ALWAYS assess respiratory status BEFORE &amp; AFTER administering opioids. If RR drops to &lt;10 breaths/min: STOP opioids → administer NALOXONE (NARCAN). Monitor: RR &amp; O2 sat (airway/breathing), V/S &amp; pulse (circulation), sedation level — are they easily aroused?</div>
+
+    <span class="sub sub-slate">Pharmacological Caveats</span>
+    <div class="g2">
+      <div class="card card-slate">
+        <h4>Key Principles</h4>
+        <ul>
+          <li>Analgesics work best given <strong>BEFORE</strong> pain becomes severe</li>
+          <li>Administer at REGULAR times (ATC = around the clock), not PRN</li>
+          <li>NO ceiling on opioid dosing</li>
+          <li>Addiction RARE in short-term opioid use for pain</li>
+          <li>After giving pain med, REASSESS at onset/peak; if still unacceptable → contact PCP</li>
+          <li>Pt won't be able to participate in surgical recovery if in pain</li>
+        </ul>
+      </div>
+      <div class="card card-slate">
+        <h4>PRN Medications</h4>
+        <p><b class="lbl">ATC</b> = Around The Clock</p>
+        <p><b class="lbl">PRN</b> = as needed</p>
+        <p>Must check when last given — do NOT administer before due</p>
+        <p><em>Example: Morphine q4h PRN — assess pain, review MD order, check when pt last received it</em></p>
+      </div>
+    </div>
+
+    <span class="sub sub-slate">PCA — Patient Controlled Analgesia</span>
+    <div class="g2">
+      <div class="band-card bh-slate">
+        <div class="band-head">Modes &amp; Nursing Responsibilities</div>
+        <div class="band-body">
+          <p><b class="lbl">Mode 1:</b> patient pushes button for dose</p>
+          <p><b class="lbl">Mode 2:</b> patient pushes button for dose PLUS machine administers constant basal dose</p>
+          <p><b class="lbl">Responsibilities:</b></p>
+          <ul>
+            <li>Verify order, allergies &amp; pump settings — <strong>2 RNs</strong></li>
+            <li>Assess V/S, pain level, cognition</li>
+            <li>Patient must be on <strong>CONTINUOUS PULSE OXIMETRY</strong> — does NOT omit need for reassessments</li>
+            <li><strong>NEVER push the pump button for the pt; never allow others to push it</strong></li>
+            <li>Educate pt: use BEFORE activities (ambulating, incentive spirometer); call before getting OOB; rise slowly</li>
+          </ul>
+        </div>
+      </div>
+      <div class="band-card bh-slate">
+        <div class="band-head">Pros &amp; Cons of PCA</div>
+        <div class="band-body">
+          <p><b class="lbl">Pros:</b></p>
+          <ul>
+            <li>Patient-controlled; consistent pain management</li>
+            <li>Prevents waiting for nurse</li>
+            <li>Can pre-medicate before activity</li>
+          </ul>
+          <p><b class="lbl">Cons:</b></p>
+          <ul>
+            <li>Risk of respiratory depression — requires continuous pulse ox</li>
+            <li>Requires alert pt who can press the button</li>
+            <li>Risk if family or staff push the button for the pt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end s5 -->
+
+<!-- ═══ MEDICATIONS ═══ -->
+<div id="s6" class="panel">
+  <div class="sec-head sh-gold">Unit 1 Required Medications <span class="lec-tag">Know the Classification</span></div>
+  <div class="pg">
+    <div class="obj">
+      <h4>&#9745; Objective</h4>
+      <p>Know the <strong>classification</strong> for each generic drug name on the Unit 1 list.</p>
+    </div>
+    <div class="ts"><table class="t-gold">
+      <tr><th>Classification</th><th>Generic Drug(s)</th></tr>
+      <tr><td>Analgesic, Antipyretic</td><td>acetaminophen</td></tr>
+      <tr><td>NSAID — Analgesic, Antipyretic, Anti-inflammatory</td><td>acetylsalicylic acid (aspirin) &nbsp;·&nbsp; ibuprofen &nbsp;·&nbsp; ketorolac</td></tr>
+      <tr><td>Opiate Analgesic</td><td>codeine &nbsp;·&nbsp; oxycodone and acetaminophen &nbsp;·&nbsp; morphine sulfate &nbsp;·&nbsp; hydromorphone</td></tr>
+      <tr><td>Opiate Antagonist</td><td>naloxone</td></tr>
+      <tr><td>Local Anesthetic</td><td>lidoderm (lidocaine)</td></tr>
+      <tr><td>Anti-infective</td><td>penicillin (ampicillin) &nbsp;·&nbsp; gentamycin sulfate (eye drop) &nbsp;·&nbsp; azithromycin</td></tr>
+      <tr><td>Anesthetic Sedation</td><td>midazolam &nbsp;·&nbsp; propofol</td></tr>
+      <tr><td>Anticholinergic, Cardiac Agent</td><td>atropine sulfate</td></tr>
+      <tr><td>Stool Softener</td><td>docusate sodium</td></tr>
+      <tr><td>Laxative / Antacid</td><td>senna</td></tr>
+      <tr><td>Bulk-forming Fiber Laxative</td><td>polyethylene glycol</td></tr>
+      <tr><td>Anti-emetic</td><td>ondansetron</td></tr>
+      <tr><td>Vitamin</td><td>ascorbic acid (Vitamin C) &nbsp;·&nbsp; zinc</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ FLASHCARDS ═══ -->
+<div id="s7" class="panel">
+  <div class="sec-head sh-teal">Flashcards <span class="lec-tag" id="fc-deck-label">Loading&hellip;</span></div>
+  <div id="fc-wrap">
+    <div class="fc-controls">
+      <select id="fc-filter" onchange="fcFilter()">
+        <option value="">All Lectures</option>
+        <option value="NUR118-L1">L1: Infection Control</option>
+        <option value="NUR118-L2">L2: Skin &amp; Wounds</option>
+        <option value="NUR118-L3">L3: Pharmacology</option>
+        <option value="NUR118-L4">L4: Mobility</option>
+        <option value="NUR118-L5">L5: Periop Part 1</option>
+        <option value="NUR118-L6">L6: Periop + Pain</option>
+      </select>
+      <button class="fc-ctrl-btn" onclick="fcShuffle()">&#8635; Shuffle</button>
+      <button class="fc-ctrl-btn" onclick="fcRestart()">&#9654; Restart</button>
+    </div>
+    <div class="fc-progress">
+      <span class="fc-progress-label" id="fc-prog-label">Waiting&hellip;</span>
+      <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="fc-card-area">
+      <div id="fc-front" class="fc-face fc-front" onclick="fcFlip()">
+        <div class="fc-hint">Tap card to reveal answer</div>
+        <div class="fc-q" id="fc-question">Loading cards&hellip;</div>
+      </div>
+      <div id="fc-back" class="fc-face fc-back">
+        <div class="fc-a-head">Answer</div>
+        <div class="fc-a" id="fc-answer"></div>
+      </div>
+      <div class="fc-btns" id="fc-rate-btns" style="display:none">
+        <button class="btn-got" onclick="fcRate('got')">&#10003; Got it</button>
+        <button class="btn-unsure" onclick="fcRate('unsure')">&#126; Unsure</button>
+        <button class="btn-missed" onclick="fcRate('missed')">&#10007; Missed</button>
+      </div>
+    </div>
+    <div id="fc-summary" style="display:none">
+      <h3>&#127881; Session Complete!</h3>
+      <div id="fc-sum-stats"></div>
+      <br>
+      <button class="fc-ctrl-btn" onclick="fcRestart()" style="padding:11px 28px;font-size:14px">Study Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="s8" class="panel">
+  <div class="sec-head sh-cobalt">Mastery Dashboard <span class="lec-tag">Per Objective</span></div>
+  <div id="db-wrap">
+    <div id="db-content">
+      <p style="color:var(--g400);text-align:center;padding:32px">Click Dashboard tab to load your progress&hellip;</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TAB NAV ──
+function show(i,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  var panel=document.getElementById('s'+i);
+  if(!panel) return;
+  panel.classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(i===7 && !fcLoaded) fcInit();
+  if(i===8) dbLoad();
+}
+
+// ── SUPABASE REST ──
+var SB_URL='https://bhlqaooiaapjrbmgctpd.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobHFhb29pYWFwanJibWdjdHBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNTIwNTgsImV4cCI6MjA5MjYyODA1OH0.tAyruQW7iMYX2pVDbwBJsKoxpC58gc5A2jgPmMfjqL0';
+var SB_H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+async function sbGet(table,qs){
+  var r=await fetch(SB_URL+'/rest/v1/'+table+'?'+qs,{headers:SB_H});
+  if(!r.ok) throw new Error(table+': '+await r.text());
+  return r.json();
+}
+async function sbInsert(table,body){
+  try{
+    await fetch(SB_URL+'/rest/v1/'+table,{method:'POST',headers:Object.assign({},SB_H,{'Prefer':'return=minimal'}),body:JSON.stringify(body)});
+  }catch(e){}
+}
+function mkUUID(){
+  if(crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:r&0x3|0x8).toString(16);});
+}
+
+// ── FLASHCARD STATE ──
+var fcAllCards=[], fcDeck=[], fcIndex=0;
+var fcSessionId=null, fcCounts={got:0,unsure:0,missed:0};
+var fcFlippedState=false, fcLoaded=false;
+
+async function fcInit(){
+  document.getElementById('fc-question').textContent='Loading cards…';
+  try{
+    var data=await sbGet('flashcards','select=id,question,answer,objective_ids&order=id');
+    fcAllCards=(data||[]).filter(function(c){
+      return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf('NUR118-L')===0;});
+    });
+    fcLoaded=true;
+    fcDeck=fcAllCards.slice();
+    document.getElementById('fc-deck-label').textContent=fcAllCards.length+' Cards';
+    fcNewSession();
+  }catch(e){
+    document.getElementById('fc-question').textContent='Error: '+e.message;
+    document.getElementById('fc-deck-label').textContent='Error';
+  }
+}
+
+function fcNewSession(){
+  fcSessionId=mkUUID();
+  fcCounts={got:0,unsure:0,missed:0};
+  fcIndex=0;
+  document.getElementById('fc-summary').style.display='none';
+  document.getElementById('fc-card-area').style.display='block';
+  fcShowCard();
+}
+
+function fcFilter(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  document.getElementById('fc-deck-label').textContent=fcDeck.length+' Cards';
+  fcNewSession();
+}
+
+function fcShuffle(){
+  for(var i=fcDeck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=fcDeck[i];fcDeck[i]=fcDeck[j];fcDeck[j]=t;}
+  fcNewSession();
+}
+
+function fcRestart(){
+  var prefix=document.getElementById('fc-filter').value;
+  fcDeck=prefix ? fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.some(function(oid){return oid.indexOf(prefix)===0;});}) : fcAllCards.slice();
+  fcNewSession();
+}
+
+function fcShowCard(){
+  document.getElementById('fc-front').style.display='flex';
+  document.getElementById('fc-back').style.display='none';
+  document.getElementById('fc-rate-btns').style.display='none';
+  fcFlippedState=false;
+  if(!fcDeck.length){
+    document.getElementById('fc-question').textContent='No cards match this filter.';
+    document.getElementById('fc-prog-label').textContent='0 cards';
+    document.getElementById('fc-prog-fill').style.width='0%';
+    return;
+  }
+  var c=fcDeck[fcIndex];
+  document.getElementById('fc-question').textContent=c.question;
+  document.getElementById('fc-answer').textContent=c.answer;
+  document.getElementById('fc-prog-label').textContent='Card '+(fcIndex+1)+' of '+fcDeck.length;
+  document.getElementById('fc-prog-fill').style.width=Math.round(fcIndex/fcDeck.length*100)+'%';
+}
+
+function fcFlip(){
+  if(!fcFlippedState){
+    document.getElementById('fc-front').style.display='none';
+    document.getElementById('fc-back').style.display='block';
+    document.getElementById('fc-rate-btns').style.display='flex';
+    fcFlippedState=true;
+  }
+}
+
+var RESULT_MAP={got:'got_it',unsure:'unsure',missed:'missed'};
+async function fcRate(rating){
+  var c=fcDeck[fcIndex];
+  fcCounts[rating]++;
+  sbInsert('card_attempts',{card_id:c.id,session_id:fcSessionId,result:RESULT_MAP[rating]});
+  fcIndex++;
+  if(fcIndex>=fcDeck.length) fcShowSummary();
+  else fcShowCard();
+}
+
+function fcShowSummary(){
+  document.getElementById('fc-card-area').style.display='none';
+  document.getElementById('fc-prog-label').textContent='Complete! '+fcDeck.length+' cards';
+  document.getElementById('fc-prog-fill').style.width='100%';
+  document.getElementById('fc-sum-stats').innerHTML=
+    '<span class="sum-stat sum-got">&#10003; Got it: '+fcCounts.got+'</span>'+
+    '<span class="sum-stat sum-unsure">~ Unsure: '+fcCounts.unsure+'</span>'+
+    '<span class="sum-stat sum-missed">&#10007; Missed: '+fcCounts.missed+'</span>';
+  document.getElementById('fc-summary').style.display='block';
+}
+
+// Touch swipe on flashcard card area: right = got, left = missed (when answer showing)
+(function(){
+  var area=document.getElementById('fc-card-area');
+  if(!area) return;
+  var startX=0,startY=0,isSwiping=false;
+  area.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    isSwiping=false;
+  },{passive:true});
+  area.addEventListener('touchmove',function(e){
+    var dx=Math.abs(e.touches[0].clientX-startX);
+    var dy=Math.abs(e.touches[0].clientY-startY);
+    if(dx>12&&dx>dy) isSwiping=true;
+  },{passive:true});
+  area.addEventListener('touchend',function(e){
+    if(!isSwiping){isSwiping=false;return;}
+    var dx=e.changedTouches[0].clientX-startX;
+    var dy=e.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
+      e.preventDefault();
+      if(fcFlippedState){
+        fcRate(dx>0?'got':'missed');
+      } else {
+        fcFlip();
+      }
+    }
+    isSwiping=false;
+  },{passive:false});
+})();
+
+// ── DASHBOARD ──
+var LECTURE_MAP={
+  'NUR118-L1':{label:'L1: Infection Control',color:'#0f766e'},
+  'NUR118-L2':{label:'L2: Skin & Wounds',color:'#7e22ce'},
+  'NUR118-L3':{label:'L3: Pharmacology',color:'#b91c1c'},
+  'NUR118-L4':{label:'L4: Mobility',color:'#15803d'},
+  'NUR118-L5':{label:'L5: Periop Part 1',color:'#1d4ed8'},
+  'NUR118-L6':{label:'L6: Periop + Pain',color:'#334155'}
+};
+var dbLoaded=false;
+
+async function dbLoad(){
+  if(dbLoaded) return;
+  dbLoaded=true;
+  var el=document.getElementById('db-content');
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:32px">Loading your progress…</p>';
+  try{
+    var res=await Promise.all([
+      sbGet('flashcards','select=id,objective_ids'),
+      sbGet('objectives','select=id,description&id=like.NUR118-L*'),
+      sbGet('card_attempts','select=card_id,result,created_at&order=created_at.desc')
+    ]);
+    var cards=res[0], objectives=res[1], attempts=res[2];
+    objectives=objectives.filter(function(o){return o.id.indexOf('NUR118-L')===0;});
+    var latest={};
+    for(var a of attempts){if(!latest[a.card_id]) latest[a.card_id]=a;}
+    var groups={};
+    for(var obj of objectives){
+      var prefix=Object.keys(LECTURE_MAP).find(function(p){return obj.id.indexOf(p)===0;})||'OTHER';
+      if(!groups[prefix]) groups[prefix]=[];
+      groups[prefix].push(obj);
+    }
+    var html='';
+    for(var pfx of Object.keys(LECTURE_MAP)){
+      var list=groups[pfx]||[];
+      if(!list.length) continue;
+      var lec=LECTURE_MAP[pfx];
+      html+='<div class="db-lecture-group"><div class="db-lec-head" style="background:'+lec.color+'">'+lec.label+'</div>';
+      for(var o of list){
+        var oc=cards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf(o.id)>=0;});
+        var total=oc.length,got=0,attempted=0;
+        for(var cc of oc){var at=latest[cc.id];if(at){attempted++;if(at.result==='got_it')got++;}}
+        var pct=attempted===0?0:Math.round(got/total*100);
+        var cls=attempted===0?'db-bar-notstarted':pct>=80?'db-green':pct>=50?'db-yellow':'db-red';
+        html+='<div class="db-obj-row '+cls+'"><div class="db-obj-label">'+o.description+'</div>';
+        html+='<div class="db-bar-wrap"><div class="db-bar-bg"><div class="db-bar-fill" style="width:'+pct+'%"></div></div>';
+        html+='<span class="db-bar-pct">'+(attempted===0?'—':pct+'%')+'</span></div></div>';
+      }
+      html+='</div>';
+    }
+    el.innerHTML=html||'<p style="padding:16px;color:#9ca3af">No data yet — complete some flashcard sessions first.</p>';
+  }catch(e){
+    el.innerHTML='<p style="color:#dc2626;padding:16px">Error: '+e.message+'</p>';
+    dbLoaded=false;
+  }
+}
+</script>
+</body>
+</html>
