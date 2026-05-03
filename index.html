@@ -5423,7 +5423,7 @@ function isInSection(objId,sectionKey){
    NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
 function getQuizCourseFilter(){
   if(currentCourse==='NUR116')
-    return 'or=(objective_id.like.N116T%25,objective_id.like.NUR116_WRAPUP%25)';
+    return 'objective_id=like.N116T%25';
   return 'objective_id=not.like.N116T%25';
 }
 var quizLoaded=false;
@@ -5593,19 +5593,33 @@ function initQuiz(){
   var qUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type'
     +'&'+getQuizCourseFilter()+'&is_targeted=eq.false'
     +'&order=objective_id.asc,id.asc';
-  var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
-    quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
-    if(Array.isArray(data)) data.forEach(function(q){
+  function ingestQuizRows(data){
+    if(!Array.isArray(data)) return;
+    data.forEach(function(q){
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
-      /* also accumulate into the section prefix bucket (e.g. L78_01 → L78) */
       var grp=getObjGroupKey(q.objective_id);
       if(grp!==q.objective_id) quizQCounts[grp]=(quizQCounts[grp]||0)+1;
-      quizCourseQuestionIds.push(q.id);
-      quizQuestionObjMap[q.id]=q.objective_id;
-      quizBankQuestions.push({id:q.id,objective_id:q.objective_id,
-        stem:q.stem||'',type:q.type||'multiple_choice'});
+      if(quizCourseQuestionIds.indexOf(q.id)===-1){
+        quizCourseQuestionIds.push(q.id);
+        quizQuestionObjMap[q.id]=q.objective_id;
+        quizBankQuestions.push({id:q.id,objective_id:q.objective_id,
+          stem:q.stem||'',type:q.type||'multiple_choice'});
+      }
     });
+  }
+  var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
+    quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
+    ingestQuizRows(data);
   }).catch(function(e){console.warn('quiz counts:',e);});
+
+  /* p1b: NUR116 wrap-up questions — fetched separately since or= filters are unreliable */
+  var p1b=Promise.resolve();
+  if(currentCourse==='NUR116'){
+    p1b=sbFetch('/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false')
+      .then(function(r){return r.json();})
+      .then(function(data){ingestQuizRows(data);})
+      .catch(function(e){console.warn('quiz wrapup:',e);});
+  }
 
   /* p2: quiz_attempts aggregate scores — used by quizScores for post-session rendering */
   var p2=Promise.resolve();
@@ -5627,7 +5641,7 @@ function initQuiz(){
     .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
     .catch(function(e){console.warn('quiz fc cards:',e);});
 
-  Promise.all([p1,p2,p3]).then(function(){
+  Promise.all([p1,p1b,p2,p3]).then(function(){
     loadQuizMastery(function(){
       computeTroubleSpots();
       renderQuizBuilder();
