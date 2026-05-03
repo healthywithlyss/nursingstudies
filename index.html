@@ -4311,18 +4311,16 @@ function renderSidebarObjList(){
     +'</button>';
 
   /* Wrap-Up Priority row — NUR116 only */
-  if(currentCourse==='NUR116'){
-    var wrapCards=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;});
-    if(wrapCards.length){
-      var wrapMastered=wrapCards.filter(function(c){return(sess&&sess.cardState&&(sess.cardState[c.id]||{}).status==='mastered');}).length;
-      var wrapPct=Math.round(wrapMastered/wrapCards.length*100);
-      var wrapDot=wrapMastered===0?'rgba(255,255,255,.18)':wrapPct>=80?'var(--got)':wrapPct>=50?'var(--unsure)':'var(--missed)';
-      h+='<button class="section-link'+(filter==='__wrapup__'?' active':'')+'" onclick="startSessionForFilter(\'__wrapup__\')">'
-        +'<span class="dot" style="opacity:1;background:'+wrapDot+'"></span>'
-        +'<span class="sl-text">⭐ Wrap-Up Priority</span>'
-        +'<span class="sl-sub">'+wrapMastered+'/'+wrapCards.length+'</span>'
-        +'</button>';
-    }
+  if(currentCourse==='NUR116'&&fcWrapupCardIds&&fcWrapupCardIds.length>0){
+    var wrapCards=fcAllCards.filter(function(c){return fcWrapupCardIds.indexOf(c.id)>-1;});
+    var wrapMastered=wrapCards.filter(function(c){return(sess&&sess.cardState&&(sess.cardState[c.id]||{}).status==='mastered');}).length;
+    var wrapPct=wrapCards.length?Math.round(wrapMastered/wrapCards.length*100):0;
+    var wrapDot=wrapMastered===0?'rgba(255,255,255,.18)':wrapPct>=80?'var(--got)':wrapPct>=50?'var(--unsure)':'var(--missed)';
+    h+='<button class="section-link'+(filter==='__wrapup__'?' active':'')+'" onclick="startSessionForFilter(\'__wrapup__\')">'
+      +'<span class="dot" style="opacity:1;background:'+wrapDot+'"></span>'
+      +'<span class="sl-text">&#11088; Wrap-Up Priority</span>'
+      +'<span class="sl-sub">'+wrapMastered+'/'+wrapCards.length+'</span>'
+      +'</button>';
   }
 
   /* Per-lecture rows in spec order */
@@ -4545,6 +4543,7 @@ var fcAllCards=[];    /* all cards for course — never mutated */
 var fcLoaded=false;
 var fcPendingIds=null;
 var fcReviewCardIds=null; /* null=not loaded, []=loaded (may be empty) */
+var fcWrapupCardIds=null; /* null=not loaded, []=loaded (may be empty) */
 var fcShuffleOn=false;
 var fcFlipped=false;
 var fcCurrentCard=null;
@@ -4675,9 +4674,10 @@ function initPractice(){
   fcSetLoading();
   var cardUrl='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
   var fetches=[sbFetch(cardUrl).then(function(r){return r.json();})];
-  /* For NUR116: also fetch objectives to get lecture names dynamically */
+  /* For NUR116: also fetch objectives (lecture names) and wrap-up card IDs */
   if(currentCourse==='NUR116'){
     fetches.push(sbFetch('/rest/v1/objectives?select=id,lecture&id=like.NUR116*&order=id.asc').then(function(r){return r.json();}));
+    fetches.push(sbFetch('/rest/v1/flashcards?select=id&course=eq.NUR116&objective_ids=cs.{NUR116_WRAPUP}&order=id.asc').then(function(r){return r.json();}));
   }
   Promise.all(fetches)
     .then(function(results){
@@ -4688,6 +4688,12 @@ function initPractice(){
         var map={};
         results[1].forEach(function(o){if(o.id&&o.lecture) map[o.id]=o.lecture;});
         if(Object.keys(map).length) NUR116_OBJ_GROUPS=map;
+      }
+      /* Cache wrap-up card IDs (fetched via Supabase array-contains query) */
+      if(currentCourse==='NUR116'&&results[2]&&Array.isArray(results[2])){
+        fcWrapupCardIds=results[2].map(function(c){return c.id;});
+      } else if(currentCourse==='NUR116'){
+        fcWrapupCardIds=[];
       }
       fcAllCards=data; fcLoaded=true;
       fcReviewCardIds=null;
@@ -4703,7 +4709,8 @@ function startSessionForFilter(filter){
   filter=filter||'';
   if(filter==='__review__'){startReviewSession();return;}
   if(filter==='__wrapup__'){
-    var cards=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;});
+    var wids=fcWrapupCardIds||[];
+    var cards=fcAllCards.filter(function(c){return wids.indexOf(c.id)>-1;});
     if(!cards.length){showToast('No wrap-up cards found.');return;}
     var saved=lsLoad('__wrapup__');
     if(saved&&saved.cardState){
@@ -5055,8 +5062,9 @@ function renderDeckDropdown(){
   var html='<option value="">All Cards ('+fcAllCards.length+')</option>';
   /* Wrap-Up Priority option — NUR116 only */
   if(currentCourse==='NUR116'){
-    var wrapCnt=fcAllCards.filter(function(c){return c.objective_ids&&c.objective_ids.indexOf('NUR116_WRAPUP')>-1;}).length;
-    if(wrapCnt) html+='<option value="__wrapup__">⭐ Wrap-Up Priority ('+wrapCnt+')</option>';
+    if(fcWrapupCardIds&&fcWrapupCardIds.length>0){
+      html+='<option value="__wrapup__">⭐ Wrap-Up Priority ('+fcWrapupCardIds.length+')</option>';
+    }
   }
   Object.keys(og).forEach(function(key){
     var cnt=groups[key]||0;
@@ -5282,6 +5290,7 @@ function switchCourse(course){
   if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
   fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
+  fcReviewCardIds=null;fcWrapupCardIds=null;
   sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
   window._pendingResume=null;
   renderCtx(currentPage);
