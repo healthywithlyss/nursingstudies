@@ -5619,19 +5619,10 @@ function initQuiz(){
     quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
     ingestQuizRows(data);
     if(currentCourse==='NUR116'){
-      var wrapUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false';
-      console.log('[WRAPUP] fetching:', wrapUrl);
-      return sbFetch(wrapUrl)
-        .then(function(r){
-          console.log('[WRAPUP] HTTP status:', r.status);
-          return r.json();
-        })
-        .then(function(data){
-          console.log('[WRAPUP] response data:', data);
-          ingestQuizRows(data);
-          console.log('[WRAPUP] quizQCounts after ingest:', JSON.stringify(quizQCounts));
-        })
-        .catch(function(e){console.warn('[WRAPUP] fetch error:',e);});
+      return sbFetch('/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP')
+        .then(function(r){return r.json();})
+        .then(function(data){ingestQuizRows(data);})
+        .catch(function(e){console.warn('quiz wrapup:',e);});
     }
   }).catch(function(e){console.warn('quiz counts:',e);});
 
@@ -6071,9 +6062,9 @@ function showQuizPicker(){
 function loadQuizForObj(objId){
   /* Exact-match IDs that have no sub-objectives; LIKE prefix for all others (e.g. L78% → L78_01…) */
   var qFilter=objId==='NUR116_WRAPUP'
-    ?'objective_id=eq.NUR116_WRAPUP'
-    :'objective_id=like.'+encodeURIComponent(objId+'%');
-  sbFetch('/rest/v1/quiz_questions?select=*&'+qFilter+'&is_targeted=eq.false')
+    ?'objective_id=eq.NUR116_WRAPUP'  /* no is_targeted filter — wrapup questions have is_targeted=true */
+    :'objective_id=like.'+encodeURIComponent(objId+'%')+'&is_targeted=eq.false';
+  sbFetch('/rest/v1/quiz_questions?select=*&'+qFilter)
     .then(function(r){return r.json();})
     .then(function(data){
       if(Array.isArray(data)&&data.length>0){
