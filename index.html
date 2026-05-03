@@ -5423,7 +5423,7 @@ function isInSection(objId,sectionKey){
    NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
 function getQuizCourseFilter(){
   if(currentCourse==='NUR116')
-    return 'or=(objective_id.like.N116T%25,objective_id.eq.NUR116_WRAPUP)';
+    return 'or=(objective_id.like.N116T%25,objective_id.like.NUR116_WRAPUP%25)';
   return 'objective_id=not.like.N116T%25';
 }
 var quizLoaded=false;
