@@ -5888,9 +5888,15 @@ function startQuizFromBuilder(){
   /* full question objects are needed — fetch only the ones in our filtered pool */
   var ids=pool.map(function(q){return q.id;});
   var idFilter='id=in.('+ids.join(',')+')';
+  console.log('[BUILDER] pool size:',ids.length,'ids:',ids);
+  console.log('[BUILDER] fetch URL: quiz_questions?select=*&'+idFilter);
   sbFetch('/rest/v1/quiz_questions?select=*&'+idFilter)
-    .then(function(r){return r.json();})
+    .then(function(r){
+      console.log('[BUILDER] HTTP status:',r.status);
+      return r.json();
+    })
     .then(function(data){
+      console.log('[BUILDER] response:',data);
       if(!Array.isArray(data)||!data.length){
         showQsError('Could not load questions. Please try again.');return;
       }
