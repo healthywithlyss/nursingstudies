@@ -4324,7 +4324,7 @@ function renderSidebarObjList(){
   }
 
   /* Per-lecture rows in spec order */
-  var og=getObjGroups();
+  var og=getFCObjMap();
   Object.keys(og).forEach(function(key){
     var g=groups[key]; if(!g) return;
     var pct=g.total?Math.round(g.mastered/g.total*100):0;
@@ -4579,7 +4579,13 @@ var NUR116_OBJ_GROUPS={
   'N116T12':'Ethical Principles',
   'N116T13':'Grief \u2014 K\u00fcbler-Ross'
 };
+var NUR116_FC_OBJ_MAP={};  /* populated by initPractice() from DB; NUR116_T01 key format */
 function getObjGroups(){return currentCourse==='NUR116'?NUR116_OBJ_GROUPS:NUR118_OBJ_GROUPS;}
+/* For flashcard display: FC map if loaded (NUR116_T01 keys), else quiz map (N116T01 keys) */
+function getFCObjMap(){
+  return (currentCourse==='NUR116'&&Object.keys(NUR116_FC_OBJ_MAP).length)
+    ? NUR116_FC_OBJ_MAP : getObjGroups();
+}
 
 function sbFetch(path,opts){
   return fetch(SB_URL+path,Object.assign({headers:getAuthHdr()},opts));
@@ -4684,11 +4690,12 @@ function initPractice(){
     .then(function(results){
       var data=results[0];
       if(!Array.isArray(data)||!data.length){fcSetEmpty('No cards found.');return;}
-      /* Build NUR116_OBJ_GROUPS from objectives table so names come from DB */
+      /* Populate FC display map from objectives table (NUR116_T01 key format).
+         NUR116_OBJ_GROUPS is NOT overwritten — it stays in N116T01 format for quiz matching. */
       if(currentCourse==='NUR116'&&results[1]&&Array.isArray(results[1])){
         var map={};
         results[1].forEach(function(o){if(o.id&&o.lecture) map[o.id]=o.lecture;});
-        if(Object.keys(map).length) NUR116_OBJ_GROUPS=map;
+        if(Object.keys(map).length) NUR116_FC_OBJ_MAP=map;
       }
       /* Cache wrap-up card IDs (fetched via Supabase array-contains query) */
       if(currentCourse==='NUR116'&&results[2]&&Array.isArray(results[2])){
@@ -5054,7 +5061,7 @@ function renderDeckDropdown(){
   if(!bar||!sel) return;
   if(!fcAllCards.length){bar.style.display='none';return;}
   bar.style.display='flex';
-  var og=getObjGroups();
+  var og=getFCObjMap();
   var groups={};
   fcAllCards.forEach(function(c){
     var pre=(c.objective_ids&&c.objective_ids.length)?c.objective_ids[0].replace(/_\d+$/,''):'other';
@@ -5291,7 +5298,7 @@ function switchCourse(course){
   if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
   fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
-  fcReviewCardIds=null;fcWrapupCardIds=null;
+  fcReviewCardIds=null;fcWrapupCardIds=null;NUR116_FC_OBJ_MAP={};
   sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
   window._pendingResume=null;
   renderCtx(currentPage);
@@ -5607,19 +5614,17 @@ function initQuiz(){
       }
     });
   }
+  /* p1b chained inside p1 so it runs AFTER the reset in p1, avoiding a race condition */
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
     quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
     ingestQuizRows(data);
+    if(currentCourse==='NUR116'){
+      return sbFetch('/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false')
+        .then(function(r){return r.json();})
+        .then(function(data){ingestQuizRows(data);})
+        .catch(function(e){console.warn('quiz wrapup:',e);});
+    }
   }).catch(function(e){console.warn('quiz counts:',e);});
-
-  /* p1b: NUR116 wrap-up questions — fetched separately since or= filters are unreliable */
-  var p1b=Promise.resolve();
-  if(currentCourse==='NUR116'){
-    p1b=sbFetch('/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false')
-      .then(function(r){return r.json();})
-      .then(function(data){ingestQuizRows(data);})
-      .catch(function(e){console.warn('quiz wrapup:',e);});
-  }
 
   /* p2: quiz_attempts aggregate scores — used by quizScores for post-session rendering */
   var p2=Promise.resolve();
@@ -5641,7 +5646,7 @@ function initQuiz(){
     .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
     .catch(function(e){console.warn('quiz fc cards:',e);});
 
-  Promise.all([p1,p1b,p2,p3]).then(function(){
+  Promise.all([p1,p2,p3]).then(function(){
     loadQuizMastery(function(){
       computeTroubleSpots();
       renderQuizBuilder();
