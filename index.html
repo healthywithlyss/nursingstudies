@@ -5888,7 +5888,7 @@ function startQuizFromBuilder(){
   /* full question objects are needed — fetch only the ones in our filtered pool */
   var ids=pool.map(function(q){return q.id;});
   var idFilter='id=in.('+ids.join(',')+')';
-  sbFetch('/rest/v1/quiz_questions?select=*&'+idFilter+'&is_targeted=eq.false')
+  sbFetch('/rest/v1/quiz_questions?select=*&'+idFilter)
     .then(function(r){return r.json();})
     .then(function(data){
       if(!Array.isArray(data)||!data.length){
