@@ -6060,9 +6060,11 @@ function showQuizPicker(){
 }
 
 function loadQuizForObj(objId){
-  /* Use LIKE so a section prefix key (e.g. "L78") also matches sub-objectives (L78_01, L78_02…) */
-  var filter=objId+'%'; /* L78% matches L78, L78_01, L78_02, … */
-  sbFetch('/rest/v1/quiz_questions?select=*&objective_id=like.'+encodeURIComponent(filter)+'&is_targeted=eq.false')
+  /* Exact-match IDs that have no sub-objectives; LIKE prefix for all others (e.g. L78% → L78_01…) */
+  var qFilter=objId==='NUR116_WRAPUP'
+    ?'objective_id=eq.NUR116_WRAPUP'
+    :'objective_id=like.'+encodeURIComponent(objId+'%');
+  sbFetch('/rest/v1/quiz_questions?select=*&'+qFilter+'&is_targeted=eq.false')
     .then(function(r){return r.json();})
     .then(function(data){
       if(Array.isArray(data)&&data.length>0){
