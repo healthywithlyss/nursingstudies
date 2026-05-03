@@ -5619,10 +5619,19 @@ function initQuiz(){
     quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
     ingestQuizRows(data);
     if(currentCourse==='NUR116'){
-      return sbFetch('/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false')
-        .then(function(r){return r.json();})
-        .then(function(data){ingestQuizRows(data);})
-        .catch(function(e){console.warn('quiz wrapup:',e);});
+      var wrapUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type&objective_id=eq.NUR116_WRAPUP&is_targeted=eq.false';
+      console.log('[WRAPUP] fetching:', wrapUrl);
+      return sbFetch(wrapUrl)
+        .then(function(r){
+          console.log('[WRAPUP] HTTP status:', r.status);
+          return r.json();
+        })
+        .then(function(data){
+          console.log('[WRAPUP] response data:', data);
+          ingestQuizRows(data);
+          console.log('[WRAPUP] quizQCounts after ingest:', JSON.stringify(quizQCounts));
+        })
+        .catch(function(e){console.warn('[WRAPUP] fetch error:',e);});
     }
   }).catch(function(e){console.warn('quiz counts:',e);});
 
