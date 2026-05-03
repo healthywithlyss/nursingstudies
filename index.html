@@ -4564,6 +4564,7 @@ var NUR118_OBJ_GROUPS={
   'MED':'Medications','LAB':'Lab Values'
 };
 var NUR116_OBJ_GROUPS={
+  'NUR116_WRAPUP':'Wrap-Up Priority \u2b50',
   'N116T01':'EMTALA',
   'N116T02':'Good Samaritan Law',
   'N116T03':'Urinalysis & Urine Output',
@@ -5417,10 +5418,13 @@ function isInSection(objId,sectionKey){
   if(!sectionKey) return true;
   return objId===sectionKey||objId.startsWith(sectionKey+'_');
 }
-/* PostgREST filter string that limits quiz_questions to the current course.
+/* PostgREST filter segment (full &param=value) for the current course.
+   NUR116: OR filter covers both N116T* topics and NUR116_WRAPUP.
    NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
 function getQuizCourseFilter(){
-  return currentCourse==='NUR116'?'like.N116T%25':'not.like.N116T%25';
+  if(currentCourse==='NUR116')
+    return 'or=(objective_id.like.N116T%25,objective_id.eq.NUR116_WRAPUP)';
+  return 'objective_id=not.like.N116T%25';
 }
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
@@ -5587,7 +5591,7 @@ function initQuiz(){
   var keys=Object.keys(og);
   /* p1: lightweight question list for counts, bank display, and obj map — static, load once */
   var qUrl='/rest/v1/quiz_questions?select=id,objective_id,stem,type'
-    +'&objective_id='+getQuizCourseFilter()+'&is_targeted=eq.false'
+    +'&'+getQuizCourseFilter()+'&is_targeted=eq.false'
     +'&order=objective_id.asc,id.asc';
   var p1=sbFetch(qUrl).then(function(r){return r.json();}).then(function(data){
     quizQCounts={}; quizCourseQuestionIds=[]; quizQuestionObjMap={}; quizBankQuestions=[];
@@ -5910,7 +5914,7 @@ function startQuizAll(count){
   var og=getObjGroups();
   var keys=Object.keys(og);
   var keyList=keys.join(',');
-  sbFetch('/rest/v1/quiz_questions?select=*&objective_id='+getQuizCourseFilter()+'&is_targeted=eq.false')
+  sbFetch('/rest/v1/quiz_questions?select=*&'+getQuizCourseFilter()+'&is_targeted=eq.false')
     .then(function(r){return r.json();})
     .then(function(data){
       if(!Array.isArray(data)||!data.length){
