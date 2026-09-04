@@ -34,8 +34,13 @@ content/
 3. Regenerate the index and commit it:
 
    ```
-   node scripts/build-guides-manifest.js
+   node scripts/build-guides-manifest.js          # writes content/study-guides.json
+   node scripts/build-guides-manifest.js --check  # verifies it is up to date, exits 1 if not
    ```
+
+   If you forget, the Study Guides index page says so: it probes for the next
+   few lecture files in each unit and shows a warning naming any `.md` that
+   exists but isn't indexed (and any manifest entry whose file has gone).
 
 4. Commit the `.md`, the images, and the regenerated `content/study-guides.json`,
    then redeploy. The guide appears automatically — no code change needed.
@@ -70,3 +75,9 @@ if a `★` appears anywhere in its heading or body.
   heading. Renaming a heading resets that one section's checkbox.
 - A referenced image that isn't in `images/` renders as a labelled placeholder
   naming the missing file, so it's visible what still needs adding.
+- The markdown renderer is vendored at `vendor/marked.min.js` (marked v12.0.2,
+  MIT — see `vendor/marked.LICENSE.md`). Nothing on this page loads from a CDN.
+  It is still loaded lazily, only when a guide is opened.
+- After the first visit, the renderer, the manifest and every guide's markdown
+  are pulled into the browser cache, so guides keep working with no signal.
+  Images are not pre-cached (several MB) — they cache once viewed.

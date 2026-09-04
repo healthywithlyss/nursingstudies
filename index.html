@@ -955,13 +955,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   line-height:1.4;padding:6px 10px;border-radius:6px;white-space:normal;width:max-content;
   max-width:220px;text-align:center;pointer-events:none;
   z-index:80;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.sg-bdg>.sg-tip{display:none}
 .sg-bdg:hover>.sg-tip,.sg-bdg.tip-open>.sg-tip{display:block}
 
 /* legend strip under the toolbar */
 .sg-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--text-muted);
   padding:10px 14px;background:var(--surface);border-radius:8px;
   box-shadow:var(--shadow);margin-bottom:14px}
-.sg-legend span{display:inline-flex;align-items:center;gap:2px}
+.sg-legend>span{display:inline-flex;align-items:center;gap:2px}
 
 /* ── figures + lightbox ── */
 .sg-fig{margin:14px 0;text-align:center}
@@ -1016,6 +1017,19 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .sg-empty h3{font-size:15px;color:var(--text);margin-bottom:6px}
 .sg-err{background:#fff1f2;border-left:4px solid var(--rust);border-radius:8px;
   padding:14px 16px;font-size:13px;color:var(--rust)}
+
+/* stale-manifest warning on the index */
+.sg-alert{background:#fff7ed;border:1px solid #fdba74;border-left:4px solid #f97316;
+  border-radius:8px;padding:13px 16px;margin-bottom:16px;font-size:13px;color:#7c2d12}
+.sg-alert-hd{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;
+  color:#9a3412;margin-bottom:7px}
+.sg-alert-hd svg{width:16px;height:16px;flex-shrink:0}
+.sg-alert ul{margin:0 0 8px;padding-left:20px}
+.sg-alert li{margin-bottom:4px;line-height:1.5;word-break:break-word}
+.sg-alert p{font-size:12px;color:#9a3412;margin:0}
+.sg-alert code{background:rgba(124,45,18,.09);border-radius:4px;padding:1px 5px;
+  font-size:11.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  word-break:break-word}
 
 /* ══ MOBILE (matches the app's 767px breakpoint) ══ */
 @media(max-width:767px){
@@ -7134,7 +7148,9 @@ initApp();
 (function(){
 
 var MANIFEST_URL = 'content/study-guides.json';
-var MARKED_URL   = 'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js';
+/* vendored (vendor/marked.min.js, v12.0.2) rather than fetched from a CDN, so a
+   dead or filtered connection can never stop a guide from rendering */
+var MARKED_URL   = 'vendor/marked.min.js';
 var PROG_PREFIX  = 'nur_sg_progress_';
 
 /* Section header colours, cycled — same palette as the NUR118 guide. */
@@ -7199,18 +7215,61 @@ function loadMarked(){
       window.marked.setOptions({ gfm:true, breaks:false, headerIds:false, mangle:false });
       resolve(window.marked);
     };
-    s.onerror = function(){ markedPromise = null; reject(new Error('Could not load the markdown renderer')); };
+    s.onerror = function(){
+      markedPromise = null;
+      reject(new Error('Could not load the markdown renderer (' + MARKED_URL + ').'));
+    };
     document.head.appendChild(s);
   });
   return markedPromise;
 }
 
+/* Prefer a fresh copy, but fall back to whatever the HTTP cache holds when the
+   network is unreachable — 'no-cache' alone rejects outright when offline. */
+function fetchDoc(url){
+  return fetch(url, { cache: 'no-cache' }).catch(function(){
+    return fetch(url, { cache: 'force-cache' });
+  });
+}
+
 function loadManifest(){
   if (manifest) return Promise.resolve(manifest);
-  return fetch(MANIFEST_URL, {cache:'no-cache'}).then(function(r){
+  return fetchDoc(MANIFEST_URL).then(function(r){
     if(!r.ok) throw new Error('Could not load ' + MANIFEST_URL + ' (' + r.status + ')');
     return r.json();
   }).then(function(j){ manifest = j; return j; });
+}
+
+function allGuides(){
+  var out = [];
+  if (!manifest) return out;
+  (manifest.courses || []).forEach(function(c){
+    (c.units || []).forEach(function(u){
+      (u.guides || []).forEach(function(g){ out.push(g); });
+    });
+  });
+  return out;
+}
+
+/* Once Study Guides has been opened, pull the renderer, the manifest and every
+   guide's markdown into the browser's HTTP cache while the connection is idle,
+   so the page keeps working when the signal drops. Deliberately NOT run on app
+   start — other pages should not pay for this. Images are skipped: several MB. */
+var warmed = false;
+function warmCache(){
+  if (warmed || !navigator.onLine) return;
+  var conn = navigator.connection || navigator.webkitConnection || {};
+  if (conn.saveData) return;                      /* respect Data Saver */
+  warmed = true;
+  var idle = window.requestIdleCallback || function(fn){ return setTimeout(fn, 1500); };
+  idle(function(){
+    quietGet(MARKED_URL);
+    quietGet(MANIFEST_URL);
+    allGuides().forEach(function(g){ quietGet(g.file); });
+  });
+}
+function quietGet(url){
+  return fetch(url, { cache: 'force-cache' }).catch(function(){});
 }
 
 function findGuide(slug){
@@ -7412,6 +7471,108 @@ function renderInline(md){
 }
 
 /* ══════════════════════════════════════════════════
+   MANIFEST INTEGRITY
+   content/study-guides.json is generated, so it can go stale — a new .md that
+   was never indexed, or an entry pointing at a file that moved. Both fail
+   silently otherwise (the guide simply doesn't appear), so probe for them and
+   say so on the index page.
+
+   Every probe is conservative: it only reports a problem it is certain of, so
+   being offline or behind a host that rewrites 404s produces no false alarms.
+══════════════════════════════════════════════════ */
+var integrityRan = false;
+
+/* 'yes' | 'no' | 'unknown' — never guess */
+function probeExists(url){
+  return fetch(url, { method: 'HEAD', cache: 'no-cache' }).then(function(res){
+    if (res.status === 404 || res.status === 410) return 'no';
+    if (!res.ok) return 'unknown';                 /* 403/405/5xx — inconclusive */
+    var ct = res.headers.get('content-type') || '';
+    /* a host that serves index.html for unknown paths would look like a hit */
+    if (/text\/html/i.test(ct)) return 'unknown';
+    return 'yes';
+  }).catch(function(){ return 'unknown'; });       /* offline — say nothing */
+}
+
+/* Filenames follow NUR###_Unit#_Lecture#_*.md, so the next few lectures in each
+   unit (and the next unit's first lecture) are predictable enough to probe for. */
+function orphanCandidates(){
+  var guides = allGuides();
+  var known = {};
+  guides.forEach(function(g){ known[g.file] = true; });
+
+  var units = {};
+  guides.forEach(function(g){
+    if (g.unit === null || g.lecture === null) return;
+    if (!/Unit\d+/.test(g.file) || !/Lecture\d+/.test(g.file)) return;
+    var key = g.course + '|' + g.unit;
+    if (!units[key]) units[key] = { sample: g, maxLecture: 0, unit: g.unit };
+    if (g.lecture > units[key].maxLecture) units[key].maxLecture = g.lecture;
+  });
+
+  var out = [], seen = {};
+  function add(sample, unit, lecture){
+    var file = sample.file.replace(/Unit\d+/, 'Unit' + unit)
+                          .replace(/Lecture\d+/, 'Lecture' + lecture);
+    if (known[file] || seen[file]) return;
+    seen[file] = true;
+    out.push({ file: file, label: 'Unit ' + unit + ', Lecture ' + lecture });
+  }
+  Object.keys(units).forEach(function(k){
+    var u = units[k];
+    for (var n = u.maxLecture + 1; n <= u.maxLecture + 3; n++) add(u.sample, u.unit, n);
+    add(u.sample, u.unit + 1, 1);          /* first lecture of the next unit */
+  });
+  return out;
+}
+
+function checkIntegrity(){
+  if (integrityRan || !manifest) return;
+  integrityRan = true;
+  var issues = [];
+
+  var listed = allGuides().map(function(g){
+    return probeExists(g.file).then(function(state){
+      if (state === 'no'){
+        issues.push({
+          kind: 'missing',
+          text: 'Listed in the manifest but the file is gone: ' + g.file
+        });
+      }
+    });
+  });
+
+  var orphans = orphanCandidates().map(function(c){
+    return probeExists(c.file).then(function(state){
+      if (state === 'yes'){
+        issues.push({
+          kind: 'orphan',
+          text: c.file + ' exists but is not in the manifest, so it is not '
+              + 'showing up below (' + c.label + ')'
+        });
+      }
+    });
+  });
+
+  Promise.all(listed.concat(orphans)).then(function(){
+    if (issues.length) renderIntegrityBanner(issues);
+  });
+}
+
+function renderIntegrityBanner(issues){
+  if (view !== 'index') return;
+  var host = $('sg-integrity');
+  if (!host) return;
+  var h = '<div class="sg-alert"><div class="sg-alert-hd">'
+        + svg('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L14.7 3.9a2 2 0 0 0-3.4 0z"/>')
+        + 'The guide list is out of date</div><ul>';
+  issues.forEach(function(i){ h += '<li>' + esc(i.text) + '</li>'; });
+  h += '</ul><p>Run <code>node scripts/build-guides-manifest.js</code>, commit '
+     + '<code>content/study-guides.json</code>, and redeploy.</p></div>';
+  host.innerHTML = h;
+}
+
+/* ══════════════════════════════════════════════════
    INDEX PAGE
 ══════════════════════════════════════════════════ */
 function renderIndex(){
@@ -7422,7 +7583,8 @@ function renderIndex(){
   var h = '<div class="sg-wrap">'
         + '<div class="sg-page-hdr"><h1>Study Guides</h1>'
         + '<p>Full-length written guides, grouped by course and unit. '
-        + 'Progress is saved on this device.</p></div>';
+        + 'Progress is saved on this device.</p></div>'
+        + '<div id="sg-integrity"></div>';
 
   var any = false;
   (manifest.courses || []).forEach(function(c){
@@ -7513,7 +7675,7 @@ function openGuide(slug){
 
   var job = mdCache[slug]
     ? Promise.resolve(mdCache[slug])
-    : fetch(g.file, {cache:'no-cache'}).then(function(r){
+    : fetchDoc(g.file).then(function(r){
         if (!r.ok) throw new Error('Could not load ' + g.file + ' (' + r.status + ')');
         return r.text();
       }).then(function(t){ mdCache[slug] = t; return t; });
@@ -7928,6 +8090,8 @@ function init(){
     if (m) { openGuide(decodeURIComponent(m[1])); }
     else if (view === 'guide' && guide) { openGuide(guide.slug); }
     else { renderIndex(); }
+    warmCache();
+    checkIntegrity();
   }).catch(function(err){
     host.innerHTML = '<div class="sg-wrap"><div class="sg-err">'
       + esc(err.message || String(err))

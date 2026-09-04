@@ -8,8 +8,12 @@
   The app is a static site, so the browser cannot list a directory — this script is
   what turns "drop a .md file in" into "it shows up in the app".
 
-  Usage:  node scripts/build-guides-manifest.js
-  Run it after adding/renaming/removing a .md file, then commit the regenerated JSON.
+  Usage:  node scripts/build-guides-manifest.js            write content/study-guides.json
+          node scripts/build-guides-manifest.js --check    verify it is up to date
+
+  Run it after adding/renaming/removing a .md file, then commit the regenerated
+  JSON. --check writes nothing and exits 1 when the committed manifest no longer
+  matches what is on disk, so it can gate a deploy or a CI job.
 
   Filename convention (this is how unit / lecture ordering is derived):
       NUR144_Unit1_Lecture1_StudyGuide.md   -> NUR 144, Unit 1, Lecture 1
@@ -120,7 +124,7 @@ function parseMarkdown(text){
   };
 }
 
-function build(){
+function generate(){
   if (!fs.existsSync(CONTENT_DIR)){
     console.error('No content/ directory found at ' + CONTENT_DIR);
     process.exit(1);
@@ -210,24 +214,58 @@ function build(){
     });
   });
 
-  var manifest = {
-    generatedAt: new Date().toISOString(),
-    generatedBy: 'scripts/build-guides-manifest.js',
-    courses: courses
-  };
+  return { courses: courses, totalGuides: totalGuides };
+}
 
-  fs.writeFileSync(OUT_FILE, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
-
-  console.log('Wrote ' + path.relative(ROOT, OUT_FILE));
+function summarise(courses){
+  var lines = [];
   courses.forEach(function(c){
     c.units.forEach(function(u){
       u.guides.forEach(function(g){
-        console.log('  ' + c.label + ' · ' + u.label + ' · ' + g.lectureLabel +
+        lines.push('  ' + c.label + ' · ' + u.label + ' · ' + g.lectureLabel +
           ' — ' + g.title + '  (' + g.sectionCount + ' sections, ' + g.mustKnowCount + ' ★)');
       });
     });
   });
-  console.log(totalGuides + ' guide(s) total.');
+  return lines;
 }
 
-build();
+/* generatedAt changes on every run, so compare only the content that matters */
+function comparable(courses){ return JSON.stringify(courses || []); }
+
+function main(){
+  var check = process.argv.indexOf('--check') !== -1;
+  var result = generate();
+
+  if (check){
+    var current;
+    try { current = JSON.parse(fs.readFileSync(OUT_FILE, 'utf8')); }
+    catch (e){
+      console.error('content/study-guides.json is missing or unreadable.');
+      console.error('Run: node scripts/build-guides-manifest.js');
+      process.exit(1);
+    }
+    if (comparable(current.courses) !== comparable(result.courses)){
+      console.error('content/study-guides.json is OUT OF DATE.');
+      console.error('Guides currently on disk:');
+      summarise(result.courses).forEach(function(l){ console.error(l); });
+      console.error('');
+      console.error('Run: node scripts/build-guides-manifest.js   (then commit the result)');
+      process.exit(1);
+    }
+    console.log('content/study-guides.json is up to date (' + result.totalGuides + ' guide(s)).');
+    return;
+  }
+
+  fs.writeFileSync(OUT_FILE, JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    generatedBy: 'scripts/build-guides-manifest.js',
+    courses: result.courses
+  }, null, 2) + '\n', 'utf8');
+
+  console.log('Wrote ' + path.relative(ROOT, OUT_FILE));
+  summarise(result.courses).forEach(function(l){ console.log(l); });
+  console.log(result.totalGuides + ' guide(s) total.');
+}
+
+main();
