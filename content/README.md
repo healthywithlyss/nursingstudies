@@ -1,8 +1,12 @@
 # Study guide content
 
-Guides on the **Study Guides** page are plain markdown files served as static
-assets. Nothing here is in the database — to change a guide, edit the `.md`
-file and redeploy.
+NUR 144 is a course tab in the top switcher, alongside NUR 116 and NUR 118.
+Selecting it points the **Study Guide** nav item at the markdown guides below;
+Practice, Quiz and Dashboard show an empty state, because the course has no
+flashcard or quiz data and is not meant to.
+
+The guides are plain markdown files served as static assets. Nothing here is in
+the database — to change a guide, edit the `.md` file and redeploy.
 
 ```
 content/
@@ -44,6 +48,9 @@ content/
 
 4. Commit the `.md`, the images, and the regenerated `content/study-guides.json`,
    then redeploy. The guide appears automatically — no code change needed.
+
+A guide is reachable directly at `#/study-guides/<slug>`, which selects the
+NUR 144 tab and the Study Guide page on load.
 
 A new course folder also wants a display name; add it to `COURSE_META` at the
 top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).

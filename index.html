@@ -774,10 +774,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 @media(max-width:767px){.nur118-unit-hdr{font-size:14px;padding:10px 14px}}
 /* ══════════════════════════════════════════════════════════
    STUDY GUIDES (markdown-driven) — additive, page-scoped.
-   Everything here is namespaced under .sg- / #page-guides so it
+   Everything here is namespaced under .sg- / #sg-nur144 so it
    cannot leak into the existing study/practice/quiz/dashboard pages.
 ══════════════════════════════════════════════════════════ */
-#page-guides{padding:24px}
+#sg-nur144{padding:24px}
 .sg-wrap{max-width:980px;margin:0 auto}
 
 /* ── page heading ── */
@@ -1018,6 +1018,25 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .sg-err{background:#fff1f2;border-left:4px solid var(--rust);border-radius:8px;
   padding:14px 16px;font-size:13px;color:var(--rust)}
 
+/* A third course tab overflows the topbar on very narrow phones. Additive and
+   viewport-scoped: nothing above 380px is affected. */
+@media(max-width:380px){
+  #topbar{padding:0 10px;gap:8px}
+  .logo{font-size:14px}
+  .course-tab-group{gap:2px;padding:2px}
+  .course-tab{padding:5px 8px;font-size:11px}
+  #logout-btn{padding:4px 8px;font-size:10px}
+}
+
+/* empty state for a course with no deck/quiz data (NUR 144) */
+.course-empty{max-width:560px;margin:48px auto;padding:0 20px;text-align:center}
+.course-empty .ce-box{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);box-shadow:var(--shadow);padding:28px 24px}
+.course-empty svg{width:34px;height:34px;color:var(--text-muted);opacity:.5;margin-bottom:10px}
+.course-empty h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.course-empty p{font-size:13px;color:var(--text-muted);line-height:1.55}
+@media(max-width:767px){.course-empty{margin:32px auto;padding:0 14px}}
+
 /* stale-manifest warning on the index */
 .sg-alert{background:#fff7ed;border:1px solid #fdba74;border-left:4px solid #f97316;
   border-radius:8px;padding:13px 16px;margin-bottom:16px;font-size:13px;color:#7c2d12}
@@ -1033,7 +1052,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
 /* ══ MOBILE (matches the app's 767px breakpoint) ══ */
 @media(max-width:767px){
-  #page-guides{padding:14px 12px 20px}
+  #sg-nur144{padding:14px 12px 20px}
   .sg-page-hdr h1{font-size:19px}
   .sg-card-grid{grid-template-columns:1fr}
   .sg-toc-btn{display:inline-flex}
@@ -1089,6 +1108,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <div class="course-tab-group">
       <button class="course-tab"        id="tab-NUR116" onclick="switchCourse('NUR116')">NUR 116</button>
       <button class="course-tab active" id="tab-NUR118" onclick="switchCourse('NUR118')">NUR 118</button>
+      <button class="course-tab"        id="tab-NUR144" onclick="switchCourse('NUR144')">NUR 144</button>
     </div>
   </div>
   <div class="user-area">
@@ -1116,10 +1136,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
-      </button>
-      <button class="nav-item" id="nav-guides" onclick="goTo('guides')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
-        Study Guides
       </button>
     </nav>
     <div class="sidebar-divider"></div>
@@ -3787,10 +3803,14 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <div id="n116-wrapup-list"></div>
     </div><!-- /sg-nur116 -->
 
+    <!-- NUR 144: markdown-driven guides, rendered by the Study Guides block -->
+    <div id="sg-nur144" style="display:none"></div>
+
     </div><!-- /page-study -->
 
     <!-- ══════════════ PRACTICE PAGE ══════════════ -->
     <div id="page-practice" class="page">
+      <div class="course-empty" id="page-practice-empty" style="display:none"></div>
       <div id="practice-wrap">
         <div class="practice-body">
 
@@ -3889,6 +3909,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
     <!-- ══════════════ QUIZ PAGE ══════════════ -->
     <div id="page-quiz" class="page">
+      <div class="course-empty" id="page-quiz-empty" style="display:none"></div>
       <div id="quiz-picker-view">
         <div class="qp-wrap">
           <!-- trouble spots banner rendered here dynamically -->
@@ -3939,6 +3960,7 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
     <!-- ══════════════ DASHBOARD PAGE ══════════════ -->
     <div id="page-dashboard" class="page">
+      <div class="course-empty" id="page-dashboard-empty" style="display:none"></div>
       <div class="dash-wrap">
         <div class="dash-heading">Progress Dashboard</div>
 
@@ -3989,9 +4011,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     </div><!-- /page-dashboard -->
 
 
-    <!-- ══════════════ STUDY GUIDES PAGE (markdown-driven) ══════════════ -->
-    <div id="page-guides" class="page"></div>
-
   </main>
 </div>
 
@@ -4033,10 +4052,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     Dashboard
-  </button>
-  <button class="bnav-btn" id="bnav-guides" onclick="goTo('guides')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
-    Guides
   </button>
 </div>
 
@@ -4547,6 +4562,9 @@ var NUR116_LECTURES_NAV=[
 /* currentNur118Unit retained as no-op for switchCourse compat */
 var currentNur118Unit=1;
 function getSections(){
+  /* NUR144 has no hardcoded sections — its sidebar is the markdown guide's
+     table of contents, rendered by the Study Guides block after renderCtx. */
+  if(currentCourse==='NUR144') return [];
   if(currentCourse==='NUR116'){
     return (typeof n116State!=='undefined' && n116State.currentTab==='lectures')
       ? NUR116_LECTURES_NAV
@@ -4783,7 +4801,7 @@ function showApp(){
   if(saved&&saved!==currentCourse) switchCourse(saved);
   else{
     /* just make sure the correct tab is highlighted */
-    ['NUR118','NUR116'].forEach(function(c){
+    ['NUR118','NUR116','NUR144'].forEach(function(c){
       var t=document.getElementById('tab-'+c);
       if(t) t.classList.toggle('active',c===currentCourse);
     });
@@ -4903,7 +4921,10 @@ var NUR116_OBJ_GROUPS={
   'N116T13':'Grief \u2014 K\u00fcbler-Ross'
 };
 var NUR116_FC_OBJ_MAP={};  /* populated by initPractice() from DB; NUR116_T01 key format */
-function getObjGroups(){return currentCourse==='NUR116'?NUR116_OBJ_GROUPS:NUR118_OBJ_GROUPS;}
+function getObjGroups(){
+  if(currentCourse==='NUR144') return {};   /* no decks for NUR144 */
+  return currentCourse==='NUR116'?NUR116_OBJ_GROUPS:NUR118_OBJ_GROUPS;
+}
 /* For flashcard display: FC map if loaded (NUR116_T01 keys), else quiz map (N116T01 keys) */
 function getFCObjMap(){
   return (currentCourse==='NUR116'&&Object.keys(NUR116_FC_OBJ_MAP).length)
@@ -4999,7 +5020,47 @@ function buildCycle(){
 }
 
 /* ── Init ── */
+/* ── Course empty state ────────────────────────────────────────────────
+   NUR144 has no flashcard/quiz data and is not meant to. Rather than firing
+   queries that return nothing and leaving a spinner up, each page shows a
+   panel and skips its load entirely. Only ever entered for NUR144, so the
+   NUR116/NUR118 paths below are untouched. */
+function courseEmptyShow(pageId,title,body){
+  var page=document.getElementById(pageId);
+  var box=document.getElementById(pageId+'-empty');
+  if(!page||!box) return;
+  Array.prototype.forEach.call(page.children,function(c){
+    if(c===box) return;
+    /* remember the page's own inline display so it can be restored exactly */
+    if(c.dataset.cePrev===undefined) c.dataset.cePrev=c.style.display;
+    c.style.display='none';
+  });
+  box.innerHTML='<div class="ce-box">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
+    +'stroke-linecap="round" stroke-linejoin="round">'
+    +'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v4"/></svg>'
+    +'<h3>'+title+'</h3><p>'+body+'</p></div>';
+  box.style.display='';
+}
+function courseEmptyHide(pageId){
+  var page=document.getElementById(pageId);
+  var box=document.getElementById(pageId+'-empty');
+  if(!page||!box) return;
+  box.style.display='none';
+  Array.prototype.forEach.call(page.children,function(c){
+    if(c===box) return;
+    if(c.dataset.cePrev!==undefined){ c.style.display=c.dataset.cePrev; delete c.dataset.cePrev; }
+  });
+}
+function courseLabel(){ return currentCourse.replace(/^NUR/,'NUR '); }
+
 function initPractice(){
+  if(currentCourse==='NUR144'){
+    courseEmptyShow('page-practice','No practice cards for '+courseLabel()+' yet',
+      'This course has written study guides only. Open the Study Guide tab to read them.');
+    return;
+  }
+  courseEmptyHide('page-practice');
   if(fcLoaded) return;
   fcSetLoading();
   var cardUrl='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
@@ -5606,14 +5667,17 @@ function shuffleArr(arr){
 function switchCourse(course){
   currentCourse=course;
   localStorage.setItem('nur_course',course);
-  ['NUR118','NUR116'].forEach(function(c){
+  ['NUR118','NUR116','NUR144'].forEach(function(c){
     var t=document.getElementById('tab-'+c);
     if(t) t.classList.toggle('active',c===course);
   });
   var s118=document.getElementById('sg-nur118');
   var s116=document.getElementById('sg-nur116');
+  var s144=document.getElementById('sg-nur144');
   if(s118) s118.style.display=(course==='NUR118'?'':'none');
   if(s116) s116.style.display=(course==='NUR116'?'':'none');
+  /* NUR144's Study Guide pane is the markdown guide index/reader */
+  if(s144) s144.style.display=(course==='NUR144'?'':'none');
   /* When switching back to NUR118, always default to Unit 2 view */
   /* scroll to top of study content on course switch */
   var mc=document.getElementById('main-content'); if(mc) mc.scrollTop=0;
@@ -5772,6 +5836,13 @@ var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
    DASHBOARD
    ══════════════════════════════════════════════════════════════════ */
 function initDashboard(){
+  if(currentCourse==='NUR144'){
+    courseEmptyShow('page-dashboard','No progress data for '+courseLabel()+' yet',
+      'Progress tracking follows flashcards and quizzes. '
+      +'Per-section review progress for the guides is shown on the Study Guide tab.');
+    return;
+  }
+  courseEmptyHide('page-dashboard');
   var sectionsEl=document.getElementById('dash-sections');
   if(sectionsEl) sectionsEl.innerHTML='<div class="dash-loading">Loading\u2026</div>';
   /* reset ring to empty while loading */
@@ -5906,6 +5977,12 @@ function renderDashboard(cards,masteryMap,qMasteryMap,qAttempts){
 }
 
 function initQuiz(){
+  if(currentCourse==='NUR144'){
+    courseEmptyShow('page-quiz','No quiz questions for '+courseLabel()+' yet',
+      'This course has written study guides only. Open the Study Guide tab to read them.');
+    return;
+  }
+  courseEmptyHide('page-quiz');
   loadStarredQuestions(); /* always refresh from localStorage */
   if(quizLoaded){
     /* static data already cached — just refresh the mastery tables and re-render */
@@ -7143,7 +7220,7 @@ initApp();
 
    Nothing here touches Supabase or any existing page state. Progress is
    localStorage only. This whole block is additive: it wraps goTo() rather
-   than editing it, and every selector is namespaced sg-/#page-guides.
+   than editing it, and every selector is namespaced sg-/#sg-nur144.
 ═══════════════════════════════════════════════════════════════════ */
 (function(){
 
@@ -7187,6 +7264,8 @@ function slugify(s){
 }
 function $(id){ return document.getElementById(id); }
 function mainEl(){ return $('main-content'); }
+/* the NUR144 pane of the Study Guide page — where every guide view renders */
+function guideHost(){ return $('sg-nur144'); }
 
 /* ── progress (localStorage only — no auth, no DB) ── */
 function progKey(slug){ return PROG_PREFIX + slug; }
@@ -7579,7 +7658,7 @@ function renderIndex(){
   view = 'index'; guide = null; sections = []; mustOnly = false;
   setHash('#/study-guides');
 
-  var host = $('page-guides');
+  var host = guideHost();
   var h = '<div class="sg-wrap">'
         + '<div class="sg-page-hdr"><h1>Study Guides</h1>'
         + '<p>Full-length written guides, grouped by course and unit. '
@@ -7664,7 +7743,7 @@ function renderSidebarIndex(){
 ══════════════════════════════════════════════════ */
 function openGuide(slug){
   var g = findGuide(slug);
-  var host = $('page-guides');
+  var host = guideHost();
   if (!g){
     host.innerHTML = '<div class="sg-wrap"><div class="sg-err">Guide &ldquo;'
       + esc(slug) + '&rdquo; is not in the manifest. '
@@ -7775,7 +7854,7 @@ function drawGuide(g, md){
   });
 
   h += '</div>';
-  $('page-guides').innerHTML = h;
+  guideHost().innerHTML = h;
 
   /* inject rendered markdown as real nodes */
   if (doc.intro){
@@ -7802,7 +7881,7 @@ function svg(inner){
 
 /* broken/absent diagrams become a labelled placeholder */
 function attachImageHandlers(){
-  Array.prototype.forEach.call($('page-guides').querySelectorAll('.sg-fig img'), function(img){
+  Array.prototype.forEach.call(guideHost().querySelectorAll('.sg-fig img'), function(img){
     img.addEventListener('error', function(){
       var fig = img.closest('.sg-fig');
       if (!fig) return;
@@ -7830,7 +7909,7 @@ function clampTip(badge){
   if (shift) tip.style.setProperty('--tip-x', Math.round(shift) + 'px');
 }
 function attachBadgeTapHandlers(){
-  var host = $('page-guides');
+  var host = guideHost();
   host.addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('.sg-bdg') : null;
     var open = host.querySelector('.sg-bdg.tip-open');
@@ -7854,7 +7933,7 @@ function attachBadgeTapHandlers(){
 /* a table only needs the swipe hint if it actually overflows. Sections start
    collapsed (so tables measure 0x0), which is why this re-runs on every expand. */
 function syncScrollHints(){
-  Array.prototype.forEach.call($('page-guides').querySelectorAll('.ts'), function(ts){
+  Array.prototype.forEach.call(guideHost().querySelectorAll('.ts'), function(ts){
     var hint = ts.nextElementSibling;
     if (!hint || !hint.classList.contains('sg-scroll-hint')) return;
     /* an invisible table measures 0/0 — leave its hint alone until it is shown */
@@ -8065,7 +8144,7 @@ function setHash(h){
   setTimeout(function(){ suppressHash = false; }, 0);
 }
 function clearHash(){
-  if (!isGuideHash()) return;
+  if (!isGuideHash() || onGuidesView()) return;
   suppressHash = true;
   try { history.replaceState(null, '', location.pathname + location.search); }
   catch(e){ location.hash = ''; }
@@ -8076,18 +8155,34 @@ window.addEventListener('hashchange', function(){
   if (!isGuideHash()) return;
   if (!document.getElementById('layout') ||
       document.getElementById('layout').style.display === 'none') return;
-  window.goTo('guides');
+  var hm = location.hash.match(/^#\/study-guides\/(.+)$/);
+  goToGuides(hm ? decodeURIComponent(hm[1]) : null);
 });
 
 /* ══ page entry point ══ */
+var pendingSlug = null;
+
+/* Reaching the guides means selecting both the page and the course, and the
+   first of those two hops clears the hash — so the wanted slug is captured up
+   front and handed to init() rather than re-read from the URL afterwards. */
+function goToGuides(slug){
+  pendingSlug = slug || null;
+  window.goTo('study');
+  window.switchCourse('NUR144');
+}
+
 function init(){
-  var host = $('page-guides');
+  var host = guideHost();
   if (!manifest){
     host.innerHTML = '<div class="sg-wrap"><div class="sg-empty">Loading guides…</div></div>';
   }
   loadManifest().then(function(){
-    var m = location.hash.match(/^#\/study-guides\/(.+)$/);
-    if (m) { openGuide(decodeURIComponent(m[1])); }
+    var slug = pendingSlug; pendingSlug = null;
+    if (!slug){
+      var m = location.hash.match(/^#\/study-guides\/(.+)$/);
+      if (m) slug = decodeURIComponent(m[1]);
+    }
+    if (slug) { openGuide(slug); }
     else if (view === 'guide' && guide) { openGuide(guide.slug); }
     else { renderIndex(); }
     warmCache();
@@ -8100,30 +8195,67 @@ function init(){
   });
 }
 
-/* ══ wrap goTo() rather than editing it — keeps this block purely additive ══ */
+/* ══════════════════════════════════════════════════
+   WIRING
+   The guides are the NUR144 pane of the existing Study Guide page, so they
+   show whenever that course + that page are selected. goTo() and
+   switchCourse() are wrapped rather than edited, so the NUR116/NUR118 paths
+   through both run exactly as before.
+══════════════════════════════════════════════════ */
+function onGuidesView(){
+  return window.currentPage === 'study' && window.currentCourse === 'NUR144';
+}
+
+function sync(){
+  if (onGuidesView()){ init(); return; }
+
+  toggleToc(false);
+  closeLightbox();
+  clearHash();
+
+  /* NUR144 on a deck-backed page: renderCtx has just filled the sidebar with
+     an objective list that will never load, so replace it with the reason. */
+  if (window.currentCourse === 'NUR144'){
+    var ctx = $('sidebar-context');
+    if (ctx){
+      ctx.innerHTML = '<div class="ctx-label">NUR 144</div>'
+        + '<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);'
+        + 'line-height:1.5">No flashcards or quizzes for this course.<br>'
+        + 'Its written guides are under Study Guide.</div>';
+    }
+  }
+}
+
 var _goTo = window.goTo;
 window.goTo = function(page){
   _goTo(page);
-  if (page === 'guides'){
-    init();
-  } else {
-    view = 'index'; guide = null; sections = [];
-    toggleToc(false);
-    closeLightbox();
-    clearHash();
-  }
+  sync();
+};
+
+var _switchCourse = window.switchCourse;
+window.switchCourse = function(course){
+  var leaving = (window.currentCourse === 'NUR144' && course !== 'NUR144');
+  _switchCourse(course);
+  /* dropping NUR144 state keeps a stale guide from flashing up on return */
+  if (leaving){ view = 'index'; guide = null; sections = []; mustOnly = false; }
+  sync();
 };
 
 /* deep link on cold load: wait for the app to clear the auth screen */
 (function deepLink(){
   if (!isGuideHash()) return;
+  var dm = location.hash.match(/^#\/study-guides\/(.+)$/);
+  var wanted = dm ? decodeURIComponent(dm[1]) : null;
   var tries = 0;
   var t = setInterval(function(){
     tries++;
     var layout = document.getElementById('layout');
     var visible = layout && layout.style.display !== 'none' &&
                   document.getElementById('auth-screen').style.display === 'none';
-    if (visible){ clearInterval(t); window.goTo('guides'); }
+    if (visible){
+      clearInterval(t);
+      goToGuides(wanted);
+    }
     else if (tries > 100) clearInterval(t);   /* ~20s, then give up quietly */
   }, 200);
 })();
