@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-09-04T15:42:01.176Z",
+  "generatedBy": "scripts/build-guides-manifest.js",
+  "courses": [
+    {
+      "code": "NUR144",
+      "label": "NUR 144",
+      "title": "Medical-Surgical Nursing",
+      "units": [
+        {
+          "unit": 1,
+          "label": "Unit 1",
+          "guides": [
+            {
+              "slug": "nur144-u1-l1",
+              "file": "content/nur144/NUR144_Unit1_Lecture1_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 1,
+              "lectureLabel": "Lecture 1",
+              "title": "NUR 144 — UNIT 1, LECTURE 1",
+              "subtitle": "Gastrointestinal Assessment · Gastric & Duodenal Disorders",
+              "cardTitle": "Gastrointestinal Assessment · Gastric & Duodenal Disorders",
+              "description": "",
+              "topics": [
+                "OBJECTIVES",
+                "ANATOMY & PHYSIOLOGY",
+                "TERMS (NEED TO KNOW)",
+                "MAJOR ENZYMES & SECRETIONS"
+              ],
+              "sectionCount": 20,
+              "mustKnowCount": 17
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

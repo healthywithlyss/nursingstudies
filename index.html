@@ -771,7 +771,282 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   margin:0 0 0;position:sticky;top:0;z-index:100}
 .nur118-unit-hdr .lec-tag{font-size:11px;font-weight:600;
   background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px}
-@media(max-width:767px){.nur118-unit-hdr{font-size:14px;padding:10px 14px}}</style>
+@media(max-width:767px){.nur118-unit-hdr{font-size:14px;padding:10px 14px}}
+/* ══════════════════════════════════════════════════════════
+   STUDY GUIDES (markdown-driven) — additive, page-scoped.
+   Everything here is namespaced under .sg- / #page-guides so it
+   cannot leak into the existing study/practice/quiz/dashboard pages.
+══════════════════════════════════════════════════════════ */
+#page-guides{padding:24px}
+.sg-wrap{max-width:980px;margin:0 auto}
+
+/* ── page heading ── */
+.sg-page-hdr{margin-bottom:18px}
+.sg-page-hdr h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.sg-page-hdr p{font-size:13px;color:var(--text-muted)}
+
+/* ── index: course + unit grouping ── */
+.sg-course-hdr{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+.sg-course-hdr:first-child{margin-top:6px}
+.sg-course-code{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--text)}
+.sg-course-sub{font-size:12px;color:var(--text-muted)}
+.sg-unit-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-muted);margin:14px 0 8px}
+.sg-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+
+.sg-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  box-shadow:var(--shadow);padding:16px;text-align:left;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;gap:8px;width:100%;
+  border-top:3px solid var(--cobalt);
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+.sg-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1),0 12px 32px rgba(0,0,0,.08)}
+.sg-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sg-card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sg-card-lec{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--cobalt);color:#fff;padding:3px 9px;border-radius:20px}
+.sg-card-meta{font-size:11px;color:var(--text-muted);margin-left:auto;white-space:nowrap}
+.sg-card h3{font-size:15px;font-weight:700;line-height:1.35;letter-spacing:-.01em;color:var(--text)}
+.sg-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5}
+.sg-card-foot{display:flex;align-items:center;gap:8px;margin-top:2px}
+.sg-card-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.sg-card-bar span{display:block;height:100%;background:var(--got);border-radius:3px;
+  width:0;transition:width .4s ease}
+.sg-card-pct{font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap}
+
+/* ── detail: sticky toolbar ── */
+.sg-toolbar{position:sticky;top:0;z-index:60;background:var(--bg);
+  padding:10px 0 12px;margin-bottom:4px;
+  border-bottom:1px solid var(--border)}
+.sg-tb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sg-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);
+  padding:7px 13px;border-radius:var(--r-btn);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;box-shadow:var(--shadow);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s,color .15s,border-color .15s}
+.sg-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sg-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sg-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sg-btn svg{width:14px;height:14px;flex-shrink:0}
+.sg-btn-back{margin-right:auto}
+.sg-toc-btn{display:none}
+
+/* progress */
+.sg-prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+.sg-prog-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.sg-prog-fill{height:100%;background:var(--got);border-radius:3px;width:0;transition:width .4s ease}
+.sg-prog-txt{font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap}
+
+/* ── detail: title block ── */
+.sg-hdr{margin:16px 0 14px}
+.sg-hdr h1{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+.sg-hdr .sg-sub{font-size:14px;color:var(--text-muted);margin-top:3px;font-weight:500}
+.sg-hdr-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sg-tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--slate-bg);color:var(--slate);border:1px solid var(--g200);
+  padding:3px 9px;border-radius:20px}
+
+/* intro / legend panel */
+.sg-intro-toggle{width:100%;text-align:left;background:var(--g50);border:1px solid var(--g200);
+  border-radius:8px;padding:9px 14px;font-size:12px;font-weight:700;color:var(--text-muted);
+  cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sg-intro-toggle:hover{background:#eef1f6}
+.sg-intro-toggle .sg-chev{margin-left:auto;transition:transform .2s}
+.sg-intro-toggle[aria-expanded="true"] .sg-chev{transform:rotate(90deg)}
+.sg-intro{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:16px 18px;margin-bottom:14px;font-size:13px}
+.sg-intro[hidden]{display:none}
+
+/* ── detail: collapsible H2 sections ── */
+.sg-sec{margin-bottom:12px;scroll-margin-top:70px}
+.sg-sec[hidden]{display:none}
+.sg-sec-hdr{width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;
+  border:none;border-radius:var(--r-card);color:#fff;font-size:15px;font-weight:800;
+  letter-spacing:-.01em;cursor:pointer;font-family:inherit;text-align:left;
+  line-height:1.3;transition:filter .15s}
+.sg-sec-hdr:hover{filter:brightness(1.08)}
+.sg-sec-hdr:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.sg-sec-hdr .sg-sec-title{flex:1;min-width:0}
+.sg-sec-hdr .sg-chev{flex-shrink:0;opacity:.85;transition:transform .2s}
+.sg-sec.open .sg-sec-hdr .sg-chev{transform:rotate(90deg)}
+.sg-sec.open .sg-sec-hdr{border-radius:var(--r-card) var(--r-card) 0 0}
+.sg-sec-body{display:none;background:var(--surface);border-radius:0 0 var(--r-card) var(--r-card);
+  box-shadow:var(--shadow);padding:16px 20px 18px;font-size:13px}
+.sg-sec.open .sg-sec-body{display:block}
+
+/* per-section "reviewed" checkbox — sits in the coloured header */
+.sg-rev{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;
+  color:#fff;cursor:pointer;font-family:inherit;user-select:none;
+  transition:background .15s}
+.sg-rev:hover{background:rgba(255,255,255,.3)}
+.sg-rev input{accent-color:#fff;width:14px;height:14px;cursor:pointer;margin:0}
+.sg-sec.reviewed .sg-sec-hdr{filter:saturate(.45) opacity(.82)}
+.sg-sec.reviewed .sg-rev{background:rgba(255,255,255,.32)}
+
+/* ── markdown body typography (scoped to .sg-md) ── */
+.sg-md h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  padding:7px 12px;border-radius:6px;margin:16px 0 9px;color:#fff;
+  background:var(--sg-accent,var(--slate))}
+.sg-md h3:first-child{margin-top:0}
+.sg-md h4{font-size:13px;font-weight:700;margin:12px 0 5px;color:var(--text)}
+.sg-md p{margin-bottom:9px}
+.sg-md ul,.sg-md ol{padding-left:20px;margin-bottom:10px}
+.sg-md li{margin-bottom:4px}
+.sg-md li>ul,.sg-md li>ol{margin-top:4px;margin-bottom:4px}
+.sg-md strong{font-weight:700;color:#0f172a}
+.sg-md em{font-style:italic}
+.sg-md code{background:var(--g50);border:1px solid var(--g200);border-radius:4px;
+  padding:1px 5px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.sg-md pre{background:var(--g50);border:1px solid var(--g200);border-radius:8px;
+  padding:12px;overflow-x:auto;margin-bottom:10px}
+.sg-md pre code{background:none;border:none;padding:0}
+.sg-md hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+.sg-md a{color:var(--accent);text-decoration:underline}
+.sg-md>*:last-child{margin-bottom:0}
+
+/* tables — reuse the app's .ts scroller; wrapper is added at render time */
+.sg-md .ts{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;
+  border-radius:8px;box-shadow:var(--shadow)}
+.sg-md .ts table{min-width:440px}
+.sg-md .ts th{background:var(--cobalt)}
+/* .sg-md strong is darkened for body copy — but not on coloured backgrounds,
+   where the inherited white is what makes the text legible */
+.sg-md th strong,.sg-md th b,
+.sg-sec-hdr strong,.sg-sec-hdr b,
+.sg-md h3 strong,.sg-md h3 b{color:inherit}
+.sg-scroll-hint{display:none;font-size:11px;color:var(--text-muted);
+  margin:-8px 0 12px;padding-left:2px}
+
+/* blockquote -> warning/callout box */
+.sg-md blockquote{background:#fff7ed;border-left:4px solid #f97316;border-radius:6px;
+  padding:11px 14px 11px 40px;font-size:13px;margin:12px 0;position:relative}
+.sg-md blockquote::before{content:"!";position:absolute;left:13px;top:11px;
+  width:17px;height:17px;border-radius:50%;background:#f97316;color:#fff;
+  font-size:12px;font-weight:800;line-height:17px;text-align:center}
+.sg-md blockquote>*:last-child{margin-bottom:0}
+
+/* "Why:" mechanism callout */
+.sg-why{background:var(--cobalt-bg);border-left:4px solid var(--cobalt);border-radius:6px;
+  padding:11px 14px 11px 40px;font-size:13px;margin:12px 0;position:relative}
+.sg-why::before{content:"?";position:absolute;left:13px;top:11px;
+  width:17px;height:17px;border-radius:50%;background:var(--cobalt);color:#fff;
+  font-size:12px;font-weight:800;line-height:17px;text-align:center}
+.sg-why strong:first-child{color:var(--cobalt)}
+
+/* ── marker badges ── */
+.sg-bdg{display:inline-flex;align-items:center;justify-content:center;
+  min-width:17px;height:17px;padding:0 5px;border-radius:5px;
+  font-size:10px;font-weight:800;line-height:1;vertical-align:1px;
+  margin:0 3px 0 1px;cursor:help;user-select:none;position:relative}
+.sg-bdg-star{background:var(--accent);color:#fff;box-shadow:0 1px 3px rgba(79,126,248,.45)}
+.sg-bdg-plus{background:var(--plum-bg);color:var(--plum);border:1px solid var(--plum)}
+.sg-bdg-dot{background:var(--slate-bg);color:var(--slate);border:1px solid var(--g200)}
+.sg-bdg-warn{background:#fff7ed;color:#c2410c;border:1px solid #f97316}
+/* inside a coloured section header the badges need light-on-dark treatment */
+.sg-sec-hdr .sg-bdg{background:rgba(255,255,255,.92);color:var(--text);
+  border-color:transparent;box-shadow:none}
+.sg-sec-hdr .sg-bdg-star{background:#fff;color:var(--accent)}
+
+/* tooltip — a real element, hidden at rest so it never adds scroll overflow */
+.sg-tip{display:none;position:absolute;bottom:calc(100% + 7px);left:50%;
+  transform:translateX(calc(-50% + var(--tip-x,0px)));
+  background:#1e293b;color:#fff;font-size:11px;font-weight:500;
+  line-height:1.4;padding:6px 10px;border-radius:6px;white-space:normal;width:max-content;
+  max-width:220px;text-align:center;pointer-events:none;
+  z-index:80;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.sg-bdg:hover>.sg-tip,.sg-bdg.tip-open>.sg-tip{display:block}
+
+/* legend strip under the toolbar */
+.sg-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--text-muted);
+  padding:10px 14px;background:var(--surface);border-radius:8px;
+  box-shadow:var(--shadow);margin-bottom:14px}
+.sg-legend span{display:inline-flex;align-items:center;gap:2px}
+
+/* ── figures + lightbox ── */
+.sg-fig{margin:14px 0;text-align:center}
+.sg-fig img{max-width:100%;height:auto;border:1px solid var(--border);border-radius:8px;
+  background:#fff;cursor:zoom-in;display:block;margin:0 auto}
+.sg-fig figcaption{font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4}
+.sg-fig-missing{border:1px dashed var(--g200);border-radius:8px;background:var(--g50);
+  padding:18px 14px;font-size:12px;color:var(--text-muted);text-align:center}
+.sg-fig-missing strong{display:block;color:var(--text);font-size:12px;margin-bottom:4px}
+.sg-fig-missing code{font-size:11px}
+
+#sg-lightbox{position:fixed;inset:0;background:rgba(8,12,20,.92);z-index:400;
+  display:none;flex-direction:column}
+#sg-lightbox.show{display:flex}
+.sg-lb-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;flex-shrink:0}
+.sg-lb-cap{flex:1;color:rgba(255,255,255,.75);font-size:12px;line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sg-lb-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;min-height:38px;flex-shrink:0}
+.sg-lb-btn:hover{background:rgba(255,255,255,.24)}
+.sg-lb-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;
+  touch-action:pinch-zoom pan-x pan-y;display:flex;align-items:center;justify-content:center;
+  padding:0 10px 14px}
+#sg-lb-img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;
+  background:#fff;border-radius:6px}
+#sg-lb-img.zoomed{max-width:none;max-height:none;width:230%;cursor:zoom-out}
+
+/* ── mobile TOC (slide-over) ── */
+#sg-toc-overlay{position:fixed;inset:0;background:rgba(8,12,20,.5);z-index:300;
+  display:none;opacity:0;transition:opacity .2s}
+#sg-toc-overlay.show{display:block;opacity:1}
+#sg-toc-panel{position:fixed;top:0;bottom:0;left:0;width:min(84vw,320px);
+  background:var(--sidebar);z-index:301;display:flex;flex-direction:column;
+  transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+#sg-toc-panel.show{transform:translateX(0)}
+.sg-toc-head{display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.sg-toc-head strong{color:#fff;font-size:14px;font-weight:700;flex:1}
+.sg-toc-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;
+  border-radius:8px;font-size:16px;cursor:pointer;font-family:inherit;flex-shrink:0}
+#sg-toc-list{flex:1;overflow-y:auto;padding:6px 0 18px}
+/* reuse .section-link look, but with a bigger tap target on mobile */
+#sg-toc-list .section-link{padding:12px 14px 12px 18px;font-size:13px;min-height:44px}
+#sg-toc-list .sg-toc-done{color:var(--got);flex-shrink:0;font-size:12px;padding-left:6px}
+
+/* sidebar TOC (desktop) reuses .section-link from the app */
+#sidebar-context .sg-toc-done{color:var(--got);flex-shrink:0;font-size:12px;padding-left:6px}
+
+.sg-empty{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:30px 24px;text-align:center;color:var(--text-muted);font-size:13px}
+.sg-empty h3{font-size:15px;color:var(--text);margin-bottom:6px}
+.sg-err{background:#fff1f2;border-left:4px solid var(--rust);border-radius:8px;
+  padding:14px 16px;font-size:13px;color:var(--rust)}
+
+/* ══ MOBILE (matches the app's 767px breakpoint) ══ */
+@media(max-width:767px){
+  #page-guides{padding:14px 12px 20px}
+  .sg-page-hdr h1{font-size:19px}
+  .sg-card-grid{grid-template-columns:1fr}
+  .sg-toc-btn{display:inline-flex}
+  .sg-toolbar{padding:8px 0 10px;margin:0 -12px;padding-left:12px;padding-right:12px;
+    background:var(--bg);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .sg-tb-row{gap:6px}
+  /* full-size tap targets on phones */
+  .sg-btn{padding:9px 12px;min-height:38px}
+  .sg-btn-lbl-full{display:none}
+  .sg-sec-hdr{padding:13px 13px;font-size:14px;min-height:52px}
+  .sg-sec-body{padding:14px 13px 16px}
+  .sg-md .ts table{min-width:520px}
+  .sg-scroll-hint{display:block}
+  .sg-hdr h1{font-size:18px}
+  .sg-hdr .sg-sub{font-size:13px}
+  .sg-legend{font-size:10px;gap:10px;padding:9px 11px}
+  .sg-rev{padding:6px 10px;min-height:32px}
+  /* tooltips can run off-screen on narrow viewports */
+  .sg-tip{max-width:min(240px,72vw)}
+  #sg-lb-img.zoomed{width:280%}
+}
+@media(max-width:380px){
+  .sg-md .ts table{min-width:480px}
+  .sg-sec-hdr{font-size:13.5px;gap:7px;padding:12px 11px}
+  .sg-btn{padding:9px 10px;font-size:11px}
+}
+</style>
 </head>
 <body>
 
@@ -827,6 +1102,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
+      </button>
+      <button class="nav-item" id="nav-guides" onclick="goTo('guides')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
+        Study Guides
       </button>
     </nav>
     <div class="sidebar-divider"></div>
@@ -3695,7 +3974,33 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       </div>
     </div><!-- /page-dashboard -->
 
+
+    <!-- ══════════════ STUDY GUIDES PAGE (markdown-driven) ══════════════ -->
+    <div id="page-guides" class="page"></div>
+
   </main>
+</div>
+
+<!-- Study Guides: mobile table-of-contents slide-over -->
+<div id="sg-toc-overlay" onclick="sgToggleToc(false)"></div>
+<aside id="sg-toc-panel" aria-hidden="true" aria-label="Guide contents">
+  <div class="sg-toc-head">
+    <strong>Contents</strong>
+    <button class="sg-toc-close" onclick="sgToggleToc(false)" aria-label="Close contents">&times;</button>
+  </div>
+  <div id="sg-toc-list"></div>
+</aside>
+
+<!-- Study Guides: image lightbox -->
+<div id="sg-lightbox" role="dialog" aria-modal="true" aria-label="Diagram viewer">
+  <div class="sg-lb-bar">
+    <span class="sg-lb-cap" id="sg-lb-cap"></span>
+    <button class="sg-lb-btn" id="sg-lb-zoom" onclick="sgZoomLb()">Zoom in</button>
+    <button class="sg-lb-btn" onclick="sgCloseLb()" aria-label="Close diagram">Close</button>
+  </div>
+  <div class="sg-lb-scroll" onclick="if(event.target===this)sgCloseLb()">
+    <img id="sg-lb-img" alt="">
+  </div>
 </div>
 
 <div id="bottom-nav">
@@ -3714,6 +4019,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     Dashboard
+  </button>
+  <button class="bnav-btn" id="bnav-guides" onclick="goTo('guides')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg>
+    Guides
   </button>
 </div>
 
@@ -6806,6 +7115,884 @@ initApp();
     }
     isSwiping=false;
   },{passive:false});
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   STUDY GUIDES — markdown-driven guides rendered from static files.
+
+   Content lives in  content/<course>/*.md  with images in
+   content/<course>/images/. The list of guides comes from
+   content/study-guides.json, regenerated by:
+
+       node scripts/build-guides-manifest.js
+
+   Nothing here touches Supabase or any existing page state. Progress is
+   localStorage only. This whole block is additive: it wraps goTo() rather
+   than editing it, and every selector is namespaced sg-/#page-guides.
+═══════════════════════════════════════════════════════════════════ */
+(function(){
+
+var MANIFEST_URL = 'content/study-guides.json';
+var MARKED_URL   = 'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js';
+var PROG_PREFIX  = 'nur_sg_progress_';
+
+/* Section header colours, cycled — same palette as the NUR118 guide. */
+var SEC_COLORS = ['sh-cobalt','sh-teal','sh-plum','sh-forest','sh-rust','sh-gold','sh-slate'];
+/* the matching token, so H3s inside a section pick up that section's accent */
+var SEC_VARS   = ['--cobalt','--teal','--plum','--forest','--rust','--gold','--slate'];
+
+var MARKERS = {
+  '★': { cls:'sg-bdg-star', ch:'★', tip:'Professor flagged this as must-know' },
+  '⊕': { cls:'sg-bdg-plus', ch:'⊕', tip:'Added from textbook — slide listed the topic only' },
+  '⊙': { cls:'sg-bdg-dot',  ch:'⊙', tip:'Textbook detail — slide named it without explaining' },
+  '⚠': { cls:'sg-bdg-warn', ch:'⚠', tip:'Warning — read carefully' }
+};
+var MARKER_RE = /[★⊕⊙⚠]️?/g;
+
+/* ── module state ── */
+var manifest      = null;   /* parsed study-guides.json */
+var mdCache       = {};     /* slug -> raw markdown */
+var view          = 'index';/* 'index' | 'guide' */
+var guide         = null;   /* manifest entry currently open */
+var sections      = [];     /* [{id,title,titleHtml,must,el}] */
+var mustOnly      = false;
+var markedPromise = null;
+var suppressHash  = false;
+
+/* ══ small helpers ══ */
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function slugify(s){
+  return String(s).toLowerCase().replace(MARKER_RE,'')
+    .replace(/[^\w\s-]/g,'').trim().replace(/[\s_]+/g,'-').replace(/-+/g,'-');
+}
+function $(id){ return document.getElementById(id); }
+function mainEl(){ return $('main-content'); }
+
+/* ── progress (localStorage only — no auth, no DB) ── */
+function progKey(slug){ return PROG_PREFIX + slug; }
+function loadProg(slug){
+  try { return JSON.parse(localStorage.getItem(progKey(slug))) || {}; }
+  catch(e){ return {}; }
+}
+function saveProg(slug,obj){
+  try { localStorage.setItem(progKey(slug), JSON.stringify(obj)); } catch(e){}
+}
+function progCount(slug,ids){
+  var p = loadProg(slug), n = 0;
+  ids.forEach(function(id){ if(p[id]) n++; });
+  return n;
+}
+
+/* ══ lazy-load marked from CDN (only on first visit to this page) ══ */
+function loadMarked(){
+  if (window.marked) return Promise.resolve(window.marked);
+  if (markedPromise) return markedPromise;
+  markedPromise = new Promise(function(resolve,reject){
+    var s = document.createElement('script');
+    s.src = MARKED_URL;
+    s.onload  = function(){
+      if (!window.marked) return reject(new Error('marked failed to initialise'));
+      window.marked.setOptions({ gfm:true, breaks:false, headerIds:false, mangle:false });
+      resolve(window.marked);
+    };
+    s.onerror = function(){ markedPromise = null; reject(new Error('Could not load the markdown renderer')); };
+    document.head.appendChild(s);
+  });
+  return markedPromise;
+}
+
+function loadManifest(){
+  if (manifest) return Promise.resolve(manifest);
+  return fetch(MANIFEST_URL, {cache:'no-cache'}).then(function(r){
+    if(!r.ok) throw new Error('Could not load ' + MANIFEST_URL + ' (' + r.status + ')');
+    return r.json();
+  }).then(function(j){ manifest = j; return j; });
+}
+
+function findGuide(slug){
+  if (!manifest) return null;
+  var found = null;
+  manifest.courses.forEach(function(c){
+    c.units.forEach(function(u){
+      u.guides.forEach(function(g){ if(g.slug === slug) found = g; });
+    });
+  });
+  return found;
+}
+
+/* ══════════════════════════════════════════════════
+   MARKDOWN → SECTIONS
+   Split on H2. The first H2 is treated as the document
+   subtitle when it sits directly under the H1.
+══════════════════════════════════════════════════ */
+function splitDoc(md){
+  var lines = md.split(/\r?\n/);
+  var fence = false, seenTitle = false, subtitleTaken = false;
+  var title = null, subtitle = null, intro = [], secs = [], cur = null;
+
+  for (var i = 0; i < lines.length; i++){
+    var line = lines[i];
+    if (/^\s*(```|~~~)/.test(line)) fence = !fence;
+
+    if (!fence){
+      if (!seenTitle && /^#\s+/.test(line)){
+        title = line.replace(/^#\s+/,'').trim();
+        seenTitle = true;
+        continue;
+      }
+      if (/^##\s+(?!#)/.test(line)){
+        var heading = line.replace(/^##\s+/,'').trim();
+        /* subtitle = first H2, with only blank lines between it and the H1 */
+        if (seenTitle && !subtitleTaken && !secs.length && !intro.join('').trim()){
+          subtitle = heading; subtitleTaken = true; continue;
+        }
+        cur = { heading: heading, lines: [] };
+        secs.push(cur);
+        continue;
+      }
+    }
+    if (cur) cur.lines.push(line); else intro.push(line);
+  }
+
+  /* drop trailing separators/blank lines from each block */
+  function tidy(arr){
+    while (arr.length && /^\s*(-{3,}|\*{3,}|_{3,})?\s*$/.test(arr[arr.length-1])) arr.pop();
+    return arr.join('\n').trim();
+  }
+
+  var used = {};
+  return {
+    title: title,
+    subtitle: subtitle,
+    intro: tidy(intro),
+    sections: secs.map(function(s, idx){
+      var base = slugify(s.heading) || ('section-' + (idx+1));
+      var id = base;
+      var n = 2;
+      while (used[id]) { id = base + '-' + n; n++; }   /* guarantee unique ids */
+      used[id] = true;
+      var body = tidy(s.lines);
+      return {
+        id: 'sg-sec-' + id,
+        heading: s.heading,
+        body: body,
+        /* a section is "must-know" if the heading or body carries a ★ */
+        must: /★/.test(s.heading) || /★/.test(body)
+      };
+    })
+  };
+}
+
+/* ══════════════════════════════════════════════════
+   HTML POST-PROCESSING
+   Rendered in an inert document (DOMParser) so relative
+   image URLs never fire a 404 before we rewrite them.
+══════════════════════════════════════════════════ */
+function renderMd(md, imageBase){
+  var html = window.marked.parse(md);
+  var doc  = new DOMParser().parseFromString('<div id="r">' + html + '</div>', 'text/html');
+  var root = doc.getElementById('r');
+
+  wrapTables(root, doc);
+  fixImages(root, doc, imageBase);
+  markWhyCallouts(root);
+  badgeify(root, doc);
+
+  return document.importNode(root, true);
+}
+
+/* GFM tables -> the app's .ts horizontal scroller */
+function wrapTables(root, doc){
+  Array.prototype.forEach.call(root.querySelectorAll('table'), function(t){
+    if (t.parentNode && t.parentNode.classList && t.parentNode.classList.contains('ts')) return;
+    var wrap = doc.createElement('div');
+    wrap.className = 'ts';
+    t.parentNode.insertBefore(wrap, t);
+    wrap.appendChild(t);
+    var hint = doc.createElement('div');
+    hint.className = 'sg-scroll-hint';
+    hint.setAttribute('data-hint','1');
+    hint.textContent = 'Swipe the table sideways to see all columns →';
+    wrap.parentNode.insertBefore(hint, wrap.nextSibling);
+  });
+}
+
+/* relative images -> content path, wrapped in a tappable figure */
+function fixImages(root, doc, imageBase){
+  Array.prototype.forEach.call(root.querySelectorAll('img'), function(img){
+    var src = img.getAttribute('src') || '';
+    var alt = img.getAttribute('alt') || '';
+    if (!/^(https?:)?\/\//.test(src) && src.charAt(0) !== '/'){
+      src = imageBase + src.replace(/^\.\//,'');
+    }
+    var fig = doc.createElement('figure');
+    fig.className = 'sg-fig';
+    var newImg = doc.createElement('img');
+    newImg.setAttribute('src', src);
+    newImg.setAttribute('alt', alt);
+    newImg.setAttribute('loading', 'lazy');
+    newImg.setAttribute('data-full', src);
+    newImg.setAttribute('data-cap', alt);
+    fig.appendChild(newImg);
+    if (alt){
+      var cap = doc.createElement('figcaption');
+      cap.textContent = alt;
+      fig.appendChild(cap);
+    }
+    /* replace the <p> that marked wrapped a lone image in, else the img itself */
+    var target = img;
+    if (img.parentNode && img.parentNode.tagName === 'P' && img.parentNode.childNodes.length === 1){
+      target = img.parentNode;
+    }
+    target.parentNode.replaceChild(fig, target);
+  });
+}
+
+/* paragraphs opening with **Why…:** become mechanism callouts */
+function markWhyCallouts(root){
+  Array.prototype.forEach.call(root.querySelectorAll('p'), function(p){
+    var first = p.firstElementChild;
+    if (!first || first !== p.firstChild) return;
+    if (first.tagName !== 'STRONG' && first.tagName !== 'B') return;
+    var t = (first.textContent || '').trim();
+    if (/^Why\b/i.test(t) && /:$/.test(t)) p.classList.add('sg-why');
+  });
+}
+
+/* ★ ⊕ ⊙ ⚠ in text -> styled badges with tooltips */
+function badgeify(root, doc){
+  var SKIP = { CODE:1, PRE:1, SCRIPT:1, STYLE:1 };
+  var walker = doc.createTreeWalker(root, 4 /* SHOW_TEXT */, null);
+  var nodes = [], n;
+  while ((n = walker.nextNode())) {
+    if (n.parentNode && SKIP[n.parentNode.tagName]) continue;
+    if (MARKER_RE.test(n.nodeValue)) nodes.push(n);
+    MARKER_RE.lastIndex = 0;
+  }
+  nodes.forEach(function(node){
+    var text = node.nodeValue;
+    var frag = doc.createDocumentFragment();
+    var last = 0, m;
+    MARKER_RE.lastIndex = 0;
+    while ((m = MARKER_RE.exec(text)) !== null){
+      if (m.index > last) frag.appendChild(doc.createTextNode(text.slice(last, m.index)));
+      frag.appendChild(makeBadge(doc, m[0].charAt(0)));
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) frag.appendChild(doc.createTextNode(text.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+function makeBadge(doc, ch){
+  var def = MARKERS[ch];
+  var span = doc.createElement('span');
+  span.className = 'sg-bdg ' + (def ? def.cls : 'sg-bdg-dot');
+  span.setAttribute('role','img');
+  span.setAttribute('tabindex','0');
+  span.setAttribute('aria-label', def ? def.tip : ch);
+  span.appendChild(doc.createTextNode(ch));
+  var tip = doc.createElement('span');
+  tip.className = 'sg-tip';
+  tip.textContent = def ? def.tip : '';
+  span.appendChild(tip);
+  return span;
+}
+
+/* inline markdown for headings (bold/italics/code), then badges */
+function renderInline(md){
+  var html = window.marked.parseInline(String(md));
+  var doc  = new DOMParser().parseFromString('<span id="r">' + html + '</span>', 'text/html');
+  var root = doc.getElementById('r');
+  badgeify(root, doc);
+  return root.innerHTML;
+}
+
+/* ══════════════════════════════════════════════════
+   INDEX PAGE
+══════════════════════════════════════════════════ */
+function renderIndex(){
+  view = 'index'; guide = null; sections = []; mustOnly = false;
+  setHash('#/study-guides');
+
+  var host = $('page-guides');
+  var h = '<div class="sg-wrap">'
+        + '<div class="sg-page-hdr"><h1>Study Guides</h1>'
+        + '<p>Full-length written guides, grouped by course and unit. '
+        + 'Progress is saved on this device.</p></div>';
+
+  var any = false;
+  (manifest.courses || []).forEach(function(c){
+    var guides = 0;
+    c.units.forEach(function(u){ guides += u.guides.length; });
+    if (!guides) return;
+    any = true;
+    h += '<div class="sg-course-hdr"><span class="sg-course-code">' + esc(c.label) + '</span>'
+       + (c.title ? '<span class="sg-course-sub">' + esc(c.title) + '</span>' : '') + '</div>';
+    c.units.forEach(function(u){
+      if (!u.guides.length) return;
+      h += '<div class="sg-unit-hdr">' + esc(u.label) + '</div><div class="sg-card-grid">';
+      u.guides.forEach(function(g){ h += cardHtml(g); });
+      h += '</div>';
+    });
+  });
+
+  if (!any){
+    h += '<div class="sg-empty"><h3>No guides yet</h3>'
+       + '<p>Drop a <code>.md</code> file into <code>content/&lt;course&gt;/</code>, run '
+       + '<code>node scripts/build-guides-manifest.js</code>, and it will appear here.</p></div>';
+  }
+
+  h += '</div>';
+  host.innerHTML = h;
+  mainEl().scrollTop = 0;
+  renderSidebarIndex();
+}
+
+function cardHtml(g){
+  /* progress uses the section ids we will generate at render time; the manifest
+     only knows the count, so show reviewed/total from whatever is stored. */
+  var stored = loadProg(g.slug);
+  var done = Object.keys(stored).filter(function(k){ return stored[k]; }).length;
+  var total = g.sectionCount || 0;
+  if (done > total) done = total;
+  var pct = total ? Math.round(done / total * 100) : 0;
+  var blurb = g.description || (g.topics && g.topics.length ? g.topics.join(' · ') : '');
+
+  return '<button class="sg-card" onclick="sgOpen(\'' + esc(g.slug) + '\')">'
+    + '<div class="sg-card-top">'
+      + '<span class="sg-card-lec">' + esc(g.lectureLabel) + '</span>'
+      + (g.mustKnowCount ? '<span class="sg-bdg sg-bdg-star">★'
+          + '<span class="sg-tip">' + esc(MARKERS['★'].tip) + '</span></span>'
+        + '<span class="sg-card-meta">' + g.mustKnowCount + ' must-know</span>' : '')
+    + '</div>'
+    + '<h3>' + esc(g.cardTitle || g.title) + '</h3>'
+    + (blurb ? '<div class="sg-card-desc">' + esc(blurb) + '</div>' : '')
+    + '<div class="sg-card-foot">'
+      + '<span class="sg-card-bar"><span style="width:' + pct + '%"></span></span>'
+      + '<span class="sg-card-pct">' + done + '/' + total + ' reviewed</span>'
+    + '</div>'
+  + '</button>';
+}
+
+function renderSidebarIndex(){
+  var ctx = $('sidebar-context');
+  if (!ctx) return;
+  var h = '<div class="ctx-label">Guides</div>';
+  (manifest.courses || []).forEach(function(c){
+    c.units.forEach(function(u){
+      u.guides.forEach(function(g){
+        h += '<button class="section-link" onclick="sgOpen(\'' + esc(g.slug) + '\')">'
+          + '<span class="dot"></span>'
+          + '<span class="sl-text">' + esc(g.cardTitle || g.title) + '</span>'
+          + '<span class="sl-sub">' + esc(g.lectureLabel.replace('Lecture ','L')) + '</span>'
+          + '</button>';
+      });
+    });
+  });
+  ctx.innerHTML = h;
+  var f = $('session-counter'); if (f) f.textContent = '';
+}
+
+/* ══════════════════════════════════════════════════
+   GUIDE DETAIL
+══════════════════════════════════════════════════ */
+function openGuide(slug){
+  var g = findGuide(slug);
+  var host = $('page-guides');
+  if (!g){
+    host.innerHTML = '<div class="sg-wrap"><div class="sg-err">Guide &ldquo;'
+      + esc(slug) + '&rdquo; is not in the manifest. '
+      + 'Run <code>node scripts/build-guides-manifest.js</code> and redeploy.</div></div>';
+    return;
+  }
+  host.innerHTML = '<div class="sg-wrap"><div class="sg-empty">Loading guide…</div></div>';
+
+  var job = mdCache[slug]
+    ? Promise.resolve(mdCache[slug])
+    : fetch(g.file, {cache:'no-cache'}).then(function(r){
+        if (!r.ok) throw new Error('Could not load ' + g.file + ' (' + r.status + ')');
+        return r.text();
+      }).then(function(t){ mdCache[slug] = t; return t; });
+
+  Promise.all([loadMarked(), job]).then(function(res){
+    drawGuide(g, res[1]);
+  }).catch(function(err){
+    host.innerHTML = '<div class="sg-wrap">'
+      + '<div class="sg-tb-row" style="margin-bottom:12px">'
+      + '<button class="sg-btn" onclick="sgBack()">← All guides</button></div>'
+      + '<div class="sg-err">' + esc(err.message || String(err)) + '</div></div>';
+  });
+}
+
+function drawGuide(g, md){
+  view = 'guide'; guide = g; mustOnly = false;
+  setHash('#/study-guides/' + g.slug);
+
+  var doc = splitDoc(md);
+  var prog = loadProg(g.slug);
+
+  var h = '<div class="sg-wrap">';
+
+  /* sticky toolbar */
+  h += '<div class="sg-toolbar"><div class="sg-tb-row">'
+     + '<button class="sg-btn sg-btn-back" onclick="sgBack()">'
+       + svg('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>')
+       + '<span>All guides</span></button>'
+     + '<button class="sg-btn sg-toc-btn" onclick="sgToggleToc(true)">'
+       + svg('<path d="M3 6h18M3 12h18M3 18h18"/>')
+       + '<span>Contents</span></button>'
+     + '<button class="sg-btn" id="sg-must-btn" onclick="sgToggleMust()" '
+       + 'aria-pressed="false" title="Show only sections that contain a must-know item">'
+       + '★<span class="sg-btn-lbl-full">&nbsp;Must-know only</span></button>'
+     + '<button class="sg-btn" id="sg-all-btn" onclick="sgToggleAll()">'
+       + svg('<path d="m7 13 5 5 5-5"/><path d="m7 6 5 5 5-5"/>')
+       + '<span id="sg-all-lbl">Expand all</span></button>'
+     + '</div>'
+     + '<div class="sg-prog">'
+       + '<span class="sg-prog-track"><span class="sg-prog-fill" id="sg-prog-fill"></span></span>'
+       + '<span class="sg-prog-txt" id="sg-prog-txt"></span>'
+     + '</div></div>';
+
+  /* title block */
+  h += '<div class="sg-hdr"><h1>' + renderInline(doc.title || g.title) + '</h1>'
+     + (doc.subtitle ? '<div class="sg-sub">' + renderInline(doc.subtitle) + '</div>' : '')
+     + '<div class="sg-hdr-tags">'
+       + '<span class="sg-tag">' + esc(g.course.replace(/^NUR/,'NUR ')) + '</span>'
+       + (g.unit !== null ? '<span class="sg-tag">Unit ' + g.unit + '</span>' : '')
+       + '<span class="sg-tag">' + esc(g.lectureLabel) + '</span>'
+       + '<span class="sg-tag">' + doc.sections.length + ' sections</span>'
+     + '</div></div>';
+
+  /* marker legend */
+  h += '<div class="sg-legend">';
+  ['★','⊕','⊙','⚠'].forEach(function(ch){
+    h += '<span><span class="sg-bdg ' + MARKERS[ch].cls + '">' + ch
+       + '<span class="sg-tip">' + esc(MARKERS[ch].tip) + '</span></span> '
+       + esc(MARKERS[ch].tip) + '</span>';
+  });
+  h += '</div>';
+
+  /* intro / sources / legend from the file itself — collapsed by default */
+  if (doc.intro){
+    h += '<button class="sg-intro-toggle" id="sg-intro-btn" aria-expanded="false" '
+       + 'aria-controls="sg-intro" onclick="sgToggleIntro()">'
+       + 'Sources &amp; legend from the file'
+       + '<span class="sg-chev">' + svg('<path d="m9 18 6-6-6-6"/>') + '</span></button>'
+       + '<div class="sg-intro sg-md" id="sg-intro" hidden></div>';
+  }
+
+  /* section shells — bodies are injected after, as DOM nodes */
+  sections = [];
+  doc.sections.forEach(function(s, i){
+    var color = SEC_COLORS[i % SEC_COLORS.length];
+    var accent = SEC_VARS[i % SEC_VARS.length];
+    var open = (i === 0);            /* first section expanded, rest collapsed */
+    var reviewed = !!prog[s.id];
+    h += '<section class="sg-sec' + (open ? ' open' : '') + (reviewed ? ' reviewed' : '') + '" '
+       + 'id="' + s.id + '" data-must="' + (s.must ? '1' : '0') + '" '
+       + 'style="--sg-accent:var(' + accent + ')">'
+       + '<h2 style="margin:0">'
+       + '<button class="sg-sec-hdr ' + color + '" aria-expanded="' + open + '" '
+         + 'aria-controls="' + s.id + '-body" onclick="sgToggleSec(\'' + s.id + '\')">'
+         + '<span class="sg-chev">' + svg('<path d="m9 18 6-6-6-6"/>') + '</span>'
+         + '<span class="sg-sec-title">' + renderInline(s.heading) + '</span>'
+         + '<span class="sg-rev" onclick="event.stopPropagation()">'
+           + '<input type="checkbox" id="rev-' + s.id + '"' + (reviewed ? ' checked' : '')
+           + ' onclick="event.stopPropagation()" onchange="sgReview(\'' + s.id + '\',this.checked)" '
+           + 'aria-label="Mark this section reviewed">'
+           + '<label for="rev-' + s.id + '" onclick="event.stopPropagation()">Reviewed</label>'
+         + '</span>'
+       + '</button></h2>'
+       + '<div class="sg-sec-body sg-md" id="' + s.id + '-body" role="region"></div>'
+       + '</section>';
+    sections.push({ id: s.id, heading: s.heading, body: s.body, must: s.must });
+  });
+
+  h += '</div>';
+  $('page-guides').innerHTML = h;
+
+  /* inject rendered markdown as real nodes */
+  if (doc.intro){
+    $('sg-intro').appendChild(renderMd(doc.intro, guide.imageBase));
+  }
+  sections.forEach(function(s){
+    var body = $(s.id + '-body');
+    if (body) body.appendChild(renderMd(s.body, guide.imageBase));
+  });
+
+  attachImageHandlers();
+  attachBadgeTapHandlers();
+  updateProgress();
+  renderToc();
+  syncAllBtn();
+  mainEl().scrollTop = 0;
+  requestAnimationFrame(syncScrollHints);
+}
+
+function svg(inner){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+       + 'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+}
+
+/* broken/absent diagrams become a labelled placeholder */
+function attachImageHandlers(){
+  Array.prototype.forEach.call($('page-guides').querySelectorAll('.sg-fig img'), function(img){
+    img.addEventListener('error', function(){
+      var fig = img.closest('.sg-fig');
+      if (!fig) return;
+      var file = (img.getAttribute('data-full') || '').split('/').pop();
+      fig.innerHTML = '<div class="sg-fig-missing">'
+        + '<strong>Diagram not included yet</strong>'
+        + esc(img.getAttribute('data-cap') || 'Image')
+        + '<br><code>' + esc(file) + '</code></div>';
+    });
+    img.addEventListener('click', function(){
+      openLightbox(img.getAttribute('data-full'), img.getAttribute('data-cap'));
+    });
+  });
+}
+
+/* tooltips are :hover on desktop; tap to toggle on touch devices.
+   Either way the bubble is nudged back inside the viewport once visible. */
+function clampTip(badge){
+  var tip = badge.querySelector('.sg-tip');
+  if (!tip) return;
+  tip.style.setProperty('--tip-x','0px');
+  var r = tip.getBoundingClientRect(), pad = 8, shift = 0;
+  if (r.left < pad) shift = pad - r.left;
+  else if (r.right > window.innerWidth - pad) shift = (window.innerWidth - pad) - r.right;
+  if (shift) tip.style.setProperty('--tip-x', Math.round(shift) + 'px');
+}
+function attachBadgeTapHandlers(){
+  var host = $('page-guides');
+  host.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.sg-bdg') : null;
+    var open = host.querySelector('.sg-bdg.tip-open');
+    if (open && open !== b) open.classList.remove('tip-open');
+    if (b && b.classList.toggle('tip-open')) clampTip(b);
+  });
+  host.addEventListener('mouseover', function(e){
+    var b = e.target.closest ? e.target.closest('.sg-bdg') : null;
+    if (b) clampTip(b);
+  });
+  host.addEventListener('focusin', function(e){
+    var b = e.target.closest ? e.target.closest('.sg-bdg') : null;
+    if (b){ b.classList.add('tip-open'); clampTip(b); }
+  });
+  host.addEventListener('focusout', function(e){
+    var b = e.target.closest ? e.target.closest('.sg-bdg') : null;
+    if (b) b.classList.remove('tip-open');
+  });
+}
+
+/* a table only needs the swipe hint if it actually overflows. Sections start
+   collapsed (so tables measure 0x0), which is why this re-runs on every expand. */
+function syncScrollHints(){
+  Array.prototype.forEach.call($('page-guides').querySelectorAll('.ts'), function(ts){
+    var hint = ts.nextElementSibling;
+    if (!hint || !hint.classList.contains('sg-scroll-hint')) return;
+    /* an invisible table measures 0/0 — leave its hint alone until it is shown */
+    if (!ts.clientWidth) return;
+    hint.style.display = (ts.scrollWidth > ts.clientWidth + 2) ? '' : 'none';
+  });
+}
+
+/* ══ section open/close, review, filter ══ */
+function toggleSec(id, force){
+  var el = $(id); if (!el) return;
+  var open = (force === undefined) ? !el.classList.contains('open') : !!force;
+  el.classList.toggle('open', open);
+  var btn = el.querySelector('.sg-sec-hdr');
+  if (btn) btn.setAttribute('aria-expanded', String(open));
+  syncAllBtn();
+  requestAnimationFrame(syncScrollHints);
+  return open;
+}
+
+function visibleSections(){
+  return sections.filter(function(s){
+    var el = $(s.id);
+    return el && !el.hidden;
+  });
+}
+
+function syncAllBtn(){
+  var lbl = $('sg-all-lbl'); if (!lbl) return;
+  var vis = visibleSections();
+  var allOpen = vis.length > 0 && vis.every(function(s){
+    var el = $(s.id); return el && el.classList.contains('open');
+  });
+  lbl.textContent = allOpen ? 'Collapse all' : 'Expand all';
+  var b = $('sg-all-btn'); if (b) b.classList.toggle('on', allOpen);
+}
+
+function toggleAll(){
+  var vis = visibleSections();
+  var allOpen = vis.length > 0 && vis.every(function(s){
+    var el = $(s.id); return el && el.classList.contains('open');
+  });
+  vis.forEach(function(s){ toggleSec(s.id, !allOpen); });
+  syncAllBtn();
+}
+
+function review(id, checked){
+  if (!guide) return;
+  var p = loadProg(guide.slug);
+  if (checked) p[id] = true; else delete p[id];
+  saveProg(guide.slug, p);
+  var el = $(id);
+  if (el) el.classList.toggle('reviewed', !!checked);
+  updateProgress();
+  renderToc();
+}
+
+function updateProgress(){
+  if (!guide) return;
+  var ids = sections.map(function(s){ return s.id; });
+  var done = progCount(guide.slug, ids);
+  var pct = ids.length ? Math.round(done / ids.length * 100) : 0;
+  var fill = $('sg-prog-fill'), txt = $('sg-prog-txt');
+  if (fill) fill.style.width = pct + '%';
+  if (txt)  txt.textContent = done + ' / ' + ids.length + ' sections reviewed';
+}
+
+function toggleMust(){
+  mustOnly = !mustOnly;
+  var btn = $('sg-must-btn');
+  if (btn){ btn.classList.toggle('on', mustOnly); btn.setAttribute('aria-pressed', String(mustOnly)); }
+  sections.forEach(function(s){
+    var el = $(s.id);
+    if (el) el.hidden = mustOnly && !s.must;
+  });
+  renderToc();
+  syncAllBtn();
+  requestAnimationFrame(syncScrollHints);
+}
+
+/* ══ table of contents (desktop sidebar + mobile slide-over) ══ */
+function tocHtml(){
+  if (!guide) return '';
+  var prog = loadProg(guide.slug);
+  var h = '';
+  sections.forEach(function(s, i){
+    if (mustOnly && !s.must) return;
+    /* the desktop sidebar and the mobile slide-over both render this list, so
+       the section is keyed by data-sec rather than a (would-be duplicate) id */
+    h += '<button class="section-link" data-sec="' + s.id + '" onclick="sgGoSec(\'' + s.id + '\')">'
+      + '<span class="dot"></span>'
+      + '<span class="sl-text">' + (s.must ? '★ ' : '') + esc(stripMarkers(s.heading)) + '</span>'
+      + (prog[s.id] ? '<span class="sg-toc-done">✓</span>'
+                    : '<span class="sl-sub">' + (i+1) + '</span>')
+      + '</button>';
+  });
+  return h;
+}
+function stripMarkers(s){
+  return String(s).replace(MARKER_RE,'').replace(/\s{2,}/g,' ').trim();
+}
+
+function renderToc(){
+  var ctx = $('sidebar-context');
+  if (ctx && view === 'guide'){
+    ctx.innerHTML = '<div class="ctx-label">Contents</div>' + tocHtml();
+    var f = $('session-counter'); if (f) f.textContent = '';
+  }
+  var list = $('sg-toc-list');
+  if (list) list.innerHTML = tocHtml();
+  spy();
+}
+
+function goSec(id){
+  var el = $(id);
+  if (!el) return;
+  toggleSec(id, true);
+  toggleToc(false);
+  var mc = mainEl();
+  /* offset for the sticky toolbar */
+  requestAnimationFrame(function(){
+    mc.scrollTo({ top: Math.max(0, el.offsetTop - 64), behavior: 'smooth' });
+  });
+  setActiveToc(id);
+}
+
+function setActiveToc(id){
+  document.querySelectorAll('#sidebar-context .section-link, #sg-toc-list .section-link')
+    .forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-sec') === id); });
+}
+
+/* scroll-spy: with collapsible sections a plain IntersectionObserver is unreliable
+   (a collapsed section is only ~50px tall), so pick the last header above the fold. */
+var spyQueued = false;
+function spy(){
+  if (view !== 'guide') return;
+  var mc = mainEl(); if (!mc) return;
+  var vis = visibleSections();
+  var current = null;
+
+  /* at the very bottom the remaining sections never cross the offset line,
+     so pin the last one — otherwise the tail of the guide is unreachable */
+  if (mc.scrollTop + mc.clientHeight >= mc.scrollHeight - 4){
+    current = vis.length ? vis[vis.length - 1].id : null;
+  } else {
+    var top = mc.scrollTop + 90;
+    vis.forEach(function(s){
+      var el = $(s.id);
+      if (el && el.offsetTop <= top) current = s.id;
+    });
+    if (!current) current = vis.length ? vis[0].id : null;
+  }
+  if (current) setActiveToc(current);
+}
+function onScroll(){
+  if (view !== 'guide' || spyQueued) return;
+  spyQueued = true;
+  requestAnimationFrame(function(){ spyQueued = false; spy(); });
+}
+
+/* ══ mobile TOC slide-over ══ */
+function toggleToc(open){
+  var ov = $('sg-toc-overlay'), pn = $('sg-toc-panel');
+  if (!ov || !pn) return;
+  ov.classList.toggle('show', !!open);
+  pn.classList.toggle('show', !!open);
+  pn.setAttribute('aria-hidden', String(!open));
+}
+
+/* ══ lightbox ══ */
+function openLightbox(src, cap){
+  var lb = $('sg-lightbox'), img = $('sg-lb-img');
+  if (!lb || !img) return;
+  img.classList.remove('zoomed');
+  img.src = src;
+  img.alt = cap || '';
+  $('sg-lb-cap').textContent = cap || '';
+  $('sg-lb-zoom').textContent = 'Zoom in';
+  lb.classList.add('show');
+  document.addEventListener('keydown', lbKey);
+}
+function closeLightbox(){
+  var lb = $('sg-lightbox');
+  if (lb) lb.classList.remove('show');
+  var img = $('sg-lb-img');
+  if (img){ img.classList.remove('zoomed'); img.removeAttribute('src'); }
+  document.removeEventListener('keydown', lbKey);
+}
+function zoomLightbox(){
+  var img = $('sg-lb-img'); if (!img) return;
+  var on = img.classList.toggle('zoomed');
+  $('sg-lb-zoom').textContent = on ? 'Fit to screen' : 'Zoom in';
+  var sc = img.parentNode;
+  if (on) requestAnimationFrame(function(){
+    sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2;
+    sc.scrollTop  = (sc.scrollHeight - sc.clientHeight) / 2;
+  });
+}
+function lbKey(e){ if (e.key === 'Escape') closeLightbox(); }
+
+/* ══ hash routing (only while this page owns the hash) ══ */
+function isGuideHash(){ return location.hash.indexOf('#/study-guides') === 0; }
+function setHash(h){
+  if (location.hash === h) return;
+  suppressHash = true;
+  try { history.replaceState(null, '', location.pathname + location.search + h); }
+  catch(e){ location.hash = h; }
+  setTimeout(function(){ suppressHash = false; }, 0);
+}
+function clearHash(){
+  if (!isGuideHash()) return;
+  suppressHash = true;
+  try { history.replaceState(null, '', location.pathname + location.search); }
+  catch(e){ location.hash = ''; }
+  setTimeout(function(){ suppressHash = false; }, 0);
+}
+window.addEventListener('hashchange', function(){
+  if (suppressHash) return;
+  if (!isGuideHash()) return;
+  if (!document.getElementById('layout') ||
+      document.getElementById('layout').style.display === 'none') return;
+  window.goTo('guides');
+});
+
+/* ══ page entry point ══ */
+function init(){
+  var host = $('page-guides');
+  if (!manifest){
+    host.innerHTML = '<div class="sg-wrap"><div class="sg-empty">Loading guides…</div></div>';
+  }
+  loadManifest().then(function(){
+    var m = location.hash.match(/^#\/study-guides\/(.+)$/);
+    if (m) { openGuide(decodeURIComponent(m[1])); }
+    else if (view === 'guide' && guide) { openGuide(guide.slug); }
+    else { renderIndex(); }
+  }).catch(function(err){
+    host.innerHTML = '<div class="sg-wrap"><div class="sg-err">'
+      + esc(err.message || String(err))
+      + '<br><br>Run <code>node scripts/build-guides-manifest.js</code> and redeploy.'
+      + '</div></div>';
+  });
+}
+
+/* ══ wrap goTo() rather than editing it — keeps this block purely additive ══ */
+var _goTo = window.goTo;
+window.goTo = function(page){
+  _goTo(page);
+  if (page === 'guides'){
+    init();
+  } else {
+    view = 'index'; guide = null; sections = [];
+    toggleToc(false);
+    closeLightbox();
+    clearHash();
+  }
+};
+
+/* deep link on cold load: wait for the app to clear the auth screen */
+(function deepLink(){
+  if (!isGuideHash()) return;
+  var tries = 0;
+  var t = setInterval(function(){
+    tries++;
+    var layout = document.getElementById('layout');
+    var visible = layout && layout.style.display !== 'none' &&
+                  document.getElementById('auth-screen').style.display === 'none';
+    if (visible){ clearInterval(t); window.goTo('guides'); }
+    else if (tries > 100) clearInterval(t);   /* ~20s, then give up quietly */
+  }, 200);
+})();
+
+/* scroll-spy listener (no-ops unless a guide is open) */
+document.addEventListener('DOMContentLoaded', function(){
+  var mc = document.getElementById('main-content');
+  if (mc) mc.addEventListener('scroll', onScroll, { passive: true });
+});
+if (document.readyState !== 'loading'){
+  var _mc = document.getElementById('main-content');
+  if (_mc) _mc.addEventListener('scroll', onScroll, { passive: true });
+}
+
+/* ══ exports used by inline onclick handlers (matches the app's style) ══ */
+window.sgOpen        = function(slug){ openGuide(slug); };
+window.sgBack        = function(){ renderIndex(); };
+window.sgToggleSec   = function(id){ toggleSec(id); };
+window.sgToggleAll   = toggleAll;
+window.sgToggleMust  = toggleMust;
+window.sgReview      = review;
+window.sgGoSec       = goSec;
+window.sgToggleToc   = toggleToc;
+window.sgCloseLb     = closeLightbox;
+window.sgZoomLb      = zoomLightbox;
+window.sgToggleIntro = function(){
+  var box = $('sg-intro'), btn = $('sg-intro-btn');
+  if (!box || !btn) return;
+  var open = box.hasAttribute('hidden');
+  if (open) box.removeAttribute('hidden'); else box.setAttribute('hidden','');
+  btn.setAttribute('aria-expanded', String(open));
+};
+
 })();
 </script>
 </body>
