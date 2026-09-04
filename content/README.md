@@ -57,9 +57,13 @@ top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).
 
 ## What the page does with the markdown
 
-One `.md` file is one lecture. Its H2s are subsections *of* that lecture, shown
-nested under a lecture header (unit label → lecture bar → numbered subsections),
-matching how the NUR 118 guide nests unit → lecture → `.sub` labels.
+One `.md` file is one lecture, and the lecture is what expands and collapses:
+its header bar is a toggle that folds the whole lecture away, legend and all.
+Its H2s are subsections *of* that lecture, nested under it (unit label →
+lecture bar → numbered subsections), matching how the NUR 118 guide nests
+unit → lecture → `.sub` labels. Subsections still open and close individually
+inside an open lecture, and **Expand all / Collapse all** works at the lecture
+level.
 
 | In the markdown          | On the page |
 |--------------------------|-------------|

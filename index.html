@@ -836,19 +836,38 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .sg-prog-fill{height:100%;background:var(--got);border-radius:3px;width:0;transition:width .4s ease}
 .sg-prog-txt{font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap}
 
+/* the svg() helper emits no width/height, so every chevron collapsed to 0x0
+   and the expand/collapse affordance was invisible */
+.sg-chev{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.sg-chev svg{width:14px;height:14px;display:block}
+.sg-lecture-hdr .sg-chev svg{width:17px;height:17px}
+
 /* ── detail: the lecture is the top level; H2s nest inside it ── */
 .sg-unit-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
   color:var(--text-muted);margin:16px 0 8px}
-.sg-lecture-hdr{display:flex;align-items:center;gap:12px;padding:14px 20px;
-  border-radius:var(--r-card);color:#fff;font-size:17px;font-weight:800;
-  letter-spacing:-.01em;margin-bottom:0;line-height:1.3}
+.sg-lecture{margin-bottom:14px}
+.sg-lecture-hdr{width:100%;display:flex;align-items:center;gap:12px;padding:14px 20px;
+  border:none;border-radius:var(--r-card);color:#fff;font-size:17px;font-weight:800;
+  letter-spacing:-.01em;margin-bottom:0;line-height:1.3;text-align:left;
+  cursor:pointer;font-family:inherit;transition:filter .15s}
+.sg-lecture-hdr:hover{filter:brightness(1.08)}
+.sg-lecture-hdr:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.sg-lecture-hdr .sg-chev{flex-shrink:0;opacity:.9;transition:transform .2s}
+.sg-lecture.open .sg-lecture-hdr .sg-chev{transform:rotate(90deg)}
+.sg-lecture.open .sg-lecture-hdr{border-radius:var(--r-card) var(--r-card) 0 0}
+.sg-lecture-count{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:0;
+  background:rgba(255,255,255,.2);padding:2px 9px;border-radius:20px}
+.sg-lecture-inner{display:none;background:var(--surface);
+  border-radius:0 0 var(--r-card) var(--r-card);box-shadow:var(--shadow);
+  padding:14px 16px 16px}
+.sg-lecture.open .sg-lecture-inner{display:block}
 .sg-lecture-name{flex:1;min-width:0}
 .sg-lecture-hdr .lec-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);
   padding:2px 9px;border-radius:20px;flex-shrink:0}
 .sg-lecture-hdr strong,.sg-lecture-hdr b{color:inherit}
 /* rail makes the subsections read as contained by the lecture above them */
-.sg-lecture-body{border-left:3px solid var(--cobalt);margin-left:16px;
-  padding:14px 0 2px 16px;opacity:1}
+.sg-lecture-body{border-left:3px solid var(--cobalt);margin-left:6px;
+  padding:4px 0 2px 14px}
 .sg-tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   background:var(--slate-bg);color:var(--slate);border:1px solid var(--g200);
   padding:3px 9px;border-radius:20px}
@@ -1079,8 +1098,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .sg-btn-lbl-full{display:none}
   .sg-sec-hdr{padding:10px 11px;font-size:11.5px;min-height:44px}
   .sg-sec-body{padding:13px 12px 15px}
-  .sg-lecture-hdr{padding:12px 14px;font-size:15px;gap:8px}
-  .sg-lecture-body{margin-left:7px;padding:12px 0 2px 9px}
+  .sg-lecture-hdr{padding:12px 13px;font-size:14.5px;gap:9px}
+  .sg-lecture-inner{padding:11px 10px 13px}
+  .sg-lecture-body{margin-left:2px;padding:2px 0 2px 9px}
+  .sg-legend{font-size:10px}
   .sg-md .ts table{min-width:520px}
   .sg-scroll-hint{display:block}
   .sg-hdr h1{font-size:18px}
@@ -7847,11 +7868,18 @@ function drawGuide(g, md){
   h += '<div class="sg-unit-label">'
      + (g.unit !== null ? 'Unit ' + g.unit : esc(g.course.replace(/^NUR/,'NUR ')))
      + '</div>'
-     + '<div class="sg-lecture-hdr sh-cobalt">'
-       + '<span class="sg-lecture-name">'
-       + renderInline(doc.subtitle || doc.title || g.title) + '</span>'
-       + '<span class="lec-tag">' + esc(g.lectureLabel) + '</span>'
-     + '</div>';
+     + '<section class="sg-lecture open" id="sg-lecture">'
+       + '<h2 style="margin:0">'
+       + '<button class="sg-lecture-hdr sh-cobalt" id="sg-lecture-hdr" aria-expanded="true" '
+         + 'aria-controls="sg-lecture-body" onclick="sgToggleLecture()">'
+         + '<span class="sg-chev">' + svg('<path d="m9 18 6-6-6-6"/>') + '</span>'
+         + '<span class="sg-lecture-name">'
+         + renderInline(doc.subtitle || doc.title || g.title) + '</span>'
+         + '<span class="sg-lecture-count" id="sg-lecture-count"></span>'
+         + '<span class="lec-tag">' + esc(g.lectureLabel) + '</span>'
+       + '</button></h2>';
+
+  h += '<div class="sg-lecture-inner" id="sg-lecture-body">';
 
   /* marker legend */
   h += '<div class="sg-legend">';
@@ -7900,6 +7928,8 @@ function drawGuide(g, md){
     sections.push({ id: s.id, heading: s.heading, body: s.body, must: s.must });
   });
   h += '</div>';   /* /sg-lecture-body */
+  h += '</div>';   /* /sg-lecture-inner */
+  h += '</section>';
 
   h += '</div>';
   guideHost().innerHTML = h;
@@ -7990,6 +8020,22 @@ function syncScrollHints(){
   });
 }
 
+/* ══ lecture open/close ══ */
+function toggleLecture(force){
+  var el = $('sg-lecture'); if (!el) return false;
+  var open = (force === undefined) ? !el.classList.contains('open') : !!force;
+  el.classList.toggle('open', open);
+  var btn = $('sg-lecture-hdr');
+  if (btn) btn.setAttribute('aria-expanded', String(open));
+  syncAllBtn();
+  if (open) requestAnimationFrame(syncScrollHints);
+  return open;
+}
+function lectureOpen(){
+  var el = $('sg-lecture');
+  return !el || el.classList.contains('open');
+}
+
 /* ══ section open/close, review, filter ══ */
 function toggleSec(id, force){
   var el = $(id); if (!el) return;
@@ -8009,22 +8055,27 @@ function visibleSections(){
   });
 }
 
-function syncAllBtn(){
-  var lbl = $('sg-all-lbl'); if (!lbl) return;
+function everythingOpen(){
+  if (!lectureOpen()) return false;
   var vis = visibleSections();
-  var allOpen = vis.length > 0 && vis.every(function(s){
+  return vis.length > 0 && vis.every(function(s){
     var el = $(s.id); return el && el.classList.contains('open');
   });
+}
+
+function syncAllBtn(){
+  var lbl = $('sg-all-lbl'); if (!lbl) return;
+  var allOpen = everythingOpen();
   lbl.textContent = allOpen ? 'Collapse all' : 'Expand all';
   var b = $('sg-all-btn'); if (b) b.classList.toggle('on', allOpen);
 }
 
+/* Collapse all folds the lecture itself shut, not just its subsections —
+   the lecture is the unit you open and close. */
 function toggleAll(){
-  var vis = visibleSections();
-  var allOpen = vis.length > 0 && vis.every(function(s){
-    var el = $(s.id); return el && el.classList.contains('open');
-  });
-  vis.forEach(function(s){ toggleSec(s.id, !allOpen); });
+  var open = !everythingOpen();
+  visibleSections().forEach(function(s){ toggleSec(s.id, open); });
+  toggleLecture(open);
   syncAllBtn();
 }
 
@@ -8047,6 +8098,8 @@ function updateProgress(){
   var fill = $('sg-prog-fill'), txt = $('sg-prog-txt');
   if (fill) fill.style.width = pct + '%';
   if (txt)  txt.textContent = done + ' / ' + ids.length + ' subsections reviewed';
+  var cnt = $('sg-lecture-count');
+  if (cnt) cnt.textContent = done + '/' + ids.length;
 }
 
 function toggleMust(){
@@ -8098,6 +8151,7 @@ function renderToc(){
 function goSec(id){
   var el = $(id);
   if (!el) return;
+  toggleLecture(true);          /* a collapsed lecture hides its subsections */
   toggleSec(id, true);
   toggleToc(false);
   var mc = mainEl();
@@ -8117,7 +8171,7 @@ function setActiveToc(id){
    (a collapsed section is only ~50px tall), so pick the last header above the fold. */
 var spyQueued = false;
 function spy(){
-  if (view !== 'guide') return;
+  if (view !== 'guide' || !lectureOpen()) return;
   var mc = mainEl(); if (!mc) return;
   var vis = visibleSections();
   var current = null;
@@ -8322,6 +8376,7 @@ if (document.readyState !== 'loading'){
 window.sgOpen        = function(slug){ openGuide(slug); };
 window.sgBack        = function(){ renderIndex(); };
 window.sgToggleSec   = function(id){ toggleSec(id); };
+window.sgToggleLecture = function(){ toggleLecture(); };
 window.sgToggleAll   = toggleAll;
 window.sgToggleMust  = toggleMust;
 window.sgReview      = review;
