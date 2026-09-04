@@ -57,12 +57,16 @@ top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).
 
 ## What the page does with the markdown
 
+One `.md` file is one lecture. Its H2s are subsections *of* that lecture, shown
+nested under a lecture header (unit label → lecture bar → numbered subsections),
+matching how the NUR 118 guide nests unit → lecture → `.sub` labels.
+
 | In the markdown          | On the page |
 |--------------------------|-------------|
-| `# Heading`              | Guide title |
-| `## Heading` (first one, directly under the H1) | Subtitle, and the headline on the index card |
-| `## Heading` (all others)| An independently collapsible section + a table-of-contents entry |
-| `### Heading`            | Coloured sub-header, tinted to match its section |
+| `# Heading`              | Not shown directly; the file's identity comes from the manifest |
+| `## Heading` (first one, directly under the H1) | The lecture name — on the lecture header bar and the index card |
+| `## Heading` (all others)| A numbered, independently collapsible subsection of the lecture, plus a contents entry |
+| `### Heading`            | Sub-header inside a subsection |
 | GFM table                | Styled table that scrolls sideways on a phone |
 | `> quote`                | Orange warning callout |
 | `**Why:** …` / `**Why that matters:** …` (any bold lead starting with "Why" and ending in a colon) | Blue mechanism callout |
@@ -72,14 +76,14 @@ top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).
 | `⚠`                      | Warning badge |
 | `**Description:** …`     | Optional; overrides the auto-generated index-card blurb |
 
-A section counts as "must-know" (and survives the **★ Must-know only** filter)
-if a `★` appears anywhere in its heading or body.
+A subsection counts as "must-know" (and survives the **★ Must-know only**
+filter) if a `★` appears anywhere in its heading or body.
 
 ## Notes
 
 - "Reviewed" checkboxes are stored in `localStorage` under
-  `nur_sg_progress_<guide-slug>`, keyed by a slug derived from the section
-  heading. Renaming a heading resets that one section's checkbox.
+  `nur_sg_progress_<guide-slug>`, keyed by a slug derived from the subsection
+  heading. Renaming a heading resets that one subsection's checkbox.
 - A referenced image that isn't in `images/` renders as a labelled placeholder
   naming the missing file, so it's visible what still needs adding.
 - The markdown renderer is vendored at `vendor/marked.min.js` (marked v12.0.2,

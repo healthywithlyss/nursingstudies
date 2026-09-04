@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T15:55:53.281Z",
+  "generatedAt": "2026-09-04T18:25:10.090Z",
   "generatedBy": "scripts/build-guides-manifest.js",
   "courses": [
     {
@@ -20,8 +20,8 @@
               "lecture": 1,
               "lectureLabel": "Lecture 1",
               "title": "NUR 144 — UNIT 1, LECTURE 1",
-              "subtitle": "Gastrointestinal Assessment · Gastric & Duodenal Disorders",
-              "cardTitle": "Gastrointestinal Assessment · Gastric & Duodenal Disorders",
+              "subtitle": "Gastric & Duodenal Disorders",
+              "cardTitle": "Gastric & Duodenal Disorders",
               "description": "",
               "topics": [
                 "OBJECTIVES",

@@ -836,11 +836,19 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .sg-prog-fill{height:100%;background:var(--got);border-radius:3px;width:0;transition:width .4s ease}
 .sg-prog-txt{font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap}
 
-/* ── detail: title block ── */
-.sg-hdr{margin:16px 0 14px}
-.sg-hdr h1{font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
-.sg-hdr .sg-sub{font-size:14px;color:var(--text-muted);margin-top:3px;font-weight:500}
-.sg-hdr-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+/* ── detail: the lecture is the top level; H2s nest inside it ── */
+.sg-unit-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-muted);margin:16px 0 8px}
+.sg-lecture-hdr{display:flex;align-items:center;gap:12px;padding:14px 20px;
+  border-radius:var(--r-card);color:#fff;font-size:17px;font-weight:800;
+  letter-spacing:-.01em;margin-bottom:0;line-height:1.3}
+.sg-lecture-name{flex:1;min-width:0}
+.sg-lecture-hdr .lec-tag{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);
+  padding:2px 9px;border-radius:20px;flex-shrink:0}
+.sg-lecture-hdr strong,.sg-lecture-hdr b{color:inherit}
+/* rail makes the subsections read as contained by the lecture above them */
+.sg-lecture-body{border-left:3px solid var(--cobalt);margin-left:16px;
+  padding:14px 0 2px 16px;opacity:1}
 .sg-tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   background:var(--slate-bg);color:var(--slate);border:1px solid var(--g200);
   padding:3px 9px;border-radius:20px}
@@ -857,26 +865,33 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .sg-intro[hidden]{display:none}
 
 /* ── detail: collapsible H2 sections ── */
-.sg-sec{margin-bottom:12px;scroll-margin-top:70px}
+.sg-sec{margin-bottom:8px;scroll-margin-top:70px}
 .sg-sec[hidden]{display:none}
-.sg-sec-hdr{width:100%;display:flex;align-items:center;gap:10px;padding:13px 16px;
-  border:none;border-radius:var(--r-card);color:#fff;font-size:15px;font-weight:800;
-  letter-spacing:-.01em;cursor:pointer;font-family:inherit;text-align:left;
-  line-height:1.3;transition:filter .15s}
+/* subsection header — the app's .sub treatment, not a top-level section bar */
+.sg-sec-hdr{width:100%;display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border:none;border-radius:7px;color:#fff;font-size:12.5px;font-weight:800;
+  background:var(--accent);
+  text-transform:uppercase;letter-spacing:.05em;
+  cursor:pointer;font-family:inherit;text-align:left;
+  line-height:1.35;transition:filter .15s}
+.sg-sec-num{flex-shrink:0;min-width:18px;height:18px;border-radius:5px;
+  background:rgba(255,255,255,.24);display:inline-flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:800;letter-spacing:0;padding:0 4px}
 .sg-sec-hdr:hover{filter:brightness(1.08)}
 .sg-sec-hdr:focus-visible{outline:2px solid #fff;outline-offset:-3px}
 .sg-sec-hdr .sg-sec-title{flex:1;min-width:0}
 .sg-sec-hdr .sg-chev{flex-shrink:0;opacity:.85;transition:transform .2s}
 .sg-sec.open .sg-sec-hdr .sg-chev{transform:rotate(90deg)}
-.sg-sec.open .sg-sec-hdr{border-radius:var(--r-card) var(--r-card) 0 0}
-.sg-sec-body{display:none;background:var(--surface);border-radius:0 0 var(--r-card) var(--r-card);
-  box-shadow:var(--shadow);padding:16px 20px 18px;font-size:13px}
+.sg-sec.open .sg-sec-hdr{border-radius:7px 7px 0 0}
+.sg-sec-body{display:none;background:var(--surface);border-radius:0 0 8px 8px;
+  box-shadow:var(--shadow);padding:15px 17px 17px;font-size:13px}
 .sg-sec.open .sg-sec-body{display:block}
 
 /* per-section "reviewed" checkbox — sits in the coloured header */
 .sg-rev{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
   background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
-  border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;
+  border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;
+  text-transform:none;letter-spacing:0;
   color:#fff;cursor:pointer;font-family:inherit;user-select:none;
   transition:background .15s}
 .sg-rev:hover{background:rgba(255,255,255,.3)}
@@ -1062,8 +1077,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   /* full-size tap targets on phones */
   .sg-btn{padding:9px 12px;min-height:38px}
   .sg-btn-lbl-full{display:none}
-  .sg-sec-hdr{padding:13px 13px;font-size:14px;min-height:52px}
-  .sg-sec-body{padding:14px 13px 16px}
+  .sg-sec-hdr{padding:10px 11px;font-size:11.5px;min-height:44px}
+  .sg-sec-body{padding:13px 12px 15px}
+  .sg-lecture-hdr{padding:12px 14px;font-size:15px;gap:8px}
+  .sg-lecture-body{margin-left:7px;padding:12px 0 2px 9px}
   .sg-md .ts table{min-width:520px}
   .sg-scroll-hint{display:block}
   .sg-hdr h1{font-size:18px}
@@ -1076,7 +1093,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 }
 @media(max-width:380px){
   .sg-md .ts table{min-width:480px}
-  .sg-sec-hdr{font-size:13.5px;gap:7px;padding:12px 11px}
+  .sg-sec-hdr{font-size:11px;gap:6px;padding:10px 9px}
+  .sg-lecture-body{margin-left:4px;padding-left:7px}
   .sg-btn{padding:9px 10px;font-size:11px}
 }
 </style>
@@ -7230,10 +7248,11 @@ var MANIFEST_URL = 'content/study-guides.json';
 var MARKED_URL   = 'vendor/marked.min.js';
 var PROG_PREFIX  = 'nur_sg_progress_';
 
-/* Section header colours, cycled — same palette as the NUR118 guide. */
-var SEC_COLORS = ['sh-cobalt','sh-teal','sh-plum','sh-forest','sh-rust','sh-gold','sh-slate'];
-/* the matching token, so H3s inside a section pick up that section's accent */
-var SEC_VARS   = ['--cobalt','--teal','--plum','--forest','--rust','--gold','--slate'];
+/* Subsections all carry the lecture's accent, the way .sub labels share their
+   section's colour in the NUR118 guide — cycling colours here made 20
+   subsections read as 20 separate top-level sections. */
+var LECTURE_COLOR = '';            /* subsection colour comes from CSS */
+var LECTURE_VAR   = '--slate';     /* H3s sit a step below the subsection bar */
 
 var MARKERS = {
   '★': { cls:'sg-bdg-star', ch:'★', tip:'Professor flagged this as must-know' },
@@ -7326,6 +7345,23 @@ function allGuides(){
     (c.units || []).forEach(function(u){
       (u.guides || []).forEach(function(g){ out.push(g); });
     });
+  });
+  return out;
+}
+
+/* the manifest entry for the course whose tab is selected */
+function currentCourseEntry(){
+  if (!manifest) return null;
+  var want = window.currentCourse;
+  var found = null;
+  (manifest.courses || []).forEach(function(c){ if (c.code === want) found = c; });
+  return found;
+}
+function currentCourseGuides(){
+  var c = currentCourseEntry(), out = [];
+  if (!c) return out;
+  (c.units || []).forEach(function(u){
+    (u.guides || []).forEach(function(g){ out.push(g); });
   });
   return out;
 }
@@ -7576,7 +7612,7 @@ function probeExists(url){
 /* Filenames follow NUR###_Unit#_Lecture#_*.md, so the next few lectures in each
    unit (and the next unit's first lecture) are predictable enough to probe for. */
 function orphanCandidates(){
-  var guides = allGuides();
+  var guides = currentCourseGuides();
   var known = {};
   guides.forEach(function(g){ known[g.file] = true; });
 
@@ -7610,7 +7646,20 @@ function checkIntegrity(){
   integrityRan = true;
   var issues = [];
 
-  var listed = allGuides().map(function(g){
+  /* only NUR144's Study Guide pane renders markdown, so a guide filed under any
+     other course would never appear anywhere — say so rather than hide it */
+  (manifest.courses || []).forEach(function(c){
+    if (c.code === window.currentCourse) return;
+    var n = 0;
+    (c.units || []).forEach(function(u){ n += (u.guides || []).length; });
+    if (n) issues.push({
+      kind: 'unreachable',
+      text: n + ' guide(s) are filed under ' + c.label + ', which has no markdown '
+          + 'study guide page, so they are not shown anywhere'
+    });
+  });
+
+  var listed = currentCourseGuides().map(function(g){
     return probeExists(g.file).then(function(state){
       if (state === 'no'){
         issues.push({
@@ -7659,31 +7708,30 @@ function renderIndex(){
   setHash('#/study-guides');
 
   var host = guideHost();
+  var course = currentCourseEntry();
   var h = '<div class="sg-wrap">'
         + '<div class="sg-page-hdr"><h1>Study Guides</h1>'
-        + '<p>Full-length written guides, grouped by course and unit. '
+        + '<p>Full-length written guides by unit. '
         + 'Progress is saved on this device.</p></div>'
         + '<div id="sg-integrity"></div>';
 
+  /* the course tab already says which course this is, so only its units are
+     grouped here — a course heading would just repeat the selected tab */
   var any = false;
-  (manifest.courses || []).forEach(function(c){
-    var guides = 0;
-    c.units.forEach(function(u){ guides += u.guides.length; });
-    if (!guides) return;
-    any = true;
-    h += '<div class="sg-course-hdr"><span class="sg-course-code">' + esc(c.label) + '</span>'
-       + (c.title ? '<span class="sg-course-sub">' + esc(c.title) + '</span>' : '') + '</div>';
-    c.units.forEach(function(u){
+  if (course){
+    course.units.forEach(function(u){
       if (!u.guides.length) return;
+      any = true;
       h += '<div class="sg-unit-hdr">' + esc(u.label) + '</div><div class="sg-card-grid">';
       u.guides.forEach(function(g){ h += cardHtml(g); });
       h += '</div>';
     });
-  });
+  }
 
   if (!any){
     h += '<div class="sg-empty"><h3>No guides yet</h3>'
-       + '<p>Drop a <code>.md</code> file into <code>content/&lt;course&gt;/</code>, run '
+       + '<p>Drop a <code>.md</code> file into <code>content/'
+       + esc(window.currentCourse.toLowerCase()) + '/</code>, run '
        + '<code>node scripts/build-guides-manifest.js</code>, and it will appear here.</p></div>';
   }
 
@@ -7723,16 +7771,12 @@ function renderSidebarIndex(){
   var ctx = $('sidebar-context');
   if (!ctx) return;
   var h = '<div class="ctx-label">Guides</div>';
-  (manifest.courses || []).forEach(function(c){
-    c.units.forEach(function(u){
-      u.guides.forEach(function(g){
-        h += '<button class="section-link" onclick="sgOpen(\'' + esc(g.slug) + '\')">'
-          + '<span class="dot"></span>'
-          + '<span class="sl-text">' + esc(g.cardTitle || g.title) + '</span>'
-          + '<span class="sl-sub">' + esc(g.lectureLabel.replace('Lecture ','L')) + '</span>'
-          + '</button>';
-      });
-    });
+  currentCourseGuides().forEach(function(g){
+    h += '<button class="section-link" onclick="sgOpen(\'' + esc(g.slug) + '\')">'
+      + '<span class="dot"></span>'
+      + '<span class="sl-text">' + esc(g.cardTitle || g.title) + '</span>'
+      + '<span class="sl-sub">' + esc(g.lectureLabel.replace('Lecture ','L')) + '</span>'
+      + '</button>';
   });
   ctx.innerHTML = h;
   var f = $('session-counter'); if (f) f.textContent = '';
@@ -7798,15 +7842,16 @@ function drawGuide(g, md){
        + '<span class="sg-prog-txt" id="sg-prog-txt"></span>'
      + '</div></div>';
 
-  /* title block */
-  h += '<div class="sg-hdr"><h1>' + renderInline(doc.title || g.title) + '</h1>'
-     + (doc.subtitle ? '<div class="sg-sub">' + renderInline(doc.subtitle) + '</div>' : '')
-     + '<div class="sg-hdr-tags">'
-       + '<span class="sg-tag">' + esc(g.course.replace(/^NUR/,'NUR ')) + '</span>'
-       + (g.unit !== null ? '<span class="sg-tag">Unit ' + g.unit + '</span>' : '')
-       + '<span class="sg-tag">' + esc(g.lectureLabel) + '</span>'
-       + '<span class="sg-tag">' + doc.sections.length + ' sections</span>'
-     + '</div></div>';
+  /* The whole file is one lecture; its H2s are subsections of that lecture, so
+     the lecture gets the header bar and they nest underneath it. */
+  h += '<div class="sg-unit-label">'
+     + (g.unit !== null ? 'Unit ' + g.unit : esc(g.course.replace(/^NUR/,'NUR ')))
+     + '</div>'
+     + '<div class="sg-lecture-hdr sh-cobalt">'
+       + '<span class="sg-lecture-name">'
+       + renderInline(doc.subtitle || doc.title || g.title) + '</span>'
+       + '<span class="lec-tag">' + esc(g.lectureLabel) + '</span>'
+     + '</div>';
 
   /* marker legend */
   h += '<div class="sg-legend">';
@@ -7826,12 +7871,13 @@ function drawGuide(g, md){
        + '<div class="sg-intro sg-md" id="sg-intro" hidden></div>';
   }
 
-  /* section shells — bodies are injected after, as DOM nodes */
+  /* subsections of the lecture — bodies are injected after, as DOM nodes */
+  h += '<div class="sg-lecture-body">';
   sections = [];
   doc.sections.forEach(function(s, i){
-    var color = SEC_COLORS[i % SEC_COLORS.length];
-    var accent = SEC_VARS[i % SEC_VARS.length];
-    var open = (i === 0);            /* first section expanded, rest collapsed */
+    var color = LECTURE_COLOR;
+    var accent = LECTURE_VAR;
+    var open = (i === 0);            /* first subsection expanded, rest collapsed */
     var reviewed = !!prog[s.id];
     h += '<section class="sg-sec' + (open ? ' open' : '') + (reviewed ? ' reviewed' : '') + '" '
        + 'id="' + s.id + '" data-must="' + (s.must ? '1' : '0') + '" '
@@ -7840,6 +7886,7 @@ function drawGuide(g, md){
        + '<button class="sg-sec-hdr ' + color + '" aria-expanded="' + open + '" '
          + 'aria-controls="' + s.id + '-body" onclick="sgToggleSec(\'' + s.id + '\')">'
          + '<span class="sg-chev">' + svg('<path d="m9 18 6-6-6-6"/>') + '</span>'
+         + '<span class="sg-sec-num">' + (i + 1) + '</span>'
          + '<span class="sg-sec-title">' + renderInline(s.heading) + '</span>'
          + '<span class="sg-rev" onclick="event.stopPropagation()">'
            + '<input type="checkbox" id="rev-' + s.id + '"' + (reviewed ? ' checked' : '')
@@ -7852,6 +7899,7 @@ function drawGuide(g, md){
        + '</section>';
     sections.push({ id: s.id, heading: s.heading, body: s.body, must: s.must });
   });
+  h += '</div>';   /* /sg-lecture-body */
 
   h += '</div>';
   guideHost().innerHTML = h;
@@ -7998,7 +8046,7 @@ function updateProgress(){
   var pct = ids.length ? Math.round(done / ids.length * 100) : 0;
   var fill = $('sg-prog-fill'), txt = $('sg-prog-txt');
   if (fill) fill.style.width = pct + '%';
-  if (txt)  txt.textContent = done + ' / ' + ids.length + ' sections reviewed';
+  if (txt)  txt.textContent = done + ' / ' + ids.length + ' subsections reviewed';
 }
 
 function toggleMust(){

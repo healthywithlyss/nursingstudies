@@ -1,5 +1,5 @@
 # NUR 144 — UNIT 1, LECTURE 1
-## Gastrointestinal Assessment · Gastric & Duodenal Disorders
+## Gastric & Duodenal Disorders
 
 **Sources:** Lecture 1-1 (GI Assessment), Lecture 1-2 (Gastric & Duodenal Disorders), Week One Addendum, and instructor speaker notes.
 
