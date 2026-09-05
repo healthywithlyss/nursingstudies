@@ -4960,8 +4960,22 @@ var NUR116_OBJ_GROUPS={
   'N116T13':'Grief \u2014 K\u00fcbler-Ross'
 };
 var NUR116_FC_OBJ_MAP={};  /* populated by initPractice() from DB; NUR116_T01 key format */
+var NUR144_OBJ_GROUPS={
+  'N144_L1':'Lecture 1 \u2014 Gastric & Duodenal Disorders',
+  'N144_SKILLS':'Lab Skills'
+};
+/* objective_ids seen in NUR144 data that the map above doesn't name yet — kept
+   so a newly seeded objective still shows up (labelled by its id) instead of
+   silently vanishing the way N144_L1 did. */
+var NUR144_DISCOVERED={};
+
 function getObjGroups(){
-  if(currentCourse==='NUR144') return {};   /* no decks for NUR144 */
+  if(currentCourse==='NUR144'){
+    var m={},k;
+    for(k in NUR144_OBJ_GROUPS) m[k]=NUR144_OBJ_GROUPS[k];
+    for(k in NUR144_DISCOVERED) if(!m[k]) m[k]=NUR144_DISCOVERED[k];
+    return m;
+  }
   return currentCourse==='NUR116'?NUR116_OBJ_GROUPS:NUR118_OBJ_GROUPS;
 }
 /* For flashcard display: FC map if loaded (NUR116_T01 keys), else quiz map (N116T01 keys) */
@@ -5094,11 +5108,6 @@ function courseEmptyHide(pageId){
 function courseLabel(){ return currentCourse.replace(/^NUR/,'NUR '); }
 
 function initPractice(){
-  if(currentCourse==='NUR144'){
-    courseEmptyShow('page-practice','No practice cards for '+courseLabel()+' yet',
-      'This course has written study guides only. Open the Study Guide tab to read them.');
-    return;
-  }
   courseEmptyHide('page-practice');
   if(fcLoaded) return;
   fcSetLoading();
@@ -5724,7 +5733,7 @@ function switchCourse(course){
   if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
   fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
-  fcReviewCardIds=null;fcWrapupCardIds=null;NUR116_FC_OBJ_MAP={};
+  fcReviewCardIds=null;fcWrapupCardIds=null;NUR116_FC_OBJ_MAP={};NUR144_DISCOVERED={};
   sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
   window._pendingResume=null;
   renderCtx(currentPage);
@@ -5854,10 +5863,24 @@ function isInSection(objId,sectionKey){
 /* PostgREST filter segment (full &param=value) for the current course.
    NUR116: OR filter covers both N116T* topics and NUR116_WRAPUP.
    NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
+/* quiz_questions has no course column — a question's course is carried by its
+   objective_id prefix. Each course claims its own prefixes; NUR118 is the
+   original course and owns every id no other course has claimed, so a new
+   course must be listed here or its questions leak into NUR118. */
+var QUIZ_COURSE_PREFIXES={NUR116:['N116T'],NUR144:['N144']};
+
 function getQuizCourseFilter(){
-  if(currentCourse==='NUR116')
-    return 'objective_id=like.N116T%25';
-  return 'objective_id=not.like.N116T%25';
+  var mine=QUIZ_COURSE_PREFIXES[currentCourse];
+  if(mine)
+    return mine.map(function(p){return 'objective_id=like.'+p+'%25';}).join('&');
+  /* NUR118: everything not claimed above. Repeating a column ANDs the filters. */
+  var out=[];
+  Object.keys(QUIZ_COURSE_PREFIXES).forEach(function(c){
+    QUIZ_COURSE_PREFIXES[c].forEach(function(p){
+      out.push('objective_id=not.like.'+p+'%25');
+    });
+  });
+  return out.join('&');
 }
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
@@ -5875,12 +5898,6 @@ var troubleQuestionIds=[]; /* question IDs user consistently struggles with */
    DASHBOARD
    ══════════════════════════════════════════════════════════════════ */
 function initDashboard(){
-  if(currentCourse==='NUR144'){
-    courseEmptyShow('page-dashboard','No progress data for '+courseLabel()+' yet',
-      'Progress tracking follows flashcards and quizzes. '
-      +'Per-section review progress for the guides is shown on the Study Guide tab.');
-    return;
-  }
   courseEmptyHide('page-dashboard');
   var sectionsEl=document.getElementById('dash-sections');
   if(sectionsEl) sectionsEl.innerHTML='<div class="dash-loading">Loading\u2026</div>';
@@ -5896,8 +5913,18 @@ function initDashboard(){
 
   var dashCards=null, dashMastery=null, dashQMastery=null, dashQAttempts=null;
   function maybeRender(){
-    if(dashCards!==null&&dashMastery!==null&&dashQMastery!==null&&dashQAttempts!==null)
-      renderDashboard(dashCards,dashMastery,dashQMastery,dashQAttempts);
+    if(dashCards===null||dashMastery===null||dashQMastery===null||dashQAttempts===null) return;
+    var noData=!dashCards.length
+      &&!(Array.isArray(dashQAttempts)&&dashQAttempts.length)
+      &&!Object.keys(dashQMastery||{}).length;
+    if(noData){
+      courseEmptyShow('page-dashboard','No progress data for '+courseLabel()+' yet',
+        'Progress here follows flashcards and quizzes. Take a quiz and it will show up. '
+        +'Per-subsection review progress for the guides is on the Study Guide tab.');
+      return;
+    }
+    courseEmptyHide('page-dashboard');
+    renderDashboard(dashCards,dashMastery,dashQMastery,dashQAttempts);
   }
 
   /* reuse cached practice cards if available, else fetch minimal fields */
@@ -6016,11 +6043,6 @@ function renderDashboard(cards,masteryMap,qMasteryMap,qAttempts){
 }
 
 function initQuiz(){
-  if(currentCourse==='NUR144'){
-    courseEmptyShow('page-quiz','No quiz questions for '+courseLabel()+' yet',
-      'This course has written study guides only. Open the Study Guide tab to read them.');
-    return;
-  }
   courseEmptyHide('page-quiz');
   loadStarredQuestions(); /* always refresh from localStorage */
   if(quizLoaded){
@@ -6042,6 +6064,10 @@ function initQuiz(){
   function ingestQuizRows(data){
     if(!Array.isArray(data)) return;
     data.forEach(function(q){
+      /* register an unmapped NUR144 objective before its group key is resolved */
+      if(currentCourse==='NUR144'&&q.objective_id
+         &&!NUR144_OBJ_GROUPS[q.objective_id]&&!NUR144_DISCOVERED[q.objective_id])
+        NUR144_DISCOVERED[q.objective_id]=q.objective_id;
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
       var grp=getObjGroupKey(q.objective_id);
       if(grp!==q.objective_id) quizQCounts[grp]=(quizQCounts[grp]||0)+1;
