@@ -54,11 +54,26 @@ using the caller's own token (so RLS applies).
 
 ## Model selection
 
-Model names change, so none is hardcoded as *the* model. The function calls
-ListModels at runtime, filters to models supporting `generateContent`, and
-takes the first match from a preference order (a bigger model for writing, a
-faster one for extraction and verification). `POST {"action":"list-models"}`
-returns what the key can actually see and what would be used.
+No model name is hardcoded. The function calls ListModels at runtime, filters
+to models supporting `generateContent`, then ranks what is left:
+
+1. drop anything that is not a text model — tts, image, vision, embedding,
+   transcribe, robotics, computer-use, omni, lyria, gemma and friends. This
+   matters: a plain name-prefix match would hand text generation to
+   `gemini-2.5-flash-preview-tts` the day `gemini-2.5-flash` is retired.
+2. prefer stable over `-preview` / `-exp`.
+3. prefer an explicitly versioned name over a `*-latest` alias, so a run is
+   reproducible and cannot silently change model mid-project.
+4. drop `flash-lite` — too weak to be the writer or the coverage judge.
+5. sort by version descending, then by tier (pro > flash), because a model
+   generation gap outweighs a tier gap.
+
+The verifier is then picked as the highest-ranked model that is **not** the
+writer, so the script is not graded solely by the model that produced it.
+
+`POST {"action":"list-models"}` returns `available`, the `ranked` shortlist and
+`would_use`. The review page turns `ranked` into two dropdowns so either model
+can be overridden per run; `gen_model` / `check_model` do the same over the API.
 
 ## Request
 

@@ -46,17 +46,6 @@ const MAX_RETRIES_DEFAULT = 3;
 const WORDS_MIN = 1200;
 const WORDS_MAX = 1600;
 
-/* Model names change often, so nothing is hardcoded as "the" model: the list
-   is fetched from the API and the first available preference is used. */
-const GEN_PREFS = [
-  'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-pro-latest',
-  'gemini-flash-latest', 'gemini-2.0-flash',
-];
-const CHECK_PREFS = [
-  'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash',
-  'gemini-2.5-pro', 'gemini-pro-latest',
-];
-
 let modelCache: string[] | null = null;
 
 async function availableModels(apiKey: string): Promise<string[]> {
@@ -73,17 +62,50 @@ async function availableModels(apiKey: string): Promise<string[]> {
   return names;
 }
 
-function pickModel(available: string[], prefs: string[]): string {
-  for (const p of prefs) {
-    if (available.includes(p)) return p;
-    const pre = available.find((m) => m.startsWith(p));   // e.g. -preview suffixes
-    if (pre) return pre;
+/* Model names change constantly, so nothing is hardcoded as "the" model: the
+   live list is fetched and ranked. Newest version wins, because a model
+   generation gap outweighs a tier gap; ties break toward the more capable tier.
+
+   The exclusion list matters — a name-prefix match alone would happily hand
+   text generation to gemini-2.5-flash-preview-tts the day gemini-2.5-flash is
+   retired. */
+const NOT_TEXT = /(tts|image|vision|embedding|robotics|computer-use|lyria|nano-banana|deep-research|transcribe|omni|antigravity|gemma)/i;
+
+function modelVersion(name: string): number {
+  const m = name.match(/gemini-(\d+(?:\.\d+)?)/i);
+  return m ? parseFloat(m[1]) : 0;
+}
+/* higher = more capable tier */
+function modelTier(name: string): number {
+  if (/flash-lite/i.test(name)) return 1;
+  if (/flash/i.test(name)) return 2;
+  if (/pro/i.test(name)) return 3;
+  return 0;
+}
+
+function rankModels(available: string[]): string[] {
+  const usable = available.filter((m) => /^gemini/i.test(m) && !NOT_TEXT.test(m));
+  const stable = usable.filter((m) => !/preview|exp\b/i.test(m));
+  let pool = stable.length ? stable : usable;
+  /* prefer an explicitly versioned name over a *-latest alias so a run is
+     reproducible and cannot silently change model mid-project */
+  const versioned = pool.filter((m) => modelVersion(m) > 0);
+  if (versioned.length) pool = versioned;
+  /* a lite model is too weak to be the coverage judge or the writer */
+  const full = pool.filter((m) => modelTier(m) >= 2);
+  if (full.length) pool = full;
+  return pool.slice().sort((a, b) => (modelVersion(b) - modelVersion(a)) || (modelTier(b) - modelTier(a)));
+}
+
+/* `avoid` lets the verifier be a different model from the writer, so the script
+   is not graded solely by the model that wrote it. */
+function pickModel(available: string[], avoid?: string): string {
+  const ranked = rankModels(available);
+  if (avoid) {
+    const other = ranked.find((m) => m !== avoid);
+    if (other) return other;
   }
-  /* nothing preferred is present — fall back to any non-preview gemini model */
-  const gem = available.filter((m) => m.startsWith('gemini') && !/vision|embedding|tts|image/.test(m));
-  const stable = gem.filter((m) => !/preview|exp/.test(m));
-  const pool = stable.length ? stable : gem;
-  return pool.find((m) => m.includes('pro')) || pool[0] || '';
+  return ranked[0] || '';
 }
 
 async function gemini(apiKey: string, model: string, prompt: string, opts: {
@@ -458,7 +480,11 @@ Deno.serve(async (req: Request) => {
       const available = await availableModels(apiKey);
       return new Response(JSON.stringify({
         available,
-        would_use: { generation: pickModel(available, GEN_PREFS), verification: pickModel(available, CHECK_PREFS) },
+        ranked: rankModels(available),
+        would_use: (() => {
+          const g = pickModel(available);
+          return { generation: g, verification: pickModel(available, g) };
+        })(),
       }), { headers: JSON_HDR });
     }
 
@@ -495,8 +521,8 @@ Deno.serve(async (req: Request) => {
     if (!section.body.trim()) throw new Error(`Section "${heading}" has no body text.`);
 
     const available = await availableModels(apiKey);
-    const genModel = body.gen_model || pickModel(available, GEN_PREFS);
-    const checkModel = body.check_model || pickModel(available, CHECK_PREFS);
+    const genModel = body.gen_model || pickModel(available);
+    const checkModel = body.check_model || pickModel(available, genModel);
     if (!genModel || !checkModel) throw new Error('No usable Gemini model found for this API key.');
 
     const maxRetries = Math.max(0, Math.min(5, Number(body.max_retries ?? MAX_RETRIES_DEFAULT)));

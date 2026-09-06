@@ -8651,6 +8651,12 @@ function render(){
         + '<div class="pod-field"><label for="pod-section">Section</label>'
           + '<select id="pod-section"></select></div>'
       + '</div>'
+      + '<div class="pod-row">'
+        + '<div class="pod-field"><label for="pod-genmodel">Writing model</label>'
+          + '<select id="pod-genmodel"><option value="">Auto — newest available</option></select></div>'
+        + '<div class="pod-field"><label for="pod-checkmodel">Verifying model</label>'
+          + '<select id="pod-checkmodel"><option value="">Auto — newest, different from writer</option></select></div>'
+      + '</div>'
       + '<div class="pod-opts">'
         + '<label for="pod-retries">Max retries'
           + '<input type="number" id="pod-retries" value="3" min="0" max="5" '
@@ -8669,6 +8675,28 @@ function render(){
     + '</div>';
   fillGuides();
   loadEpisodes();
+  loadModels();
+}
+
+/* Model names change constantly, so the choices come from the API, not a
+   hardcoded list. Failing here is non-fatal — Auto still works. */
+function loadModels(){
+  fetch(SB_URL+FN,{
+    method:'POST',
+    headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+    body:JSON.stringify({action:'list-models'})
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if(!d||!Array.isArray(d.ranked)) return;
+    var w=d.would_use||{};
+    [['pod-genmodel',w.generation],['pod-checkmodel',w.verification]].forEach(function(pair){
+      var sel=$(pair[0]); if(!sel) return;
+      var auto=sel.options[0];
+      auto.textContent=auto.textContent.replace(/ \(.*\)$/,'')+(pair[1]?' ('+pair[1]+')':'');
+      d.ranked.forEach(function(m){
+        var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o);
+      });
+    });
+  }).catch(function(){ /* Auto still works */ });
 }
 
 function fillGuides(){
@@ -8732,7 +8760,9 @@ function generate(){
         markdown:md,
         max_retries:parseInt($('pod-retries').value,10),
         dry_run:$('pod-dry').checked,
-        cross_check:$('pod-cross').checked
+        cross_check:$('pod-cross').checked,
+        gen_model:$('pod-genmodel').value||undefined,
+        check_model:$('pod-checkmodel').value||undefined
       })
     });
   }).then(function(r){
