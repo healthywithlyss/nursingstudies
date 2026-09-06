@@ -1309,10 +1309,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   padding:13px 16px;background:var(--teal);color:#fff;border:none;cursor:pointer;
   font-family:inherit;min-height:52px}
 .lsn-lec-hd:disabled{background:var(--slate);cursor:default;opacity:.75}
-.lsn-lec-t{flex:1;min-width:0}
-.lsn-lec-name{font-size:14.5px;font-weight:800;line-height:1.3;letter-spacing:-.01em;
-  overflow-wrap:anywhere}
-.lsn-lec-sub{font-size:11.5px;font-weight:600;opacity:.85;margin-top:2px}
+/* these are spans inside a span, so they must be told to stack */
+.lsn-lec-t{flex:1;min-width:0;display:block}
+.lsn-lec-name{display:block;font-size:14.5px;font-weight:800;line-height:1.3;
+  letter-spacing:-.01em;overflow-wrap:anywhere}
+.lsn-lec-sub{display:block;font-size:11.5px;font-weight:600;opacity:.85;margin-top:3px}
 .lsn-lec-ring{flex:0 0 auto;font-size:11px;font-weight:800;background:rgba(255,255,255,.22);
   padding:3px 10px;border-radius:20px;white-space:nowrap}
 .lsn-chev{flex:0 0 16px;transition:transform .18s}
