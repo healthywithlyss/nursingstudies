@@ -47,6 +47,9 @@ const WORDS_MIN = 1200;
 const WORDS_MAX = 1600;
 
 let modelCache: string[] | null = null;
+/* each model's real output-token ceiling, straight from ListModels, so the
+   budget is never a number we guessed */
+const modelOutputLimit: Record<string, number> = {};
 
 async function availableModels(apiKey: string): Promise<string[]> {
   if (modelCache) return modelCache;
@@ -54,8 +57,14 @@ async function availableModels(apiKey: string): Promise<string[]> {
     `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=200`);
   if (!res.ok) throw new Error(`ListModels failed (${res.status}): ${await res.text()}`);
   const data = await res.json();
-  const names: string[] = (data.models || [])
-    .filter((m: any) => (m.supportedGenerationMethods || []).includes('generateContent'))
+  const usable = (data.models || [])
+    .filter((m: any) => (m.supportedGenerationMethods || []).includes('generateContent'));
+  usable.forEach((m: any) => {
+    const n = String(m.name || '').replace(/^models\//, '');
+    const lim = Number(m.outputTokenLimit);
+    if (n && Number.isFinite(lim) && lim > 0) modelOutputLimit[n] = lim;
+  });
+  const names: string[] = usable
     .map((m: any) => String(m.name || '').replace(/^models\//, ''))
     .filter(Boolean);
   modelCache = names;
@@ -112,6 +121,10 @@ async function gemini(apiKey: string, model: string, prompt: string, opts: {
   json?: boolean; temperature?: number; maxOutputTokens?: number;
 } = {}): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  /* Thinking models bill reasoning tokens against this same budget, so a cap
+     sized only for the visible answer truncates the script mid-sentence. Use
+     the model's declared ceiling. */
+  const cap = opts.maxOutputTokens ?? modelOutputLimit[model] ?? 32768;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -119,7 +132,7 @@ async function gemini(apiKey: string, model: string, prompt: string, opts: {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: opts.temperature ?? 0.6,
-        maxOutputTokens: opts.maxOutputTokens ?? 16384,
+        maxOutputTokens: cap,
         ...(opts.json ? { responseMimeType: 'application/json' } : {}),
       },
       safetySettings: [
@@ -134,10 +147,21 @@ async function gemini(apiKey: string, model: string, prompt: string, opts: {
   if (!res.ok) throw new Error(`Gemini ${model} ${res.status}: ${JSON.stringify(data).slice(0, 600)}`);
   const cand = data.candidates && data.candidates[0];
   if (!cand) throw new Error(`Gemini ${model} returned no candidate: ${JSON.stringify(data).slice(0, 400)}`);
-  if (cand.finishReason && cand.finishReason !== 'STOP' && !cand.content)
-    throw new Error(`Gemini ${model} stopped: ${cand.finishReason}`);
   const parts = (cand.content && cand.content.parts) || [];
-  return parts.map((p: any) => p.text || '').join('').trim();
+  const text = parts.map((p: any) => p.text || '').join('').trim();
+  /* MAX_TOKENS still returns partial content, so this must NOT require empty
+     content — otherwise a truncated reply reaches parseJson and surfaces as an
+     unterminated-string error that says nothing about the real cause. */
+  if (cand.finishReason === 'MAX_TOKENS') {
+    const u = data.usageMetadata || {};
+    throw new Error(`Gemini ${model} hit the output cap (MAX_TOKENS) at ${cap} tokens `
+      + `— prompt ${u.promptTokenCount ?? '?'}, thinking ${u.thoughtsTokenCount ?? 0}, `
+      + `answer ${u.candidatesTokenCount ?? '?'}. Truncated after ${text.length} chars. `
+      + `Retry with a smaller section, or pass gen_model/check_model.`);
+  }
+  if (cand.finishReason && cand.finishReason !== 'STOP' && !text)
+    throw new Error(`Gemini ${model} stopped: ${cand.finishReason}`);
+  return text;
 }
 
 function parseJson(raw: string): any {
