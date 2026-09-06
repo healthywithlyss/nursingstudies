@@ -1247,6 +1247,112 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .pod-stat{min-width:calc(50% - 4px)}
   .pod-ep{flex-wrap:wrap}
   .pod-ep-name{flex:1 1 100%}
+  .pod-audio-row{flex-wrap:wrap}
+  .pod-audio-row .pod-field{min-width:100%}
+}
+/* audio generation, admin side */
+.pod-audio-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+.pod-seg{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--g200);
+  border-radius:8px;margin-bottom:6px;font-size:12px}
+.pod-seg-n{flex:0 0 22px;height:22px;border-radius:50%;background:var(--g100);color:var(--text-muted);
+  font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pod-seg.done .pod-seg-n{background:#dcfce7;color:var(--forest)}
+.pod-seg.now .pod-seg-n{background:var(--teal);color:#fff}
+.pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
+.pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
+
+/* ══════════════ LISTEN (coached audio playback) ══════════════
+   Namespaced .lsn-* / #page-listen. Nothing here touches an existing rule. */
+#page-listen{padding-bottom:190px}
+.lsn-hdr{margin-bottom:16px}
+.lsn-hdr h1{font-size:23px;font-weight:800;color:var(--text);margin:0 0 4px}
+.lsn-hdr p{font-size:13px;color:var(--text-muted);margin:0;line-height:1.5}
+.lsn-panel{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.lsn-panel h3{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text-muted);margin:0 0 10px}
+.lsn-field{display:block;margin-bottom:12px}
+.lsn-field label{display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px}
+.lsn-field select{width:100%;padding:10px 12px;border:1px solid var(--g200);border-radius:8px;
+  font-size:14px;background:#fff;color:var(--text);font-family:inherit;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:34px}
+
+/* section list */
+.lsn-sec{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;
+  border:1px solid var(--g200);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;
+  font-family:inherit;min-height:52px}
+.lsn-sec:hover{border-color:var(--teal);background:#f8fafc}
+.lsn-sec.playing{border-color:var(--teal);background:#f0fdfa;box-shadow:0 0 0 1px var(--teal)}
+.lsn-sec.locked{opacity:.5;cursor:default}
+.lsn-sec.locked:hover{border-color:var(--g200);background:#fff}
+.lsn-sec-n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--g100);color:var(--text-muted);
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.lsn-sec.playing .lsn-sec-n{background:var(--teal);color:#fff}
+.lsn-sec-body{flex:1;min-width:0}
+.lsn-sec-name{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.35;
+  overflow-wrap:anywhere}
+.lsn-sec-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.lsn-sec-bar{height:3px;border-radius:2px;background:var(--g100);margin-top:6px;overflow:hidden}
+.lsn-sec-bar i{display:block;height:100%;background:var(--teal);border-radius:2px}
+
+/* the player, pinned above the bottom nav on mobile */
+.lsn-player{position:fixed;left:0;right:0;bottom:0;z-index:60;
+  background:#fff;border-top:1px solid var(--g200);box-shadow:0 -3px 14px rgba(15,23,42,.10);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
+.lsn-player[hidden]{display:none}
+/* The player persists across pages so a listen can continue while she reads.
+   It is fixed, so whatever page is underneath needs room for it. Keyed on a
+   class this module owns, so no existing rule is touched. */
+body.lsn-open #main-content{padding-bottom:150px}
+@media(max-width:767px){ body.lsn-open #main-content{padding-bottom:206px} }
+.lsn-now{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsn-sub{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.lsn-scrub{width:100%;margin:8px 0 4px;accent-color:var(--teal);height:22px}
+.lsn-ctrls{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:2px}
+.lsn-cbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--g200);background:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex:0 0 auto}
+.lsn-cbtn:disabled{opacity:.35;cursor:default}
+.lsn-cbtn svg{width:19px;height:19px}
+.lsn-cbtn.main{width:54px;height:54px;background:var(--teal);border-color:var(--teal);color:#fff}
+.lsn-cbtn.main svg{width:23px;height:23px}
+.lsn-rate{border:1px solid var(--g200);border-radius:20px;background:#fff;font-size:12px;
+  font-weight:700;color:var(--text-muted);padding:0 11px;height:34px;cursor:pointer;font-family:inherit}
+
+/* checkpoint card */
+.lsn-cp{position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.55);
+  display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.lsn-cp[hidden]{display:none}
+.lsn-cp-card{background:#fff;border-radius:16px;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));
+  width:100%;max-width:560px;box-shadow:0 12px 40px rgba(15,23,42,.3);max-height:88vh;overflow-y:auto}
+.lsn-cp-tag{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:10px}
+.lsn-cp-q{font-size:18px;font-weight:700;color:var(--text);line-height:1.45;margin:0 0 14px;
+  overflow-wrap:anywhere}
+.lsn-cp-hint{font-size:12.5px;color:var(--text-muted);line-height:1.55;margin:0 0 18px}
+.lsn-cp-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--teal);color:#fff;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;min-height:48px}
+.lsn-cp-replay{width:100%;padding:11px;border-radius:10px;border:1px solid var(--g200);background:#fff;
+  color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px}
+
+.lsn-note{font-size:12px;color:var(--text-muted);line-height:1.55;margin-top:10px}
+.lsn-empty{text-align:center;padding:34px 18px;color:var(--text-muted);font-size:13.5px;line-height:1.6}
+.lsn-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:8px;
+  padding:11px 13px;font-size:12.5px;line-height:1.5;margin-bottom:12px}
+
+/* under the layout breakpoint the bottom nav (56px) owns the very bottom */
+@media(max-width:767px){
+  .lsn-player{bottom:56px}
+}
+@media(min-width:768px){
+  .lsn-player{left:var(--sidebar-w)}
+}
+@media(max-width:420px){
+  .lsn-hdr h1{font-size:20px}
+  .lsn-panel{padding:14px}
+  .lsn-cp-q{font-size:16.5px}
+  .lsn-ctrls{gap:8px}
 }
 </style>
 </head>
@@ -1305,6 +1411,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-podcast" onclick="goTo('podcast')" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
         Podcast
+      </button>
+      <button class="nav-item" id="nav-listen" onclick="goTo('listen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/></svg>
+        Listen
       </button>
       <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -4188,6 +4298,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <!-- ══════════════ PODCAST SCRIPTS (admin only) ══════════════ -->
     <div id="page-podcast" class="page"></div>
 
+    <!-- ══════════════ LISTEN (coached audio, any signed-in user) ══════════════ -->
+    <div id="page-listen" class="page"></div>
+
   </main>
 </div>
 
@@ -4229,6 +4342,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-podcast" onclick="goTo('podcast')" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
     Podcast
+  </button>
+  <button class="bnav-btn" id="bnav-listen" onclick="goTo('listen')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/></svg>
+    Listen
   </button>
   <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -8974,11 +9091,14 @@ function renderResult(d){
   }
   h+='</div>';
 
+  h+=audioPanel(d);
+
   h+='<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
     +'<h3 style="padding:0 2px">Script — '+esc(d.section_heading)+'</h3></div>'
     +'<div class="pod-script">'+scriptHtml(d.script||'',cps)+'</div>';
 
   $('pod-result').innerHTML=h;
+  if(d.episode_id){ fillVoices(); podAudioStatus(); }
 }
 
 function scriptHtml(script,cps){
@@ -9104,6 +9224,128 @@ window.updateAiChatBtnVisibility=function(){
   syncNav();
 };
 
+/* ── audio generation (admin) ─────────────────────────────────────────
+   Separate function, separate action per segment: each call is short, the
+   progress is real rather than a spinner, and a failure costs one segment.  */
+var AFN='/functions/v1/generate-podcast-audio';
+var voiceCache=null;
+var audioBusy=false;
+
+function afn(body){
+  return fetch(SB_URL+AFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(j){
+      if(!r.ok) throw new Error(j.error||('Audio request failed ('+r.status+')'));
+      return j;
+    }); });
+}
+
+function audioPanel(d){
+  if(!d.episode_id){
+    return '<div class="pod-panel"><h3>Audio</h3><div class="pod-note">'
+      +'This was a dry run, so there is no saved episode to attach audio to. '
+      +'Generate it again with saving on first.</div></div>';
+  }
+  return '<div class="pod-panel"><h3>Audio</h3>'
+    +'<div class="pod-audio-row">'
+    +'<label class="pod-field"><label>Voice</label>'
+    +'<select id="pod-voice"><option>loading…</option></select></label>'
+    +'<button class="pod-btn" id="pod-audio-go" onclick="podAudioGo()">Generate audio</button>'
+    +'<button class="pod-btn pod-btn-ghost" onclick="podAudioStatus()">Refresh</button>'
+    +'</div>'
+    +'<div id="pod-audio-status" class="pod-note"></div>'
+    +'<div id="pod-audio-segs"></div>'
+    +'<div class="pod-note">Segments are cut at the checkpoints, so each part ends '
+    +'on a question. Audio is uncompressed WAV: about 2.9 MB per minute.</div>'
+    +'</div>';
+}
+
+function fillVoices(){
+  var sel=$('pod-voice'); if(!sel) return;
+  var apply=function(v){
+    voiceCache=v;
+    sel.innerHTML=v.voices.map(function(x){
+      return '<option value="'+esc(x.name)+'"'+(x.name===v.default_voice?' selected':'')+'>'
+        +esc(x.name)+' — '+esc(x.character)+'</option>';
+    }).join('');
+    var st=$('pod-audio-status');
+    if(st&&!st.textContent) st.textContent='TTS model: '+(v.would_use||'none found')
+      +' (chosen from '+v.all_models_seen+' models on this key)';
+  };
+  if(voiceCache) return apply(voiceCache);
+  afn({action:'voices'}).then(apply).catch(function(e){
+    sel.innerHTML='<option>could not load voices</option>';
+    $('pod-audio-status').textContent=e.message;
+  });
+}
+
+function renderSegs(plan,doneCount,activeIdx){
+  var byOrd={};
+  (plan.generated||[]).forEach(function(g){ byOrd[g.ordinal]=g; });
+  $('pod-audio-segs').innerHTML=(plan.segments||[]).map(function(sg,i){
+    var g=byOrd[i];
+    var cls=g?'done':(i===activeIdx?'now':'');
+    return '<div class="pod-seg '+cls+'"><span class="pod-seg-n">'+(i+1)+'</span>'
+      +'<span class="pod-seg-b">'+esc(sg.preview||'')+'…</span>'
+      +'<span class="pod-seg-t">'+(g?Math.round(g.duration_seconds)+'s':'~'+sg.estimated_seconds+'s')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function podAudioStatus(){
+  if(!current||!current.episode_id) return Promise.resolve(null);
+  return afn({action:'status',episode_id:current.episode_id}).then(function(p){
+    renderSegs(p,(p.generated||[]).length,-1);
+    $('pod-audio-status').textContent=(p.generated||[]).length+' of '+p.segments.length
+      +' parts generated · '+Math.round(p.generated_seconds)+'s of audio · '
+      +(p.generated_bytes/1048576).toFixed(1)+' MB'
+      +(p.complete?' · complete':'');
+    return p;
+  }).catch(function(e){ $('pod-audio-status').textContent=e.message; });
+}
+
+function podAudioGo(){
+  if(audioBusy||!current||!current.episode_id) return;
+  var voice=$('pod-voice').value;
+  var epId=current.episode_id;
+  audioBusy=true;
+  $('pod-audio-go').disabled=true;
+  var t0=Date.now(), totalActual=0, totalEst=0, bytes=0;
+
+  afn({action:'plan',episode_id:epId}).then(function(plan){
+    var todo=plan.segments.map(function(s){ return s.ordinal; })
+      .filter(function(o){ return !(plan.generated||[]).some(function(g){ return g.ordinal===o; }); });
+    renderSegs(plan,0,todo[0]);
+
+    /* strictly sequential: parallel calls would multiply peak memory in the
+       function and give the API a burst it has no reason to accept */
+    return todo.reduce(function(chain,ord){
+      return chain.then(function(){
+        $('pod-audio-status').textContent='Generating part '+(ord+1)+' of '+plan.segments.length+'…';
+        renderSegs(plan,0,ord);
+        return afn({action:'synthesize',episode_id:epId,segment:ord,voice:voice})
+          .then(function(r){
+            totalActual+=r.actual_seconds; totalEst+=r.estimated_seconds; bytes+=r.bytes;
+            return podAudioStatus();
+          });
+      });
+    },Promise.resolve()).then(function(){
+      return podAudioStatus().then(function(){
+        var secs=Math.round((Date.now()-t0)/1000);
+        $('pod-audio-status').textContent+= ' · took '+secs+'s'
+          +(totalEst?' · estimate was off by '
+            +Math.round(((totalActual-totalEst)/totalEst)*100)+'%':'');
+      });
+    });
+  }).catch(function(e){
+    $('pod-audio-status').textContent='Failed: '+(e.message||String(e));
+  }).then(function(){
+    audioBusy=false;
+    var b=$('pod-audio-go'); if(b) b.disabled=false;
+  });
+}
+
+window.podAudioGo=podAudioGo;
+window.podAudioStatus=podAudioStatus;
 window.podGenerate=generate;
 window.podGuideChanged=guideChanged;
 window.podOpen=openEpisode;
@@ -9114,5 +9356,492 @@ else syncNav();
 
 })();
 </script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LISTEN — coached audio playback.  Phase 2.
+
+   Available to ANY signed-in user; generation stays admin-only elsewhere.
+   Additive: wraps goTo() the same way the podcast block does, adds no
+   global except window.lsn*, and touches no existing function.
+
+   PLAYBACK MODEL
+   One <audio> element for the whole session. Segments are cut at the
+   checkpoints, so a segment ending is exactly where the question is asked.
+   Ending on a checkpoint shows the question and WAITS: the tap on Continue
+   is a real user gesture, which is what iOS requires to start audio, so
+   resuming after a pause is never fighting the autoplay policy.
+   Within a checkpoint stretch (only when the duration cap split it) the next
+   segment auto-advances, which is the one transition that has no gesture
+   behind it.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+
+var MANIFEST_URL='content/study-guides.json';
+var SIGN_SECONDS=8*60*60;      /* long enough for a full sitting */
+var SAVE_EVERY_MS=10000;       /* progress writes, throttled */
+
+var manifest=null;
+var guides=[];                 /* flattened guide list from the manifest   */
+var episodes=[];               /* episodes for the chosen guide            */
+var current=null;              /* {episode, segments, checkpoints, urls}   */
+var segIdx=0;
+var audio=null;
+var lastSave=0;
+var booted=false;
+var loadToken=0;               /* guards against out-of-order loads        */
+
+function $(id){ return document.getElementById(id); }
+function host(){ return $('page-listen'); }
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function mmss(sec){
+  sec=Math.max(0,Math.round(sec||0));
+  var m=Math.floor(sec/60), s=sec%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+function totalSeconds(segs){
+  return (segs||[]).reduce(function(a,s){ return a+Number(s.duration_seconds||0); },0);
+}
+
+/* ── data ─────────────────────────────────────────────────────────────── */
+
+function sbGet(path){
+  return fetch(SB_URL+'/rest/v1/'+path,{headers:getAuthHdr()}).then(function(r){
+    return r.json().then(function(j){
+      if(!r.ok) throw new Error((j&&j.message)||('Request failed ('+r.status+')'));
+      return j;
+    });
+  });
+}
+
+function loadManifest(){
+  if(manifest) return Promise.resolve(manifest);
+  return fetch(MANIFEST_URL).then(function(r){ return r.json(); }).then(function(m){
+    manifest=m; guides=[];
+    (m.courses||[]).forEach(function(c){
+      (c.units||[]).forEach(function(u){
+        (u.guides||[]).forEach(function(g){
+          guides.push({slug:g.slug,label:(c.label||c.code)+' — '+(g.lectureLabel||('Unit '+g.unit))
+            +(g.subtitle?': '+g.subtitle:'')});
+        });
+      });
+    });
+    return m;
+  });
+}
+
+/* Signed URLs, because an <audio src> cannot send an Authorization header and
+   the bucket is private. One call for the whole episode. */
+function signAll(paths){
+  if(!paths.length) return Promise.resolve([]);
+  return fetch(SB_URL+'/storage/v1/object/sign/podcast-audio',{
+    method:'POST', headers:getAuthHdr(),
+    body:JSON.stringify({expiresIn:SIGN_SECONDS,paths:paths})
+  }).then(function(r){
+    return r.json().then(function(j){
+      if(!r.ok) throw new Error('Could not get audio URLs ('+r.status+')');
+      var byPath={};
+      (Array.isArray(j)?j:[]).forEach(function(row){
+        var p=String(row.path||'').replace(/^\/*/,'');
+        if(row.signedURL||row.signedUrl) byPath[p]=SB_URL+'/storage/v1'+(row.signedURL||row.signedUrl);
+      });
+      return paths.map(function(p){ return byPath[p]||null; });
+    });
+  });
+}
+
+function loadProgress(episodeId){
+  return sbGet('podcast_progress?select=segment_ordinal,position_seconds,completed'
+    +'&episode_id=eq.'+encodeURIComponent(episodeId)+'&user_id=eq.'+encodeURIComponent(currentUser.id))
+    .then(function(rows){ return (rows&&rows[0])||null; })
+    .catch(function(){ return null; });   /* never block playback on progress */
+}
+
+function saveProgress(force){
+  if(!current||!currentUser) return;
+  var now=Date.now();
+  if(!force && now-lastSave<SAVE_EVERY_MS) return;
+  lastSave=now;
+  var done=segIdx>=current.segments.length-1 && audio && audio.duration
+        && audio.currentTime>=audio.duration-1.5;
+  fetch(SB_URL+'/rest/v1/podcast_progress?on_conflict=user_id,episode_id',{
+    method:'POST',
+    headers:Object.assign({},getAuthHdr(),{Prefer:'resolution=merge-duplicates'}),
+    body:JSON.stringify([{
+      user_id:currentUser.id, episode_id:current.episode.id,
+      segment_ordinal:segIdx,
+      position_seconds:Math.round((audio&&audio.currentTime)||0),
+      completed:!!done, updated_at:new Date().toISOString()
+    }]),
+    keepalive:true       /* so the last write survives the tab closing */
+  }).catch(function(){ /* a lost position is not worth an error banner */ });
+}
+
+/* ── rendering ────────────────────────────────────────────────────────── */
+
+function shell(){
+  return ''
+  +'<div class="lsn-hdr"><h1>Listen</h1>'
+  +'<p>Coached audio. It pauses at each question — answer it out loud, then continue.</p></div>'
+  +'<div id="lsn-err"></div>'
+  +'<div class="lsn-panel">'
+  +'<label class="lsn-field"><label>Guide</label>'
+  +'<select id="lsn-guide" onchange="lsnGuideChanged()"></select></label>'
+  +'</div>'
+  +'<div class="lsn-panel"><h3>Sections</h3><div id="lsn-secs"></div></div>'
+  +'<div class="lsn-note" id="lsn-foot"></div>';
+}
+
+function renderGuides(){
+  var sel=$('lsn-guide');
+  sel.innerHTML=guides.map(function(g){
+    return '<option value="'+esc(g.slug)+'">'+esc(g.label)+'</option>';
+  }).join('');
+}
+
+function renderSections(rows,audioBySection){
+  var box=$('lsn-secs');
+  if(!rows.length){
+    box.innerHTML='<div class="lsn-empty">No audio has been generated for this guide yet.</div>';
+    return;
+  }
+  box.innerHTML=rows.map(function(ep,i){
+    var segs=audioBySection[ep.id]||[];
+    var ready=segs.length>0;
+    var secs=totalSeconds(segs);
+    var pct=(current&&current.episode.id===ep.id)?playedPct():0;
+    return '<button class="lsn-sec'+(current&&current.episode.id===ep.id?' playing':'')
+      +(ready?'':' locked')+'"'
+      +(ready?' onclick="lsnPlaySection(\''+esc(ep.id)+'\')"':' disabled')+'>'
+      +'<span class="lsn-sec-n">'+(i+1)+'</span>'
+      +'<span class="lsn-sec-body">'
+      +'<span class="lsn-sec-name">'+esc(ep.section_heading)+'</span>'
+      +'<span class="lsn-sec-meta">'+(ready
+          ? mmss(secs)+' · '+segs.length+' part'+(segs.length===1?'':'s')
+          : 'no audio yet')+'</span>'
+      +(pct>0?'<span class="lsn-sec-bar"><i style="width:'+pct+'%"></i></span>':'')
+      +'</span></button>';
+  }).join('');
+}
+
+function playedPct(){
+  if(!current) return 0;
+  var before=0;
+  for(var i=0;i<segIdx;i++) before+=Number(current.segments[i].duration_seconds||0);
+  var total=totalSeconds(current.segments);
+  if(!total) return 0;
+  return Math.min(100,Math.round(((before+((audio&&audio.currentTime)||0))/total)*100));
+}
+
+function playerMarkup(){
+  return ''
+  +'<div class="lsn-player" id="lsn-player" hidden>'
+  +'<div class="lsn-now" id="lsn-now"></div>'
+  +'<div class="lsn-sub" id="lsn-sub"></div>'
+  +'<input class="lsn-scrub" id="lsn-scrub" type="range" min="0" max="1000" value="0" '
+  +'oninput="lsnScrub(this.value)" aria-label="Seek within this part">'
+  +'<div class="lsn-ctrls">'
+  +'<button class="lsn-cbtn" id="lsn-prev" onclick="lsnPrev()" aria-label="Previous part">'
+  +'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zm3 6l8-6v12z"/></svg></button>'
+  +'<button class="lsn-cbtn" onclick="lsnSkip(-15)" aria-label="Back 15 seconds">'
+  +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+  +'<path d="M11 4L5 9l6 5"/><path d="M5 9h7a7 7 0 1 1-7 7"/></svg></button>'
+  +'<button class="lsn-cbtn main" id="lsn-play" onclick="lsnToggle()" aria-label="Play or pause"></button>'
+  +'<button class="lsn-cbtn" onclick="lsnSkip(15)" aria-label="Forward 15 seconds">'
+  +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+  +'<path d="M13 4l6 5-6 5"/><path d="M19 9h-7a7 7 0 1 0 7 7"/></svg></button>'
+  +'<button class="lsn-cbtn" id="lsn-next" onclick="lsnNext()" aria-label="Next part">'
+  +'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM6 6l8 6-8 6z"/></svg></button>'
+  +'<button class="lsn-rate" id="lsn-rate" onclick="lsnRate()">1x</button>'
+  +'</div></div>'
+  +'<div class="lsn-cp" id="lsn-cp" hidden><div class="lsn-cp-card">'
+  +'<div class="lsn-cp-tag">Checkpoint</div>'
+  +'<p class="lsn-cp-q" id="lsn-cp-q"></p>'
+  +'<p class="lsn-cp-hint">Say your answer out loud before you continue. '
+  +'Grading comes later — this is just the pause to make you retrieve it.</p>'
+  +'<button class="lsn-cp-btn" onclick="lsnContinue()">Continue</button>'
+  +'<button class="lsn-cp-replay" onclick="lsnReplaySegment()">Replay that part</button>'
+  +'</div></div>';
+}
+
+var PLAY_ICON='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+var PAUSE_ICON='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>';
+
+function setPlayerVisible(show){
+  var p=$('lsn-player'); if(!p) return;
+  p.hidden=!show;
+  document.body.classList.toggle('lsn-open',!!show);
+}
+
+function syncPlayer(){
+  var p=$('lsn-player'); if(!p) return;
+  if(!current){ setPlayerVisible(false); return; }
+  setPlayerVisible(true);
+  $('lsn-play').innerHTML=(audio&&!audio.paused)?PAUSE_ICON:PLAY_ICON;
+  $('lsn-now').textContent=current.episode.section_heading;
+  var total=totalSeconds(current.segments);
+  $('lsn-sub').textContent='Part '+(segIdx+1)+' of '+current.segments.length
+    +' · '+mmss((audio&&audio.currentTime)||0)+' / '+mmss((audio&&audio.duration)||0)
+    +' · '+playedPct()+'% of '+mmss(total);
+  var sc=$('lsn-scrub');
+  if(audio&&audio.duration&&document.activeElement!==sc)
+    sc.value=Math.round((audio.currentTime/audio.duration)*1000);
+  $('lsn-prev').disabled=(segIdx===0&&(!audio||audio.currentTime<2));
+  $('lsn-next').disabled=(segIdx>=current.segments.length-1);
+}
+
+function showError(msg){
+  var e=$('lsn-err');
+  if(e) e.innerHTML=msg?'<div class="lsn-err">'+esc(msg)+'</div>':'';
+}
+
+/* ── playback ─────────────────────────────────────────────────────────── */
+
+function ensureAudio(){
+  if(audio) return audio;
+  audio=document.createElement('audio');
+  audio.preload='auto';
+  audio.setAttribute('playsinline','');       /* iOS: never go fullscreen */
+  audio.style.display='none';
+  document.body.appendChild(audio);
+
+  audio.addEventListener('timeupdate',function(){ syncPlayer(); saveProgress(false); });
+  audio.addEventListener('play',  function(){ syncPlayer(); mediaSession(); });
+  audio.addEventListener('pause', function(){ syncPlayer(); saveProgress(true); });
+  audio.addEventListener('ended', onSegmentEnd);
+  audio.addEventListener('error', function(){
+    /* the commonest cause is an expired signed URL after a long break */
+    if(!current) return;
+    showError('Audio failed to load. Re-signing and retrying…');
+    reSign().then(function(){ playSegment(segIdx,audio?audio.currentTime:0,true); })
+            .catch(function(e){ showError('Could not load this part: '+e.message); });
+  });
+  return audio;
+}
+
+function reSign(){
+  var ep=current.episode;
+  return signAll(current.segments.map(function(s){ return s.storage_path; }))
+    .then(function(urls){ if(current&&current.episode.id===ep.id) current.urls=urls; });
+}
+
+function playSegment(i,startAt,autoplay){
+  if(!current||i<0||i>=current.segments.length) return;
+  segIdx=i;
+  var a=ensureAudio();
+  var url=current.urls[i];
+  if(!url){ showError('That part has no audio file.'); return; }
+  if(a.src!==url){ a.src=url; a.load(); }
+  var seek=function(){
+    if(startAt>0&&isFinite(startAt)){ try{ a.currentTime=startAt; }catch(_){} }
+  };
+  if(a.readyState>=1) seek();
+  else a.addEventListener('loadedmetadata',seek,{once:true});
+  if(autoplay!==false){
+    var pr=a.play();
+    if(pr&&pr.catch) pr.catch(function(){
+      /* autoplay refused — the user has to tap. Not an error worth shouting. */
+      syncPlayer();
+    });
+  }
+  showError('');
+  syncPlayer();
+  mediaSession();
+  refreshSectionList();
+}
+
+function onSegmentEnd(){
+  saveProgress(true);
+  var seg=current&&current.segments[segIdx];
+  var cpOrd=seg?seg.ends_at_checkpoint:null;
+  if(cpOrd!==null&&cpOrd!==undefined){
+    var cp=(current.checkpoints||[]).filter(function(c){ return c.ordinal===cpOrd; })[0];
+    if(cp){ showCheckpoint(cp); return; }
+  }
+  if(segIdx<current.segments.length-1){
+    /* split by the duration cap, not by a question: keep going */
+    playSegment(segIdx+1,0,true);
+  }else{
+    saveProgress(true);
+    syncPlayer();
+    refreshSectionList();
+  }
+}
+
+function showCheckpoint(cp){
+  $('lsn-cp-q').textContent=cp.question;
+  $('lsn-cp').hidden=false;
+  syncPlayer();
+}
+
+/* ── media session, so the lock screen shows what is playing ──────────── */
+function mediaSession(){
+  if(!('mediaSession' in navigator)||!current) return;
+  try{
+    navigator.mediaSession.metadata=new window.MediaMetadata({
+      title:current.episode.section_heading,
+      artist:'Part '+(segIdx+1)+' of '+current.segments.length,
+      album:current.episode.guide_slug
+    });
+    navigator.mediaSession.setActionHandler('play',function(){ ensureAudio().play(); });
+    navigator.mediaSession.setActionHandler('pause',function(){ ensureAudio().pause(); });
+    navigator.mediaSession.setActionHandler('seekbackward',function(){ lsnSkip(-15); });
+    navigator.mediaSession.setActionHandler('seekforward',function(){ lsnSkip(15); });
+    navigator.mediaSession.setActionHandler('previoustrack',function(){ lsnPrev(); });
+    navigator.mediaSession.setActionHandler('nexttrack',function(){ lsnNext(); });
+  }catch(_){ /* not supported here; the in-page controls still work */ }
+}
+
+/* ── loading a section ────────────────────────────────────────────────── */
+
+function openEpisode(episodeId,autoplay){
+  var token=++loadToken;
+  showError('');
+  return Promise.all([
+    sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal&id=eq.'+encodeURIComponent(episodeId)),
+    sbGet('podcast_audio?select=ordinal,storage_path,duration_seconds,ends_at_checkpoint'
+      +'&episode_id=eq.'+encodeURIComponent(episodeId)+'&order=ordinal.asc'),
+    sbGet('podcast_checkpoints?select=ordinal,question,position_in_script'
+      +'&episode_id=eq.'+encodeURIComponent(episodeId)+'&order=ordinal.asc'),
+    loadProgress(episodeId)
+  ]).then(function(res){
+    if(token!==loadToken) return;                 /* a newer click won */
+    var ep=res[0][0], segs=res[1], cps=res[2], prog=res[3];
+    if(!ep) throw new Error('That section is missing.');
+    if(!segs.length) throw new Error('No audio has been generated for that section yet.');
+    return signAll(segs.map(function(s){ return s.storage_path; })).then(function(urls){
+      if(token!==loadToken) return;
+      current={episode:ep,segments:segs,checkpoints:cps,urls:urls};
+      var start=0, at=0;
+      if(prog&&!prog.completed){
+        start=Math.min(Number(prog.segment_ordinal||0),segs.length-1);
+        at=Number(prog.position_seconds||0);
+      }
+      $('lsn-cp').hidden=true;
+      playSegment(start,at,autoplay!==false);
+    });
+  }).catch(function(e){
+    if(token===loadToken) showError(e.message||String(e));
+  });
+}
+
+function refreshSectionList(){
+  if(!episodes.length) return;
+  var byId={};
+  episodes.forEach(function(e){ byId[e.id]=e._segs||[]; });
+  renderSections(episodes,byId);
+}
+
+function guideChanged(){
+  var slug=$('lsn-guide').value;
+  showError('');
+  $('lsn-secs').innerHTML='<div class="lsn-empty">Loading…</div>';
+  sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal'
+    +'&guide_slug=eq.'+encodeURIComponent(slug)+'&order=ordinal.asc')
+  .then(function(rows){
+    episodes=rows||[];
+    if(!episodes.length){
+      $('lsn-secs').innerHTML='<div class="lsn-empty">Nothing has been generated for this guide yet.</div>';
+      $('lsn-foot').textContent='';
+      return;
+    }
+    var ids=episodes.map(function(e){ return e.id; });
+    return sbGet('podcast_audio?select=episode_id,ordinal,duration_seconds'
+      +'&episode_id=in.('+ids.join(',')+')').then(function(segs){
+      var by={};
+      (segs||[]).forEach(function(s){ (by[s.episode_id]=by[s.episode_id]||[]).push(s); });
+      episodes.forEach(function(e){ e._segs=by[e.id]||[]; });
+      renderSections(episodes,by);
+      var ready=episodes.filter(function(e){ return e._segs.length; });
+      var total=ready.reduce(function(a,e){ return a+totalSeconds(e._segs); },0);
+      $('lsn-foot').textContent=ready.length+' of '+episodes.length
+        +' sections have audio · '+mmss(total)+' total';
+    });
+  }).catch(function(e){ showError(e.message||String(e)); });
+}
+
+/* ── public handlers ──────────────────────────────────────────────────── */
+
+window.lsnGuideChanged=guideChanged;
+window.lsnPlaySection=function(id){ openEpisode(id,true); };
+window.lsnToggle=function(){
+  var a=ensureAudio();
+  if(a.paused){ var p=a.play(); if(p&&p.catch) p.catch(function(){}); } else a.pause();
+  syncPlayer();
+};
+window.lsnSkip=function(d){
+  var a=ensureAudio();
+  if(!a.duration) return;
+  a.currentTime=Math.max(0,Math.min(a.duration-0.2,a.currentTime+d));
+  syncPlayer(); saveProgress(true);
+};
+window.lsnScrub=function(v){
+  var a=ensureAudio();
+  if(!a.duration) return;
+  a.currentTime=(Number(v)/1000)*a.duration;
+  syncPlayer();
+};
+window.lsnPrev=function(){
+  var a=ensureAudio();
+  if(a.currentTime>2){ a.currentTime=0; syncPlayer(); return; }
+  if(segIdx>0){ $('lsn-cp').hidden=true; playSegment(segIdx-1,0,true); }
+};
+window.lsnNext=function(){
+  if(current&&segIdx<current.segments.length-1){ $('lsn-cp').hidden=true; playSegment(segIdx+1,0,true); }
+};
+window.lsnContinue=function(){
+  $('lsn-cp').hidden=true;
+  if(current&&segIdx<current.segments.length-1) playSegment(segIdx+1,0,true);
+  else { saveProgress(true); syncPlayer(); }
+};
+window.lsnReplaySegment=function(){
+  $('lsn-cp').hidden=true;
+  playSegment(segIdx,0,true);
+};
+
+/* ── boot ─────────────────────────────────────────────────────────────── */
+
+function init(){
+  var h=host();
+  if(!booted){
+    h.innerHTML=shell();
+    if(!$('lsn-player')) document.body.insertAdjacentHTML('beforeend',playerMarkup());
+    booted=true;
+    loadManifest().then(function(){ renderGuides(); guideChanged(); })
+      .catch(function(e){ showError('Could not load the guide list: '+e.message); });
+  }
+  syncPlayer();
+}
+
+/* save on the way out — page hide fires where unload does not on iOS */
+window.addEventListener('pagehide',function(){ saveProgress(true); });
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden') saveProgress(true);
+});
+
+/* wrap goTo additively, exactly like the podcast block does */
+var _goTo=window.goTo;
+window.goTo=function(page){
+  _goTo(page);
+  if(page==='listen'){
+    var ctx=$('sidebar-context');
+    if(ctx) ctx.innerHTML='<div class="ctx-label">Listen</div>'
+      +'<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">'
+      +'Audio pauses at each checkpoint question. Your position is saved across devices.</div>';
+    init();
+  }
+  /* The player follows her off the page only while something is actually
+     playing; otherwise it gets out of the way. */
+  if($('lsn-player')){
+    if(page==='listen') setPlayerVisible(!!current);
+    else setPlayerVisible(!!current && !!audio && !audio.paused);
+  }
+};
+
+})();
+</script>
+
 </body>
 </html>
