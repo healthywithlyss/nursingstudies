@@ -1,0 +1,71 @@
+# Two things that used to depend on someone remembering.
+#
+# 1. content/study-guides.json is generated from the .md files on disk, and the
+#    repo has no build step, so adding a guide without regenerating it means the
+#    guide silently never appears. This used to be probed for from the browser
+#    by guessing the next filenames in the series and firing HEAD requests at
+#    them — which logged four 404s on every page load, because a probe for a
+#    file that is supposed to be absent 404s by design. `--check` answers the
+#    same question exactly instead of guessing, and fails the build, so a guide
+#    that would not show up cannot be merged.
+#
+# 2. The test suites are plain Node with no dependencies, so there is no reason
+#    for them not to run on every push.
+#
+# No install step: the repo deliberately has no package.json and no runtime
+# dependencies. If that ever changes, this needs an `npm ci`.
+
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Manifest and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 22.x for `--experimental-strip-types`, which the test harnesses use to
+      # load the edge functions' TypeScript directly rather than testing a copy
+      # that can drift from what is deployed.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Manifest is up to date
+        run: node scripts/build-guides-manifest.js --check
+
+      - name: Checkpoint placement
+        run: node --experimental-strip-types scripts/tests/checkpoint-placement.test.mjs
+
+      - name: Document-reference lint
+        run: node --experimental-strip-types scripts/tests/document-reference-lint.test.mjs
+
+      - name: Script pipeline wiring
+        run: node --experimental-strip-types scripts/tests/pipeline-wiring.test.mjs
+
+      - name: Audio segmentation and WAV framing
+        run: node --experimental-strip-types scripts/tests/audio-segmentation.test.mjs
+
+      - name: Audio pipeline
+        run: node --experimental-strip-types scripts/tests/audio-pipeline.test.mjs
+
+      # index.html is one large file with several inline <script> blocks and no
+      # build step, so nothing else would catch a syntax error in it before it
+      # reached the browser.
+      - name: index.html parses
+        run: |
+          node -e "
+          const fs=require('fs');
+          const h=fs.readFileSync('index.html','utf8');
+          const blocks=[...h.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
+          if(!blocks.length){ console.error('no <script> blocks found'); process.exit(1); }
+          let bad=0;
+          blocks.forEach((b,i)=>{ try{ new Function(b[1]); }
+            catch(e){ bad++; console.error('block '+(i+1)+': '+e.message); } });
+          if(bad){ process.exit(1); }
+          console.log(blocks.length+' script block(s) parse');
+          "

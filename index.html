@@ -8012,67 +8012,32 @@ function renderInline(md){
 
 /* ══════════════════════════════════════════════════
    MANIFEST INTEGRITY
-   content/study-guides.json is generated, so it can go stale — a new .md that
-   was never indexed, or an entry pointing at a file that moved. Both fail
-   silently otherwise (the guide simply doesn't appear), so probe for them and
-   say so on the index page.
 
-   Every probe is conservative: it only reports a problem it is certain of, so
-   being offline or behind a host that rewrites 404s produces no false alarms.
+   This used to probe the network: a HEAD for every listed guide, plus guesses
+   at the next few filenames in the series to catch a .md that exists on disk
+   but was never indexed. It worked, but a probe for a file that is SUPPOSED to
+   be absent 404s by design, and a browser logs a failed request whatever the
+   JavaScript does with it. The result was four red console errors on every page
+   load that looked exactly like a real failure — noise that cost a bug report
+   to identify.
+
+   A stale manifest is now caught where it can be caught exactly rather than
+   guessed at: `node scripts/build-guides-manifest.js --check` runs in CI on
+   every push and fails the build, so a guide that would not show up cannot be
+   deployed in the first place. See .github/workflows/ci.yml.
+
+   What is left here needs no network at all. A course can hold guides in the
+   manifest while having no markdown study guide page to render them in, and
+   that fails silently — the guides simply exist nowhere. CI cannot see that,
+   because it is a fact about the UI rather than about the files.
 ══════════════════════════════════════════════════ */
 var integrityRan = false;
-
-/* 'yes' | 'no' | 'unknown' — never guess */
-function probeExists(url){
-  return fetch(url, { method: 'HEAD', cache: 'no-cache' }).then(function(res){
-    if (res.status === 404 || res.status === 410) return 'no';
-    if (!res.ok) return 'unknown';                 /* 403/405/5xx — inconclusive */
-    var ct = res.headers.get('content-type') || '';
-    /* a host that serves index.html for unknown paths would look like a hit */
-    if (/text\/html/i.test(ct)) return 'unknown';
-    return 'yes';
-  }).catch(function(){ return 'unknown'; });       /* offline — say nothing */
-}
-
-/* Filenames follow NUR###_Unit#_Lecture#_*.md, so the next few lectures in each
-   unit (and the next unit's first lecture) are predictable enough to probe for. */
-function orphanCandidates(){
-  var guides = currentCourseGuides();
-  var known = {};
-  guides.forEach(function(g){ known[g.file] = true; });
-
-  var units = {};
-  guides.forEach(function(g){
-    if (g.unit === null || g.lecture === null) return;
-    if (!/Unit\d+/.test(g.file) || !/Lecture\d+/.test(g.file)) return;
-    var key = g.course + '|' + g.unit;
-    if (!units[key]) units[key] = { sample: g, maxLecture: 0, unit: g.unit };
-    if (g.lecture > units[key].maxLecture) units[key].maxLecture = g.lecture;
-  });
-
-  var out = [], seen = {};
-  function add(sample, unit, lecture){
-    var file = sample.file.replace(/Unit\d+/, 'Unit' + unit)
-                          .replace(/Lecture\d+/, 'Lecture' + lecture);
-    if (known[file] || seen[file]) return;
-    seen[file] = true;
-    out.push({ file: file, label: 'Unit ' + unit + ', Lecture ' + lecture });
-  }
-  Object.keys(units).forEach(function(k){
-    var u = units[k];
-    for (var n = u.maxLecture + 1; n <= u.maxLecture + 3; n++) add(u.sample, u.unit, n);
-    add(u.sample, u.unit + 1, 1);          /* first lecture of the next unit */
-  });
-  return out;
-}
 
 function checkIntegrity(){
   if (integrityRan || !manifest) return;
   integrityRan = true;
   var issues = [];
 
-  /* only NUR144's Study Guide pane renders markdown, so a guide filed under any
-     other course would never appear anywhere — say so rather than hide it */
   (manifest.courses || []).forEach(function(c){
     if (c.code === window.currentCourse) return;
     var n = 0;
@@ -8084,32 +8049,7 @@ function checkIntegrity(){
     });
   });
 
-  var listed = currentCourseGuides().map(function(g){
-    return probeExists(g.file).then(function(state){
-      if (state === 'no'){
-        issues.push({
-          kind: 'missing',
-          text: 'Listed in the manifest but the file is gone: ' + g.file
-        });
-      }
-    });
-  });
-
-  var orphans = orphanCandidates().map(function(c){
-    return probeExists(c.file).then(function(state){
-      if (state === 'yes'){
-        issues.push({
-          kind: 'orphan',
-          text: c.file + ' exists but is not in the manifest, so it is not '
-              + 'showing up below (' + c.label + ')'
-        });
-      }
-    });
-  });
-
-  Promise.all(listed.concat(orphans)).then(function(){
-    if (issues.length) renderIntegrityBanner(issues);
-  });
+  if (issues.length) renderIntegrityBanner(issues);
 }
 
 function renderIntegrityBanner(issues){
@@ -8118,10 +8058,10 @@ function renderIntegrityBanner(issues){
   if (!host) return;
   var h = '<div class="sg-alert"><div class="sg-alert-hd">'
         + svg('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L14.7 3.9a2 2 0 0 0-3.4 0z"/>')
-        + 'The guide list is out of date</div><ul>';
+        + 'Some guides are not reachable</div><ul>';
   issues.forEach(function(i){ h += '<li>' + esc(i.text) + '</li>'; });
-  h += '</ul><p>Run <code>node scripts/build-guides-manifest.js</code>, commit '
-     + '<code>content/study-guides.json</code>, and redeploy.</p></div>';
+  h += '</ul><p>These guides are indexed but there is no page that renders them. '
+     + 'Move them under a course that has a markdown study guide, or add one.</p></div>';
   host.innerHTML = h;
 }
 
