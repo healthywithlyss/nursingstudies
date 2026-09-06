@@ -1429,6 +1429,17 @@ body.lsn-open #main-content{padding-bottom:80px}
 .lsn-part{font-size:11.5px;color:var(--text-muted);text-align:center;margin-bottom:18px;
   font-variant-numeric:tabular-nums}
 
+/* volume. The slider is only rendered where audio.volume actually does
+   something — see the feature detection in the module. */
+.lsn-vol{display:flex;align-items:center;gap:11px;margin-bottom:20px}
+.lsn-vol .lsn-b{width:38px;height:38px}
+.lsn-vol .lsn-b svg{width:17px;height:17px}
+.lsn-vol-s{flex:1;min-width:0;height:26px;accent-color:var(--teal);cursor:pointer;margin:0}
+.lsn-vol-n{flex:0 0 34px;text-align:right;font-size:11.5px;color:var(--text-muted);
+  font-variant-numeric:tabular-nums;font-weight:700}
+.lsn-vol-note{flex:1;min-width:0;font-size:11.5px;color:var(--text-muted);line-height:1.45}
+.lsn-b.muted{background:var(--rust-bg);border-color:#fecaca;color:var(--rust)}
+
 /* section jump list inside the player */
 .lsn-jump{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
   padding:14px 16px}
@@ -9459,6 +9470,26 @@ var segIdx=0;
 var audio=null, lastSave=0, booted=false, loadToken=0;
 var rate=Number(localStorage.getItem(LS_RATE))||1;
 var autoAdvance=localStorage.getItem(LS_AUTO)!=='0';
+var volume=1, muted=false, settingsLoaded=false, saveVolTimer=null;
+
+/* Can audio.volume actually do anything here?
+
+   On iOS the audio level is under the user's physical control: the volume
+   setter is a no-op and the getter always returns 1, on every browser, because
+   they are all WebKit. Shipping a slider there would be a control that silently
+   does nothing on the device this app is mostly used on.
+
+   Detected rather than sniffed for the user agent, so it stays correct if Apple
+   ever changes this and does not mis-fire on a desktop browser pretending to be
+   a phone. muted is a separate property and works everywhere, which is why the
+   mute button is never conditional. */
+var volumeSettable=(function(){
+  try{
+    var a=document.createElement('audio');
+    a.volume=0.135;
+    return Math.abs(a.volume-0.135)<0.001;
+  }catch(_){ return false; }
+})();
 var openLectures={};
 try{ openLectures=JSON.parse(localStorage.getItem(LS_OPEN)||'{}')||{}; }catch(_){ openLectures={}; }
 
@@ -9488,7 +9519,10 @@ var ICON={
   down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   tick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
   mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>',
-  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'
+  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>',
+  vol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  volLow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>',
+  volMute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>'
 };
 
 /* ── data ─────────────────────────────────────────────────────────────── */
@@ -9547,8 +9581,18 @@ function loadLibrary(){
     sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal&order=guide_slug.asc,ordinal.asc'),
     sbGet('podcast_audio?select=episode_id,ordinal,duration_seconds,ends_at_checkpoint,storage_path&order=episode_id.asc,ordinal.asc'),
     sbGet('podcast_progress?select=episode_id,segment_ordinal,position_seconds,completed&user_id=eq.'
+      +encodeURIComponent(currentUser.id)).catch(function(){ return []; }),
+    sbGet('podcast_settings?select=volume,muted&user_id=eq.'
       +encodeURIComponent(currentUser.id)).catch(function(){ return []; })
   ]).then(function(res){
+    var st=(res[4]||[])[0];
+    if(st){
+      volume=Math.max(0,Math.min(1,Number(st.volume)));
+      if(!isFinite(volume)) volume=1;
+      muted=st.muted===true;
+    }
+    settingsLoaded=true;
+    applyVolume(); syncVolumeUi();
     episodes=res[1]||[]; byEpisode={};
     var segsBy={}, progBy={};
     (res[2]||[]).forEach(function(s){ (segsBy[s.episode_id]=segsBy[s.episode_id]||[]).push(s); });
@@ -9686,6 +9730,7 @@ function miniHtml(){
     +'<button class="lsn-b main" id="lsn-mini-play" onclick="lsnToggle(event)" aria-label="Play or pause"></button>'
     +'<div class="lsn-mini-b"><div class="lsn-mini-t" id="lsn-mini-t"></div>'
     +'<div class="lsn-mini-s" id="lsn-mini-s"></div></div>'
+    +'<button class="lsn-b" id="lsn-mini-mute" onclick="lsnMute(event)" aria-label="Mute or unmute"></button>'
     +'<button class="lsn-b" onclick="lsnOpenFull(event)" aria-label="Open the player">'
     +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>'
     +'</button></div>';
@@ -9736,14 +9781,64 @@ function fullHtml(){
     +'Play the next section automatically</label>'
     +'</div>'
 
+    +'<div class="lsn-vol">'
+    +'<button class="lsn-b" id="lsn-mute" onclick="lsnMute(event)" aria-label="Mute or unmute"></button>'
+    +(volumeSettable
+        ? '<input class="lsn-vol-s" id="lsn-vol" type="range" min="0" max="100" value="100" '
+          +'oninput="lsnVolume(this.value)" aria-label="Volume">'
+          +'<span class="lsn-vol-n" id="lsn-vol-n">100%</span>'
+        : '<span class="lsn-vol-note">Use the volume buttons on your phone — '
+          +'this browser keeps the level under your physical control, so an '
+          +'on-screen slider here would do nothing.</span>')
+    +'</div>'
+
     +'<div class="lsn-part" id="lsn-part"></div>'
     +'<div class="lsn-jump"><h4>Sections in this lecture</h4><div id="lsn-jumps"></div></div>'
     +'</div></div>';
 }
 
+function volIcon(){
+  if(muted||volume===0) return ICON.volMute;
+  return volume<0.5?ICON.volLow:ICON.vol;
+}
+
+/* the single place the audio element learns about volume */
+function applyVolume(){
+  var a=audio;
+  if(!a) return;
+  a.muted=!!muted;
+  /* Never assign volume where it does nothing. On iOS that keeps us entirely
+     out of the way of the hardware buttons, which are the real control there. */
+  if(volumeSettable) a.volume=Math.max(0,Math.min(1,volume));
+}
+
+function syncVolumeUi(){
+  var mm=$('lsn-mini-mute');
+  if(mm){
+    mm.innerHTML=volIcon();
+    mm.classList.toggle('muted',!!muted);
+    mm.setAttribute('aria-pressed',muted?'true':'false');
+  }
+  var b=$('lsn-mute');
+  if(b){
+    b.innerHTML=volIcon();
+    b.classList.toggle('muted',!!muted);
+    b.setAttribute('aria-pressed',muted?'true':'false');
+  }
+  var sl=$('lsn-vol');
+  if(sl){
+    var pct=Math.round(volume*100);
+    if(document.activeElement!==sl) sl.value=pct;
+    sl.disabled=!!muted;
+    var n=$('lsn-vol-n');
+    if(n) n.textContent=muted?'muted':pct+'%';
+  }
+}
+
 function syncAll(){
   var mini=$('lsn-mini');
   if(!mini) return;
+  syncVolumeUi();
   if(!current){ setMini(false); return; }
   setMini(true);
 
@@ -9816,9 +9911,10 @@ function ensureAudio(){
   audio.style.display='none';
   document.body.appendChild(audio);
   audio.playbackRate=rate;
+  applyVolume();
 
   audio.addEventListener('timeupdate',function(){ syncAll(); renderMarks(); saveProgress(false); });
-  audio.addEventListener('play',function(){ audio.playbackRate=rate; syncAll(); mediaSession(); });
+  audio.addEventListener('play',function(){ audio.playbackRate=rate; applyVolume(); syncAll(); mediaSession(); });
   audio.addEventListener('pause',function(){ syncAll(); saveProgress(true); });
   audio.addEventListener('ended',onSegmentEnd);
   audio.addEventListener('ratechange',function(){
@@ -9851,6 +9947,7 @@ function playSegment(i,startAt,autoplay){
   var seek=function(){
     if(startAt>0&&isFinite(startAt)){ try{ a.currentTime=startAt; }catch(_){} }
     a.playbackRate=rate;
+    applyVolume();
   };
   if(a.readyState>=1) seek(); else a.addEventListener('loadedmetadata',seek,{once:true});
   if(autoplay!==false){
@@ -9934,6 +10031,26 @@ function saveProgress(force,done){
   }).catch(function(){ /* a lost position is not worth an error banner */ });
 }
 
+/* Debounced because a slider drag emits an input event per pixel; only the
+   value she settles on is worth a round trip. Never written before the stored
+   settings have loaded, so a slow read cannot overwrite the real value with
+   the default. */
+function saveSettings(){
+  if(!currentUser||!settingsLoaded) return;
+  if(saveVolTimer) clearTimeout(saveVolTimer);
+  saveVolTimer=setTimeout(function(){
+    saveVolTimer=null;
+    fetch(SB_URL+'/rest/v1/podcast_settings?on_conflict=user_id',{
+      method:'POST',
+      headers:Object.assign({},getAuthHdr(),{Prefer:'resolution=merge-duplicates'}),
+      body:JSON.stringify([{ user_id:currentUser.id,
+        volume:Math.round(Math.max(0,Math.min(1,volume))*1000)/1000,
+        muted:!!muted, updated_at:new Date().toISOString() }]),
+      keepalive:true
+    }).catch(function(){ /* a lost volume is not worth an error banner */ });
+  },600);
+}
+
 /* ── opening a section ────────────────────────────────────────────────── */
 
 function openEpisode(id,autoplay){
@@ -9987,6 +10104,18 @@ window.lsnRate=function(){
   localStorage.setItem(LS_RATE,String(rate));
   if(audio) audio.playbackRate=rate;
   syncAll(); mediaSession();
+};
+window.lsnMute=function(ev){
+  if(ev) ev.stopPropagation();
+  muted=!muted;
+  /* unmuting from a slider sitting at zero would still be silent */
+  if(!muted&&volumeSettable&&volume===0) volume=1;
+  applyVolume(); syncVolumeUi(); saveSettings();
+};
+window.lsnVolume=function(v){
+  volume=Math.max(0,Math.min(1,Number(v)/100));
+  if(volume>0&&muted) muted=false;      /* moving the slider means unmute */
+  applyVolume(); syncVolumeUi(); saveSettings();
 };
 window.lsnAuto=function(on){
   autoAdvance=!!on;
@@ -10067,7 +10196,21 @@ function init(){
   syncAll();
 }
 
-window.addEventListener('pagehide',function(){ saveProgress(true); });
+window.addEventListener('pagehide',function(){
+  saveProgress(true);
+  if(saveVolTimer){ clearTimeout(saveVolTimer); saveVolTimer=null; saveSettingsNow(); }
+});
+function saveSettingsNow(){
+  if(!currentUser||!settingsLoaded) return;
+  fetch(SB_URL+'/rest/v1/podcast_settings?on_conflict=user_id',{
+    method:'POST',
+    headers:Object.assign({},getAuthHdr(),{Prefer:'resolution=merge-duplicates'}),
+    body:JSON.stringify([{ user_id:currentUser.id,
+      volume:Math.round(Math.max(0,Math.min(1,volume))*1000)/1000,
+      muted:!!muted, updated_at:new Date().toISOString() }]),
+    keepalive:true
+  }).catch(function(){});
+}
 document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='hidden') saveProgress(true);
 });
