@@ -27,7 +27,9 @@ const SCRIPT = [F('a',14), `[[CHECKPOINT]] ${Q[0]}`, F('b',14), `[[CHECKPOINT]] 
                 F('c',14), `[[CHECKPOINT]] ${Q[2]}`, F('d',8)].join(' ');
 
 let round = 0;
+let gemOverride = null;   /* scenario 2 swaps in its own script responses */
 function gem(prompt){
+  if (gemOverride) { const r = gemOverride(prompt); if (r !== null) return r; }
   if(prompt.includes('Return ONLY a JSON array of the atomic facts')||prompt.includes('atomic'))
     return JSON.stringify(['fact one','fact two']);
   if(prompt.includes('spoken lecture script')||prompt.includes('Revise the lecture script'))
@@ -94,8 +96,38 @@ ck('scoped_out has 2 with reasons', c.quiz_derived.scoped_out.length===2&&c.quiz
 ck('scoped_out ranked by overlap desc', c.quiz_derived.scoped_out[0].overlap>=c.quiz_derived.scoped_out[1].overlap, c.quiz_derived.scoped_out.map(r=>r.overlap));
 ck('scoped_out_total set', c.quiz_derived.scoped_out_total===2, c.quiz_derived.scoped_out_total);
 ck('in_section matches scoped_in', c.quiz_derived.in_section===c.quiz_derived.scoped_in.length);
-ck('summary carries unsourced count', /unsourced claims 0$/.test(c.summary), c.summary);
+ck('summary carries unsourced and document-reference counts',
+   /unsourced claims 0, document references 0$/.test(c.summary), c.summary);
+ck('document_references reported', Array.isArray(c.document_references) && c.document_references.length===0, c.document_references);
+ck('attempts track document_references', c.attempts.every(a=>a.document_references===0), c.attempts.map(a=>a.document_references));
 ck('dry run wrote nothing', !calls.some(u=>u.includes('podcast_episodes')), calls.filter(u=>u.includes('podcast')));
 ck('markers stripped', !/CHECKPOINT/i.test(d.script));
+/* ---------------------------------------------------------------- scenario 2
+   The narrator describes the document she is listening to. The lint must catch
+   it on attempt 1, drive a repair round, and the run must not be called
+   complete until the phrase is gone. */
+let docRound = 0;
+const DIRTY_SENTENCE = 'The source lays these two out side by side in a comparison table so you can appreciate their differences directly.';
+gemOverride = (prompt) => {
+  if (prompt.includes('spoken lecture script') || prompt.includes('Revise the lecture script')) {
+    docRound++;
+    const body = docRound === 1 ? `${F('a', 14)} ${DIRTY_SENTENCE}` : F('a', 15);
+    const script = [body, Q[0], F('b', 14), Q[1], F('c', 14), Q[2], F('d', 8)].join(' ');
+    return JSON.stringify({ script, checkpoints: Q.map(q => ({ question: q, expected_points: ['p1'] })) });
+  }
+  return null;
+};
+const res2 = await handler(new Request('https://x/',{method:'POST',
+  headers:{'content-type':'application/json',Authorization:'Bearer '+tok},
+  body:JSON.stringify({guide_slug:'nur144-u1-l1',markdown:md,section_heading:'GASTRITIS',dry_run:true,cross_check:true})}));
+const d2 = await res2.json();
+const c2 = d2.coverage_report;
+console.log('\nscenario 2 — narrator describes the document');
+ck('attempt 1 caught the document reference', c2.attempts[0].document_references > 0, c2.attempts.map(a=>a.document_references));
+ck('it forced a repair round', c2.attempts.length > 1, c2.attempts.length);
+ck('the offending sentence is gone', !d2.script.includes(DIRTY_SENTENCE));
+ck('final run is clean and complete', c2.document_references.length===0 && d2.status==='complete',
+   {refs:c2.document_references, status:d2.status});
+
 console.log(fail?`\n${fail} FAILING`:'\nall wiring checks passed');
 process.exit(fail?1:0);

@@ -23,6 +23,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
    POST body:
      action           'generate' (default) | 'list-sections' | 'list-models'
+                      | 'scope-audit' (scoping verdicts only, nothing written)
      guide_slug       e.g. "nur144-u1-l1"          (generate, list-sections)
      section_heading  exact H2 text                 (generate)
      markdown         full guide markdown           (generate, list-sections)
@@ -284,6 +285,18 @@ FLAGGING EXAM-CRITICAL MATERIAL:
 - Do NOT write the same flagging sentence twice. If you have already used a
   phrasing, use a different one or drop the tag entirely.
 
+SHE IS LISTENING, NOT READING — there is no document in front of her:
+- NEVER refer to the source document, its formatting, or its structure. No
+  "the source", "the guide", "the table", "this section", "the slide", "the
+  list above", "as shown", "side by side", "the first column", "bullet points",
+  "the chart". She cannot see any of it.
+- Writing "the source lays these two out side by side in a comparison table so
+  you can appreciate their differences" is exactly wrong. Teach the contrast
+  itself: "acute comes on fast and burns out in one to three days; chronic just
+  grinds on, and that's the one that atrophies the tissue."
+- Never say the material is presented, listed, organised, or grouped a certain
+  way. Say the material.
+
 TEACHING, NOT RESTATING:
 - Connect facts to each other. Explain mechanism wherever the source explains
   it ("the reason that matters is…"). Build causal chains the source builds.
@@ -338,7 +351,8 @@ ${body}
 }
 
 function repairPrompt(heading: string, body: string, facts: string[], script: string,
-                      missing: string[], quizMissing: string[], unsourced: string[]) {
+                      missing: string[], quizMissing: string[], unsourced: string[],
+                      docRefs: string[]) {
   const blocks: string[] = [];
   if (missing.length) blocks.push(
 `MISSING — a listener would not learn these from the current narration. Teach them:
@@ -348,6 +362,11 @@ ${missing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
 teach it. If you genuinely cannot find it in the section text, leave it out —
 do NOT supply it from outside knowledge:
 ${quizMissing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
+  if (docRefs.length) blocks.push(
+`SHE CANNOT SEE A DOCUMENT — these phrases describe the source or its layout.
+Rewrite each sentence so it teaches the material directly, with no mention of a
+table, a section, a slide, a list, the guide, or how anything is arranged:
+${docRefs.map((f, i) => `${i + 1}. "${f}"`).join('\n')}`);
   if (unsourced.length) blocks.push(
 `UNSOURCED — these claims are in your narration but NOT in the section text.
 Delete them, or rewrite them so they only say what the section actually says.
@@ -377,6 +396,8 @@ HOW TO ADD THE MISSING MATERIAL — this matters as much as the content:
   the script CHARACTER FOR CHARACTER — the pause is located by finding that
   sentence. Insert no markers or bracketed tokens of any kind.
 - Vary how you flag exam-critical material; do not reuse one stock phrase.
+- She is LISTENING. Never mention the source, a table, a section, a slide, a
+  list, or how the material is laid out. Teach the content directly.
 - Plain prose only. No headings, bullets, markdown or stage directions.
 - Length may grow to about ${WORDS_MAX + 400} words.
 
@@ -546,6 +567,54 @@ async function findUnsourced(apiKey: string, model: string, heading: string, bod
     const q = normIndex(r.claim).norm;
     return q.length > 12 && norm.indexOf(q) >= 0;
   });
+}
+
+/* Document-reference lint.
+
+   "The source lays these two out side by side in a comparison table so you can
+   appreciate their differences directly" — she is listening on headphones;
+   there is no table. This is a narration defect, not a factual one, so neither
+   coverage nor the unsourced pass sees it. It is also perfectly mechanical, so
+   it gets a regex rather than another model call.
+
+   Kept deliberately narrow: it matches the noun only when it is doing
+   document-describing work. "The stomach lining is a barrier" must not trip a
+   rule aimed at "as the table shows". */
+const DOC_REF_PATTERNS: { re: RegExp; what: string }[] = [
+  /* "table" only where it is doing document-describing work — "the patient
+     eats at the table" is ordinary prose and must not trip this */
+  { re: /\b(?:comparison|summary)\s+tables?\b/gi, what: 'table' },
+  { re: /\btables?\s+(?:above|below|here|shows?|lists?|says?|gives?|has|breaks)\b/gi, what: 'table' },
+  { re: /\b(?:in|from|on)\s+(?:the|this|that)\s+tables?\b/gi, what: 'table' },
+  { re: /\b(?:the|this)\s+(?:study\s+)?(?:guide|source|document|text|handout|packet|material)\b/gi, what: 'the source' },
+  { re: /\b(?:the|this|that)\s+(?:slides?|deck|powerpoint|lecture\s+slides?)\b/gi, what: 'slide' },
+  { re: /\b(?:this|the|that)\s+(?:section|chapter|page|column|row|heading|appendix|addendum)\b/gi, what: 'section' },
+  { re: /\bbullet(?:\s+points?|ed)?\b/gi, what: 'bullets' },
+  { re: /\b(?:listed|grouped|organi[sz]ed|laid\s+out|set\s+out|written|printed|shown|presented|displayed)\s+(?:here|above|below|side\s+by\s+side|together|under|in|as|with|next\s+to)\b/gi, what: 'layout' },
+  { re: /\b(?:as|like)\s+(?:you\s+can\s+)?(?:see|shown|listed|written)\b/gi, what: 'layout' },
+  { re: /\b(?:above|below)\s+(?:in\s+)?(?:the\s+)?(?:list|table|text)\b/gi, what: 'layout' },
+  { re: /\bside\s+by\s+side\b/gi, what: 'layout' },
+  { re: /\bthe\s+(?:first|second|third|last|left|right)\s+column\b/gi, what: 'column' },
+];
+
+function findDocumentReferences(script: string) {
+  const hits: { phrase: string; kind: string; context: string }[] = [];
+  const seen = new Set<string>();
+  for (const { re, what } of DOC_REF_PATTERNS) {
+    re.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(script)) !== null) {
+      const key = what + '|' + m.index;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      hits.push({
+        phrase: m[0],
+        kind: what,
+        context: script.slice(Math.max(0, m.index - 70), m.index + m[0].length + 70).replace(/\s+/g, ' ').trim(),
+      });
+    }
+  }
+  return hits.slice(0, 25);
 }
 
 /* Checkpoint placement.
@@ -770,6 +839,81 @@ Deno.serve(async (req: Request) => {
       }), { headers: JSON_HDR });
     }
 
+    /* ── scope-audit ──
+       The scoping decision, on its own, with nothing else running. It exists
+       because "in_section: 18" is a number you have to take on trust: this
+       prints every fact the pass evaluated, its verdict, the model's own reason
+       and the lexical overlap, so the filter can be argued with instead of
+       believed. Read-only, no script is written, nothing is saved. */
+    if (action === 'scope-audit') {
+      const gs = body.guide_slug;
+      const hd = body.section_heading;
+      if (!gs) throw new Error('guide_slug is required');
+      if (!hd) throw new Error('section_heading is required');
+      const sec = sections.find((x) => x.heading === hd)
+        || sections.find((x) => x.heading.trim() === String(hd).trim());
+      if (!sec) throw new Error(`Section "${hd}" not found. Available: ${sections.map((x) => x.heading).join(' | ')}`);
+
+      const avail = await availableModels(apiKey);
+      const model = body.check_model || pickModel(avail, pickModel(avail));
+
+      let filter = '';
+      if (Array.isArray(body.quiz_objective_ids) && body.quiz_objective_ids.length) {
+        filter = 'objective_id=in.(' + body.quiz_objective_ids.map(encodeURIComponent).join(',') + ')';
+      } else {
+        const mm = String(gs).match(/^nur(\d+)/i);
+        const prefix = body.quiz_objective_prefix || (mm ? 'N' + mm[1] : '');
+        if (!prefix) throw new Error('Could not derive a quiz objective prefix from guide_slug.');
+        filter = 'objective_id=like.' + encodeURIComponent(prefix + '%');
+      }
+      const qr = await fetch(
+        `${gate.SUPABASE_URL}/rest/v1/quiz_questions?select=id,objective_id,fact_tested&${filter}`,
+        { headers: { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}` } });
+      const rows = await qr.json();
+      if (!qr.ok) throw new Error(`quiz_questions read failed (${qr.status})`);
+
+      const pool: { objective_id: string; fact: string }[] = [];
+      const dupes: string[] = [];
+      const seen2 = new Set<string>();
+      (Array.isArray(rows) ? rows : []).forEach((r: any) => {
+        const f = String(r.fact_tested || '').trim();
+        if (!f) return;
+        const k = f.toLowerCase();
+        if (seen2.has(k)) { dupes.push(f); return; }
+        seen2.add(k);
+        pool.push({ objective_id: r.objective_id, fact: f });
+      });
+
+      const scoped = await scopeToSection(apiKey, model, sec.heading, sec.body, pool.map((q) => q.fact));
+      const bw = new Set(contentWords(sec.body + ' ' + sec.heading));
+      const evaluated = pool.map((q, i) => ({
+        objective_id: q.objective_id,
+        fact: q.fact,
+        in_section: scoped.flags[i] === true,
+        reason: scoped.reasons[i] || '',
+        overlap: overlapScore(q.fact, bw),
+      }));
+      const inn = evaluated.filter((r) => r.in_section).sort((a, b) => b.overlap - a.overlap);
+      const outn = evaluated.filter((r) => !r.in_section).sort((a, b) => b.overlap - a.overlap);
+
+      return new Response(JSON.stringify({
+        guide_slug: gs, section_heading: sec.heading, ordinal: sec.ordinal,
+        model,
+        objective_ids: [...new Set(pool.map((q) => q.objective_id))].sort(),
+        pool: pool.length,
+        duplicates_collapsed: dupes.length,
+        in_section: inn.length,
+        out_of_section: outn.length,
+        /* nothing is truncated here — the whole point is to see everything */
+        scoped_in: inn,
+        scoped_out: outn,
+        /* verdicts with no reason mean the model returned fewer entries than
+           facts sent; those default to false and would silently under-admit */
+        missing_reason: evaluated.filter((r) => !r.reason).length,
+        section_chars: sec.body.length,
+      }), { headers: JSON_HDR });
+    }
+
     /* ── generate ── */
     const guideSlug = body.guide_slug;
     const heading = body.section_heading;
@@ -868,13 +1012,15 @@ Deno.serve(async (req: Request) => {
     let coverage: any[] = [], missing: string[] = [];
     let quizCoverage: any[] = [], quizMissing: string[] = [];
     let unsourced: any[] = [];
+    let docRefs: any[] = [];
     const attempts: any[] = [];
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const prompt = attempt === 0
         ? scriptPrompt(section.heading, section.body, facts)
         : repairPrompt(section.heading, section.body, facts, script, missing, quizMissing,
-                       unsourced.map((u: any) => u.claim));
+                       unsourced.map((u: any) => u.claim),
+                       docRefs.map((h: any) => h.context));
 
       const out = parseJson(await gemini(apiKey, genModel, prompt,
         { json: true, temperature: attempt === 0 ? 0.6 : 0.35 }));
@@ -892,20 +1038,23 @@ Deno.serve(async (req: Request) => {
       quizMissing = quizCoverage.filter((c) => !c.covered).map((c) => c.fact);
 
       unsourced = await findUnsourced(apiKey, checkModel, section.heading, section.body, script);
+      docRefs = findDocumentReferences(script);
 
       attempts.push({
         attempt: attempt + 1, words: wordCount(script),
         model_covered: coverage.length - missing.length, model_missed: missing.length,
         quiz_covered: quizCoverage.length - quizMissing.length, quiz_missed: quizMissing.length,
         unsourced: unsourced.length,
+        document_references: docRefs.length,
         checkpoints: placed.length,
         checkpoints_anchored: placed.filter((p: any) => p.how === 'question').length,
       });
-      if (!missing.length && !quizMissing.length && !unsourced.length) break;
+      if (!missing.length && !quizMissing.length && !unsourced.length && !docRefs.length) break;
     }
 
-    /* a miss on either list, or an unsourced claim, makes the section incomplete */
-    const status = (missing.length || quizMissing.length || unsourced.length)
+    /* a miss on either list, an unsourced claim, or a sentence that describes
+       the document she cannot see, all make the section incomplete */
+    const status = (missing.length || quizMissing.length || unsourced.length || docRefs.length)
       ? 'incomplete' : 'complete';
 
     const finalCheckpoints = placed
@@ -953,12 +1102,14 @@ Deno.serve(async (req: Request) => {
         scoped_out_total: scopedOut.length,
       },
       unsourced_claims: unsourced,
+      document_references: docRefs,
       checkpoint_placement,
       summary: `model-extracted facts ${coverage.filter((c) => c.covered).length}/${facts.length}`
         + (crossCheck && !quizScopeError
             ? `, quiz-derived facts ${quizCoverage.filter((c) => c.covered).length}/${quizFacts.length}`
             : '')
-        + `, unsourced claims ${unsourced.length}`,
+        + `, unsourced claims ${unsourced.length}`
+        + `, document references ${docRefs.length}`,
       attempts,
       words: wordCount(script),
       models: { generation: genModel, verification: checkModel },
