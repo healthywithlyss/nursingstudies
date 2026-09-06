@@ -219,7 +219,8 @@ ABSOLUTE SOURCE RULES — these override everything else:
 - The markers mean: ★ the professor flagged it as must-know, ⊕ added from the
   textbook because the slide listed the topic only, ⊙ a textbook detail the
   slide named without explaining, ⚠ a warning. Never speak the symbols aloud.
-  Convey ★ emphasis in words ("she flagged this one — it's on the exam").`;
+  Convey ★ emphasis in words, phrased differently every time it comes up —
+  never the same stock sentence twice.`;
 
 function extractFactsPrompt(heading: string, body: string) {
   return `You are indexing a nursing study guide section so that nothing in it can be lost.
@@ -262,32 +263,71 @@ VOICE AND FORM:
 - Plain flowing prose meant to be read aloud. NO stage directions, NO [pause]
   or [beat] markers, NO speaker labels, NO headings, NO bullet points, NO
   markdown, NO numbered lists. Just paragraphs.
-- Spell out symbols and abbreviations as speech: "↓" becomes "decreased",
-  "1500 mL" becomes "fifteen hundred milliliters", "GI" stays "G I".
-- Explain mechanism where the source explains it ("the reason that matters is…").
+- USE CONTRACTIONS. Write "let's", "here's", "that's", "you'll", "it's",
+  "doesn't", "don't". "Let us walk through" is stilted; "let's walk through"
+  is how a person talks. This is speech, not prose read aloud.
 - Target ${WORDS_MIN}-${WORDS_MAX} words.
 
+SAY IT ALOUD-FRIENDLY (keep doing this):
+- Spell out symbols and abbreviations the way a person says them: "↓" becomes
+  "decreased", "1500 mL" becomes "fifteen hundred milliliters", "B12" becomes
+  "B twelve", "I&O" becomes "I and O", "H2 receptor antagonists" becomes
+  "H two receptor antagonists", "GI" stays "G I".
+
+FLAGGING EXAM-CRITICAL MATERIAL:
+- When the source marks something as must-know or exam-relevant, say so — but
+  say it a DIFFERENT WAY EVERY TIME. Never reuse a stock phrase.
+  Rotate through forms like: "this one's on the exam"; "she circled this in
+  lecture"; "if you remember one thing here, make it this"; "this is the piece
+  she said to know cold"; "expect to see this asked"; or simply put the weight
+  in the sentence itself without any tag at all.
+- Do NOT write the same flagging sentence twice. If you have already used a
+  phrasing, use a different one or drop the tag entirely.
+
+TEACHING, NOT RESTATING:
+- Connect facts to each other. Explain mechanism wherever the source explains
+  it ("the reason that matters is…"). Build causal chains the source builds.
+- Where the source puts two things side by side in a comparison table, TEACH IT
+  AS A CONTRAST — that is what the table is for.
+- Only draw a contrast the SOURCE actually draws. Do not say "unlike X, Y does
+  not…" unless the source states the difference. Never assert the absence of a
+  finding the source is simply silent about.
+- Do not restate a full noun phrase you have just used. Once you have named
+  "nonerosive chronic gastritis", the next sentence can say "it" or "this form".
+- Never write two flat declarative sentences in a row that share a subject and
+  add no connection between them. Fold the second into the first.
+
 CHECKPOINTS:
-- Every 700-900 words, stop and ask ONE open recall question, then place a line
-  containing exactly [[CHECKPOINT]] on its own line immediately after the
-  question. Expect 2 checkpoints for a script this length; 1 is acceptable if
-  the section is short.
-- Open recall only: "what's the difference between…", "why does…", "walk me
-  through what happens when…". NEVER multiple choice, never yes/no.
-- Ask about something already taught ABOVE that point in the script.
-- After the [[CHECKPOINT]] line, resume teaching naturally — do not answer your
-  own question immediately; continue as if she has just answered.
+- Pause roughly every 400-500 words to ask ONE open recall question, then keep
+  teaching. For a script this length expect 3 checkpoints, sometimes 4.
+- Prefer MORE, SMALLER checkpoints over fewer big ones. Each should test 2-3
+  specific things, not a whole topic sweep.
+- Open recall only — never multiple choice, never yes/no.
+- VARY THE STEM. Do not begin every question with the same words. Rotate:
+  "What's the difference between…"; "Why does…"; "A patient comes in with…,
+  what are you thinking?"; "Which one would you expect to see in…"; "How would
+  you explain … to a patient?"; "What are you watching for after…"; "Walk me
+  through…" (at most once).
+- Ask only about material already taught ABOVE that point in the script.
+- Write the question INLINE in the narration as its own sentence, exactly once,
+  worded exactly as you report it in the checkpoints array. Do NOT insert any
+  marker, tag, or bracketed token — the question sentence itself marks the spot.
+- After the question, resume teaching naturally. Do not answer your own question
+  immediately; continue as if she has just answered.
 
 EVERY ONE of these facts must be taught somewhere in the script:
 ${facts.map((f, i) => `${i + 1}. ${f}`).join('\n')}
 
 Return ONLY JSON of the form:
-{"script":"<the full narration, with [[CHECKPOINT]] lines in place>",
- "checkpoints":[{"question":"<the question exactly as it appears in the script>",
+{"script":"<the full narration>",
+ "checkpoints":[{"question":"<the question sentence, copied CHARACTER FOR CHARACTER from the script>",
                  "expected_points":["<specific fact a correct answer must contain>", "..."]}]}
-The checkpoints array must be in the same order as the [[CHECKPOINT]] markers,
-one entry per marker. expected_points are the concrete things she has to say
-for the answer to count as correct — drawn only from the section text.
+The checkpoints array must be in the same order the questions appear in the
+script, one entry per question. Each question string must match the script
+exactly — the pause is located by finding that sentence in the narration, so a
+paraphrase there breaks playback. Give 2-3 expected_points per checkpoint: the
+concrete things she has to say for the answer to count, drawn only from the
+section text.
 
 SECTION HEADING: ${heading}
 
@@ -298,30 +338,47 @@ ${body}
 }
 
 function repairPrompt(heading: string, body: string, facts: string[], script: string,
-                      missing: string[], quizMissing: string[]) {
+                      missing: string[], quizMissing: string[], unsourced: string[]) {
   const blocks: string[] = [];
   if (missing.length) blocks.push(
-`These facts are MISSING and must now be taught explicitly:
+`MISSING — a listener would not learn these from the current narration. Teach them:
 ${missing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
   if (quizMissing.length) blocks.push(
-`These points are stated in the SECTION TEXT but are missing from your script.
-Find each one in the section text and teach it. If you genuinely cannot find it
-in the section text, leave it out — do NOT supply it from outside knowledge:
+`ALSO MISSING — these are stated in the SECTION TEXT. Find each one there and
+teach it. If you genuinely cannot find it in the section text, leave it out —
+do NOT supply it from outside knowledge:
 ${quizMissing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
+  if (unsourced.length) blocks.push(
+`UNSOURCED — these claims are in your narration but NOT in the section text.
+Delete them, or rewrite them so they only say what the section actually says.
+Do not replace them with a different unsourced claim:
+${unsourced.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
 
-  return `The lecture script below is missing content it was required to teach. Revise it.
+  return `Revise the lecture script below.
 
 ${SOURCE_RULES}
 
 ${blocks.join('\n\n')}
 
-Rules for the revision:
-- Keep everything already covered. Do not drop anything to make room.
-- Keep the same single-narrator second-person voice and plain prose.
-- Keep [[CHECKPOINT]] lines and their questions, and return the matching
-  checkpoints array. You may add one checkpoint if the script grew a lot.
-- No stage directions, labels, headings, bullets or markdown.
-- Length may grow to about ${WORDS_MAX + 400} words if needed to fit the misses.
+HOW TO ADD THE MISSING MATERIAL — this matters as much as the content:
+- INTEGRATE each one into the prose that is already there. Fold it into the
+  sentence or paragraph where it belongs.
+- NEVER append a standalone declarative sentence just to make a fact appear.
+  Writing "Nonerosive acute gastritis is caused by H. pylori. Nonerosive acute
+  gastritis can cause peptic ulcers." is exactly wrong. Write it as one flowing
+  thought: "the nonerosive kind comes from H. pylori, and that's the one that
+  can go on to cause peptic ulcers."
+- Do NOT repeat the full noun phrase as the subject of consecutive sentences.
+  Once the subject is established, use pronouns and connectives.
+- Keep every fact already taught. Do not drop anything to make room.
+- Keep the same narrator, voice and contractions.
+- Keep the checkpoint questions in the narration and return the matching
+  checkpoints array. Each question string you return must match the sentence in
+  the script CHARACTER FOR CHARACTER — the pause is located by finding that
+  sentence. Insert no markers or bracketed tokens of any kind.
+- Vary how you flag exam-critical material; do not reuse one stock phrase.
+- Plain prose only. No headings, bullets, markdown or stage directions.
+- Length may grow to about ${WORDS_MAX + 400} words.
 
 Return ONLY the same JSON shape:
 {"script":"...","checkpoints":[{"question":"...","expected_points":["..."]}]}
@@ -357,8 +414,14 @@ Judge ONLY against the section text printed below. Use no outside nursing
 knowledge. Do not infer from the heading alone — the fact must actually be in
 the text. If the section text does not state it, answer false.
 
+For every fact, also give a SHORT reason (under 15 words) for the verdict. For
+a true, name the part of the section text that carries it. For a false, say why
+it was excluded — "belongs to the peptic ulcer section", "guide never gives a
+dose", "about the esophagus, not the stomach", "no such statement anywhere in
+this text".
+
 Return ONLY a JSON array, one entry per fact, in the same order:
-[{"i":0,"in_section":true}]
+[{"i":0,"in_section":true,"reason":"<short>"}]
 
 SECTION HEADING: ${heading}
 
@@ -372,24 +435,31 @@ ${facts.map((f, i) => `${i}. ${f}`).join('\n')}`;
 }
 
 function coveragePrompt(facts: string[], script: string) {
-  return `Check whether each fact is actually TAUGHT in the narration script below.
+  return `Decide whether a listener who heard ONLY this narration would come away
+knowing each fact. You are testing LEARNING, not string containment.
 
-Judge by MEANING, not wording. A fact counts as covered when a listener who
-heard only this script would know it. Paraphrase is fine. Different word order
-is fine. Spelled-out numbers ("fifteen hundred milliliters" for "1500 mL") are
-fine.
+COVERED — all of these count:
+- the fact is paraphrased, or said in a different order, or in different words
+- the fact is embedded inside an explanation, a mechanism, or a causal chain
+- the fact is taught through a worked example or a contrast with something else
+- the fact is carried by the narration around it rather than stated outright,
+  as long as a listener would still know it
+- numbers spelled out for speech ("one to three days" for "1-3 days",
+  "B twelve" for "B12", "I and O" for "I&O", "H two receptor antagonists")
 
-A fact is NOT covered when:
-- it is absent,
-- only the topic is mentioned without the specific content,
-- a number, unit, range, direction or term differs from the fact,
-- the fact records a CONFLICT between sources and the script gives only one
-  variant or resolves it.
+Do NOT require the fact to appear as its own sentence. Do NOT require the
+subject to be named again if the narration has already established it. A fact
+woven into a flowing paragraph is covered.
 
-Be strict. If you are unsure, mark it not covered.
+NOT COVERED:
+- the listener would simply not know it
+- only the topic is named, with the specific content missing
+- a number, unit, range, direction, drug, or term is different from the fact
+- the fact records a CONFLICT between sources and the narration gives only one
+  variant, or resolves it
 
 Return ONLY a JSON array, one entry per fact, in the same order:
-[{"i":0,"covered":true,"evidence":"<short quote from the script, or empty>"}]
+[{"i":0,"covered":true,"evidence":"<short quote, or empty>"}]
 
 FACTS:
 ${facts.map((f, i) => `${i}. ${f}`).join('\n')}
@@ -400,22 +470,168 @@ ${script}
 """`;
 }
 
-/* pull [[CHECKPOINT]] markers out, recording where each one sat */
-function extractCheckpoints(rawScript: string) {
-  const raw = rawScript.replace(/^\s+/, '');
-  const re = /^[ \t]*\[\[\s*CHECKPOINT\s*\]\][ \t]*$/gm;
-  let out = '', last = 0, m: RegExpExecArray | null;
-  const positions: number[] = [];
-  while ((m = re.exec(raw)) !== null) {
-    out += raw.slice(last, m.index);
-    out = out.replace(/\s+$/, '');
-    positions.push(out.length);
-    out += '\n\n';
-    last = m.index + m[0].length;
-    while (last < raw.length && /[ \t\n]/.test(raw[last])) last++;
+/* Unsourced-claim detection.
+
+   Coverage answers "did the script teach everything the source says". It cannot
+   answer the opposite question: "did the script say anything the source does
+   not". The first real run produced "acute gastritis does not present with
+   anemia" — true-sounding, never stated in the guide, arrived at by inverting a
+   fact about chronic gastritis. That is the class of error this pass catches.
+
+   Negations and contrasts are called out specifically because they are where
+   inference hides: the source being SILENT about a finding is not the source
+   saying the finding is absent. */
+function unsourcedPrompt(heading: string, body: string, script: string) {
+  return `Below is a section of a nursing study guide, and a narration written from it.
+
+Find every DECLARATIVE CLINICAL CLAIM in the narration that is NOT traceable to
+the section text. A claim is traceable if the section text states it, or states
+something that directly entails it. Wording may differ; meaning must match.
+
+FLAG (these are the failure modes):
+- a NEGATIVE claim the source never makes: "X does not present with Y",
+  "there is no Z", "Y is absent in X". The source being SILENT about a finding
+  is NOT the source saying the finding is absent.
+- a CONTRAST the source never draws: "unlike chronic, acute…". Flag it unless
+  the source itself states the difference between the two.
+- a number, dose, range, timeframe, lab value, or drug the source never gives.
+- a mechanism, cause, or consequence the source never states.
+- correct outside nursing knowledge that simply is not in this section text.
+  Being TRUE is not the test. Being IN THE SECTION TEXT is the test.
+
+DO NOT FLAG:
+- teaching scaffolding with no clinical content: "let's start here", "here's why
+  that matters", "picture a patient", transitions, second-person address.
+- restatement, paraphrase, summary, or reordering of sourced material.
+- a recall question posed to the listener.
+- spelling a symbol or abbreviation out for speech ("B twelve", "I and O",
+  "H two receptor antagonists", "fifteen hundred milliliters").
+- a claim supported ANYWHERE in the section text, even under a different heading
+  inside it.
+
+Quote the offending sentence exactly as it appears in the narration.
+
+Return ONLY a JSON array (empty if nothing is unsourced):
+[{"claim":"<the sentence, verbatim from the narration>",
+  "why":"<under 20 words: what the source actually says, or that it is silent>",
+  "kind":"negation|contrast|number|mechanism|outside-knowledge"}]
+
+SECTION HEADING: ${heading}
+
+SECTION TEXT:
+"""
+${body}
+"""
+
+NARRATION:
+"""
+${script}
+"""`;
+}
+
+async function findUnsourced(apiKey: string, model: string, heading: string, body: string, script: string) {
+  const out = parseJson(await gemini(apiKey, model, unsourcedPrompt(heading, body, script),
+    { json: true, temperature: 0 }));
+  const rows = (Array.isArray(out) ? out : [])
+    .map((r: any) => ({
+      claim: String((r && r.claim) || '').trim(),
+      why: String((r && r.why) || '').trim().slice(0, 200),
+      kind: String((r && r.kind) || '').trim().slice(0, 40),
+    }))
+    .filter((r: any) => r.claim);
+  /* A "claim" the verifier cannot actually locate in the narration is itself a
+     hallucination; drop it rather than report a sentence that was never said. */
+  const { norm } = normIndex(script);
+  return rows.filter((r: any) => {
+    const q = normIndex(r.claim).norm;
+    return q.length > 12 && norm.indexOf(q) >= 0;
+  });
+}
+
+/* Checkpoint placement.
+
+   The old version located each pause by finding a [[CHECKPOINT]] marker on a
+   line of its own. The model emits the marker INLINE, and before the question
+   rather than after it, so nothing matched, positions came back empty and every
+   checkpoint silently fell back to script.length. Marker placement is not
+   something the model does reliably, so it is no longer the anchor.
+
+   The anchor is now the question text itself, which the model returns verbatim
+   in the checkpoints array: the pause belongs immediately after the question is
+   asked. Markers are stripped wherever they appear. Every checkpoint records
+   HOW it was placed, so a run where anchoring failed is visible in the report
+   instead of quietly wrong. */
+
+/* Minimum characters between two pauses before the placement is called
+   degenerate. ~500 chars is roughly 30 seconds of speech. */
+const MIN_CHECKPOINT_GAP = 500;
+
+function cleanScript(raw: string): string {
+  return String(raw)
+    .replace(/\[\[\s*CHECKPOINT\s*\]\]/gi, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/* whitespace/case-insensitive view of a string, with a map back to real offsets */
+function normIndex(s: string) {
+  const chars: string[] = [], map: number[] = [];
+  let prevSpace = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (/\s/.test(ch)) {
+      if (prevSpace) continue;
+      chars.push(' '); map.push(i); prevSpace = true;
+    } else {
+      chars.push(ch.toLowerCase()); map.push(i); prevSpace = false;
+    }
   }
-  out += raw.slice(last);
-  return { script: out.trim(), positions };
+  return { norm: chars.join('').trim(), map };
+}
+
+function placeCheckpoints(rawScript: string, checkpoints: any[]) {
+  const script = cleanScript(rawScript);
+  const { norm, map } = normIndex(script);
+
+  const placed = checkpoints.map((c: any) => {
+    const question = String((c && c.question) || '').trim();
+    let pos = -1, how = 'unplaced';
+    if (question) {
+      const qn = normIndex(question).norm;
+      if (qn) {
+        const at = norm.indexOf(qn);
+        if (at >= 0) { pos = map[at + qn.length - 1] + 1; how = 'question'; }
+      }
+    }
+    return { question, pos, how, expected_points: c && c.expected_points };
+  });
+
+  /* anything unanchored goes in proportionally, and says so */
+  const n = placed.length;
+  placed.forEach((p, i) => {
+    if (p.pos < 0) { p.pos = Math.round((script.length * (i + 1)) / (n + 1)); p.how = 'proportional'; }
+  });
+
+  /* offsets must be strictly increasing; nudging one means it no longer sits
+     right after its question, so relabel it rather than pretend */
+  placed.sort((a, b) => a.pos - b.pos);
+  for (let i = 1; i < placed.length; i++) {
+    if (placed[i].pos <= placed[i - 1].pos) {
+      placed[i].pos = Math.min(script.length, placed[i - 1].pos + 1);
+      placed[i].how = 'adjusted';
+    }
+  }
+
+  /* Two pauses seconds apart is a degraded episode even when the offsets are
+     technically distinct. Flag it — do NOT move the pause, because moving it
+     would detach it from the question it belongs to. */
+  placed.forEach((p: any, i: number) => {
+    p.gap_from_previous = i === 0 ? p.pos : p.pos - placed[i - 1].pos;
+    p.crowded = p.gap_from_previous < MIN_CHECKPOINT_GAP;
+  });
+  return { script, placed };
 }
 
 const wordCount = (s: string) => (s.trim().match(/\S+/g) || []).length;
@@ -445,6 +661,7 @@ async function checkCoverage(apiKey: string, model: string, facts: string[], scr
 /* which quiz facts belong to this section, judged against the section source */
 async function scopeToSection(apiKey: string, model: string, heading: string, body: string, facts: string[]) {
   const flags: boolean[] = new Array(facts.length).fill(false);
+  const reasons: string[] = new Array(facts.length).fill('');
   const CHUNK = 120;
   for (let s = 0; s < facts.length; s += CHUNK) {
     const slice = facts.slice(s, s + CHUNK);
@@ -452,10 +669,32 @@ async function scopeToSection(apiKey: string, model: string, heading: string, bo
       { json: true, temperature: 0 }));
     (Array.isArray(out) ? out : []).forEach((r: any, idx: number) => {
       const i = Number.isInteger(r && r.i) ? r.i : idx;
-      if (i >= 0 && i < slice.length) flags[s + i] = (r.in_section === true);
+      if (i >= 0 && i < slice.length) {
+        flags[s + i] = (r.in_section === true);
+        reasons[s + i] = String((r && r.reason) || '').slice(0, 160);
+      }
     });
   }
-  return flags;
+  return { flags, reasons };
+}
+
+/* Lexical overlap between a fact and the section text, so the scoping dump can
+   rank REJECTED facts by how close they came. A fact that shares many content
+   words with the section but was still excluded is the interesting case; one
+   that shares almost nothing is obviously another section's. */
+const STOP = new Set(('a an and are as at be but by for from has have in is it its of on or that the'
+  + ' to was were will with which who whom this these those not no can may').split(' '));
+function contentWords(s: string): string[] {
+  return String(s).toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+    .filter((w) => w.length > 2 && !STOP.has(w));
+}
+function overlapScore(fact: string, bodyWords: Set<string>): number {
+  const w = contentWords(fact);
+  if (!w.length) return 0;
+  let hit = 0;
+  const seen = new Set<string>();
+  for (const t of w) { if (seen.has(t)) continue; seen.add(t); if (bodyWords.has(t)) hit++; }
+  return Math.round((hit / seen.size) * 100) / 100;
 }
 
 async function requireAdmin(req: Request) {
@@ -566,6 +805,8 @@ Deno.serve(async (req: Request) => {
     let quizPool: { id: any; objective_id: string; fact: string }[] = [];
     let quizFacts: string[] = [];
     let quizScopeError: string | null = null;
+    const scopedIn: any[] = [];
+    const scopedOut: any[] = [];
 
     if (crossCheck) {
       try {
@@ -596,9 +837,26 @@ Deno.serve(async (req: Request) => {
         });
 
         if (quizPool.length) {
-          const flags = await scopeToSection(apiKey, checkModel, section.heading, section.body,
+          const scoped = await scopeToSection(apiKey, checkModel, section.heading, section.body,
             quizPool.map((q) => q.fact));
-          quizFacts = quizPool.filter((_, i) => flags[i]).map((q) => q.fact);
+          quizFacts = quizPool.filter((_, i) => scoped.flags[i]).map((q) => q.fact);
+
+          /* Full audit of the scoping decision. Admitted facts are listed in
+             full; rejected ones are ranked by lexical overlap with the section
+             so the near-misses — the ones worth arguing about — are at the top
+             instead of buried under facts from unrelated lectures. */
+          const bodyWords = new Set(contentWords(section.body + ' ' + section.heading));
+          quizPool.forEach((q, i) => {
+            const row = {
+              objective_id: q.objective_id,
+              fact: q.fact,
+              reason: scoped.reasons[i] || '',
+              overlap: overlapScore(q.fact, bodyWords),
+            };
+            if (scoped.flags[i]) scopedIn.push(row); else scopedOut.push(row);
+          });
+          scopedIn.sort((a, b) => b.overlap - a.overlap);
+          scopedOut.sort((a, b) => b.overlap - a.overlap);
         }
       } catch (e) {
         quizScopeError = String((e as Error).message || e);
@@ -606,23 +864,25 @@ Deno.serve(async (req: Request) => {
     }
 
     /* 2..5 — write, verify against BOTH lists, repair */
-    let script = '', checkpoints: any[] = [], positions: number[] = [];
+    let script = '', placed: any[] = [];
     let coverage: any[] = [], missing: string[] = [];
     let quizCoverage: any[] = [], quizMissing: string[] = [];
+    let unsourced: any[] = [];
     const attempts: any[] = [];
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const prompt = attempt === 0
         ? scriptPrompt(section.heading, section.body, facts)
-        : repairPrompt(section.heading, section.body, facts, script, missing, quizMissing);
+        : repairPrompt(section.heading, section.body, facts, script, missing, quizMissing,
+                       unsourced.map((u: any) => u.claim));
 
       const out = parseJson(await gemini(apiKey, genModel, prompt,
         { json: true, temperature: attempt === 0 ? 0.6 : 0.35 }));
 
-      const cleaned = extractCheckpoints(String(out.script || ''));
-      script = cleaned.script;
-      positions = cleaned.positions;
-      checkpoints = Array.isArray(out.checkpoints) ? out.checkpoints : [];
+      const raw = String(out.script || '');
+      const cp = placeCheckpoints(raw, Array.isArray(out.checkpoints) ? out.checkpoints : []);
+      script = cp.script;
+      placed = cp.placed;
       if (!script) throw new Error('Model returned an empty script.');
 
       coverage = await checkCoverage(apiKey, checkModel, facts, script);
@@ -631,28 +891,42 @@ Deno.serve(async (req: Request) => {
       quizCoverage = await checkCoverage(apiKey, checkModel, quizFacts, script);
       quizMissing = quizCoverage.filter((c) => !c.covered).map((c) => c.fact);
 
+      unsourced = await findUnsourced(apiKey, checkModel, section.heading, section.body, script);
+
       attempts.push({
         attempt: attempt + 1, words: wordCount(script),
         model_covered: coverage.length - missing.length, model_missed: missing.length,
         quiz_covered: quizCoverage.length - quizMissing.length, quiz_missed: quizMissing.length,
+        unsourced: unsourced.length,
+        checkpoints: placed.length,
+        checkpoints_anchored: placed.filter((p: any) => p.how === 'question').length,
       });
-      if (!missing.length && !quizMissing.length) break;
+      if (!missing.length && !quizMissing.length && !unsourced.length) break;
     }
 
-    /* either list having a miss makes the section incomplete */
-    const status = (missing.length || quizMissing.length) ? 'incomplete' : 'complete';
+    /* a miss on either list, or an unsourced claim, makes the section incomplete */
+    const status = (missing.length || quizMissing.length || unsourced.length)
+      ? 'incomplete' : 'complete';
 
-    /* pair checkpoints with the marker positions actually found */
-    const pairedCount = Math.min(checkpoints.length, positions.length);
-    const finalCheckpoints = checkpoints.slice(0, Math.max(pairedCount, checkpoints.length))
+    const finalCheckpoints = placed
+      .filter((c: any) => c.question)
       .map((c: any, i: number) => ({
         ordinal: i,
-        position_in_script: i < positions.length ? positions[i] : script.length,
-        question: String((c && c.question) || '').trim(),
-        expected_points: Array.isArray(c && c.expected_points)
+        position_in_script: c.pos,
+        question: c.question,
+        expected_points: Array.isArray(c.expected_points)
           ? c.expected_points.map((p: any) => String(p).trim()).filter(Boolean) : [],
-      }))
-      .filter((c: any) => c.question);
+      }));
+
+    /* how each pause was located, and what the listener hears right before it */
+    const checkpoint_placement = placed.filter((c: any) => c.question).map((c: any, i: number) => ({
+      ordinal: i,
+      position_in_script: c.pos,
+      placed_by: c.how,
+      preceding_text: script.slice(Math.max(0, c.pos - 90), c.pos).trim(),
+      gap_from_previous: c.gap_from_previous,
+      crowded: c.crowded === true,
+    }));
 
     /* The two passes stay separate on purpose: merging them into one score
        would hide which check found the gap. */
@@ -674,11 +948,17 @@ Deno.serve(async (req: Request) => {
         missing_facts: quizMissing,
         facts: quizCoverage,
         error: quizScopeError,
+        scoped_in: scopedIn,
+        scoped_out: scopedOut.slice(0, 40),
+        scoped_out_total: scopedOut.length,
       },
+      unsourced_claims: unsourced,
+      checkpoint_placement,
       summary: `model-extracted facts ${coverage.filter((c) => c.covered).length}/${facts.length}`
         + (crossCheck && !quizScopeError
             ? `, quiz-derived facts ${quizCoverage.filter((c) => c.covered).length}/${quizFacts.length}`
-            : ''),
+            : '')
+        + `, unsourced claims ${unsourced.length}`,
       attempts,
       words: wordCount(script),
       models: { generation: genModel, verification: checkModel },

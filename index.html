@@ -8799,6 +8799,9 @@ function normalizeCov(cov){
     });
   }
   if(!cov.quiz_derived) cov.quiz_derived={enabled:false,total:0,covered:0,missed:0,missing_facts:[],facts:[]};
+  /* episodes saved before the unsourced/scoping passes existed have neither */
+  if(!cov.unsourced_claims) cov.unsourced_claims=null;
+  if(!cov.checkpoint_placement) cov.checkpoint_placement=null;
   return cov;
 }
 
@@ -8826,6 +8829,96 @@ function covBlock(title,sub,c,cls){
     h+='</div></details>';
   }
   return h+'</div>';
+}
+
+/* Claims the script made that the section markdown does not support.
+   Coverage cannot see these — it only asks whether the source got IN, never
+   whether something got in that was never in the source. */
+function unsourcedBlock(list){
+  if(list==null){
+    return '<div class="pod-covblock"><div class="pod-covhead">'
+      +'<span class="pod-covname">Unsourced claims</span>'
+      +'<span class="pod-covscore">n/a</span></div>'
+      +'<div class="pod-covsub">This episode was generated before the unsourced-claim check existed.</div></div>';
+  }
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Unsourced claims</span>'
+    +'<span class="pod-covscore '+(list.length?'bad':'good')+'">'+list.length+'</span></div>'
+    +'<div class="pod-covsub">Declarative clinical statements in the narration that are not traceable to this section’s markdown.</div>';
+  if(!list.length){
+    h+='<div class="pod-allgood">Every clinical claim traces back to the section text.</div>';
+  } else {
+    h+='<div class="pod-missing"><h4>'+list.length+' not traceable to the source</h4><ol>';
+    list.forEach(function(u){
+      h+='<li>“'+esc(u.claim||'')+'”'
+        +(u.why?'<span class="pod-fact-ev">'+esc(u.why)+(u.kind?' · '+esc(u.kind):'')+'</span>':'')
+        +'</li>';
+    });
+    h+='</ol></div>';
+  }
+  return h+'</div>';
+}
+
+/* What the scoping pass admitted and what it threw away, with its reason for
+   each. Rejected facts are ranked by word overlap with the section so the
+   near-misses sit at the top. */
+function scopingBlock(qd){
+  if(!qd||!qd.enabled||qd.error) return '';
+  var inn=qd.scoped_in||null, out=qd.scoped_out||null;
+  if(!inn&&!out){
+    return '<div class="pod-covblock"><div class="pod-covhead">'
+      +'<span class="pod-covname">Scoping decision</span><span class="pod-covscore">n/a</span></div>'
+      +'<div class="pod-covsub">This episode predates the scoping dump.</div></div>';
+  }
+  inn=inn||[]; out=out||[];
+  var total=qd.scoped_out_total!=null?qd.scoped_out_total:out.length;
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Scoping decision</span>'
+    +'<span class="pod-covscore good">'+inn.length+' in / '+total+' out</span></div>'
+    +'<div class="pod-covsub">Every course fact was judged against this section’s markdown alone. '
+    +'“Overlap” is the share of the fact’s content words that also appear in the section — a high-overlap rejection is the one worth arguing with.</div>';
+  h+=scopeList('Admitted to this section ('+inn.length+')',inn,'yes');
+  h+=scopeList('Excluded'+(out.length<total?' — top '+out.length+' of '+total+' by overlap':' ('+total+')'),out,'no');
+  return h+'</div>';
+}
+function scopeList(label,rows,cls){
+  if(!rows.length) return '';
+  var h='<details><summary>'+esc(label)+'</summary><div class="pod-facts">';
+  rows.forEach(function(r){
+    h+='<div class="pod-fact '+cls+'">'
+      +'<span class="pod-fact-mark">'+(cls==='yes'?'✓':'✗')+'</span>'
+      +'<span class="pod-fact-body">'+esc(r.fact||'')
+      +'<span class="pod-fact-ev">'+esc(r.reason||'no reason given')
+      +' · overlap '+(r.overlap!=null?r.overlap:'?')
+      +(r.objective_id?' · '+esc(r.objective_id):'')+'</span></span></div>';
+  });
+  return h+'</div></details>';
+}
+
+/* Where each pause actually lands, and how it got there. Both checkpoints
+   landing on the same offset is the failure this makes visible. */
+function placementBlock(pl,cps){
+  if(!pl||!pl.length) return '';
+  var bad=pl.filter(function(p){ return p.placed_by!=='question'||p.crowded; }).length;
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Checkpoint placement</span>'
+    +'<span class="pod-covscore '+(bad?'bad':'good')+'">'+(pl.length-bad)+'/'+pl.length+' anchored</span></div>'
+    +'<div class="pod-covsub">Each pause is located by finding its question in the narration. '
+    +'“proportional” means the question could not be found and the pause was spread in by position instead.</div>'
+    +'<div class="pod-facts">';
+  pl.forEach(function(p,i){
+    var ok=p.placed_by==='question'&&!p.crowded;
+    var q=(cps[i]&&cps[i].question)||'';
+    h+='<div class="pod-fact '+(ok?'yes':'no')+'">'
+      +'<span class="pod-fact-mark">'+(ok?'✓':'!')+'</span>'
+      +'<span class="pod-fact-body">#'+(i+1)+' at character '+p.position_in_script
+      +' · '+esc(p.placed_by)+' · '+p.gap_from_previous+' chars since the last pause'
+      +(p.crowded?' · TOO CLOSE':'')
+      +(q?'<span class="pod-fact-ev">'+esc(q)+'</span>':'')
+      +(p.preceding_text?'<span class="pod-fact-ev">…'+esc(p.preceding_text)+' ▮</span>':'')
+      +'</span></div>';
+  });
+  return h+'</div></div>';
 }
 
 function renderResult(d){
@@ -8856,17 +8949,23 @@ function renderResult(d){
       +'<span class="pod-covscore">off</span></div></div>';
   }
 
+  h+=unsourcedBlock(cov.unsourced_claims);
+  h+=scopingBlock(qd);
+
   h+='<div class="pod-cov-top" style="margin-top:12px">'
     +'<div class="pod-stat"><b>'+(cov.words||0)+'</b><span>Words</span></div>'
     +'<div class="pod-stat"><b>'+cps.length+'</b><span>Checkpoints</span></div>'
     +'<div class="pod-stat"><b>'+((cov.attempts||[]).length||1)+'</b><span>Attempts</span></div>'
     +'</div>';
 
+  h+=placementBlock(cov.checkpoint_placement,cps);
+
   if((cov.attempts||[]).length>1){
     h+='<div class="pod-note">'+cov.attempts.map(function(a){
       return '#'+a.attempt+' → model '+(a.model_covered!=null?a.model_covered:a.covered)+' ok/'
         +(a.model_missed!=null?a.model_missed:a.missed)+' missed'
-        +(a.quiz_missed!=null?', quiz '+a.quiz_covered+' ok/'+a.quiz_missed+' missed':'');
+        +(a.quiz_missed!=null?', quiz '+a.quiz_covered+' ok/'+a.quiz_missed+' missed':'')
+        +(a.unsourced!=null?', '+a.unsourced+' unsourced':'');
     }).join(' · ')+'</div>';
   }
   if(cov.models){
