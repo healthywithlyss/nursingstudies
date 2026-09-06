@@ -1261,6 +1261,30 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
 .pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
 
+/* ══════════════ BOTTOM NAV — pre-existing bug ══════════════
+   #bottom-nav is set to display:none in its base rule, and that rule is
+   declared AFTER the max-width:767px media query that is supposed to turn it
+   on. Same specificity, later in the file, so the base rule always won and the
+   bottom nav has never appeared on a phone — leaving mobile with no navigation
+   at all, since #sidebar is display:none at the same width. The intent is not
+   in doubt: the media query, the whole .bnav-btn ruleset, and the 56px
+   padding-bottom reserved on #main-content are all there and all unused.
+   Re-stating the rule here, after the base rule, is the smallest fix that
+   makes document order agree with the intent. */
+@media(max-width:767px){
+  #bottom-nav{display:flex}
+}
+
+/* Consequence of the fix above. #toast parks itself off-screen with
+   translateY(80px), but its mobile offset is bottom:76px, so about 16px of the
+   bubble has always peeked above the bottom edge. With the bottom nav invisible
+   that was a sliver over empty space; now it lands on top of the nav. Park it
+   properly, and lift a SHOWN toast clear of the nav. */
+@media(max-width:767px){
+  #toast{bottom:calc(56px + 20px)}
+}
+#toast:not(.show){transform:translateX(-50%) translateY(240px)}
+
 /* ══════════════ LISTEN (coached audio playback) ══════════════
    Namespaced .lsn-* / #page-listen. Nothing here touches an existing rule. */
 #page-listen{padding-bottom:190px}
@@ -1290,10 +1314,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .lsn-sec.playing .lsn-sec-n{background:var(--teal);color:#fff}
 .lsn-sec-body{flex:1;min-width:0}
-.lsn-sec-name{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.35;
+.lsn-sec-body{display:block}
+/* these are spans inside a span, so they need to be told to stack */
+.lsn-sec-name{display:block;font-size:13.5px;font-weight:700;color:var(--text);line-height:1.35;
   overflow-wrap:anywhere}
-.lsn-sec-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
-.lsn-sec-bar{height:3px;border-radius:2px;background:var(--g100);margin-top:6px;overflow:hidden}
+.lsn-sec-meta{display:block;font-size:11px;color:var(--text-muted);margin-top:2px}
+.lsn-sec-bar{display:block;height:3px;border-radius:2px;background:var(--g100);margin-top:6px;overflow:hidden}
 .lsn-sec-bar i{display:block;height:100%;background:var(--teal);border-radius:2px}
 
 /* the player, pinned above the bottom nav on mobile */
