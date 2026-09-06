@@ -4,10 +4,19 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
    generate-podcast-script  —  coached audio study, phase 1
 
    Turns one section of a study guide into a single-narrator lecture script
-   with periodic recall checkpoints, and VERIFIES that every fact extracted
-   from the source made it into the script. A fact is never silently dropped:
-   a section that still has misses after MAX_RETRIES is stored with
-   status='incomplete' and the missing facts listed in coverage_report.
+   with periodic recall checkpoints, and VERIFIES coverage TWICE, against two
+   independently produced fact lists:
+
+     1. model-extracted - facts this function pulls out of the section itself.
+        Self-referential: the same model writes the script and grades it, so a
+        fact extraction missed is a fact nothing would catch.
+     2. quiz-derived    - fact_tested strings from quiz_questions, written in a
+        separate earlier pass over the same source. These catch what extraction
+        missed, which is the whole point of the second pass.
+
+   The two numbers are reported SEPARATELY and never merged into one score.
+   A fact is never silently dropped: a section that still has misses after
+   MAX_RETRIES is stored with status='incomplete' and every miss listed.
 
    Admin only. Deployed with verify_jwt=true, so the gateway validates the
    caller's JWT; this function then confirms profiles.role = 'admin'.
@@ -20,6 +29,9 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
      source_url       optional; fetched when markdown is omitted
      max_retries      default 3
      dry_run          true = don't write to the database
+     cross_check      default true; second, independent coverage pass
+     quiz_objective_prefix  e.g. "N144" (derived from guide_slug when omitted)
+     quiz_objective_ids     explicit override, e.g. ["N144_L1","N144_SKILLS"]
      gen_model        optional model override for writing
      check_model      optional model override for extraction + verification
 ═══════════════════════════════════════════════════════════════════════ */
@@ -239,14 +251,23 @@ ${body}
 """`;
 }
 
-function repairPrompt(heading: string, body: string, facts: string[], script: string, missing: string[]) {
-  return `The lecture script below is missing facts it was required to teach. Revise it.
+function repairPrompt(heading: string, body: string, facts: string[], script: string,
+                      missing: string[], quizMissing: string[]) {
+  const blocks: string[] = [];
+  if (missing.length) blocks.push(
+`These facts are MISSING and must now be taught explicitly:
+${missing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
+  if (quizMissing.length) blocks.push(
+`These points are stated in the SECTION TEXT but are missing from your script.
+Find each one in the section text and teach it. If you genuinely cannot find it
+in the section text, leave it out — do NOT supply it from outside knowledge:
+${quizMissing.map((f, i) => `${i + 1}. ${f}`).join('\n')}`);
+
+  return `The lecture script below is missing content it was required to teach. Revise it.
 
 ${SOURCE_RULES}
 
-These facts are MISSING and must now be taught explicitly, woven into the
-narration where they belong:
-${missing.map((f, i) => `${i + 1}. ${f}`).join('\n')}
+${blocks.join('\n\n')}
 
 Rules for the revision:
 - Keep everything already covered. Do not drop anything to make room.
@@ -270,6 +291,38 @@ CURRENT SCRIPT:
 """
 ${script}
 """`;
+}
+
+/* Which quiz facts does THIS section's source text actually contain?
+
+   Judged against the section markdown, never against the script — scoping
+   against the script would let a fact the script omitted be ruled
+   "out of scope", which is exactly the failure this pass exists to catch. */
+function scopePrompt(heading: string, body: string, facts: string[]) {
+  return `Decide which of these exam facts are contained in ONE section of a study guide.
+
+For each fact, answer whether the SECTION TEXT below states it or directly
+supports it:
+- true  = the section text contains this fact (wording may differ, meaning must match)
+- false = the section text does not contain it (it belongs to another section of
+          the guide, or is not in this guide at all)
+
+Judge ONLY against the section text printed below. Use no outside nursing
+knowledge. Do not infer from the heading alone — the fact must actually be in
+the text. If the section text does not state it, answer false.
+
+Return ONLY a JSON array, one entry per fact, in the same order:
+[{"i":0,"in_section":true}]
+
+SECTION HEADING: ${heading}
+
+SECTION TEXT:
+"""
+${body}
+"""
+
+FACTS:
+${facts.map((f, i) => `${i}. ${f}`).join('\n')}`;
 }
 
 function coveragePrompt(facts: string[], script: string) {
@@ -320,6 +373,44 @@ function extractCheckpoints(rawScript: string) {
 }
 
 const wordCount = (s: string) => (s.trim().match(/\S+/g) || []).length;
+
+/* one coverage pass over an arbitrary fact list */
+async function checkCoverage(apiKey: string, model: string, facts: string[], script: string) {
+  if (!facts.length) return [] as any[];
+  const rows: any[] = [];
+  const CHUNK = 120;
+  for (let s = 0; s < facts.length; s += CHUNK) {
+    const slice = facts.slice(s, s + CHUNK);
+    const out = parseJson(await gemini(apiKey, model, coveragePrompt(slice, script),
+      { json: true, temperature: 0 }));
+    const byIndex = new Map<number, any>();
+    (Array.isArray(out) ? out : []).forEach((c: any, idx: number) => {
+      const i = Number.isInteger(c && c.i) ? c.i : idx;
+      byIndex.set(i, c);
+    });
+    slice.forEach((f, i) => {
+      const c = byIndex.get(i) || {};
+      rows.push({ fact: f, covered: c.covered === true, evidence: String(c.evidence || '').slice(0, 300) });
+    });
+  }
+  return rows;
+}
+
+/* which quiz facts belong to this section, judged against the section source */
+async function scopeToSection(apiKey: string, model: string, heading: string, body: string, facts: string[]) {
+  const flags: boolean[] = new Array(facts.length).fill(false);
+  const CHUNK = 120;
+  for (let s = 0; s < facts.length; s += CHUNK) {
+    const slice = facts.slice(s, s + CHUNK);
+    const out = parseJson(await gemini(apiKey, model, scopePrompt(heading, body, slice),
+      { json: true, temperature: 0 }));
+    (Array.isArray(out) ? out : []).forEach((r: any, idx: number) => {
+      const i = Number.isInteger(r && r.i) ? r.i : idx;
+      if (i >= 0 && i < slice.length) flags[s + i] = (r.in_section === true);
+    });
+  }
+  return flags;
+}
 
 async function requireAdmin(req: Request) {
   const auth = req.headers.get('Authorization') || '';
@@ -410,7 +501,7 @@ Deno.serve(async (req: Request) => {
 
     const maxRetries = Math.max(0, Math.min(5, Number(body.max_retries ?? MAX_RETRIES_DEFAULT)));
 
-    /* 1 — facts */
+    /* 1a — model-extracted facts (this function reads the section itself) */
     const factsRaw = await gemini(apiKey, checkModel, extractFactsPrompt(section.heading, section.body),
       { json: true, temperature: 0.1 });
     const facts: string[] = parseJson(factsRaw)
@@ -418,15 +509,62 @@ Deno.serve(async (req: Request) => {
       .filter(Boolean);
     if (!facts.length) throw new Error('Fact extraction returned nothing.');
 
-    /* 2..5 — write, verify, repair */
+    /* 1b — quiz-derived facts: fact_tested written in a separate earlier pass
+       over the same source, so they catch what extraction above missed. Scoped
+       to this section against the SECTION SOURCE, never against the script. */
+    const crossCheck = body.cross_check !== false;
+    let quizPool: { id: any; objective_id: string; fact: string }[] = [];
+    let quizFacts: string[] = [];
+    let quizScopeError: string | null = null;
+
+    if (crossCheck) {
+      try {
+        let filter = '';
+        if (Array.isArray(body.quiz_objective_ids) && body.quiz_objective_ids.length) {
+          filter = 'objective_id=in.(' + body.quiz_objective_ids.map(encodeURIComponent).join(',') + ')';
+        } else {
+          /* "nur144-u1-l1" -> "N144"; overridable via quiz_objective_prefix */
+          const m = String(guideSlug).match(/^nur(\d+)/i);
+          const prefix = body.quiz_objective_prefix || (m ? 'N' + m[1] : '');
+          if (!prefix) throw new Error('Could not derive a quiz objective prefix from guide_slug.');
+          filter = 'objective_id=like.' + encodeURIComponent(prefix + '%');
+        }
+        const qRes = await fetch(
+          `${gate.SUPABASE_URL}/rest/v1/quiz_questions?select=id,objective_id,fact_tested&${filter}`,
+          { headers: { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}` } });
+        const qRows = await qRes.json();
+        if (!qRes.ok) throw new Error(`quiz_questions read failed (${qRes.status})`);
+
+        const seen = new Set<string>();
+        (Array.isArray(qRows) ? qRows : []).forEach((r: any) => {
+          const f = String(r.fact_tested || '').trim();
+          if (!f) return;
+          const key = f.toLowerCase();
+          if (seen.has(key)) return;          /* same fact behind several questions */
+          seen.add(key);
+          quizPool.push({ id: r.id, objective_id: r.objective_id, fact: f });
+        });
+
+        if (quizPool.length) {
+          const flags = await scopeToSection(apiKey, checkModel, section.heading, section.body,
+            quizPool.map((q) => q.fact));
+          quizFacts = quizPool.filter((_, i) => flags[i]).map((q) => q.fact);
+        }
+      } catch (e) {
+        quizScopeError = String((e as Error).message || e);
+      }
+    }
+
+    /* 2..5 — write, verify against BOTH lists, repair */
     let script = '', checkpoints: any[] = [], positions: number[] = [];
     let coverage: any[] = [], missing: string[] = [];
+    let quizCoverage: any[] = [], quizMissing: string[] = [];
     const attempts: any[] = [];
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const prompt = attempt === 0
         ? scriptPrompt(section.heading, section.body, facts)
-        : repairPrompt(section.heading, section.body, facts, script, missing);
+        : repairPrompt(section.heading, section.body, facts, script, missing, quizMissing);
 
       const out = parseJson(await gemini(apiKey, genModel, prompt,
         { json: true, temperature: attempt === 0 ? 0.6 : 0.35 }));
@@ -437,27 +575,22 @@ Deno.serve(async (req: Request) => {
       checkpoints = Array.isArray(out.checkpoints) ? out.checkpoints : [];
       if (!script) throw new Error('Model returned an empty script.');
 
-      const cov = parseJson(await gemini(apiKey, checkModel, coveragePrompt(facts, script),
-        { json: true, temperature: 0 }));
-      const byIndex = new Map<number, any>();
-      (Array.isArray(cov) ? cov : []).forEach((c: any, idx: number) => {
-        const i = Number.isInteger(c && c.i) ? c.i : idx;
-        byIndex.set(i, c);
-      });
-      coverage = facts.map((f, i) => {
-        const c = byIndex.get(i) || {};
-        return { fact: f, covered: c.covered === true, evidence: String(c.evidence || '').slice(0, 300) };
-      });
+      coverage = await checkCoverage(apiKey, checkModel, facts, script);
       missing = coverage.filter((c) => !c.covered).map((c) => c.fact);
+
+      quizCoverage = await checkCoverage(apiKey, checkModel, quizFacts, script);
+      quizMissing = quizCoverage.filter((c) => !c.covered).map((c) => c.fact);
 
       attempts.push({
         attempt: attempt + 1, words: wordCount(script),
-        covered: coverage.length - missing.length, missed: missing.length,
+        model_covered: coverage.length - missing.length, model_missed: missing.length,
+        quiz_covered: quizCoverage.length - quizMissing.length, quiz_missed: quizMissing.length,
       });
-      if (!missing.length) break;
+      if (!missing.length && !quizMissing.length) break;
     }
 
-    const status = missing.length ? 'incomplete' : 'complete';
+    /* either list having a miss makes the section incomplete */
+    const status = (missing.length || quizMissing.length) ? 'incomplete' : 'complete';
 
     /* pair checkpoints with the marker positions actually found */
     const pairedCount = Math.min(checkpoints.length, positions.length);
@@ -471,12 +604,31 @@ Deno.serve(async (req: Request) => {
       }))
       .filter((c: any) => c.question);
 
+    /* The two passes stay separate on purpose: merging them into one score
+       would hide which check found the gap. */
     const coverage_report = {
-      total_facts: facts.length,
-      covered: coverage.filter((c) => c.covered).length,
-      missed: missing.length,
-      missing_facts: missing,
-      facts: coverage,
+      model_extracted: {
+        total: facts.length,
+        covered: coverage.filter((c) => c.covered).length,
+        missed: missing.length,
+        missing_facts: missing,
+        facts: coverage,
+      },
+      quiz_derived: {
+        enabled: crossCheck,
+        pool: quizPool.length,          /* distinct fact_tested for the course */
+        in_section: quizFacts.length,   /* of those, present in this section's source */
+        total: quizFacts.length,
+        covered: quizCoverage.filter((c) => c.covered).length,
+        missed: quizMissing.length,
+        missing_facts: quizMissing,
+        facts: quizCoverage,
+        error: quizScopeError,
+      },
+      summary: `model-extracted facts ${coverage.filter((c) => c.covered).length}/${facts.length}`
+        + (crossCheck && !quizScopeError
+            ? `, quiz-derived facts ${quizCoverage.filter((c) => c.covered).length}/${quizFacts.length}`
+            : ''),
       attempts,
       words: wordCount(script),
       models: { generation: genModel, verification: checkModel },
@@ -511,7 +663,8 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({
       episode_id: episodeId, guide_slug: guideSlug, section_heading: section.heading,
-      ordinal: section.ordinal, status, script, facts,
+      ordinal: section.ordinal, status, script,
+      facts, quiz_facts: quizFacts,
       checkpoints: finalCheckpoints, coverage_report,
     }), { headers: JSON_HDR });
 

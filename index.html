@@ -1163,7 +1163,24 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   border-radius:50%;animation:pod-spin .7s linear infinite;flex-shrink:0}
 @keyframes pod-spin{to{transform:rotate(360deg)}}
 
-/* coverage report */
+/* coverage report — the two passes are visually separate blocks */
+.pod-summary{font-size:13.5px;font-weight:700;color:var(--text);background:var(--g50);
+  border:1px solid var(--g200);border-radius:8px;padding:10px 13px;margin-bottom:12px;line-height:1.5}
+.pod-covblock{border:1px solid var(--g200);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.pod-covhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pod-covname{flex:1;min-width:0;font-size:13px;font-weight:800;color:var(--text)}
+.pod-covscore{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;
+  padding:2px 10px;border-radius:20px;background:var(--g50);color:var(--text-muted);flex-shrink:0}
+.pod-covscore.good{background:#dcfce7;color:var(--forest)}
+.pod-covscore.bad{background:#fee2e2;color:var(--rust)}
+.pod-covsub{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-top:5px}
+.pod-allgood{font-size:12px;color:var(--forest);font-weight:600;margin-top:8px}
+.pod-covblock details{margin-top:8px}
+.pod-covblock summary{cursor:pointer;font-size:11.5px;font-weight:700;color:var(--text-muted);
+  min-height:32px;display:flex;align-items:center}
+.pod-covblock .pod-facts{margin-top:8px}
+.pod-covblock .pod-missing{margin-top:9px;margin-bottom:0}
+
 .pod-cov-top{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .pod-stat{flex:1;min-width:88px;background:var(--g50);border:1px solid var(--g200);
   border-radius:8px;padding:10px 12px}
@@ -8638,6 +8655,7 @@ function render(){
         + '<label for="pod-retries">Max retries'
           + '<input type="number" id="pod-retries" value="3" min="0" max="5" '
           + 'style="width:64px;min-height:34px;padding:5px 8px"></label>'
+        + '<label><input type="checkbox" id="pod-cross" checked> Quiz-derived cross-check</label>'
         + '<label><input type="checkbox" id="pod-dry"> Don\'t save to database</label>'
       + '</div>'
       + '<button class="pod-btn" id="pod-go" onclick="podGenerate()">Generate script</button>'
@@ -8713,7 +8731,8 @@ function generate(){
         section_heading:heading,
         markdown:md,
         max_retries:parseInt($('pod-retries').value,10),
-        dry_run:$('pod-dry').checked
+        dry_run:$('pod-dry').checked,
+        cross_check:$('pod-cross').checked
       })
     });
   }).then(function(r){
@@ -8721,13 +8740,12 @@ function generate(){
   }).then(function(res){
     if(!res.ok||res.data.error) throw new Error(res.data.error||('Request failed ('+res.status+')'));
     current=res.data;
-    var cov=res.data.coverage_report||{};
+    var cov=normalizeCov(res.data.coverage_report);
+    var line=cov.summary||('model-extracted facts '+cov.model_extracted.covered+'/'+cov.model_extracted.total);
     if(res.data.status==='complete')
-      setStatus('ok','All '+(cov.total_facts||0)+' facts covered'
-        +(res.data.episode_id?' — saved.':' — not saved (dry run).'));
+      setStatus('ok',line+(res.data.episode_id?' — saved.':' — not saved (dry run).'));
     else
-      setStatus('warn',(cov.missed||0)+' of '+(cov.total_facts||0)
-        +' facts still missing after '+((cov.attempts||[]).length)+' attempt(s). Listed below.');
+      setStatus('warn',line+' — misses listed below.');
     renderResult(res.data);
     loadEpisodes();
   }).catch(function(e){
@@ -8739,49 +8757,94 @@ function generate(){
 }
 
 /* ══ result: coverage + script with inline checkpoints ══ */
+/* Older episodes stored a single flat report; fold them into the new shape so
+   saved rows still open. */
+function normalizeCov(cov){
+  cov = cov || {};
+  if(!cov.model_extracted){
+    cov = Object.assign({}, cov, {
+      model_extracted:{ total:cov.total_facts||0, covered:cov.covered||0, missed:cov.missed||0,
+                        missing_facts:cov.missing_facts||[], facts:cov.facts||[] },
+      quiz_derived:{ enabled:false, total:0, covered:0, missed:0, missing_facts:[], facts:[] }
+    });
+  }
+  if(!cov.quiz_derived) cov.quiz_derived={enabled:false,total:0,covered:0,missed:0,missing_facts:[],facts:[]};
+  return cov;
+}
+
+function covBlock(title,sub,c,cls){
+  var h='<div class="pod-covblock"><div class="pod-covhead"><span class="pod-covname">'+esc(title)+'</span>'
+    +'<span class="pod-covscore '+(c.missed?'bad':'good')+'">'+(c.covered||0)+'/'+(c.total||0)+'</span></div>'
+    +(sub?'<div class="pod-covsub">'+esc(sub)+'</div>':'');
+  if((c.missing_facts||[]).length){
+    h+='<div class="pod-missing"><h4>'+(c.missing_facts.length)+' not covered</h4><ol>';
+    c.missing_facts.forEach(function(f){ h+='<li>'+esc(f)+'</li>'; });
+    h+='</ol></div>';
+  } else if(c.total){
+    h+='<div class="pod-allgood">All '+c.total+' covered.</div>';
+  }
+  if((c.facts||[]).length){
+    h+='<details><summary>Every fact, one by one ('+c.facts.length+')</summary>'
+      +'<div class="pod-facts">';
+    c.facts.forEach(function(f){
+      h+='<div class="pod-fact '+(f.covered?'yes':'no')+'">'
+        +'<span class="pod-fact-mark">'+(f.covered?'✓':'✗')+'</span>'
+        +'<span class="pod-fact-body">'+esc(f.fact)
+        +(f.evidence?'<span class="pod-fact-ev">“'+esc(f.evidence)+'”</span>':'')
+        +'</span></div>';
+    });
+    h+='</div></details>';
+  }
+  return h+'</div>';
+}
+
 function renderResult(d){
-  var cov=d.coverage_report||{}, cps=d.checkpoints||[];
+  var cov=normalizeCov(d.coverage_report), cps=d.checkpoints||[];
+  var me=cov.model_extracted, qd=cov.quiz_derived;
   var h='';
 
-  h+='<div class="pod-panel"><h3>Coverage</h3>'
-    +'<div class="pod-cov-top">'
-      +'<div class="pod-stat"><b>'+(cov.total_facts||0)+'</b><span>Facts found</span></div>'
-      +'<div class="pod-stat hit"><b>'+(cov.covered||0)+'</b><span>Covered</span></div>'
-      +'<div class="pod-stat miss"><b>'+(cov.missed||0)+'</b><span>Missing</span></div>'
-      +'<div class="pod-stat"><b>'+(cov.words||0)+'</b><span>Words</span></div>'
-      +'<div class="pod-stat"><b>'+cps.length+'</b><span>Checkpoints</span></div>'
-    +'</div>';
+  h+='<div class="pod-panel"><h3>Coverage &mdash; two independent passes</h3>';
+  h+='<div class="pod-summary">'+esc(cov.summary
+      || ('model-extracted facts '+me.covered+'/'+me.total
+          +(qd.enabled?', quiz-derived facts '+qd.covered+'/'+qd.total:'')))+'</div>';
 
-  if((cov.missing_facts||[]).length){
-    h+='<div class="pod-missing"><h4>Not covered — these did not make it into the script</h4><ol>';
-    cov.missing_facts.forEach(function(f){ h+='<li>'+esc(f)+'</li>'; });
-    h+='</ol></div>';
+  h+=covBlock('Model-extracted facts',
+       'Pulled from the section by the same model that wrote the script — self-referential, so a fact extraction missed is a fact this pass cannot catch.',
+       me);
+
+  if(qd.error){
+    h+='<div class="pod-covblock"><div class="pod-covhead"><span class="pod-covname">Quiz-derived cross-check</span>'
+      +'<span class="pod-covscore bad">failed</span></div>'
+      +'<div class="pod-covsub">'+esc(qd.error)+'</div></div>';
+  } else if(qd.enabled){
+    h+=covBlock('Quiz-derived cross-check',
+         'fact_tested values from quiz_questions, written in a separate pass over the same source. '
+         +(qd.pool?qd.pool+' facts for this course; '+qd.in_section+' of them appear in this section’s markdown.':''),
+         qd);
+  } else {
+    h+='<div class="pod-covblock"><div class="pod-covhead"><span class="pod-covname">Quiz-derived cross-check</span>'
+      +'<span class="pod-covscore">off</span></div></div>';
   }
 
+  h+='<div class="pod-cov-top" style="margin-top:12px">'
+    +'<div class="pod-stat"><b>'+(cov.words||0)+'</b><span>Words</span></div>'
+    +'<div class="pod-stat"><b>'+cps.length+'</b><span>Checkpoints</span></div>'
+    +'<div class="pod-stat"><b>'+((cov.attempts||[]).length||1)+'</b><span>Attempts</span></div>'
+    +'</div>';
+
   if((cov.attempts||[]).length>1){
-    h+='<div class="pod-note">Attempts: '
-      +cov.attempts.map(function(a){ return '#'+a.attempt+' → '+a.covered+' covered, '+a.missed+' missed'; }).join(' · ')
-      +'</div>';
+    h+='<div class="pod-note">'+cov.attempts.map(function(a){
+      return '#'+a.attempt+' → model '+(a.model_covered!=null?a.model_covered:a.covered)+' ok/'
+        +(a.model_missed!=null?a.model_missed:a.missed)+' missed'
+        +(a.quiz_missed!=null?', quiz '+a.quiz_covered+' ok/'+a.quiz_missed+' missed':'');
+    }).join(' · ')+'</div>';
   }
   if(cov.models){
     h+='<div class="pod-note">Models — writing: <code>'+esc(cov.models.generation)
       +'</code>, verification: <code>'+esc(cov.models.verification)+'</code></div>';
   }
+  h+='</div>';
 
-  h+='<details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;'
-    +'font-weight:700;color:var(--text-muted);min-height:32px;display:flex;align-items:center">'
-    +'Every fact, one by one ('+(cov.facts||[]).length+')</summary>'
-    +'<div class="pod-facts" style="margin-top:8px">';
-  (cov.facts||[]).forEach(function(f){
-    h+='<div class="pod-fact '+(f.covered?'yes':'no')+'">'
-      +'<span class="pod-fact-mark">'+(f.covered?'✓':'✗')+'</span>'
-      +'<span class="pod-fact-body">'+esc(f.fact)
-      +(f.evidence?'<span class="pod-fact-ev">“'+esc(f.evidence)+'”</span>':'')
-      +'</span></div>';
-  });
-  h+='</div></details></div>';
-
-  /* script, with each checkpoint spliced in at its character offset */
   h+='<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
     +'<h3 style="padding:0 2px">Script — '+esc(d.section_heading)+'</h3></div>'
     +'<div class="pod-script">'+scriptHtml(d.script||'',cps)+'</div>';
@@ -8830,12 +8893,13 @@ function loadEpisodes(){
         el.innerHTML='<div class="pod-empty">Nothing generated yet.</div>'; return;
       }
       el.innerHTML='<div class="pod-eplist">'+rows.map(function(e){
-        var cov=e.coverage_report||{};
+        var cov=normalizeCov(e.coverage_report);
         return '<button class="pod-ep" onclick="podOpen(\''+esc(e.id)+'\')">'
           +'<span class="pod-pill '+esc(e.status)+'">'+esc(e.status)+'</span>'
           +'<span class="pod-ep-name">'+esc(e.section_heading)+'</span>'
-          +'<span class="pod-ep-meta">'+(cov.covered||0)+'/'+(cov.total_facts||0)+' facts · '
-          +(cov.words||0)+'w · '+new Date(e.created_at).toLocaleDateString()+'</span>'
+          +'<span class="pod-ep-meta">'+cov.model_extracted.covered+'/'+cov.model_extracted.total+' model'
+          +(cov.quiz_derived.enabled?' · '+cov.quiz_derived.covered+'/'+cov.quiz_derived.total+' quiz':'')
+          +' · '+(cov.words||0)+'w · '+new Date(e.created_at).toLocaleDateString()+'</span>'
           +'</button>';
       }).join('')+'</div>';
     })
@@ -8857,9 +8921,9 @@ function openEpisode(id){
             status:ep.status, script:ep.script, coverage_report:ep.coverage_report||{},
             checkpoints:res[1]||[] };
     current=d;
-    var cov=d.coverage_report;
-    if(ep.status==='complete') setStatus('ok','All '+(cov.total_facts||0)+' facts covered.');
-    else setStatus('warn',(cov.missed||0)+' of '+(cov.total_facts||0)+' facts missing.');
+    var cov=normalizeCov(d.coverage_report);
+    var line=cov.summary||('model-extracted facts '+cov.model_extracted.covered+'/'+cov.model_extracted.total);
+    setStatus(ep.status==='complete'?'ok':'warn',line);
     renderResult(d);
     var r=$('pod-result'); if(r) r.scrollIntoView({behavior:'smooth',block:'start'});
   }).catch(function(e){ setStatus('err',e.message||String(e)); });
