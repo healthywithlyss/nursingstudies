@@ -1247,6 +1247,231 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .pod-stat{min-width:calc(50% - 4px)}
   .pod-ep{flex-wrap:wrap}
   .pod-ep-name{flex:1 1 100%}
+  .pod-audio-row{flex-wrap:wrap}
+  .pod-audio-row .pod-field{min-width:100%}
+}
+/* audio generation, admin side */
+.pod-audio-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+.pod-seg{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--g200);
+  border-radius:8px;margin-bottom:6px;font-size:12px}
+.pod-seg-n{flex:0 0 22px;height:22px;border-radius:50%;background:var(--g100);color:var(--text-muted);
+  font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.pod-seg.done .pod-seg-n{background:#dcfce7;color:var(--forest)}
+.pod-seg.now .pod-seg-n{background:var(--teal);color:#fff}
+.pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
+.pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
+
+/* ══════════════ BOTTOM NAV — pre-existing bug ══════════════
+   #bottom-nav is set to display:none in its base rule, and that rule is
+   declared AFTER the max-width:767px media query that is supposed to turn it
+   on. Same specificity, later in the file, so the base rule always won and the
+   bottom nav has never appeared on a phone — leaving mobile with no navigation
+   at all, since #sidebar is display:none at the same width. The intent is not
+   in doubt: the media query, the whole .bnav-btn ruleset, and the 56px
+   padding-bottom reserved on #main-content are all there and all unused.
+   Re-stating the rule here, after the base rule, is the smallest fix that
+   makes document order agree with the intent. */
+@media(max-width:767px){
+  #bottom-nav{display:flex}
+}
+
+/* Consequence of the fix above. #toast parks itself off-screen with
+   translateY(80px), but its mobile offset is bottom:76px, so about 16px of the
+   bubble has always peeked above the bottom edge. With the bottom nav invisible
+   that was a sliver over empty space; now it lands on top of the nav. Park it
+   properly, and lift a SHOWN toast clear of the nav. */
+@media(max-width:767px){
+  #toast{bottom:calc(56px + 20px)}
+}
+#toast:not(.show){transform:translateX(-50%) translateY(240px)}
+
+/* ══════════════ LISTEN ══════════════
+   Namespaced .lsn-* / #page-listen. Built on the app's own tokens and
+   components — .pg panels, .sec-hdr headers, --teal/--forest/--g200 — so it
+   reads as part of the app rather than bolted on. No existing rule is touched. */
+#page-listen{padding-bottom:150px}
+@media(max-width:767px){ #page-listen{padding-bottom:206px} }
+
+.lsn-hdr{margin-bottom:16px}
+.lsn-hdr h1{font-size:23px;font-weight:800;color:var(--text);margin:0 0 4px;letter-spacing:-.01em}
+.lsn-hdr p{font-size:13px;color:var(--text-muted);margin:0;line-height:1.5}
+.lsn-err{background:var(--rust-bg);border:1px solid #fecaca;color:#991b1b;border-radius:var(--r-btn);
+  padding:11px 13px;font-size:12.5px;line-height:1.5;margin-bottom:12px}
+.lsn-empty{text-align:center;padding:34px 18px;color:var(--text-muted);font-size:13.5px;line-height:1.6}
+
+/* course → lecture → section */
+.lsn-course{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-muted);margin:20px 0 8px;padding:0 2px}
+.lsn-course:first-child{margin-top:0}
+.lsn-lec{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  margin-bottom:12px;overflow:hidden}
+.lsn-lec-hd{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:13px 16px;background:var(--teal);color:#fff;border:none;cursor:pointer;
+  font-family:inherit;min-height:52px}
+.lsn-lec-hd:disabled{background:var(--slate);cursor:default;opacity:.75}
+/* these are spans inside a span, so they must be told to stack */
+.lsn-lec-t{flex:1;min-width:0;display:block}
+.lsn-lec-name{display:block;font-size:14.5px;font-weight:800;line-height:1.3;
+  letter-spacing:-.01em;overflow-wrap:anywhere}
+.lsn-lec-sub{display:block;font-size:11.5px;font-weight:600;opacity:.85;margin-top:3px}
+.lsn-lec-ring{flex:0 0 auto;font-size:11px;font-weight:800;background:rgba(255,255,255,.22);
+  padding:3px 10px;border-radius:20px;white-space:nowrap}
+.lsn-chev{flex:0 0 16px;transition:transform .18s}
+.lsn-chev svg{width:16px;height:16px;display:block}
+.lsn-lec.open .lsn-chev{transform:rotate(180deg)}
+.lsn-lec-body{display:none;padding:10px 12px 12px}
+.lsn-lec.open .lsn-lec-body{display:block}
+
+.lsn-sec{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:11px 12px;border:1px solid var(--g200);border-radius:var(--r-btn);
+  background:var(--surface);margin-bottom:7px;cursor:pointer;font-family:inherit;min-height:54px}
+.lsn-sec:last-child{margin-bottom:0}
+.lsn-sec:hover{border-color:var(--teal);background:var(--teal-bg)}
+.lsn-sec.playing{border-color:var(--teal);background:var(--teal-bg);box-shadow:inset 0 0 0 1px var(--teal)}
+.lsn-sec.locked{opacity:.55;cursor:default;background:var(--g50)}
+.lsn-sec.locked:hover{border-color:var(--g200);background:var(--g50)}
+.lsn-sec-mark{flex:0 0 28px;height:28px;border-radius:50%;background:var(--g50);
+  border:1px solid var(--g200);color:var(--text-muted);font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center}
+.lsn-sec-mark svg{width:14px;height:14px}
+.lsn-sec.done .lsn-sec-mark{background:var(--forest);border-color:var(--forest);color:#fff}
+.lsn-sec.part .lsn-sec-mark{background:var(--teal-bg);border-color:var(--teal);color:var(--teal)}
+.lsn-sec.playing .lsn-sec-mark{background:var(--teal);border-color:var(--teal);color:#fff}
+.lsn-sec-b{flex:1;min-width:0;display:block}
+.lsn-sec-name{display:block;font-size:13.5px;font-weight:700;color:var(--text);
+  line-height:1.35;overflow-wrap:anywhere}
+.lsn-sec.done .lsn-sec-name{color:var(--text-muted)}
+.lsn-sec-meta{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.lsn-sec-bar{display:block;height:3px;border-radius:2px;background:var(--g200);margin-top:6px;overflow:hidden}
+.lsn-sec-bar i{display:block;height:100%;background:var(--teal);border-radius:2px}
+.lsn-sec.done .lsn-sec-bar i{background:var(--forest)}
+.lsn-tag{display:inline-block;font-size:9.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.05em;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:1px}
+.lsn-tag.done{background:var(--forest-bg);color:var(--forest)}
+.lsn-tag.part{background:var(--teal-bg);color:var(--teal)}
+.lsn-tag.none{background:var(--g50);color:var(--text-muted)}
+
+/* ── mini player: follows her everywhere in the app ── */
+.lsn-mini{position:fixed;left:0;right:0;bottom:0;z-index:150;background:var(--surface);
+  border-top:1px solid var(--g200);box-shadow:0 -3px 14px rgba(15,23,42,.10);
+  display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer}
+.lsn-mini[hidden]{display:none}
+@media(max-width:767px){ .lsn-mini{bottom:56px} }
+@media(min-width:768px){ .lsn-mini{left:var(--sidebar-w)} }
+.lsn-mini-b{flex:1;min-width:0}
+.lsn-mini-t{font-size:12.5px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsn-mini-s{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums;margin-top:1px}
+.lsn-mini-bar{position:absolute;left:0;right:0;top:0;height:2px;background:var(--g200)}
+.lsn-mini-bar i{display:block;height:100%;background:var(--teal)}
+body.lsn-open #main-content{padding-bottom:80px}
+@media(max-width:767px){ body.lsn-open #main-content{padding-bottom:136px} }
+
+/* ── round transport buttons, shared by mini and full ── */
+.lsn-b{border-radius:50%;border:1px solid var(--g200);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);
+  flex:0 0 auto;width:42px;height:42px;font-family:inherit;padding:0}
+.lsn-b:disabled{opacity:.3;cursor:default}
+.lsn-b svg{width:18px;height:18px}
+.lsn-b.main{background:var(--teal);border-color:var(--teal);color:#fff;width:46px;height:46px}
+.lsn-b.main svg{width:20px;height:20px}
+.lsn-b.xl{width:64px;height:64px}
+.lsn-b.xl svg{width:27px;height:27px}
+/* the seconds sit INSIDE the circular arrow, not under it */
+.lsn-skip{position:relative}
+.lsn-skip svg{width:26px;height:26px}
+.lsn-skip .n{position:absolute;left:0;right:0;top:50%;transform:translateY(-38%);
+  font-size:8.5px;font-weight:800;text-align:center;pointer-events:none;letter-spacing:-.03em}
+.lsn-b.xl.lsn-skip svg{width:26px;height:26px}
+
+/* ── full-screen player ── */
+.lsn-full{position:fixed;inset:0;z-index:400;background:var(--bg);
+  display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lsn-full[hidden]{display:none}
+.lsn-full-top{display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:var(--topbar);color:#fff;position:sticky;top:0;z-index:2}
+.lsn-full-top button{background:transparent;border:none;color:#fff;cursor:pointer;
+  padding:6px;display:flex;font-family:inherit}
+.lsn-full-top svg{width:20px;height:20px}
+.lsn-full-lbl{flex:1;min-width:0;font-size:11.5px;font-weight:700;opacity:.7;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsn-full-body{padding:20px 16px 40px;max-width:640px;margin:0 auto;width:100%}
+.lsn-title{font-size:21px;font-weight:800;color:var(--text);line-height:1.25;
+  letter-spacing:-.01em;margin:0 0 5px;overflow-wrap:anywhere}
+.lsn-lecline{font-size:12.5px;color:var(--text-muted);margin:0 0 20px}
+
+/* progress bar with checkpoint markers */
+.lsn-track{position:relative;height:34px;margin-bottom:2px;touch-action:none}
+.lsn-track-rail{position:absolute;left:0;right:0;top:15px;height:5px;border-radius:3px;background:var(--g200)}
+.lsn-track-fill{position:absolute;left:0;top:15px;height:5px;border-radius:3px;background:var(--teal)}
+.lsn-track-knob{position:absolute;top:9px;width:17px;height:17px;border-radius:50%;
+  background:var(--teal);border:2px solid #fff;box-shadow:0 1px 4px rgba(15,23,42,.35);
+  margin-left:-8px;pointer-events:none}
+.lsn-cpmark{position:absolute;top:11px;width:3px;height:13px;border-radius:2px;
+  background:var(--plum);margin-left:-1px;pointer-events:none}
+.lsn-cpmark.passed{background:var(--g200)}
+.lsn-times{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);
+  font-variant-numeric:tabular-nums;margin-bottom:16px}
+.lsn-legend{font-size:11px;color:var(--text-muted);margin:-10px 0 18px;display:flex;
+  align-items:center;gap:6px}
+.lsn-legend i{width:3px;height:11px;background:var(--plum);border-radius:2px;display:inline-block}
+
+.lsn-transport{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px}
+.lsn-row2{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px}
+.lsn-rate{border:1px solid var(--g200);border-radius:20px;background:var(--surface);font-size:12.5px;
+  font-weight:800;color:var(--text);padding:0 14px;height:38px;cursor:pointer;font-family:inherit;
+  font-variant-numeric:tabular-nums}
+.lsn-auto{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);
+  cursor:pointer;user-select:none;font-weight:600}
+.lsn-auto input{width:17px;height:17px;accent-color:var(--teal);margin:0}
+
+.lsn-part{font-size:11.5px;color:var(--text-muted);text-align:center;margin-bottom:18px;
+  font-variant-numeric:tabular-nums}
+
+/* section jump list inside the player */
+.lsn-jump{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:14px 16px}
+.lsn-jump h4{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-muted);margin:0 0 10px}
+.lsn-jump .lsn-sec{margin-bottom:6px}
+
+/* ── checkpoint: a teaching moment, not an error ── */
+.lsn-cp{background:var(--surface);border:1px solid var(--plum);border-top:4px solid var(--plum);
+  border-radius:var(--r-card);padding:18px 18px 16px;margin-bottom:20px;
+  box-shadow:0 4px 18px rgba(126,34,206,.12)}
+.lsn-cp[hidden]{display:none}
+.lsn-cp-tag{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--plum);margin-bottom:9px}
+.lsn-cp-tag svg{width:14px;height:14px}
+.lsn-cp-q{font-size:17.5px;font-weight:700;color:var(--text);line-height:1.45;margin:0 0 10px;
+  overflow-wrap:anywhere;letter-spacing:-.01em}
+.lsn-cp-hint{font-size:12.5px;color:var(--text-muted);line-height:1.55;margin:0 0 16px}
+/* action row sized for two primary controls: Phase 3 drops Record in beside
+   Continue without the layout moving */
+.lsn-cp-acts{display:flex;gap:9px}
+.lsn-cp-acts button{flex:1;min-height:48px;border-radius:var(--r-btn);font-size:14.5px;
+  font-weight:700;cursor:pointer;font-family:inherit;border:none;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.lsn-cp-acts svg{width:17px;height:17px}
+.lsn-cp-rec{background:var(--surface);border:1px solid var(--g200)!important;color:var(--text-muted)}
+.lsn-cp-rec:disabled{opacity:.6;cursor:not-allowed}
+.lsn-cp-go{background:var(--plum);color:#fff}
+.lsn-cp-replay{width:100%;margin-top:9px;min-height:42px;border-radius:var(--r-btn);
+  border:1px solid var(--g200);background:var(--surface);color:var(--text-muted);
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.lsn-cp-soon{font-size:11px;color:var(--text-muted);text-align:center;margin:10px 0 0;font-style:italic}
+
+@media(max-width:420px){
+  .lsn-hdr h1{font-size:20px}
+  .lsn-title{font-size:19px}
+  .lsn-cp-q{font-size:16.5px}
+  .lsn-transport{gap:10px}
+  .lsn-b{width:40px;height:40px}
+  .lsn-b.xl{width:60px;height:60px}
+  .lsn-full-body{padding:16px 13px 36px}
+  .lsn-cp{padding:16px 14px 14px}
+  .lsn-cp-acts button{font-size:13.5px}
 }
 </style>
 </head>
@@ -1305,6 +1530,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-podcast" onclick="goTo('podcast')" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
         Podcast
+      </button>
+      <button class="nav-item" id="nav-listen" onclick="goTo('listen')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/></svg>
+        Listen
       </button>
       <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -4188,6 +4417,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     <!-- ══════════════ PODCAST SCRIPTS (admin only) ══════════════ -->
     <div id="page-podcast" class="page"></div>
 
+    <!-- ══════════════ LISTEN (coached audio, any signed-in user) ══════════════ -->
+    <div id="page-listen" class="page"></div>
+
   </main>
 </div>
 
@@ -4229,6 +4461,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-podcast" onclick="goTo('podcast')" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
     Podcast
+  </button>
+  <button class="bnav-btn" id="bnav-listen" onclick="goTo('listen')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/><path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/></svg>
+    Listen
   </button>
   <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -8799,6 +9035,9 @@ function normalizeCov(cov){
     });
   }
   if(!cov.quiz_derived) cov.quiz_derived={enabled:false,total:0,covered:0,missed:0,missing_facts:[],facts:[]};
+  /* episodes saved before the unsourced/scoping passes existed have neither */
+  if(!cov.unsourced_claims) cov.unsourced_claims=null;
+  if(!cov.checkpoint_placement) cov.checkpoint_placement=null;
   return cov;
 }
 
@@ -8826,6 +9065,96 @@ function covBlock(title,sub,c,cls){
     h+='</div></details>';
   }
   return h+'</div>';
+}
+
+/* Claims the script made that the section markdown does not support.
+   Coverage cannot see these — it only asks whether the source got IN, never
+   whether something got in that was never in the source. */
+function unsourcedBlock(list){
+  if(list==null){
+    return '<div class="pod-covblock"><div class="pod-covhead">'
+      +'<span class="pod-covname">Unsourced claims</span>'
+      +'<span class="pod-covscore">n/a</span></div>'
+      +'<div class="pod-covsub">This episode was generated before the unsourced-claim check existed.</div></div>';
+  }
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Unsourced claims</span>'
+    +'<span class="pod-covscore '+(list.length?'bad':'good')+'">'+list.length+'</span></div>'
+    +'<div class="pod-covsub">Declarative clinical statements in the narration that are not traceable to this section’s markdown.</div>';
+  if(!list.length){
+    h+='<div class="pod-allgood">Every clinical claim traces back to the section text.</div>';
+  } else {
+    h+='<div class="pod-missing"><h4>'+list.length+' not traceable to the source</h4><ol>';
+    list.forEach(function(u){
+      h+='<li>“'+esc(u.claim||'')+'”'
+        +(u.why?'<span class="pod-fact-ev">'+esc(u.why)+(u.kind?' · '+esc(u.kind):'')+'</span>':'')
+        +'</li>';
+    });
+    h+='</ol></div>';
+  }
+  return h+'</div>';
+}
+
+/* What the scoping pass admitted and what it threw away, with its reason for
+   each. Rejected facts are ranked by word overlap with the section so the
+   near-misses sit at the top. */
+function scopingBlock(qd){
+  if(!qd||!qd.enabled||qd.error) return '';
+  var inn=qd.scoped_in||null, out=qd.scoped_out||null;
+  if(!inn&&!out){
+    return '<div class="pod-covblock"><div class="pod-covhead">'
+      +'<span class="pod-covname">Scoping decision</span><span class="pod-covscore">n/a</span></div>'
+      +'<div class="pod-covsub">This episode predates the scoping dump.</div></div>';
+  }
+  inn=inn||[]; out=out||[];
+  var total=qd.scoped_out_total!=null?qd.scoped_out_total:out.length;
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Scoping decision</span>'
+    +'<span class="pod-covscore good">'+inn.length+' in / '+total+' out</span></div>'
+    +'<div class="pod-covsub">Every course fact was judged against this section’s markdown alone. '
+    +'“Overlap” is the share of the fact’s content words that also appear in the section — a high-overlap rejection is the one worth arguing with.</div>';
+  h+=scopeList('Admitted to this section ('+inn.length+')',inn,'yes');
+  h+=scopeList('Excluded'+(out.length<total?' — top '+out.length+' of '+total+' by overlap':' ('+total+')'),out,'no');
+  return h+'</div>';
+}
+function scopeList(label,rows,cls){
+  if(!rows.length) return '';
+  var h='<details><summary>'+esc(label)+'</summary><div class="pod-facts">';
+  rows.forEach(function(r){
+    h+='<div class="pod-fact '+cls+'">'
+      +'<span class="pod-fact-mark">'+(cls==='yes'?'✓':'✗')+'</span>'
+      +'<span class="pod-fact-body">'+esc(r.fact||'')
+      +'<span class="pod-fact-ev">'+esc(r.reason||'no reason given')
+      +' · overlap '+(r.overlap!=null?r.overlap:'?')
+      +(r.objective_id?' · '+esc(r.objective_id):'')+'</span></span></div>';
+  });
+  return h+'</div></details>';
+}
+
+/* Where each pause actually lands, and how it got there. Both checkpoints
+   landing on the same offset is the failure this makes visible. */
+function placementBlock(pl,cps){
+  if(!pl||!pl.length) return '';
+  var bad=pl.filter(function(p){ return p.placed_by!=='question'||p.crowded; }).length;
+  var h='<div class="pod-covblock"><div class="pod-covhead">'
+    +'<span class="pod-covname">Checkpoint placement</span>'
+    +'<span class="pod-covscore '+(bad?'bad':'good')+'">'+(pl.length-bad)+'/'+pl.length+' anchored</span></div>'
+    +'<div class="pod-covsub">Each pause is located by finding its question in the narration. '
+    +'“proportional” means the question could not be found and the pause was spread in by position instead.</div>'
+    +'<div class="pod-facts">';
+  pl.forEach(function(p,i){
+    var ok=p.placed_by==='question'&&!p.crowded;
+    var q=(cps[i]&&cps[i].question)||'';
+    h+='<div class="pod-fact '+(ok?'yes':'no')+'">'
+      +'<span class="pod-fact-mark">'+(ok?'✓':'!')+'</span>'
+      +'<span class="pod-fact-body">#'+(i+1)+' at character '+p.position_in_script
+      +' · '+esc(p.placed_by)+' · '+p.gap_from_previous+' chars since the last pause'
+      +(p.crowded?' · TOO CLOSE':'')
+      +(q?'<span class="pod-fact-ev">'+esc(q)+'</span>':'')
+      +(p.preceding_text?'<span class="pod-fact-ev">…'+esc(p.preceding_text)+' ▮</span>':'')
+      +'</span></div>';
+  });
+  return h+'</div></div>';
 }
 
 function renderResult(d){
@@ -8856,17 +9185,23 @@ function renderResult(d){
       +'<span class="pod-covscore">off</span></div></div>';
   }
 
+  h+=unsourcedBlock(cov.unsourced_claims);
+  h+=scopingBlock(qd);
+
   h+='<div class="pod-cov-top" style="margin-top:12px">'
     +'<div class="pod-stat"><b>'+(cov.words||0)+'</b><span>Words</span></div>'
     +'<div class="pod-stat"><b>'+cps.length+'</b><span>Checkpoints</span></div>'
     +'<div class="pod-stat"><b>'+((cov.attempts||[]).length||1)+'</b><span>Attempts</span></div>'
     +'</div>';
 
+  h+=placementBlock(cov.checkpoint_placement,cps);
+
   if((cov.attempts||[]).length>1){
     h+='<div class="pod-note">'+cov.attempts.map(function(a){
       return '#'+a.attempt+' → model '+(a.model_covered!=null?a.model_covered:a.covered)+' ok/'
         +(a.model_missed!=null?a.model_missed:a.missed)+' missed'
-        +(a.quiz_missed!=null?', quiz '+a.quiz_covered+' ok/'+a.quiz_missed+' missed':'');
+        +(a.quiz_missed!=null?', quiz '+a.quiz_covered+' ok/'+a.quiz_missed+' missed':'')
+        +(a.unsourced!=null?', '+a.unsourced+' unsourced':'');
     }).join(' · ')+'</div>';
   }
   if(cov.models){
@@ -8875,11 +9210,14 @@ function renderResult(d){
   }
   h+='</div>';
 
+  h+=audioPanel(d);
+
   h+='<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
     +'<h3 style="padding:0 2px">Script — '+esc(d.section_heading)+'</h3></div>'
     +'<div class="pod-script">'+scriptHtml(d.script||'',cps)+'</div>';
 
   $('pod-result').innerHTML=h;
+  if(d.episode_id){ fillVoices(); podAudioStatus(); }
 }
 
 function scriptHtml(script,cps){
@@ -9005,6 +9343,128 @@ window.updateAiChatBtnVisibility=function(){
   syncNav();
 };
 
+/* ── audio generation (admin) ─────────────────────────────────────────
+   Separate function, separate action per segment: each call is short, the
+   progress is real rather than a spinner, and a failure costs one segment.  */
+var AFN='/functions/v1/generate-podcast-audio';
+var voiceCache=null;
+var audioBusy=false;
+
+function afn(body){
+  return fetch(SB_URL+AFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(j){
+      if(!r.ok) throw new Error(j.error||('Audio request failed ('+r.status+')'));
+      return j;
+    }); });
+}
+
+function audioPanel(d){
+  if(!d.episode_id){
+    return '<div class="pod-panel"><h3>Audio</h3><div class="pod-note">'
+      +'This was a dry run, so there is no saved episode to attach audio to. '
+      +'Generate it again with saving on first.</div></div>';
+  }
+  return '<div class="pod-panel"><h3>Audio</h3>'
+    +'<div class="pod-audio-row">'
+    +'<label class="pod-field"><label>Voice</label>'
+    +'<select id="pod-voice"><option>loading…</option></select></label>'
+    +'<button class="pod-btn" id="pod-audio-go" onclick="podAudioGo()">Generate audio</button>'
+    +'<button class="pod-btn pod-btn-ghost" onclick="podAudioStatus()">Refresh</button>'
+    +'</div>'
+    +'<div id="pod-audio-status" class="pod-note"></div>'
+    +'<div id="pod-audio-segs"></div>'
+    +'<div class="pod-note">Segments are cut at the checkpoints, so each part ends '
+    +'on a question. Audio is uncompressed WAV: about 2.9 MB per minute.</div>'
+    +'</div>';
+}
+
+function fillVoices(){
+  var sel=$('pod-voice'); if(!sel) return;
+  var apply=function(v){
+    voiceCache=v;
+    sel.innerHTML=v.voices.map(function(x){
+      return '<option value="'+esc(x.name)+'"'+(x.name===v.default_voice?' selected':'')+'>'
+        +esc(x.name)+' — '+esc(x.character)+'</option>';
+    }).join('');
+    var st=$('pod-audio-status');
+    if(st&&!st.textContent) st.textContent='TTS model: '+(v.would_use||'none found')
+      +' (chosen from '+v.all_models_seen+' models on this key)';
+  };
+  if(voiceCache) return apply(voiceCache);
+  afn({action:'voices'}).then(apply).catch(function(e){
+    sel.innerHTML='<option>could not load voices</option>';
+    $('pod-audio-status').textContent=e.message;
+  });
+}
+
+function renderSegs(plan,doneCount,activeIdx){
+  var byOrd={};
+  (plan.generated||[]).forEach(function(g){ byOrd[g.ordinal]=g; });
+  $('pod-audio-segs').innerHTML=(plan.segments||[]).map(function(sg,i){
+    var g=byOrd[i];
+    var cls=g?'done':(i===activeIdx?'now':'');
+    return '<div class="pod-seg '+cls+'"><span class="pod-seg-n">'+(i+1)+'</span>'
+      +'<span class="pod-seg-b">'+esc(sg.preview||'')+'…</span>'
+      +'<span class="pod-seg-t">'+(g?Math.round(g.duration_seconds)+'s':'~'+sg.estimated_seconds+'s')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function podAudioStatus(){
+  if(!current||!current.episode_id) return Promise.resolve(null);
+  return afn({action:'status',episode_id:current.episode_id}).then(function(p){
+    renderSegs(p,(p.generated||[]).length,-1);
+    $('pod-audio-status').textContent=(p.generated||[]).length+' of '+p.segments.length
+      +' parts generated · '+Math.round(p.generated_seconds)+'s of audio · '
+      +(p.generated_bytes/1048576).toFixed(1)+' MB'
+      +(p.complete?' · complete':'');
+    return p;
+  }).catch(function(e){ $('pod-audio-status').textContent=e.message; });
+}
+
+function podAudioGo(){
+  if(audioBusy||!current||!current.episode_id) return;
+  var voice=$('pod-voice').value;
+  var epId=current.episode_id;
+  audioBusy=true;
+  $('pod-audio-go').disabled=true;
+  var t0=Date.now(), totalActual=0, totalEst=0, bytes=0;
+
+  afn({action:'plan',episode_id:epId}).then(function(plan){
+    var todo=plan.segments.map(function(s){ return s.ordinal; })
+      .filter(function(o){ return !(plan.generated||[]).some(function(g){ return g.ordinal===o; }); });
+    renderSegs(plan,0,todo[0]);
+
+    /* strictly sequential: parallel calls would multiply peak memory in the
+       function and give the API a burst it has no reason to accept */
+    return todo.reduce(function(chain,ord){
+      return chain.then(function(){
+        $('pod-audio-status').textContent='Generating part '+(ord+1)+' of '+plan.segments.length+'…';
+        renderSegs(plan,0,ord);
+        return afn({action:'synthesize',episode_id:epId,segment:ord,voice:voice})
+          .then(function(r){
+            totalActual+=r.actual_seconds; totalEst+=r.estimated_seconds; bytes+=r.bytes;
+            return podAudioStatus();
+          });
+      });
+    },Promise.resolve()).then(function(){
+      return podAudioStatus().then(function(){
+        var secs=Math.round((Date.now()-t0)/1000);
+        $('pod-audio-status').textContent+= ' · took '+secs+'s'
+          +(totalEst?' · estimate was off by '
+            +Math.round(((totalActual-totalEst)/totalEst)*100)+'%':'');
+      });
+    });
+  }).catch(function(e){
+    $('pod-audio-status').textContent='Failed: '+(e.message||String(e));
+  }).then(function(){
+    audioBusy=false;
+    var b=$('pod-audio-go'); if(b) b.disabled=false;
+  });
+}
+
+window.podAudioGo=podAudioGo;
+window.podAudioStatus=podAudioStatus;
 window.podGenerate=generate;
 window.podGuideChanged=guideChanged;
 window.podOpen=openEpisode;
@@ -9015,5 +9475,682 @@ else syncNav();
 
 })();
 </script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LISTEN — coached audio.  Phase 2.
+
+   Open to any signed-in user; generation stays admin-only elsewhere.
+   Additive: wraps goTo() the way the podcast block does, adds no global
+   except window.lsn*, and touches no existing function.
+
+   THREE SURFACES
+     library   courses -> lectures -> sections, with per-section state
+     mini      a strip that follows her onto every other page so browsing
+               the study guide does not kill playback
+     full      the player proper: episode-wide scrub with checkpoint marks,
+               speed, section jump, and the checkpoint panel
+
+   TIME IS EPISODE-WIDE, NOT SEGMENT-WIDE
+   Segments are an artefact of how the audio was generated; she thinks in
+   whole sections. Every number shown and every seek is against the whole
+   episode, and seeking picks the right segment underneath.
+
+   WHY PLAYBACK PAUSES THE WAY IT DOES
+   Segments end where the questions are, so a pause is a real teaching beat
+   and the tap on Continue that resumes it is a real user gesture — which is
+   what iOS needs to start audio. Nothing here depends on a JS timer, because
+   timers are throttled once the screen locks; it all runs off audio events.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+
+var MANIFEST_URL='content/study-guides.json';
+var SIGN_SECONDS=8*60*60;
+var SAVE_EVERY_MS=10000;
+var RATES=[0.75,1,1.25,1.5,1.75,2];
+var LS_RATE='lsn_rate', LS_AUTO='lsn_autoadvance', LS_OPEN='lsn_open_lectures';
+
+var manifest=null;
+var lectures=[];        /* [{course,courseLabel,slug,label,lectureLabel,sections:[...]}] */
+var bySlug={};
+var episodes=[];        /* every episode row, decorated with _segs and _prog   */
+var byEpisode={};
+var current=null;       /* {ep, lec, segs, cps, urls, cum, total}              */
+var segIdx=0;
+var audio=null, lastSave=0, booted=false, loadToken=0;
+var rate=Number(localStorage.getItem(LS_RATE))||1;
+var autoAdvance=localStorage.getItem(LS_AUTO)!=='0';
+var openLectures={};
+try{ openLectures=JSON.parse(localStorage.getItem(LS_OPEN)||'{}')||{}; }catch(_){ openLectures={}; }
+
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function mmss(sec){
+  sec=Math.max(0,Math.round(Number(sec)||0));
+  var h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  var mm=(h&&m<10?'0':'')+m;
+  return (h?h+':':'')+mm+':'+(s<10?'0':'')+s;
+}
+function sumDur(segs){
+  return (segs||[]).reduce(function(a,s){ return a+Number(s.duration_seconds||0); },0);
+}
+
+var ICON={
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+  /* a ring with an open middle, so the seconds sit inside it legibly */
+  back:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="'+'M12 5V1L7 6l5 5V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z'+'"/></svg>',
+  fwd:'<svg viewBox="0 0 24 24" fill="currentColor"><g transform="translate(24,0) scale(-1,1)"><path d="'+'M12 5V1L7 6l5 5V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z'+'"/></g></svg>',
+  prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zm3 6l8-6v12z"/></svg>',
+  next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM6 6l8 6-8 6z"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  tick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>',
+  spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'
+};
+
+/* ── data ─────────────────────────────────────────────────────────────── */
+
+function sbGet(path){
+  return fetch(SB_URL+'/rest/v1/'+path,{headers:getAuthHdr()}).then(function(r){
+    return r.json().then(function(j){
+      if(!r.ok) throw new Error((j&&j.message)||('Request failed ('+r.status+')'));
+      return j;
+    });
+  });
+}
+
+function loadManifest(){
+  if(manifest) return Promise.resolve(manifest);
+  return fetch(MANIFEST_URL).then(function(r){ return r.json(); }).then(function(m){
+    manifest=m; lectures=[]; bySlug={};
+    (m.courses||[]).forEach(function(c){
+      (c.units||[]).forEach(function(u){
+        (u.guides||[]).forEach(function(g){
+          var lec={ course:c.code, courseLabel:c.label||c.code,
+            slug:g.slug, lectureLabel:g.lectureLabel||('Unit '+g.unit),
+            label:g.subtitle||g.cardTitle||g.title||g.slug,
+            unitLabel:u.label||('Unit '+u.unit), sections:[] };
+          lectures.push(lec); bySlug[g.slug]=lec;
+        });
+      });
+    });
+    return m;
+  });
+}
+
+function signAll(paths){
+  if(!paths.length) return Promise.resolve([]);
+  return fetch(SB_URL+'/storage/v1/object/sign/podcast-audio',{
+    method:'POST', headers:getAuthHdr(),
+    body:JSON.stringify({expiresIn:SIGN_SECONDS,paths:paths})
+  }).then(function(r){
+    return r.json().then(function(j){
+      if(!r.ok) throw new Error('Could not get audio URLs ('+r.status+')');
+      var by={};
+      (Array.isArray(j)?j:[]).forEach(function(row){
+        var p=String(row.path||'').replace(/^\/*/,'');
+        var u=row.signedURL||row.signedUrl;
+        if(u) by[p]=SB_URL+'/storage/v1'+u;
+      });
+      return paths.map(function(p){ return by[p]||null; });
+    });
+  });
+}
+
+/* everything the library needs, in three reads */
+function loadLibrary(){
+  return Promise.all([
+    loadManifest(),
+    sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal&order=guide_slug.asc,ordinal.asc'),
+    sbGet('podcast_audio?select=episode_id,ordinal,duration_seconds,ends_at_checkpoint,storage_path&order=episode_id.asc,ordinal.asc'),
+    sbGet('podcast_progress?select=episode_id,segment_ordinal,position_seconds,completed&user_id=eq.'
+      +encodeURIComponent(currentUser.id)).catch(function(){ return []; })
+  ]).then(function(res){
+    episodes=res[1]||[]; byEpisode={};
+    var segsBy={}, progBy={};
+    (res[2]||[]).forEach(function(s){ (segsBy[s.episode_id]=segsBy[s.episode_id]||[]).push(s); });
+    (res[3]||[]).forEach(function(p){ progBy[p.episode_id]=p; });
+    lectures.forEach(function(l){ l.sections=[]; });
+    episodes.forEach(function(e){
+      e._segs=(segsBy[e.id]||[]).sort(function(a,b){ return a.ordinal-b.ordinal; });
+      e._prog=progBy[e.id]||null;
+      e._dur=sumDur(e._segs);
+      byEpisode[e.id]=e;
+      var lec=bySlug[e.guide_slug];
+      if(lec) lec.sections.push(e); else {
+        /* an episode whose guide is not in the manifest still has to be reachable */
+        bySlug[e.guide_slug]={course:'?',courseLabel:'Other',slug:e.guide_slug,
+          lectureLabel:e.guide_slug,label:'',unitLabel:'',sections:[e]};
+        lectures.push(bySlug[e.guide_slug]);
+      }
+    });
+    lectures.forEach(function(l){
+      l.sections.sort(function(a,b){ return a.ordinal-b.ordinal; });
+    });
+  });
+}
+
+/* ── per-episode state ────────────────────────────────────────────────── */
+
+function epState(e){
+  if(!e._segs.length) return 'none';
+  if(e._prog&&e._prog.completed) return 'done';
+  if(e._prog) return 'part';
+  return 'new';
+}
+function epPlayed(e){
+  /* seconds already listened, from the stored position */
+  if(!e._segs.length) return 0;
+  if(e._prog&&e._prog.completed) return e._dur;
+  if(!e._prog) return 0;
+  var n=Math.min(Number(e._prog.segment_ordinal||0),e._segs.length-1), t=0;
+  for(var i=0;i<n;i++) t+=Number(e._segs[i].duration_seconds||0);
+  return Math.min(e._dur,t+Number(e._prog.position_seconds||0));
+}
+function epPct(e){
+  if(current&&current.ep.id===e.id) return Math.round((elapsed()/(current.total||1))*100);
+  return e._dur?Math.round((epPlayed(e)/e._dur)*100):0;
+}
+
+/* ── library ──────────────────────────────────────────────────────────── */
+
+function libraryHtml(){
+  var byCourse={};
+  lectures.forEach(function(l){
+    if(!l.sections.length) return;
+    (byCourse[l.courseLabel]=byCourse[l.courseLabel]||[]).push(l);
+  });
+  var courses=Object.keys(byCourse);
+  if(!courses.length){
+    return '<div class="pg"><div class="lsn-empty">No audio has been generated yet.<br>'
+      +'Ask an admin to generate a section from the Podcast page.</div></div>';
+  }
+  var h='';
+  courses.forEach(function(cl){
+    h+='<div class="lsn-course">'+esc(cl)+'</div>';
+    byCourse[cl].forEach(function(l){
+      var withAudio=l.sections.filter(function(e){ return e._segs.length; });
+      var done=withAudio.filter(function(e){ return epState(e)==='done'; }).length;
+      var mins=sumDur([].concat.apply([],withAudio.map(function(e){ return e._segs; })));
+      var isOpen=openLectures[l.slug]!==false&&(openLectures[l.slug]||withAudio.length>0);
+      h+='<div class="lsn-lec'+(isOpen?' open':'')+'" id="lsn-lec-'+esc(l.slug)+'">'
+        +'<button class="lsn-lec-hd" onclick="lsnToggleLec(\''+esc(l.slug)+'\')"'
+        +(withAudio.length?'':' disabled')+'>'
+        +'<span class="lsn-lec-t">'
+        +'<span class="lsn-lec-name">'+esc(l.lectureLabel)+(l.label?' — '+esc(l.label):'')+'</span>'
+        +'<span class="lsn-lec-sub">'+(withAudio.length
+            ? withAudio.length+' of '+l.sections.length+' sections have audio · '+mmss(mins)
+            : 'no audio generated yet')+'</span>'
+        +'</span>'
+        +(withAudio.length?'<span class="lsn-lec-ring">'+done+' of '+withAudio.length+' listened</span>':'')
+        +'<span class="lsn-chev">'+ICON.down+'</span>'
+        +'</button>'
+        +'<div class="lsn-lec-body">'+sectionsHtml(l)+'</div></div>';
+    });
+  });
+  return h;
+}
+
+function sectionsHtml(l){
+  if(!l.sections.length) return '<div class="lsn-empty">Nothing here yet.</div>';
+  return l.sections.map(function(e,i){
+    var st=epState(e), ready=st!=='none';
+    var isNow=current&&current.ep.id===e.id;
+    var pct=epPct(e);
+    var tag=st==='done'?'<span class="lsn-tag done">done</span>'
+      :st==='part'?'<span class="lsn-tag part">in progress</span>'
+      :st==='none'?'<span class="lsn-tag none">no audio</span>':'';
+    return '<button class="lsn-sec'+(isNow?' playing':'')+' '+st+(ready?'':' locked')+'"'
+      +(ready?' onclick="lsnPlay(\''+esc(e.id)+'\')"':' disabled')+'>'
+      +'<span class="lsn-sec-mark">'+(st==='done'?ICON.tick:(i+1))+'</span>'
+      +'<span class="lsn-sec-b">'
+      +'<span class="lsn-sec-name">'+esc(e.section_heading)+tag+'</span>'
+      +'<span class="lsn-sec-meta">'+(ready
+          ? mmss(e._dur)+(st==='part'?' · '+pct+'% through':'')
+            +' · '+e._segs.length+' part'+(e._segs.length===1?'':'s')
+          : 'not generated')+'</span>'
+      +(ready&&pct>0?'<span class="lsn-sec-bar"><i style="width:'+Math.min(100,pct)+'%"></i></span>':'')
+      +'</span></button>';
+  }).join('');
+}
+
+function renderLibrary(){
+  var box=$('lsn-lib');
+  if(box) box.innerHTML=libraryHtml();
+}
+
+/* ── time across the whole episode ────────────────────────────────────── */
+
+function elapsed(){
+  if(!current) return 0;
+  return Math.min(current.total,(current.cum[segIdx]||0)+((audio&&audio.currentTime)||0));
+}
+function seekEpisode(t){
+  if(!current) return;
+  t=Math.max(0,Math.min(current.total-0.3,t));
+  var i=0;
+  while(i<current.segs.length-1&&t>=current.cum[i+1]) i++;
+  var into=t-current.cum[i];
+  if(i===segIdx&&audio){ audio.currentTime=into; syncAll(); saveProgress(true); }
+  else playSegment(i,into,!audio||!audio.paused);
+}
+
+/* ── rendering the player ─────────────────────────────────────────────── */
+
+function miniHtml(){
+  return '<div class="lsn-mini" id="lsn-mini" hidden onclick="lsnOpenFull(event)">'
+    +'<div class="lsn-mini-bar"><i id="lsn-mini-fill" style="width:0%"></i></div>'
+    +'<button class="lsn-b main" id="lsn-mini-play" onclick="lsnToggle(event)" aria-label="Play or pause"></button>'
+    +'<div class="lsn-mini-b"><div class="lsn-mini-t" id="lsn-mini-t"></div>'
+    +'<div class="lsn-mini-s" id="lsn-mini-s"></div></div>'
+    +'<button class="lsn-b" onclick="lsnOpenFull(event)" aria-label="Open the player">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>'
+    +'</button></div>';
+}
+
+function fullHtml(){
+  return '<div class="lsn-full" id="lsn-full" hidden>'
+    +'<div class="lsn-full-top">'
+    +'<button onclick="lsnCloseFull()" aria-label="Close the player">'+ICON.down+'</button>'
+    +'<div class="lsn-full-lbl" id="lsn-full-lbl"></div></div>'
+    +'<div class="lsn-full-body">'
+    +'<h2 class="lsn-title" id="lsn-title"></h2>'
+    +'<p class="lsn-lecline" id="lsn-lecline"></p>'
+
+    +'<div class="lsn-cp" id="lsn-cp" hidden>'
+    +'<div class="lsn-cp-tag">'+ICON.spark+'Checkpoint</div>'
+    +'<p class="lsn-cp-q" id="lsn-cp-q"></p>'
+    +'<p class="lsn-cp-hint">Say the answer out loud before you carry on. '
+    +'Retrieving it is the point — that is what makes it stick.</p>'
+    +'<div class="lsn-cp-acts">'
+    +'<button class="lsn-cp-rec" id="lsn-cp-rec" disabled>'+ICON.mic+'Record</button>'
+    +'<button class="lsn-cp-go" onclick="lsnContinue()">Continue</button>'
+    +'</div>'
+    +'<button class="lsn-cp-replay" onclick="lsnReplay()">Replay that part</button>'
+    +'<p class="lsn-cp-soon">Recording your answer and grading it arrives in Phase 3.</p>'
+    +'</div>'
+
+    +'<div class="lsn-track" id="lsn-track" onpointerdown="lsnTrackDown(event)">'
+    +'<div class="lsn-track-rail"></div>'
+    +'<div class="lsn-track-fill" id="lsn-fill" style="width:0%"></div>'
+    +'<div id="lsn-marks"></div>'
+    +'<div class="lsn-track-knob" id="lsn-knob" style="left:0%"></div>'
+    +'</div>'
+    +'<div class="lsn-times"><span id="lsn-el">0:00</span><span id="lsn-rem">-0:00</span></div>'
+    +'<div class="lsn-legend"><i></i> a question is coming up here</div>'
+
+    +'<div class="lsn-transport">'
+    +'<button class="lsn-b" id="lsn-prev" onclick="lsnPrevSection()" aria-label="Previous section">'+ICON.prev+'</button>'
+    +'<button class="lsn-b lsn-skip" onclick="lsnSkip(-15)" aria-label="Back 15 seconds">'+ICON.back+'<span class="n">15</span></button>'
+    +'<button class="lsn-b main xl" id="lsn-play" onclick="lsnToggle(event)" aria-label="Play or pause"></button>'
+    +'<button class="lsn-b lsn-skip" onclick="lsnSkip(30)" aria-label="Forward 30 seconds">'+ICON.fwd+'<span class="n">30</span></button>'
+    +'<button class="lsn-b" id="lsn-next" onclick="lsnNextSection()" aria-label="Next section">'+ICON.next+'</button>'
+    +'</div>'
+
+    +'<div class="lsn-row2">'
+    +'<button class="lsn-rate" id="lsn-rate" onclick="lsnRate()">1x</button>'
+    +'<label class="lsn-auto"><input type="checkbox" id="lsn-autochk" onchange="lsnAuto(this.checked)">'
+    +'Play the next section automatically</label>'
+    +'</div>'
+
+    +'<div class="lsn-part" id="lsn-part"></div>'
+    +'<div class="lsn-jump"><h4>Sections in this lecture</h4><div id="lsn-jumps"></div></div>'
+    +'</div></div>';
+}
+
+function syncAll(){
+  var mini=$('lsn-mini');
+  if(!mini) return;
+  if(!current){ setMini(false); return; }
+  setMini(true);
+
+  var el=elapsed(), total=current.total||1, pct=Math.min(100,(el/total)*100);
+  var playing=audio&&!audio.paused;
+
+  $('lsn-mini-play').innerHTML=playing?ICON.pause:ICON.play;
+  $('lsn-mini-t').textContent=current.ep.section_heading;
+  $('lsn-mini-s').textContent=mmss(el)+' / '+mmss(total)
+    +(current.segs.length>1?' · part '+(segIdx+1)+' of '+current.segs.length:'');
+  $('lsn-mini-fill').style.width=pct+'%';
+
+  if($('lsn-full')&&!$('lsn-full').hidden){
+    $('lsn-play').innerHTML=playing?ICON.pause:ICON.play;
+    $('lsn-title').textContent=current.ep.section_heading;
+    $('lsn-lecline').textContent=current.lec.lectureLabel
+      +(current.lec.label?' — '+current.lec.label:'');
+    $('lsn-full-lbl').textContent=current.lec.courseLabel;
+    $('lsn-fill').style.width=pct+'%';
+    $('lsn-knob').style.left=pct+'%';
+    $('lsn-el').textContent=mmss(el);
+    $('lsn-rem').textContent='-'+mmss(Math.max(0,total-el));
+    $('lsn-rate').textContent=(rate===1?'1':String(rate))+'x';
+    $('lsn-part').textContent=current.segs.length>1
+      ? 'Part '+(segIdx+1)+' of '+current.segs.length : '';
+    var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
+    var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
+    $('lsn-prev').disabled=(at<=0&&el<3);
+    $('lsn-next').disabled=(at<0||at>=sibs.length-1);
+  }
+}
+
+function renderMarks(){
+  var box=$('lsn-marks');
+  if(!box||!current) return;
+  var el=elapsed();
+  box.innerHTML=current.segs.map(function(s,i){
+    if(s.ends_at_checkpoint===null||s.ends_at_checkpoint===undefined) return '';
+    if(i>=current.segs.length-1) return '';
+    var at=current.cum[i+1];
+    var pct=Math.min(100,(at/(current.total||1))*100);
+    return '<div class="lsn-cpmark'+(at<=el?' passed':'')+'" style="left:'+pct+'%"></div>';
+  }).join('');
+}
+
+function renderJumps(){
+  var box=$('lsn-jumps');
+  if(box&&current) box.innerHTML=sectionsHtml(current.lec);
+}
+
+function setMini(show){
+  var m=$('lsn-mini');
+  if(!m) return;
+  m.hidden=!show;
+  document.body.classList.toggle('lsn-open',!!show);
+}
+
+function showError(msg){
+  var e=$('lsn-err');
+  if(e) e.innerHTML=msg?'<div class="lsn-err">'+esc(msg)+'</div>':'';
+}
+
+/* ── playback ─────────────────────────────────────────────────────────── */
+
+function ensureAudio(){
+  if(audio) return audio;
+  audio=document.createElement('audio');
+  audio.preload='auto';
+  audio.setAttribute('playsinline','');
+  audio.style.display='none';
+  document.body.appendChild(audio);
+  audio.playbackRate=rate;
+
+  audio.addEventListener('timeupdate',function(){ syncAll(); renderMarks(); saveProgress(false); });
+  audio.addEventListener('play',function(){ audio.playbackRate=rate; syncAll(); mediaSession(); });
+  audio.addEventListener('pause',function(){ syncAll(); saveProgress(true); });
+  audio.addEventListener('ended',onSegmentEnd);
+  audio.addEventListener('ratechange',function(){
+    /* Safari resets playbackRate when the source changes; put it back */
+    if(audio.playbackRate!==rate) audio.playbackRate=rate;
+  });
+  audio.addEventListener('error',function(){
+    if(!current) return;
+    showError('Audio failed to load — refreshing the link and retrying.');
+    var at=audio?audio.currentTime:0;
+    reSign().then(function(){ playSegment(segIdx,at,true); })
+      .catch(function(e){ showError('Could not load this part: '+(e.message||e)); });
+  });
+  return audio;
+}
+
+function reSign(){
+  var id=current.ep.id;
+  return signAll(current.segs.map(function(s){ return s.storage_path; }))
+    .then(function(u){ if(current&&current.ep.id===id) current.urls=u; });
+}
+
+function playSegment(i,startAt,autoplay){
+  if(!current||i<0||i>=current.segs.length) return;
+  segIdx=i;
+  var a=ensureAudio();
+  var url=current.urls[i];
+  if(!url){ showError('That part has no audio file.'); return; }
+  if(a.src!==url){ a.src=url; a.load(); }
+  var seek=function(){
+    if(startAt>0&&isFinite(startAt)){ try{ a.currentTime=startAt; }catch(_){} }
+    a.playbackRate=rate;
+  };
+  if(a.readyState>=1) seek(); else a.addEventListener('loadedmetadata',seek,{once:true});
+  if(autoplay!==false){
+    var p=a.play();
+    if(p&&p.catch) p.catch(function(){ syncAll(); });
+  }
+  showError('');
+  syncAll(); renderMarks(); renderJumps(); renderLibrary(); mediaSession();
+}
+
+function onSegmentEnd(){
+  saveProgress(true);
+  var seg=current&&current.segs[segIdx];
+  var cpOrd=seg?seg.ends_at_checkpoint:null;
+  if(cpOrd!==null&&cpOrd!==undefined&&segIdx<current.segs.length-1){
+    var cp=(current.cps||[]).filter(function(c){ return c.ordinal===cpOrd; })[0];
+    if(cp){ showCheckpoint(cp); return; }
+  }
+  if(segIdx<current.segs.length-1){ playSegment(segIdx+1,0,true); return; }
+  finishEpisode();
+}
+
+function finishEpisode(){
+  if(current&&current.ep._prog) current.ep._prog.completed=true;
+  else if(current) current.ep._prog={completed:true,segment_ordinal:segIdx,position_seconds:0};
+  saveProgress(true,true);
+  renderLibrary(); renderJumps();
+  if(autoAdvance){
+    var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
+    var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
+    if(at>-1&&at<sibs.length-1){ openEpisode(sibs[at+1].id,true); return; }
+  }
+  syncAll();
+}
+
+function showCheckpoint(cp){
+  var box=$('lsn-cp');
+  if(!box) return;
+  $('lsn-cp-q').textContent=cp.question;
+  box.hidden=false;
+  openFull();
+  syncAll();
+}
+
+function mediaSession(){
+  if(!('mediaSession' in navigator)||!current) return;
+  try{
+    navigator.mediaSession.metadata=new window.MediaMetadata({
+      title:current.ep.section_heading,
+      artist:current.lec.lectureLabel+(current.lec.label?' — '+current.lec.label:''),
+      album:current.lec.courseLabel
+    });
+    navigator.mediaSession.setActionHandler('play',function(){ ensureAudio().play(); });
+    navigator.mediaSession.setActionHandler('pause',function(){ ensureAudio().pause(); });
+    navigator.mediaSession.setActionHandler('seekbackward',function(){ window.lsnSkip(-15); });
+    navigator.mediaSession.setActionHandler('seekforward',function(){ window.lsnSkip(30); });
+    navigator.mediaSession.setActionHandler('previoustrack',function(){ window.lsnPrevSection(); });
+    navigator.mediaSession.setActionHandler('nexttrack',function(){ window.lsnNextSection(); });
+    if(navigator.mediaSession.setPositionState&&current.total){
+      navigator.mediaSession.setPositionState({
+        duration:current.total, position:Math.min(current.total,elapsed()), playbackRate:rate });
+    }
+  }catch(_){ /* unsupported here; the in-page controls still work */ }
+}
+
+function saveProgress(force,done){
+  if(!current||!currentUser) return;
+  var now=Date.now();
+  if(!force&&now-lastSave<SAVE_EVERY_MS) return;
+  lastSave=now;
+  var finished=done===true||(segIdx>=current.segs.length-1&&audio&&audio.duration
+    &&audio.currentTime>=audio.duration-1.5);
+  var row={ user_id:currentUser.id, episode_id:current.ep.id, segment_ordinal:segIdx,
+    position_seconds:Math.round((audio&&audio.currentTime)||0),
+    completed:!!finished, updated_at:new Date().toISOString() };
+  current.ep._prog=row;
+  fetch(SB_URL+'/rest/v1/podcast_progress?on_conflict=user_id,episode_id',{
+    method:'POST',
+    headers:Object.assign({},getAuthHdr(),{Prefer:'resolution=merge-duplicates'}),
+    body:JSON.stringify([row]), keepalive:true
+  }).catch(function(){ /* a lost position is not worth an error banner */ });
+}
+
+/* ── opening a section ────────────────────────────────────────────────── */
+
+function openEpisode(id,autoplay){
+  var token=++loadToken;
+  showError('');
+  var ep=byEpisode[id];
+  if(!ep){ showError('That section is not in the library.'); return Promise.resolve(); }
+  if(!ep._segs.length){ showError('No audio has been generated for that section yet.'); return Promise.resolve(); }
+  var lec=bySlug[ep.guide_slug];
+
+  return Promise.all([
+    sbGet('podcast_checkpoints?select=ordinal,question,position_in_script&episode_id=eq.'
+      +encodeURIComponent(id)+'&order=ordinal.asc'),
+    signAll(ep._segs.map(function(s){ return s.storage_path; }))
+  ]).then(function(r){
+    if(token!==loadToken) return;
+    var cum=[0];
+    ep._segs.forEach(function(s,i){ cum[i+1]=cum[i]+Number(s.duration_seconds||0); });
+    current={ ep:ep, lec:lec, segs:ep._segs, cps:r[0]||[], urls:r[1], cum:cum, total:cum[cum.length-1] };
+    var box=$('lsn-cp'); if(box) box.hidden=true;
+    var start=0, at=0;
+    if(ep._prog&&!ep._prog.completed){
+      start=Math.min(Number(ep._prog.segment_ordinal||0),ep._segs.length-1);
+      at=Number(ep._prog.position_seconds||0);
+    }
+    playSegment(start,at,autoplay!==false);
+  }).catch(function(e){
+    if(token===loadToken) showError(e.message||String(e));
+  });
+}
+
+function openFull(){
+  var f=$('lsn-full');
+  if(f){ f.hidden=false; syncAll(); renderMarks(); renderJumps(); }
+}
+
+/* ── public handlers ──────────────────────────────────────────────────── */
+
+window.lsnPlay=function(id){ openEpisode(id,true).then(openFull); };
+window.lsnOpenFull=function(ev){ if(ev) ev.stopPropagation(); if(current) openFull(); };
+window.lsnCloseFull=function(){ var f=$('lsn-full'); if(f) f.hidden=true; };
+window.lsnToggle=function(ev){
+  if(ev) ev.stopPropagation();
+  var a=ensureAudio();
+  if(a.paused){ var p=a.play(); if(p&&p.catch) p.catch(function(){}); } else a.pause();
+  syncAll();
+};
+window.lsnSkip=function(d){ if(current) seekEpisode(elapsed()+d); };
+window.lsnRate=function(){
+  rate=RATES[(RATES.indexOf(rate)+1)%RATES.length];
+  localStorage.setItem(LS_RATE,String(rate));
+  if(audio) audio.playbackRate=rate;
+  syncAll(); mediaSession();
+};
+window.lsnAuto=function(on){
+  autoAdvance=!!on;
+  localStorage.setItem(LS_AUTO,on?'1':'0');
+};
+window.lsnPrevSection=function(){
+  if(!current) return;
+  if(elapsed()>3){ seekEpisode(0); return; }
+  var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
+  var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
+  if(at>0) openEpisode(sibs[at-1].id,true);
+};
+window.lsnNextSection=function(){
+  if(!current) return;
+  var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
+  var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
+  if(at>-1&&at<sibs.length-1) openEpisode(sibs[at+1].id,true);
+};
+window.lsnContinue=function(){
+  var box=$('lsn-cp'); if(box) box.hidden=true;
+  if(current&&segIdx<current.segs.length-1) playSegment(segIdx+1,0,true);
+  else finishEpisode();
+};
+window.lsnReplay=function(){
+  var box=$('lsn-cp'); if(box) box.hidden=true;
+  playSegment(segIdx,0,true);
+};
+window.lsnToggleLec=function(slug){
+  var el=$('lsn-lec-'+slug);
+  if(!el) return;
+  var open=!el.classList.contains('open');
+  el.classList.toggle('open',open);
+  openLectures[slug]=open;
+  try{ localStorage.setItem(LS_OPEN,JSON.stringify(openLectures)); }catch(_){}
+};
+window.lsnTrackDown=function(ev){
+  if(!current) return;
+  var track=$('lsn-track');
+  var move=function(e){
+    var r=track.getBoundingClientRect();
+    var x=Math.max(0,Math.min(r.width,(e.clientX||0)-r.left));
+    var pct=r.width?x/r.width:0;
+    $('lsn-fill').style.width=(pct*100)+'%';
+    $('lsn-knob').style.left=(pct*100)+'%';
+    $('lsn-el').textContent=mmss(pct*current.total);
+    $('lsn-rem').textContent='-'+mmss(current.total-pct*current.total);
+    return pct;
+  };
+  var pct=move(ev);
+  var onMove=function(e){ pct=move(e); };
+  var onUp=function(){
+    window.removeEventListener('pointermove',onMove);
+    window.removeEventListener('pointerup',onUp);
+    seekEpisode(pct*current.total);
+  };
+  window.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+};
+
+/* ── boot ─────────────────────────────────────────────────────────────── */
+
+function init(){
+  if(!booted){
+    $('page-listen').innerHTML=
+      '<div class="lsn-hdr"><h1>Listen</h1>'
+      +'<p>Coached audio for each section. It stops at every question so you can answer '
+      +'out loud, then carries on.</p></div>'
+      +'<div id="lsn-err"></div>'
+      +'<div id="lsn-lib"><div class="pg"><div class="lsn-empty">Loading…</div></div></div>';
+    if(!$('lsn-mini')) document.body.insertAdjacentHTML('beforeend',miniHtml()+fullHtml());
+    var chk=$('lsn-autochk'); if(chk) chk.checked=autoAdvance;
+    booted=true;
+    loadLibrary().then(renderLibrary)
+      .catch(function(e){ showError('Could not load the library: '+(e.message||e)); });
+  }else{
+    loadLibrary().then(renderLibrary).catch(function(){});
+  }
+  syncAll();
+}
+
+window.addEventListener('pagehide',function(){ saveProgress(true); });
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden') saveProgress(true);
+});
+
+var _goTo=window.goTo;
+window.goTo=function(page){
+  _goTo(page);
+  if(page==='listen'){
+    var ctx=$('sidebar-context');
+    if(ctx) ctx.innerHTML='<div class="ctx-label">Listen</div>'
+      +'<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">'
+      +'Your place is saved on the server, so you can stop on your phone and pick it up '
+      +'on your laptop.</div>';
+    init();
+  }else{
+    var f=$('lsn-full'); if(f) f.hidden=true;
+  }
+  /* the mini player follows her everywhere once something is loaded */
+  if($('lsn-mini')) setMini(!!current);
+};
+
+})();
+</script>
+
 </body>
 </html>
