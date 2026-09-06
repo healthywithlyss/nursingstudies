@@ -1118,6 +1118,119 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .sg-lecture-body{margin-left:4px;padding-left:7px}
   .sg-btn{padding:9px 10px;font-size:11px}
 }
+
+/* ══════════════════════════════════════════════════════════
+   PODCAST SCRIPT REVIEW (admin only) — additive, page-scoped.
+   Everything is namespaced .pod- / #page-podcast.
+══════════════════════════════════════════════════════════ */
+#page-podcast{padding:24px}
+.pod-wrap{max-width:900px;margin:0 auto}
+.pod-hdr{margin-bottom:16px}
+.pod-hdr h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.pod-hdr p{font-size:13px;color:var(--text-muted);line-height:1.5}
+
+.pod-panel{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:16px 18px;margin-bottom:14px}
+.pod-panel h3{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-muted);margin-bottom:10px}
+.pod-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.pod-field{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px}
+.pod-field label{font-size:11px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.05em}
+.pod-field select,.pod-field input{width:100%;background:#fff;border:1px solid var(--border);
+  border-radius:var(--r-btn);padding:9px 11px;font-size:13px;font-family:inherit;color:var(--text);
+  min-height:40px}
+.pod-field select:focus,.pod-field input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.pod-opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;
+  color:var(--text-muted);margin-bottom:12px}
+.pod-opts label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:32px}
+.pod-btn{background:var(--accent);border:none;color:#fff;padding:11px 20px;border-radius:var(--r-btn);
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;min-height:42px;
+  box-shadow:var(--shadow);transition:filter .15s}
+.pod-btn:hover:not(:disabled){filter:brightness(1.08)}
+.pod-btn:disabled{opacity:.55;cursor:default}
+.pod-btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text-muted)}
+.pod-btn-ghost:hover:not(:disabled){background:var(--g50);filter:none}
+.pod-note{font-size:11.5px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+
+.pod-status{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;
+  padding:12px 14px;border-radius:8px;margin-bottom:14px}
+.pod-status.busy{background:var(--cobalt-bg);color:var(--cobalt)}
+.pod-status.ok{background:#f0fdf4;color:var(--forest)}
+.pod-status.warn{background:#fff7ed;color:#9a3412}
+.pod-status.err{background:#fff1f2;color:var(--rust)}
+.pod-spin{width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;
+  border-radius:50%;animation:pod-spin .7s linear infinite;flex-shrink:0}
+@keyframes pod-spin{to{transform:rotate(360deg)}}
+
+/* coverage report */
+.pod-cov-top{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.pod-stat{flex:1;min-width:88px;background:var(--g50);border:1px solid var(--g200);
+  border-radius:8px;padding:10px 12px}
+.pod-stat b{display:block;font-size:20px;font-weight:800;line-height:1.1;color:var(--text)}
+.pod-stat span{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--text-muted)}
+.pod-stat.miss b{color:var(--rust)}
+.pod-stat.hit b{color:var(--forest)}
+.pod-missing{background:#fff1f2;border-left:4px solid var(--rust);border-radius:8px;
+  padding:12px 14px;margin-bottom:12px}
+.pod-missing h4{font-size:12px;font-weight:800;color:var(--rust);margin-bottom:6px}
+.pod-missing ol{padding-left:18px;font-size:12.5px;color:#7f1d1d;line-height:1.55}
+.pod-missing li{margin-bottom:4px}
+.pod-facts{border:1px solid var(--g200);border-radius:8px;overflow:hidden}
+.pod-fact{display:flex;gap:9px;padding:9px 12px;font-size:12.5px;line-height:1.5;
+  border-bottom:1px solid var(--g200);align-items:flex-start}
+.pod-fact:last-child{border-bottom:none}
+.pod-fact.no{background:#fff5f5}
+.pod-fact-mark{flex-shrink:0;width:16px;height:16px;border-radius:50%;font-size:10px;
+  font-weight:800;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px}
+.pod-fact.yes .pod-fact-mark{background:var(--got)}
+.pod-fact.no .pod-fact-mark{background:var(--missed)}
+.pod-fact-body{flex:1;min-width:0}
+.pod-fact-ev{display:block;font-size:11px;color:var(--text-muted);font-style:italic;margin-top:3px}
+
+/* script + inline checkpoints */
+.pod-script{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);
+  padding:20px 22px;font-size:15px;line-height:1.75;color:var(--text)}
+.pod-script p{margin-bottom:14px;white-space:pre-wrap}
+.pod-script p:last-child{margin-bottom:0}
+.pod-cp{background:var(--plum-bg);border:1px solid var(--plum);border-left:4px solid var(--plum);
+  border-radius:8px;padding:13px 15px;margin:18px 0}
+.pod-cp-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--plum);margin-bottom:6px}
+.pod-cp-q{font-size:14px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:8px}
+.pod-cp-exp{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--plum);margin-bottom:4px}
+.pod-cp ul{padding-left:18px;font-size:12.5px;line-height:1.55;color:var(--text)}
+.pod-cp li{margin-bottom:3px}
+
+.pod-eplist{display:flex;flex-direction:column;gap:6px}
+.pod-ep{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--g50);
+  border:1px solid var(--g200);border-radius:8px;padding:10px 12px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;color:var(--text);min-height:44px}
+.pod-ep:hover{background:#eef1f6}
+.pod-ep-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.pod-ep-meta{font-size:11px;color:var(--text-muted);white-space:nowrap;flex-shrink:0}
+.pod-pill{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  padding:2px 7px;border-radius:20px;flex-shrink:0}
+.pod-pill.complete{background:#dcfce7;color:var(--forest)}
+.pod-pill.incomplete{background:#ffedd5;color:#9a3412}
+.pod-pill.error{background:#fee2e2;color:var(--rust)}
+.pod-empty{color:var(--text-muted);font-size:12.5px;padding:6px 0}
+
+@media(max-width:767px){
+  #page-podcast{padding:14px 12px 20px}
+  .pod-hdr h1{font-size:19px}
+  .pod-panel{padding:14px}
+  .pod-field{min-width:100%}
+  .pod-script{padding:15px 14px;font-size:14.5px;line-height:1.7}
+  .pod-btn{width:100%}
+  .pod-row{gap:8px}
+  .pod-cov-top{gap:8px}
+  .pod-stat{min-width:calc(50% - 4px)}
+  .pod-ep{flex-wrap:wrap}
+  .pod-ep-name{flex:1 1 100%}
+}
 </style>
 </head>
 <body>
@@ -1171,6 +1284,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
       <button class="nav-item" id="nav-quiz" onclick="goTo('quiz')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Quiz
+      </button>
+      <button class="nav-item" id="nav-podcast" onclick="goTo('podcast')" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+        Podcast
       </button>
       <button class="nav-item" id="nav-dashboard" onclick="goTo('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -4050,6 +4167,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
     </div><!-- /page-dashboard -->
 
 
+
+    <!-- ══════════════ PODCAST SCRIPTS (admin only) ══════════════ -->
+    <div id="page-podcast" class="page"></div>
+
   </main>
 </div>
 
@@ -4087,6 +4208,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   <button class="bnav-btn" id="bnav-quiz" onclick="goTo('quiz')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     Quiz
+  </button>
+  <button class="bnav-btn" id="bnav-podcast" onclick="goTo('podcast')" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+    Podcast
   </button>
   <button class="bnav-btn" id="bnav-dashboard" onclick="goTo('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -8417,6 +8542,382 @@ window.sgToggleIntro = function(){
   if (open) box.removeAttribute('hidden'); else box.setAttribute('hidden','');
   btn.setAttribute('aria-expanded', String(open));
 };
+
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   PODCAST SCRIPT REVIEW — admin only, phase 1 (script + coverage only).
+
+   Generates a single-narrator lecture script for one study guide section
+   via the generate-podcast-script Edge Function, then shows the script
+   with its checkpoints inline and the coverage report beside it, so the
+   writing can be judged before any audio exists.
+
+   Additive: wraps goTo() and updateAiChatBtnVisibility() rather than
+   editing them, and every selector is namespaced pod-/#page-podcast.
+═══════════════════════════════════════════════════════════════════ */
+(function(){
+
+var MANIFEST_URL = 'content/study-guides.json';
+var FN = '/functions/v1/generate-podcast-script';
+
+var manifest = null;
+var mdCache  = {};      /* guide file -> markdown */
+var current  = null;    /* last generated/loaded result */
+var busy     = false;
+
+function $(id){ return document.getElementById(id); }
+function host(){ return $('page-podcast'); }
+function esc(s){
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* same split rule as the study guide page and the Edge Function */
+function splitSections(md){
+  var lines = md.split(/\r?\n/), fence=false, seenTitle=false, subtitleTaken=false;
+  var intro=[], secs=[], cur=null;
+  lines.forEach(function(line){
+    if(/^\s*(```|~~~)/.test(line)) fence=!fence;
+    if(!fence){
+      if(!seenTitle && /^#\s+/.test(line)){ seenTitle=true; return; }
+      if(/^##\s+(?!#)/.test(line)){
+        var h=line.replace(/^##\s+/,'').trim();
+        if(seenTitle && !subtitleTaken && !secs.length && !intro.join('').trim()){
+          subtitleTaken=true; return;
+        }
+        cur={heading:h,lines:[]}; secs.push(cur); return;
+      }
+    }
+    if(cur) cur.lines.push(line); else intro.push(line);
+  });
+  return secs.map(function(s,i){
+    return { ordinal:i, heading:s.heading, chars:s.lines.join('\n').trim().length };
+  });
+}
+
+function allGuides(){
+  var out=[];
+  if(!manifest) return out;
+  (manifest.courses||[]).forEach(function(c){
+    (c.units||[]).forEach(function(u){
+      (u.guides||[]).forEach(function(g){ out.push(g); });
+    });
+  });
+  return out;
+}
+function guideBySlug(slug){
+  var f=null; allGuides().forEach(function(g){ if(g.slug===slug) f=g; }); return f;
+}
+function loadMarkdown(g){
+  if(mdCache[g.file]) return Promise.resolve(mdCache[g.file]);
+  return fetch(g.file,{cache:'no-cache'}).then(function(r){
+    if(!r.ok) throw new Error('Could not load '+g.file+' ('+r.status+')');
+    return r.text();
+  }).then(function(t){ mdCache[g.file]=t; return t; });
+}
+
+/* ══ shell ══ */
+function render(){
+  host().innerHTML =
+    '<div class="pod-wrap">'
+    + '<div class="pod-hdr"><h1>Podcast Scripts</h1>'
+      + '<p>Generate a narrated lecture for one guide section and check it against the '
+      + 'source before any audio exists. Every fact extracted from the section must appear '
+      + 'in the script; anything missing is listed rather than dropped.</p></div>'
+    + '<div class="pod-panel">'
+      + '<h3>Generate</h3>'
+      + '<div class="pod-row">'
+        + '<div class="pod-field"><label for="pod-guide">Guide</label>'
+          + '<select id="pod-guide" onchange="podGuideChanged()"></select></div>'
+        + '<div class="pod-field"><label for="pod-section">Section</label>'
+          + '<select id="pod-section"></select></div>'
+      + '</div>'
+      + '<div class="pod-opts">'
+        + '<label for="pod-retries">Max retries'
+          + '<input type="number" id="pod-retries" value="3" min="0" max="5" '
+          + 'style="width:64px;min-height:34px;padding:5px 8px"></label>'
+        + '<label><input type="checkbox" id="pod-dry"> Don\'t save to database</label>'
+      + '</div>'
+      + '<button class="pod-btn" id="pod-go" onclick="podGenerate()">Generate script</button>'
+      + '<div class="pod-note">Runs fact extraction, writing, then a semantic coverage check, '
+        + 'retrying the script with the missing facts named. Usually 1&ndash;3 minutes.</div>'
+    + '</div>'
+    + '<div id="pod-status"></div>'
+    + '<div class="pod-panel"><h3>Saved episodes</h3><div id="pod-eplist">'
+      + '<div class="pod-empty">Loading&hellip;</div></div></div>'
+    + '<div id="pod-result"></div>'
+    + '</div>';
+  fillGuides();
+  loadEpisodes();
+}
+
+function fillGuides(){
+  var sel=$('pod-guide'); if(!sel) return;
+  var gs=allGuides();
+  sel.innerHTML = gs.length
+    ? gs.map(function(g){
+        return '<option value="'+esc(g.slug)+'">'+esc((g.course||'')+' · '+(g.cardTitle||g.title))+'</option>';
+      }).join('')
+    : '<option value="">No guides in the manifest</option>';
+  guideChanged();
+}
+
+function guideChanged(){
+  var slug=$('pod-guide') && $('pod-guide').value;
+  var sec=$('pod-section');
+  if(!sec) return;
+  var g=guideBySlug(slug);
+  if(!g){ sec.innerHTML='<option value="">—</option>'; return; }
+  sec.innerHTML='<option value="">Loading sections…</option>';
+  loadMarkdown(g).then(function(md){
+    var secs=splitSections(md);
+    sec.innerHTML = secs.map(function(s){
+      return '<option value="'+esc(s.heading)+'">'+(s.ordinal+1)+'. '+esc(s.heading)
+        +' ('+s.chars+' chars)</option>';
+    }).join('') || '<option value="">No ## sections found</option>';
+  }).catch(function(e){
+    sec.innerHTML='<option value="">'+esc(e.message)+'</option>';
+  });
+}
+
+function setStatus(kind,msg){
+  var el=$('pod-status'); if(!el) return;
+  if(!kind){ el.innerHTML=''; return; }
+  el.innerHTML='<div class="pod-status '+kind+'">'
+    +(kind==='busy'?'<span class="pod-spin"></span>':'')
+    +'<span>'+esc(msg)+'</span></div>';
+}
+
+/* ══ generate ══ */
+function generate(){
+  if(busy) return;
+  var slug=$('pod-guide').value, heading=$('pod-section').value;
+  if(!slug||!heading){ setStatus('err','Pick a guide and a section first.'); return; }
+  var g=guideBySlug(slug);
+  if(!g){ setStatus('err','Guide not found in the manifest.'); return; }
+
+  busy=true;
+  $('pod-go').disabled=true;
+  setStatus('busy','Extracting facts, writing, and verifying coverage… this can take a few minutes.');
+  $('pod-result').innerHTML='';
+
+  loadMarkdown(g).then(function(md){
+    return fetch(SB_URL+FN,{
+      method:'POST',
+      headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+      body:JSON.stringify({
+        action:'generate',
+        guide_slug:slug,
+        section_heading:heading,
+        markdown:md,
+        max_retries:parseInt($('pod-retries').value,10),
+        dry_run:$('pod-dry').checked
+      })
+    });
+  }).then(function(r){
+    return r.json().then(function(d){ return {ok:r.ok,status:r.status,data:d}; });
+  }).then(function(res){
+    if(!res.ok||res.data.error) throw new Error(res.data.error||('Request failed ('+res.status+')'));
+    current=res.data;
+    var cov=res.data.coverage_report||{};
+    if(res.data.status==='complete')
+      setStatus('ok','All '+(cov.total_facts||0)+' facts covered'
+        +(res.data.episode_id?' — saved.':' — not saved (dry run).'));
+    else
+      setStatus('warn',(cov.missed||0)+' of '+(cov.total_facts||0)
+        +' facts still missing after '+((cov.attempts||[]).length)+' attempt(s). Listed below.');
+    renderResult(res.data);
+    loadEpisodes();
+  }).catch(function(e){
+    setStatus('err',e.message||String(e));
+  }).then(function(){
+    busy=false;
+    var b=$('pod-go'); if(b) b.disabled=false;
+  });
+}
+
+/* ══ result: coverage + script with inline checkpoints ══ */
+function renderResult(d){
+  var cov=d.coverage_report||{}, cps=d.checkpoints||[];
+  var h='';
+
+  h+='<div class="pod-panel"><h3>Coverage</h3>'
+    +'<div class="pod-cov-top">'
+      +'<div class="pod-stat"><b>'+(cov.total_facts||0)+'</b><span>Facts found</span></div>'
+      +'<div class="pod-stat hit"><b>'+(cov.covered||0)+'</b><span>Covered</span></div>'
+      +'<div class="pod-stat miss"><b>'+(cov.missed||0)+'</b><span>Missing</span></div>'
+      +'<div class="pod-stat"><b>'+(cov.words||0)+'</b><span>Words</span></div>'
+      +'<div class="pod-stat"><b>'+cps.length+'</b><span>Checkpoints</span></div>'
+    +'</div>';
+
+  if((cov.missing_facts||[]).length){
+    h+='<div class="pod-missing"><h4>Not covered — these did not make it into the script</h4><ol>';
+    cov.missing_facts.forEach(function(f){ h+='<li>'+esc(f)+'</li>'; });
+    h+='</ol></div>';
+  }
+
+  if((cov.attempts||[]).length>1){
+    h+='<div class="pod-note">Attempts: '
+      +cov.attempts.map(function(a){ return '#'+a.attempt+' → '+a.covered+' covered, '+a.missed+' missed'; }).join(' · ')
+      +'</div>';
+  }
+  if(cov.models){
+    h+='<div class="pod-note">Models — writing: <code>'+esc(cov.models.generation)
+      +'</code>, verification: <code>'+esc(cov.models.verification)+'</code></div>';
+  }
+
+  h+='<details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;'
+    +'font-weight:700;color:var(--text-muted);min-height:32px;display:flex;align-items:center">'
+    +'Every fact, one by one ('+(cov.facts||[]).length+')</summary>'
+    +'<div class="pod-facts" style="margin-top:8px">';
+  (cov.facts||[]).forEach(function(f){
+    h+='<div class="pod-fact '+(f.covered?'yes':'no')+'">'
+      +'<span class="pod-fact-mark">'+(f.covered?'✓':'✗')+'</span>'
+      +'<span class="pod-fact-body">'+esc(f.fact)
+      +(f.evidence?'<span class="pod-fact-ev">“'+esc(f.evidence)+'”</span>':'')
+      +'</span></div>';
+  });
+  h+='</div></details></div>';
+
+  /* script, with each checkpoint spliced in at its character offset */
+  h+='<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
+    +'<h3 style="padding:0 2px">Script — '+esc(d.section_heading)+'</h3></div>'
+    +'<div class="pod-script">'+scriptHtml(d.script||'',cps)+'</div>';
+
+  $('pod-result').innerHTML=h;
+}
+
+function scriptHtml(script,cps){
+  var marks=cps.slice().map(function(c,i){
+    return {pos:Math.max(0,Math.min(script.length,c.position_in_script||0)),cp:c,i:i};
+  }).sort(function(a,b){ return a.pos-b.pos; });
+
+  var out='', last=0;
+  marks.forEach(function(m){
+    out+=proseHtml(script.slice(last,m.pos));
+    out+=cpHtml(m.cp,m.i);
+    last=m.pos;
+  });
+  out+=proseHtml(script.slice(last));
+  return out;
+}
+function proseHtml(chunk){
+  if(!chunk||!chunk.trim()) return '';
+  return chunk.trim().split(/\n{2,}/).map(function(p){
+    return '<p>'+esc(p.trim())+'</p>';
+  }).join('');
+}
+function cpHtml(c,i){
+  var pts=(c.expected_points||[]);
+  return '<div class="pod-cp">'
+    +'<div class="pod-cp-lbl">Checkpoint '+(i+1)+' — she answers out loud here</div>'
+    +'<div class="pod-cp-q">'+esc(c.question)+'</div>'
+    +(pts.length?'<div class="pod-cp-exp">A correct answer must contain</div><ul>'
+      +pts.map(function(p){ return '<li>'+esc(p)+'</li>'; }).join('')+'</ul>':'')
+    +'</div>';
+}
+
+/* ══ saved episodes ══ */
+function loadEpisodes(){
+  var el=$('pod-eplist'); if(!el) return;
+  sbFetch('/rest/v1/podcast_episodes?select=id,guide_slug,section_heading,ordinal,status,created_at,coverage_report'
+         +'&order=created_at.desc&limit=40')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!Array.isArray(rows)||!rows.length){
+        el.innerHTML='<div class="pod-empty">Nothing generated yet.</div>'; return;
+      }
+      el.innerHTML='<div class="pod-eplist">'+rows.map(function(e){
+        var cov=e.coverage_report||{};
+        return '<button class="pod-ep" onclick="podOpen(\''+esc(e.id)+'\')">'
+          +'<span class="pod-pill '+esc(e.status)+'">'+esc(e.status)+'</span>'
+          +'<span class="pod-ep-name">'+esc(e.section_heading)+'</span>'
+          +'<span class="pod-ep-meta">'+(cov.covered||0)+'/'+(cov.total_facts||0)+' facts · '
+          +(cov.words||0)+'w · '+new Date(e.created_at).toLocaleDateString()+'</span>'
+          +'</button>';
+      }).join('')+'</div>';
+    })
+    .catch(function(e){
+      el.innerHTML='<div class="pod-empty">Could not load episodes: '+esc(e.message)+'</div>';
+    });
+}
+
+function openEpisode(id){
+  setStatus('busy','Loading saved episode…');
+  Promise.all([
+    sbFetch('/rest/v1/podcast_episodes?select=*&id=eq.'+encodeURIComponent(id)).then(function(r){return r.json();}),
+    sbFetch('/rest/v1/podcast_checkpoints?select=*&episode_id=eq.'+encodeURIComponent(id)
+            +'&order=ordinal.asc').then(function(r){return r.json();})
+  ]).then(function(res){
+    var ep=(res[0]||[])[0];
+    if(!ep) throw new Error('Episode not found.');
+    var d={ episode_id:ep.id, guide_slug:ep.guide_slug, section_heading:ep.section_heading,
+            status:ep.status, script:ep.script, coverage_report:ep.coverage_report||{},
+            checkpoints:res[1]||[] };
+    current=d;
+    var cov=d.coverage_report;
+    if(ep.status==='complete') setStatus('ok','All '+(cov.total_facts||0)+' facts covered.');
+    else setStatus('warn',(cov.missed||0)+' of '+(cov.total_facts||0)+' facts missing.');
+    renderResult(d);
+    var r=$('pod-result'); if(r) r.scrollIntoView({behavior:'smooth',block:'start'});
+  }).catch(function(e){ setStatus('err',e.message||String(e)); });
+}
+
+/* ══ entry + admin gating ══ */
+function init(){
+  if(!isAdmin){
+    host().innerHTML='<div class="pod-wrap"><div class="pod-panel">'
+      +'<h3>Admin only</h3><div class="pod-empty">This page is only available to admin accounts.</div>'
+      +'</div></div>';
+    return;
+  }
+  if(manifest){ render(); return; }
+  host().innerHTML='<div class="pod-wrap"><div class="pod-panel">'
+    +'<div class="pod-empty">Loading guides…</div></div></div>';
+  fetch(MANIFEST_URL,{cache:'no-cache'})
+    .then(function(r){ if(!r.ok) throw new Error('Could not load '+MANIFEST_URL); return r.json(); })
+    .then(function(j){ manifest=j; render(); })
+    .catch(function(e){
+      host().innerHTML='<div class="pod-wrap"><div class="pod-panel">'
+        +'<div class="pod-empty">'+esc(e.message)+'</div></div></div>';
+    });
+}
+
+/* nav entries exist for everyone in the DOM but are only shown to admins */
+function syncNav(){
+  var n=$('nav-podcast'), b=$('bnav-podcast');
+  if(n) n.style.display=isAdmin?'':'none';
+  if(b) b.style.display=isAdmin?'':'none';
+}
+
+var _goTo=window.goTo;
+window.goTo=function(page){
+  _goTo(page);
+  syncNav();
+  if(page==='podcast'){
+    var ctx=$('sidebar-context');
+    if(ctx) ctx.innerHTML='<div class="ctx-label">Podcast</div>'
+      +'<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.5">'
+      +'Phase 1 — script generation and coverage review. No audio yet.</div>';
+    init();
+  }
+};
+
+var _uav=window.updateAiChatBtnVisibility;
+window.updateAiChatBtnVisibility=function(){
+  _uav();
+  syncNav();
+};
+
+window.podGenerate=generate;
+window.podGuideChanged=guideChanged;
+window.podOpen=openEpisode;
+
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',syncNav);
+else syncNav();
 
 })();
 </script>
