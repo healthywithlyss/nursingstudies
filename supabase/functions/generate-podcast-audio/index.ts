@@ -26,6 +26,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
    POST body:
      action        'plan' | 'synthesize' | 'status' | 'voices' | 'delete'
+                   | 'format-probe' (asks the API what output formats it takes)
      episode_id    uuid                              (all but 'voices')
      segment       integer                           (synthesize)
      voice         prebuilt voice name               (plan, synthesize)
@@ -349,6 +350,70 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json', ...((init && (init.headers as any)) || {}),
       },
     });
+
+    /* ── format-probe ──
+       Does the TTS endpoint accept any output format other than raw PCM?
+       Nothing in the docs says it does, and guessing is worse than measuring,
+       so this asks the API directly with a short phrase and reports exactly
+       what came back (or the exact rejection) for each variant tried.
+       Read-only: nothing is stored, nothing is saved. */
+    if (action === 'format-probe') {
+      const avail0 = await listModels(apiKey);
+      const m0 = body.tts_model || rankTtsModels(avail0)[0];
+      if (!m0) throw new Error('No TTS model available to probe.');
+      const phrase = 'Chronic gastritis atrophies the parietal cells.';
+      const variants: any[] = [
+        { label: 'default (no format asked for)', gen: {} },
+        { label: 'audioConfig audioEncoding MP3', gen: { audioConfig: { audioEncoding: 'MP3' } } },
+        { label: 'audioConfig audioEncoding OGG_OPUS', gen: { audioConfig: { audioEncoding: 'OGG_OPUS' } } },
+        { label: 'responseMimeType audio/mpeg', gen: { responseMimeType: 'audio/mpeg' } },
+        { label: 'responseMimeType audio/ogg', gen: { responseMimeType: 'audio/ogg' } },
+        { label: 'speechConfig audioEncoding MP3', speech: { audioEncoding: 'MP3' } },
+        { label: 'sample rate 16000 requested', speech: { sampleRateHertz: 16000 } },
+      ];
+      const results: any[] = [];
+      for (const v of variants) {
+        const gcfg: any = {
+          responseModalities: ['AUDIO'],
+          speechConfig: Object.assign(
+            { voiceConfig: { prebuiltVoiceConfig: { voiceName: DEFAULT_VOICE } } },
+            v.speech || {}),
+          ...(v.gen || {}),
+        };
+        try {
+          const r = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${m0}:generateContent?key=${apiKey}`,
+            { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: phrase }] }],
+                                     generationConfig: gcfg }) });
+          const j = await r.json();
+          if (!r.ok) {
+            results.push({ variant: v.label, ok: false,
+              status: r.status, error: JSON.stringify(j).slice(0, 260) });
+            continue;
+          }
+          const part = ((j.candidates || [])[0]?.content?.parts || [])
+            .find((x: any) => x.inlineData && x.inlineData.data);
+          results.push({
+            variant: v.label, ok: !!part, status: r.status,
+            mime: part ? part.inlineData.mimeType : null,
+            /* base64 length is a fair proxy for whether it actually compressed */
+            b64_chars: part ? part.inlineData.data.length : 0,
+          });
+        } catch (e) {
+          results.push({ variant: v.label, ok: false, error: String((e as Error).message || e) });
+        }
+      }
+      const base = results.find((r) => r.variant.startsWith('default'));
+      return new Response(JSON.stringify({
+        model: m0, phrase, results,
+        /* the whole question, answered in one line */
+        any_compressed_format_accepted: results.some((r) =>
+          r.ok && r.mime && !/L16|pcm/i.test(r.mime)),
+        baseline_mime: base ? base.mime : null,
+        note: 'Compare b64_chars: a genuinely compressed variant returns far fewer bytes for the same phrase.',
+      }), { headers: JSON_HDR });
+    }
 
     if (action === 'voices') {
       const available = await listModels(apiKey);
