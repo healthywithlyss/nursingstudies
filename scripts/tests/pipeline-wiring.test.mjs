@@ -69,7 +69,11 @@ globalThis.fetch = async (url, init={})=>{
     {name:'models/gemini-3.7-flash',supportedGenerationMethods:['generateContent'],outputTokenLimit:65536}]});
   if(url.includes(':generateContent')){
     const p=JSON.parse(init.body).contents[0].parts[0].text;
-    return J({candidates:[{finishReason:'STOP',content:{parts:[{text:gem(p)}]}}]});
+    /* the real API returns this on every call; the point of the ledger is that
+       it stops being thrown away */
+    return J({candidates:[{finishReason:'STOP',content:{parts:[{text:gem(p)}]}}],
+      usageMetadata:{promptTokenCount:100,thoughtsTokenCount:20,
+                     candidatesTokenCount:300,totalTokenCount:420}});
   }
   throw new Error('unexpected fetch '+url);
 };
@@ -155,6 +159,27 @@ ck('it forced a repair round', c2.attempts.length > 1, c2.attempts.length);
 ck('the offending sentence is gone', !d2.script.includes(DIRTY_SENTENCE));
 ck('final run is clean and complete', c2.document_references.length===0 && d2.status==='complete',
    {refs:c2.document_references, status:d2.status});
+
+/* ── what the run cost ──
+   A full lecture was generated and there is no record of what it spent, because
+   every call's usage block was computed and dropped. Measured now. */
+console.log('\nmeasured cost');
+const u=d.usage;
+ck('the response reports usage', !!u && u.calls>0, u);
+ck('and the coverage report carries the same block', c.usage && c.usage.calls===u.calls, c.usage&&c.usage.calls);
+ck('every Gemini call is accounted for',
+   u.calls===u.calls_detail.length && u.calls_detail.every(r=>r.total_tokens>0), u.calls);
+ck('totals add up', u.total_tokens===u.calls_detail.reduce((a,r)=>a+r.total_tokens,0), u.total_tokens);
+ck('thinking tokens are counted separately from the answer',
+   u.thoughts_tokens>0 && u.answer_tokens>0 && u.thoughts_tokens!==u.answer_tokens,
+   {t:u.thoughts_tokens,a:u.answer_tokens});
+ck('broken down by stage', Object.keys(u.by_stage).length>1, Object.keys(u.by_stage));
+ck('the writing stage is named', !!u.by_stage.write, Object.keys(u.by_stage));
+ck('the repair round is billed separately from the first draft',
+   !!u.by_stage.repair, Object.keys(u.by_stage));
+ck('both coverage passes are billed separately',
+   !!u.by_stage['coverage-model'] && !!u.by_stage['coverage-quiz'], Object.keys(u.by_stage));
+ck('broken down by model too', Object.keys(u.by_model).length>0, Object.keys(u.by_model));
 
 console.log(fail?`\n${fail} FAILING`:'\nall wiring checks passed');
 process.exit(fail?1:0);

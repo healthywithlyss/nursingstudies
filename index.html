@@ -9624,7 +9624,10 @@ function podCompare(){
             quiz_cov:(c.quiz_derived||{}).covered+'/'+(c.quiz_derived||{}).total,
             unsourced:(c.unsourced_claims||[]).length,
             docrefs:(c.document_references||[]).length,
-            attempts:(c.attempts||[]).length });
+            attempts:(c.attempts||[]).length,
+            /* measured now, rather than guessed later */
+            tokens:((j.usage||{}).total_tokens)||0,
+            gcalls:((j.usage||{}).calls)||0 });
         })
         .catch(function(e){
           cmpRun.models[i].state='fail';
@@ -9657,6 +9660,7 @@ function paintCompare(){
     var d=m.data;
     return '<div class="pod-cmp-c done"><b>'+esc(m.model)+'</b>'
       +'<div class="pod-cmp-n">'+m.words+' words · about '+m.minutes+' min of audio · '
+      +(m.tokens?m.tokens.toLocaleString()+' tokens over '+m.gcalls+' calls · ':'')
       +'model-extracted '+esc(m.model_cov)+' · quiz-derived '+esc(m.quiz_cov)+' · '
       +m.unsourced+' unsourced · '+m.docrefs+' document refs · '
       +m.attempts+' attempt'+(m.attempts===1?'':'s')+' · '+m.seconds+'s</div>'
@@ -9736,18 +9740,32 @@ function podGenerateLecture(){
   var g=guideBySlug(slug);
   if(!g) return;
   stopPreview();
-  var voice=($('pod-lec-voice')&&$('pod-lec-voice').value)
+  /* The dropdown only gets a say the FIRST time a lecture is voiced. After
+     that the pin in the database decides, because this dropdown is exactly
+     what drifted between batches and left lecture 1 with three narrators. */
+  var wanted=($('pod-lec-voice')&&$('pod-lec-voice').value)
     || ($('pod-voice')&&$('pod-voice').value) || 'Charon';
+  var voice=wanted, pinned=false;
 
   audioBusy=true;
   var btn=$('pod-lec-go'); if(btn) btn.disabled=true;
 
-  loadMarkdown(g).then(function(md){
+  sbFetch('/rest/v1/podcast_lecture_voice?select=voice&guide_slug=eq.'
+      +encodeURIComponent(slug))
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(rows&&rows[0]&&rows[0].voice){ voice=rows[0].voice; pinned=true; }
+    })
+    .catch(function(){ /* no pin readable: fall through and pin `wanted` */ })
+  .then(function(){ return loadMarkdown(g); }).then(function(md){
     var all=splitSections(md);
     var skipped=all.filter(function(x){ return window.podcastSkipReason(x.heading); });
     var todo=all.filter(function(x){ return !window.podcastSkipReason(x.heading); });
 
-    lectureRun={ total:todo.length, done:0, status:'Starting…',
+    lectureRun={ total:todo.length, done:0, voice:voice, pinned:pinned,
+      status:pinned
+        ? 'Starting… narrator is '+voice+' (pinned for this lecture)'
+        : 'Starting… pinning this lecture to '+voice,
       sections:todo.map(function(x){ return {heading:x.heading,state:'wait',note:''}; })
         .concat(skipped.map(function(x){ return {heading:x.heading,state:'skip',
           note:window.podcastSkipReason(x.heading)}; })) };
@@ -9789,7 +9807,10 @@ function podGenerateLecture(){
                     lectureRun.status='Section '+(i+1)+' of '+todo.length+' — '+sec.heading
                       +' — part '+(ord+1)+' of '+plan.segments.length;
                     paintLecture();
-                    return afn({action:'synthesize',episode_id:sc.episode_id,segment:ord,voice:voice});
+                    /* voice is sent only to establish the pin; once pinned the
+                       server ignores it, so a stale dropdown cannot leak in */
+                    return afn({action:'synthesize',episode_id:sc.episode_id,segment:ord,
+                                voice:voice});
                   });
                 },Promise.resolve()).then(function(){ row.note='audio generated'; });
               });
@@ -9809,7 +9830,8 @@ function podGenerateLecture(){
     lectureRun.status = failed.length
       ? 'Finished with '+failed.length+' section(s) failed — listed below. '
         +'Press Generate lecture again to retry just those.'
-      : 'Finished. Every section has a script and audio.';
+      : 'Finished. Every section has a script and audio, narrated by '
+        +(lectureRun.voice||'the pinned voice')+'.';
     paintLecture();
   }).catch(function(e){
     if(lectureRun){ lectureRun.status='Run stopped: '+(e.message||e); paintLecture(); }
@@ -10131,12 +10153,18 @@ function podAudioStatus(){
     $('pod-audio-status').textContent=(p.generated||[]).length+' of '+p.segments.length
       +' parts generated · '+Math.round(p.generated_seconds)+'s of audio · '
       +(p.generated_bytes/1048576).toFixed(1)+' MB'
-      +(voices.length?' · voice: '+voices.join(', '):'')
+      +(p.pinned_voice?' · narrator: '+p.pinned_voice+' (pinned)':'')
+      +(voices.length>1?' · THIS SECTION MIXES '+voices.join(' and '):'')
+      +((p.voice_strays||[]).length
+          ? ' · '+p.voice_strays.length+' segment(s) elsewhere in this lecture are '
+            +'still in another voice'
+          : '')
       +(p.complete?' · complete':'');
-    /* start from the voice that is actually on disk, so switching is a
-       deliberate act rather than an accident of the dropdown default */
+    /* start from the lecture's pinned narrator, so switching is a deliberate
+       act rather than an accident of the dropdown default */
     var sel=$('pod-voice');
-    if(sel&&voices.length===1&&!sel.dataset.touched) sel.value=voices[0];
+    var start=p.pinned_voice||(voices.length===1?voices[0]:'');
+    if(sel&&start&&!sel.dataset.touched) sel.value=start;
     return p;
   }).catch(function(e){ $('pod-audio-status').textContent=e.message; });
 }
@@ -10152,6 +10180,26 @@ function podAudioGo(force){
   var t0=Date.now(), totalActual=0, totalEst=0, bytes=0;
 
   afn({action:'plan',episode_id:epId}).then(function(plan){
+    /* Filling gaps must never carry a voice: the lecture's pin decides, and
+       sending this dropdown is how a section ended up half in one narrator and
+       half in another. Only a deliberate regeneration may change the voice,
+       and then it repins the WHOLE lecture rather than one section. */
+    var pin=plan.pinned_voice||'';
+    var changing=!!(force&&voice&&pin&&voice!==pin);
+    if(changing){
+      var others=(plan.voice_strays||[]).length;
+      if(!confirm('This repins the whole lecture to '+voice+'.\n\n'
+        +'Only this section is regenerated now; the rest stays in '+pin
+        +' until you regenerate it too.\n\nContinue?')){
+        audioBusy=false;
+        $('pod-audio-go').disabled=false;
+        if($('pod-audio-re')) $('pod-audio-re').disabled=false;
+        return;
+      }
+    }
+    /* no pin yet means this dropdown is the one that establishes it */
+    var send=changing ? {voice:voice, repin:true} : (pin ? {} : {voice:voice});
+
     /* Regenerating means REPLACING, not filling gaps. Skipping segments that
        already exist is right when resuming an interrupted run and exactly wrong
        when the point is to hear the same section in a different voice — that
@@ -10172,7 +10220,7 @@ function podAudioGo(force){
       return chain.then(function(){
         $('pod-audio-status').textContent='Generating part '+(ord+1)+' of '+plan.segments.length+'…';
         renderSegs(plan,0,ord);
-        return afn({action:'synthesize',episode_id:epId,segment:ord,voice:voice})
+        return afn(Object.assign({action:'synthesize',episode_id:epId,segment:ord},send))
           .then(function(r){
             totalActual+=r.actual_seconds; totalEst+=r.estimated_seconds; bytes+=r.bytes;
             return podAudioStatus();

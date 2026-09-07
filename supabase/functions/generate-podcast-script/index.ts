@@ -122,10 +122,52 @@ function pickModel(available: string[], avoid?: string): string {
   return ranked[0] || '';
 }
 
+/* ── what a run actually cost ──
+   Every call already came back with a usageMetadata block and this function
+   dropped it, so the first full lecture cost whatever it cost and there is no
+   record of it anywhere. The ledger is passed in per request rather than kept
+   at module scope, because one isolate serves several requests at once and a
+   shared counter would bill them to each other. */
+type UsageRow = {
+  stage: string; model: string;
+  prompt_tokens: number; thoughts_tokens: number; answer_tokens: number;
+  total_tokens: number; ms: number;
+};
+
+class Ledger {
+  rows: UsageRow[] = [];
+  add(row: UsageRow) { this.rows.push(row); }
+  summary() {
+    const sum = (k: keyof UsageRow) =>
+      this.rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const group = (key: 'stage' | 'model') => {
+      const out: Record<string, { calls: number; total_tokens: number; ms: number }> = {};
+      for (const r of this.rows) {
+        const g = out[r[key]] || (out[r[key]] = { calls: 0, total_tokens: 0, ms: 0 });
+        g.calls++; g.total_tokens += Number(r.total_tokens) || 0; g.ms += Number(r.ms) || 0;
+      }
+      return out;
+    };
+    return {
+      calls: this.rows.length,
+      prompt_tokens: sum('prompt_tokens'),
+      thoughts_tokens: sum('thoughts_tokens'),
+      answer_tokens: sum('answer_tokens'),
+      total_tokens: sum('total_tokens'),
+      ms: sum('ms'),
+      by_stage: group('stage'),
+      by_model: group('model'),
+      calls_detail: this.rows,
+    };
+  }
+}
+
 async function gemini(apiKey: string, model: string, prompt: string, opts: {
   json?: boolean; temperature?: number; maxOutputTokens?: number;
+  stage?: string; ledger?: Ledger;
 } = {}): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const t0 = Date.now();
   /* Thinking models bill reasoning tokens against this same budget, so a cap
      sized only for the visible answer truncates the script mid-sentence. Use
      the model's declared ceiling. */
@@ -149,6 +191,19 @@ async function gemini(apiKey: string, model: string, prompt: string, opts: {
     }),
   });
   const data = await res.json();
+  /* recorded before any throw, so a run that fails still accounts for what it
+     spent getting there */
+  if (opts.ledger) {
+    const u = data.usageMetadata || {};
+    opts.ledger.add({
+      stage: opts.stage || 'unknown', model,
+      prompt_tokens: Number(u.promptTokenCount) || 0,
+      thoughts_tokens: Number(u.thoughtsTokenCount) || 0,
+      answer_tokens: Number(u.candidatesTokenCount) || 0,
+      total_tokens: Number(u.totalTokenCount) || 0,
+      ms: Date.now() - t0,
+    });
+  }
   if (!res.ok) throw new Error(`Gemini ${model} ${res.status}: ${JSON.stringify(data).slice(0, 600)}`);
   const cand = data.candidates && data.candidates[0];
   if (!cand) throw new Error(`Gemini ${model} returned no candidate: ${JSON.stringify(data).slice(0, 400)}`);
@@ -612,9 +667,10 @@ ${script}
 """`;
 }
 
-async function findUnsourced(apiKey: string, model: string, heading: string, body: string, script: string) {
+async function findUnsourced(apiKey: string, model: string, heading: string, body: string, script: string,
+                             ledger?: Ledger) {
   const out = parseJson(await gemini(apiKey, model, unsourcedPrompt(heading, body, script),
-    { json: true, temperature: 0 }));
+    { json: true, temperature: 0, stage: 'unsourced', ledger }));
   const rows = (Array.isArray(out) ? out : [])
     .map((r: any) => ({
       claim: String((r && r.claim) || '').trim(),
@@ -768,14 +824,15 @@ function placeCheckpoints(rawScript: string, checkpoints: any[]) {
 const wordCount = (s: string) => (s.trim().match(/\S+/g) || []).length;
 
 /* one coverage pass over an arbitrary fact list */
-async function checkCoverage(apiKey: string, model: string, facts: string[], script: string) {
+async function checkCoverage(apiKey: string, model: string, facts: string[], script: string,
+                            ledger?: Ledger, stage = 'coverage') {
   if (!facts.length) return [] as any[];
   const rows: any[] = [];
   const CHUNK = 120;
   for (let s = 0; s < facts.length; s += CHUNK) {
     const slice = facts.slice(s, s + CHUNK);
     const out = parseJson(await gemini(apiKey, model, coveragePrompt(slice, script),
-      { json: true, temperature: 0 }));
+      { json: true, temperature: 0, stage, ledger }));
     const byIndex = new Map<number, any>();
     (Array.isArray(out) ? out : []).forEach((c: any, idx: number) => {
       const i = Number.isInteger(c && c.i) ? c.i : idx;
@@ -790,14 +847,15 @@ async function checkCoverage(apiKey: string, model: string, facts: string[], scr
 }
 
 /* which quiz facts belong to this section, judged against the section source */
-async function scopeToSection(apiKey: string, model: string, heading: string, body: string, facts: string[]) {
+async function scopeToSection(apiKey: string, model: string, heading: string, body: string, facts: string[],
+                              ledger?: Ledger) {
   const flags: boolean[] = new Array(facts.length).fill(false);
   const reasons: string[] = new Array(facts.length).fill('');
   const CHUNK = 120;
   for (let s = 0; s < facts.length; s += CHUNK) {
     const slice = facts.slice(s, s + CHUNK);
     const out = parseJson(await gemini(apiKey, model, scopePrompt(heading, body, slice),
-      { json: true, temperature: 0 }));
+      { json: true, temperature: 0, stage: 'scope', ledger }));
     (Array.isArray(out) ? out : []).forEach((r: any, idx: number) => {
       const i = Number.isInteger(r && r.i) ? r.i : idx;
       if (i >= 0 && i < slice.length) {
@@ -869,6 +927,8 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json().catch(() => ({}));
     const action = body.action || 'generate';
+    /* one ledger per request; see the Ledger comment for why it is not global */
+    const ledger = new Ledger();
 
     if (action === 'list-models') {
       const available = await availableModels(apiKey);
@@ -946,7 +1006,8 @@ Deno.serve(async (req: Request) => {
         pool.push({ objective_id: r.objective_id, fact: f });
       });
 
-      const scoped = await scopeToSection(apiKey, model, sec.heading, sec.body, pool.map((q) => q.fact));
+      const scoped = await scopeToSection(apiKey, model, sec.heading, sec.body, pool.map((q) => q.fact),
+                                          ledger);
       const bw = new Set(contentWords(sec.body + ' ' + sec.heading));
       const evaluated = pool.map((q, i) => ({
         objective_id: q.objective_id,
@@ -973,6 +1034,7 @@ Deno.serve(async (req: Request) => {
            facts sent; those default to false and would silently under-admit */
         missing_reason: evaluated.filter((r) => !r.reason).length,
         section_chars: sec.body.length,
+        usage: ledger.summary(),
       }), { headers: JSON_HDR });
     }
 
@@ -998,7 +1060,7 @@ Deno.serve(async (req: Request) => {
 
     /* 1a — model-extracted facts (this function reads the section itself) */
     const factsRaw = await gemini(apiKey, checkModel, extractFactsPrompt(section.heading, section.body),
-      { json: true, temperature: 0.1 });
+      { json: true, temperature: 0.1, stage: 'extract-facts', ledger });
     const facts: string[] = parseJson(factsRaw)
       .map((f: any) => String(typeof f === 'string' ? f : (f.fact || ''))).map((s: string) => s.trim())
       .filter(Boolean);
@@ -1044,7 +1106,7 @@ Deno.serve(async (req: Request) => {
 
         if (quizPool.length) {
           const scoped = await scopeToSection(apiKey, checkModel, section.heading, section.body,
-            quizPool.map((q) => q.fact));
+            quizPool.map((q) => q.fact), ledger);
           quizFacts = quizPool.filter((_, i) => scoped.flags[i]).map((q) => q.fact);
 
           /* Full audit of the scoping decision. Admitted facts are listed in
@@ -1085,7 +1147,8 @@ Deno.serve(async (req: Request) => {
                        docRefs.map((h: any) => h.context));
 
       const out = parseJson(await gemini(apiKey, genModel, prompt,
-        { json: true, temperature: attempt === 0 ? 0.6 : 0.35 }));
+        { json: true, temperature: attempt === 0 ? 0.6 : 0.35,
+          stage: attempt === 0 ? 'write' : 'repair', ledger }));
 
       const raw = String(out.script || '');
       const cp = placeCheckpoints(raw, Array.isArray(out.checkpoints) ? out.checkpoints : []);
@@ -1093,13 +1156,13 @@ Deno.serve(async (req: Request) => {
       placed = cp.placed;
       if (!script) throw new Error('Model returned an empty script.');
 
-      coverage = await checkCoverage(apiKey, checkModel, facts, script);
+      coverage = await checkCoverage(apiKey, checkModel, facts, script, ledger, 'coverage-model');
       missing = coverage.filter((c) => !c.covered).map((c) => c.fact);
 
-      quizCoverage = await checkCoverage(apiKey, checkModel, quizFacts, script);
+      quizCoverage = await checkCoverage(apiKey, checkModel, quizFacts, script, ledger, 'coverage-quiz');
       quizMissing = quizCoverage.filter((c) => !c.covered).map((c) => c.fact);
 
-      unsourced = await findUnsourced(apiKey, checkModel, section.heading, section.body, script);
+      unsourced = await findUnsourced(apiKey, checkModel, section.heading, section.body, script, ledger);
       docRefs = findDocumentReferences(script);
 
       attempts.push({
@@ -1175,6 +1238,8 @@ Deno.serve(async (req: Request) => {
       attempts,
       words: wordCount(script),
       models: { generation: genModel, verification: checkModel },
+      /* measured, not estimated — see the Ledger comment */
+      usage: ledger.summary(),
       generated_at: new Date().toISOString(),
     };
 
@@ -1188,7 +1253,7 @@ Deno.serve(async (req: Request) => {
         method: 'POST', headers: insHdr,
         body: JSON.stringify({
           guide_slug: guideSlug, section_heading: section.heading, ordinal: section.ordinal,
-          script, coverage_report, status,
+          script, coverage_report, status, usage: ledger.summary(),
         }),
       });
       const epRows = await epRes.json().catch(() => null);
@@ -1209,6 +1274,7 @@ Deno.serve(async (req: Request) => {
       ordinal: section.ordinal, status, script,
       facts, quiz_facts: quizFacts,
       checkpoints: finalCheckpoints, coverage_report,
+      usage: ledger.summary(),
     }), { headers: JSON_HDR });
 
   } catch (err) {

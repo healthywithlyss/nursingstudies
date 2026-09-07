@@ -29,6 +29,7 @@ let modelList = [
   { name: 'models/imagen-4.0-generate', supportedGenerationMethods: ['generateContent'] },
 ];
 let profileRole = 'admin';
+let pin = '';   /* the lecture's pinned narrator, as the database would hold it */
 const SAMPLE_RATE = 24000;
 
 globalThis.fetch = async (url, init = {}) => {
@@ -41,7 +42,19 @@ globalThis.fetch = async (url, init = {}) => {
     return J([{ id: EPISODE, guide_slug: 'nur144-u1-l1', section_heading: 'GASTRITIS', ordinal: 14, script: SCRIPT, status: 'complete' }]);
   }
   if (url.includes('/rest/v1/podcast_checkpoints')) return J(CPS);
+  if (url.includes('/rest/v1/podcast_lecture_voice')) {
+    if (method === 'POST') { JSON.parse(init.body).forEach((r) => { pin = r.voice; }); return J([]); }
+    return J(pin ? [{ voice: pin }] : []);
+  }
   if (url.includes('/rest/v1/podcast_audio')) {
+    /* the strays query joins episodes and filters on voice=neq; the fake has to
+       honour that filter or the test would be checking nothing */
+    if (method === 'GET' && url.includes('voice=neq.')) {
+      const not = decodeURIComponent(url.split('voice=neq.')[1].split('&')[0]);
+      return J(audioRows.filter((r) => r.voice !== not)
+        .map((r) => ({ ordinal: r.ordinal, voice: r.voice,
+                       podcast_episodes: { section_heading: 'GASTRITIS', guide_slug: 'nur144-u1-l1' } })));
+    }
     if (method === 'POST') {
       const rows = JSON.parse(init.body);
       rows.forEach((r) => {
@@ -150,7 +163,9 @@ console.log('validation and idempotency');
 ck('a bad segment index is rejected', (await call({ action: 'synthesize', episode_id: EPISODE, segment: 99 })).status === 500);
 ck('an unknown voice is rejected', /Unknown voice/.test((await call({ action: 'synthesize', episode_id: EPISODE, segment: 1, voice: 'Gandalf' })).json.error || ''));
 ck('a missing episode_id is rejected', /episode_id/.test((await call({ action: 'plan' })).json.error || ''));
-await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, voice: 'Charon' });
+/* repin, because by now the lecture is pinned to Iapetus and a bare voice
+   change is refused on purpose — that refusal is its own test further down */
+await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, voice: 'Charon', repin: true });
 ck('regenerating a segment replaces rather than duplicates', audioRows.length === 1 && audioRows[0].voice === 'Charon', audioRows);
 
 console.log('finish the episode');
@@ -206,6 +221,51 @@ console.log('delete');
 const del = (await call({ action: 'delete', episode_id: EPISODE })).json;
 ck('reports what it removed', del.deleted_segments === 3, del);
 ck('rows and objects are gone', audioRows.length === 0 && stored.size === 0);
+
+/* ── the voice pin ──
+   Lecture 1 came back in three narrators, and one section changed narrator
+   halfway through, because the voice rode along on every request and the page's
+   dropdown drifted between batches. The pin lives in the database and the
+   function reads it, so a stale caller cannot leak a second voice in. */
+console.log('voice pin');
+pin = ''; audioRows = []; stored.clear();
+
+const p0 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, voice: 'Kore' })).json;
+ck('the first segment pins the lecture', pin === 'Kore', pin);
+ck('and reports what it pinned', p0.pinned_voice === 'Kore', p0.pinned_voice);
+
+const p1 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 1, voice: 'Zephyr' }));
+ck('a different voice mid-lecture is REFUSED, not silently honoured',
+  p1.status === 500 && /pinned to Kore/.test(p1.json.error || ''), p1.json);
+ck('and nothing was generated for it', !audioRows.some((r) => r.voice === 'Zephyr'),
+  audioRows.map((r) => r.voice));
+
+const p2 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 1, voice: 'Zephyr',
+                         repin: true })).json;
+ck('an explicit repin is allowed', p2.pinned_voice === 'Zephyr' && pin === 'Zephyr', p2.pinned_voice);
+ck('and says it repinned', p2.repinned === true, p2);
+
+const p3 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 2 })).json;
+ck('sending no voice at all uses the pin', p3.pinned_voice === 'Zephyr', p3.pinned_voice);
+
+const pinSt = (await call({ action: 'status', episode_id: EPISODE })).json;
+ck('status names the pinned narrator', pinSt.pinned_voice === 'Zephyr', pinSt.pinned_voice);
+ck('and lists the segments left in the old voice',
+  pinSt.voice_strays.length === 1 && pinSt.voice_strays[0].voice === 'Kore', pinSt.voice_strays);
+
+ck('an unknown voice is still refused',
+  /Unknown voice/.test((await call({ action: 'synthesize', episode_id: EPISODE, segment: 0,
+                                     voice: 'Gandalf', repin: true })).json.error || ''));
+
+/* ── measured cost ──
+   Every call already came back with a usage block and the function dropped it,
+   so the first full lecture's cost is unknowable. It is stored now. */
+console.log('usage is recorded');
+ck('the stored row carries the usage block',
+  audioRows.every((r) => r.usage && r.usage.totalTokenCount > 0), audioRows.map((r) => r.usage));
+ck('and how long generation took', audioRows.every((r) => typeof r.usage.generation_ms === 'number'));
+ck('and which TTS model spent it', audioRows.every((r) => /tts/.test(r.usage.tts_model || '')),
+  audioRows.map((r) => r.usage && r.usage.tts_model));
 
 console.log(fail ? `\n${fail} FAILING` : '\nall audio pipeline checks passed');
 process.exit(fail ? 1 : 0);

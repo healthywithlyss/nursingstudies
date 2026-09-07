@@ -31,6 +31,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
      episode_id    uuid                              (all but 'voices')
      segment       integer                           (synthesize)
      voice         prebuilt voice name               (plan, synthesize)
+     repin         true = change the LECTURE's narrator, not just this segment
      tts_model     optional model override
      style         optional natural-language delivery instruction, default none
      max_seconds   per-segment ceiling, default 420
@@ -339,6 +340,45 @@ async function requireAdmin(req: Request) {
 
 /* ── handler ──────────────────────────────────────────────────────────────── */
 
+/* ── the lecture's pinned narrator ──
+   One row per guide_slug. Read before every synthesis, written the first time
+   a lecture is voiced and thereafter only on an explicit repin. */
+type Rest = (path: string, init?: RequestInit) => Promise<Response>;
+
+async function lectureVoice(rest: Rest, guideSlug: string): Promise<string> {
+  const res = await rest(`podcast_lecture_voice?select=voice&guide_slug=eq.${encodeURIComponent(guideSlug)}`);
+  if (!res.ok) return '';
+  const rows = await res.json().catch(() => []);
+  return (Array.isArray(rows) && rows[0] && rows[0].voice) ? String(rows[0].voice) : '';
+}
+
+async function setLectureVoice(rest: Rest, guideSlug: string, voice: string, uid: string) {
+  const res = await rest('podcast_lecture_voice?on_conflict=guide_slug', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify([{ guide_slug: guideSlug, voice, pinned_at: new Date().toISOString(),
+                            pinned_by: uid || null }]),
+  });
+  if (!res.ok) {
+    throw new Error(`Could not pin the lecture voice (${res.status}): ${(await res.text()).slice(0, 200)}`);
+  }
+}
+
+/* Which already-generated segments are NOT in the voice the lecture is now
+   pinned to. After a repin this is the regeneration list; normally it is empty,
+   and if it is not, that is the bug this pin exists to stop. */
+async function voiceStrays(rest: Rest, guideSlug: string, voice: string) {
+  const res = await rest(`podcast_audio?select=ordinal,voice,podcast_episodes!inner(section_heading,guide_slug)`
+    + `&podcast_episodes.guide_slug=eq.${encodeURIComponent(guideSlug)}`
+    + `&voice=neq.${encodeURIComponent(voice)}`);
+  if (!res.ok) return [];
+  const rows = await res.json().catch(() => []);
+  return (Array.isArray(rows) ? rows : []).map((r: any) => ({
+    section: r.podcast_episodes ? r.podcast_episodes.section_heading : null,
+    ordinal: r.ordinal, voice: r.voice,
+  }));
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
 
@@ -535,8 +575,13 @@ Deno.serve(async (req: Request) => {
       const haveRes = await rest(`podcast_audio?select=ordinal,storage_path,duration_seconds,voice,model,bytes,ends_at_checkpoint&episode_id=eq.${episodeId}&order=ordinal.asc`);
       const have = await haveRes.json();
       const haveArr = Array.isArray(have) ? have : [];
+      const planPin = await lectureVoice(rest, episode.guide_slug);
       return new Response(JSON.stringify({
         episode_id: episodeId,
+        /* so the page can show the narrator this lecture is committed to
+           instead of whatever its dropdown happens to say */
+        pinned_voice: planPin || null,
+        voice_strays: planPin ? await voiceStrays(rest, episode.guide_slug, planPin) : [],
         section_heading: episode.section_heading,
         guide_slug: episode.guide_slug,
         script_chars: script.length,
@@ -577,10 +622,32 @@ Deno.serve(async (req: Request) => {
     }
     const seg = segments[idx];
 
-    const voice = String(body.voice || DEFAULT_VOICE);
-    if (!VOICES.some((v) => v.name.toLowerCase() === voice.toLowerCase())) {
-      throw new Error(`Unknown voice "${voice}". Call action:"voices" for the list.`);
+    /* ── whose voice, decided here rather than by the caller ──
+       Lecture 1 came back in three different narrators, and HIATAL HERNIA
+       changes narrator halfway through a single section, because the voice
+       travelled with each request and the page's dropdown drifted between
+       batches. The voice belongs to the LECTURE, so the pin lives in the
+       database and this function reads it. Fixing it in the page would only
+       have moved the bug somewhere else. */
+    const pin = await lectureVoice(rest, episode.guide_slug);
+    const asked = body.voice ? String(body.voice) : '';
+    const repin = body.repin === true;
+
+    if (asked && !VOICES.some((v) => v.name.toLowerCase() === asked.toLowerCase())) {
+      throw new Error(`Unknown voice "${asked}". Call action:"voices" for the list.`);
     }
+    /* A deliberate voice change is allowed, but never by accident: it has to
+       say repin, and then it applies to the whole lecture. */
+    if (pin && asked && asked.toLowerCase() !== pin.toLowerCase() && !repin) {
+      throw new Error(`This lecture is pinned to ${pin}. Asked for ${asked}. `
+        + `Pass repin:true to change the narrator for the whole lecture — `
+        + `segments already generated stay in ${pin} until they are regenerated.`);
+    }
+    const voice = (repin && asked) ? asked : (pin || asked || DEFAULT_VOICE);
+    if (!pin || (repin && asked && asked.toLowerCase() !== pin.toLowerCase())) {
+      await setLectureVoice(rest, episode.guide_slug, voice, gate.uid);
+    }
+
     const available = await listModels(apiKey);
     const ranked = rankTtsModels(available);
     const model = body.tts_model || ranked[0];
@@ -618,6 +685,9 @@ Deno.serve(async (req: Request) => {
       char_start: seg.char_start, char_end: seg.char_end,
       ends_at_checkpoint: seg.ends_at_checkpoint,
       bytes: audio.wav.length, mime_type: 'audio/wav',
+      /* measured, not estimated: the first lecture's cost is unknowable
+         because this block was computed and then thrown away */
+      usage: { ...(audio.usage || {}), generation_ms: genMs, tts_model: model },
     };
     const ins = await rest('podcast_audio?on_conflict=episode_id,ordinal', {
       method: 'POST',
@@ -644,6 +714,8 @@ Deno.serve(async (req: Request) => {
       source_mime: audio.sourceMime,
       generation_ms: genMs,
       usage: audio.usage,
+      pinned_voice: voice,
+      repinned: repin && !!asked,
       ends_at_checkpoint: seg.ends_at_checkpoint,
       split_reason: seg.split_reason,
       done: idx === segments.length - 1,
