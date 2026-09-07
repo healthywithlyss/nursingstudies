@@ -1282,6 +1282,16 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-lec-t{flex:0 0 auto;color:var(--text-muted);font-size:11px;max-width:45%;text-align:right;
   overflow-wrap:anywhere}
 
+/* the risky words in the sample, tappable so a term can be re-heard on its own */
+.pod-terms{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.pod-term{border:1px solid var(--g200);background:var(--surface);border-radius:20px;
+  padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--text);cursor:pointer;
+  font-family:inherit;min-height:30px;display:flex;align-items:center;gap:5px}
+.pod-term:hover{border-color:var(--teal);background:var(--teal-bg);color:var(--teal)}
+.pod-term.at{border-color:var(--plum);background:var(--plum-bg);color:var(--plum)}
+.pod-term span{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text-muted);font-size:10.5px}
+.pod-term.at span{color:var(--plum)}
+
 /* voice preview */
 .pod-sample{background:var(--g50);border:1px solid var(--g200);border-left:3px solid var(--teal);
   border-radius:var(--r-btn);padding:10px 12px;font-size:12.5px;line-height:1.55;color:var(--text);
@@ -9580,10 +9590,17 @@ function audioPanel(d){
 
     +'<div class="pod-panel"><h3>Voices</h3>'
     +'<div class="pod-sample" id="pod-sample"><b>Every voice reads this same passage</b>'
-    +'<span id="pod-sample-t">…</span></div>'
+    +'<span id="pod-sample-t">…</span>'
+    +'<div class="pod-terms" id="pod-terms"></div></div>'
+    +'<div class="pod-audio-row" style="margin-bottom:10px">'
+    +'<button class="pod-btn pod-btn-ghost" id="pod-preall" onclick="podPreviewAll()">'
+    +'Generate every voice</button>'
+    +'<span class="pod-note" id="pod-preall-s" style="margin:0;align-self:center"></span>'
+    +'</div>'
     +'<div class="pod-voices" id="pod-vlist"></div>'
     +'<div class="pod-note">First play of a voice generates the clip and stores it; '
-    +'after that it is instant. A green dot means the clip is already stored.</div>'
+    +'after that it is instant. A green dot means the clip is already stored. '
+    +'Tap a term above to jump straight to that word.</div>'
     +'</div>'
 
     +'<div class="pod-panel"><h3>Audio</h3>'
@@ -9607,7 +9624,68 @@ function audioPanel(d){
    Comparing voices should cost seconds, not a nine-minute regeneration. Each
    clip is generated once and kept in Storage, so the second listen is free and
    flicking between three voices is instant. */
-var previewAudio=null, previewing=null, previewCache={};
+var previewAudio=null, previewing=null, previewCache={}, sampleWords=[];
+
+/* ── jump to a word in the sample ────────────────────────────────────────
+   The whole point of the preview is the handful of words that go wrong, and
+   they sit at the END of the passage — "pyrosis" is word 26 of 31. Making her
+   listen to the whole clip to re-check one of them, for each of thirty voices,
+   is the sort of thing that stops her checking.
+
+   The offset is proportional: word index over word count, times the clip's real
+   duration, minus a short lead-in so the word arrives in context rather than
+   clipped at the front. Speech is not perfectly uniform, so this lands near the
+   word rather than exactly on it — which is all that is needed to hear it. */
+var RISKY = ['parietal','intrinsic','pernicious','pyrosis','halitosis','satiety','melena'];
+var TERM_LEAD_IN = 0.7;
+
+function termAt(term){
+  for (var i=0;i<sampleWords.length;i++){
+    var w=sampleWords[i].toLowerCase().replace(/[^a-z]/g,'');
+    if (w.indexOf(term)===0) return i;
+  }
+  return -1;
+}
+
+function renderTerms(){
+  var box=$('pod-terms');
+  if(!box||!sampleWords.length) return;
+  var dur=(previewAudio&&isFinite(previewAudio.duration))?previewAudio.duration:0;
+  box.innerHTML=RISKY.map(function(t){
+    var i=termAt(t);
+    if(i<0) return '';
+    var at=dur?Math.max(0,(i/sampleWords.length)*dur-TERM_LEAD_IN):0;
+    return '<button class="pod-term" data-term="'+esc(t)+'" data-w="'+i+'" '
+      +'onclick="podSeekTerm(\''+t+'\')">'+esc(t)
+      +'<span>'+(dur?'~'+at.toFixed(1)+'s':'\u00b7')+'</span></button>';
+  }).join('');
+}
+
+function podSeekTerm(term){
+  var i=termAt(term);
+  if(i<0) return;
+  var go=function(){
+    var a=previewAudio;
+    if(!a||!isFinite(a.duration)||!a.duration) return;
+    a.currentTime=Math.max(0,(i/sampleWords.length)*a.duration-TERM_LEAD_IN);
+    var pr=a.play(); if(pr&&pr.catch) pr.catch(function(){});
+    renderTerms();
+  };
+  /* nothing loaded yet: start the selected voice, then jump once it can seek */
+  if(!previewAudio){
+    var v=($('pod-voice')||{}).value||'Charon';
+    podPreview(v);
+    var tries=0;
+    var wait=setInterval(function(){
+      if(previewAudio&&isFinite(previewAudio.duration)&&previewAudio.duration){
+        clearInterval(wait); go();
+      } else if(++tries>40) clearInterval(wait);
+    },150);
+    return;
+  }
+  go();
+}
+window.podSeekTerm=podSeekTerm;
 
 function renderVoices(){
   var box=$('pod-vlist');
@@ -9627,6 +9705,52 @@ function renderVoices(){
   }).join('');
 }
 
+/* ── pre-generate every voice ────────────────────────────────────────────
+   Thirty voices at a few seconds each is a couple of minutes once, and then
+   every voice is instant forever. Sequential rather than parallel: thirty
+   simultaneous TTS calls is a burst the API has no reason to accept, and the
+   point here is to finish, not to finish fast. Already-stored voices cost
+   nothing, so this doubles as a resume. */
+var preAll = null;
+
+function podPreviewAll(){
+  if(audioBusy||!voiceCache) return;
+  stopPreview();
+  audioBusy=true;
+  var btn=$('pod-preall'); if(btn) btn.disabled=true;
+  var names=voiceCache.voices.map(function(v){ return v.name; });
+  preAll={ total:names.length, done:0, made:0, cached:0, failed:[] };
+  var paint=function(){
+    var el=$('pod-preall-s');
+    if(el) el.textContent=preAll.done+' of '+preAll.total+' — '
+      +preAll.made+' generated, '+preAll.cached+' already stored'
+      +(preAll.failed.length?', '+preAll.failed.length+' failed':'');
+  };
+  paint();
+  names.reduce(function(chain,n){
+    return chain.then(function(){
+      return afn({action:'preview',voice:n}).then(function(r){
+        previewCache[n]=true;
+        if(r.cached) preAll.cached++; else preAll.made++;
+      }).catch(function(e){
+        /* one bad voice must not stop the other twenty-nine */
+        preAll.failed.push(n+': '+(e.message||e).slice(0,60));
+      }).then(function(){
+        preAll.done++; paint(); renderVoices();
+      });
+    });
+  },Promise.resolve()).then(function(){
+    var el=$('pod-preall-s');
+    if(el) el.textContent='Done — '+preAll.made+' generated, '+preAll.cached
+      +' already stored'+(preAll.failed.length
+        ? '. Failed: '+preAll.failed.join('; ')
+        : '. Every voice is now instant.');
+    audioBusy=false;
+    var b=$('pod-preall'); if(b) b.disabled=false;
+  });
+}
+window.podPreviewAll=podPreviewAll;
+
 function podPreview(name){
   /* tapping the one that is playing stops it */
   if(previewing===name){ stopPreview(); return; }
@@ -9640,6 +9764,18 @@ function podPreview(name){
   var play=function(url){
     previewAudio=new Audio(url);
     window.__pv=previewAudio;    /* observable, so playback can be asserted rather than assumed */
+    previewAudio.addEventListener('loadedmetadata',renderTerms);
+    previewAudio.addEventListener('timeupdate',function(){
+      /* mark whichever term is being spoken right now */
+      var a=previewAudio;
+      if(!a||!isFinite(a.duration)||!a.duration) return;
+      var w=Math.floor((a.currentTime/a.duration)*sampleWords.length);
+      var box=$('pod-terms'); if(!box) return;
+      [].forEach.call(box.children,function(b){
+        var i=parseInt(b.getAttribute('data-w'),10);
+        b.classList.toggle('at', isFinite(i) && Math.abs(i-w)<=1);
+      });
+    });
     previewAudio.addEventListener('ended',function(){ previewing=null; renderVoices(); });
     previewAudio.addEventListener('error',function(){
       previewing=null; renderVoices();
@@ -9654,7 +9790,10 @@ function podPreview(name){
   afn({action:'preview',voice:name}).then(function(r){
     if(previewing!==name) return;          /* she moved on while it generated */
     previewCache[name]=true;
-    if($('pod-sample-t')&&r.sample_text) $('pod-sample-t').textContent=r.sample_text;
+    if(r.sample_text){
+      if($('pod-sample-t')) $('pod-sample-t').textContent=r.sample_text;
+      sampleWords=r.sample_text.split(/\s+/).filter(Boolean);
+    }
     $('pod-audio-status').textContent=name+' — '+(r.cached?'stored already':'generated '
       +r.seconds+'s in '+Math.round(r.generation_ms/1000)+'s')
       +(r.model?' · '+r.model:'');
@@ -9687,8 +9826,11 @@ function fillVoices(){
     var st=$('pod-audio-status');
     if(st&&!st.textContent) st.textContent='TTS model: '+(v.would_use||'none found')
       +' (chosen from '+v.all_models_seen+' models on this key)';
-    if($('pod-sample-t')&&v.sample_text) $('pod-sample-t').textContent=v.sample_text;
-    renderVoices();
+    if(v.sample_text){
+      if($('pod-sample-t')) $('pod-sample-t').textContent=v.sample_text;
+      sampleWords=v.sample_text.split(/\s+/).filter(Boolean);
+    }
+    renderVoices(); renderTerms();
   };
   if(voiceCache) return apply(voiceCache);
   afn({action:'voices'}).then(apply).catch(function(e){
