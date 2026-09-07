@@ -53,6 +53,9 @@ jobs:
       - name: Audio pipeline
         run: node --experimental-strip-types scripts/tests/audio-pipeline.test.mjs
 
+      - name: Spoken turn pipeline
+        run: node --experimental-strip-types scripts/tests/turn-pipeline.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
