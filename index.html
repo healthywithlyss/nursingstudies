@@ -8872,9 +8872,12 @@ var FN = '/functions/v1/generate-podcast-script';
    teachable content at all, so narrating them would spend her time without
    giving her anything:
      OBJECTIVES   nine learning outcomes ("Review anatomy…", "Discuss terms…")
-     APPENDIX     its own first line says none of it appears on any slide;
-                  it is a stub index kept in case the professor mentions one
      STILL TO COME  thirty-three words listing which lectures come next
+
+   APPENDIX was on this list and is not any more, by request. Its own first line
+   says none of it appears on any slide, so it was excluded as unexamined — but
+   "not on a slide" is not "not worth hearing", and if the professor mentions one
+   of those conditions in class it is better to have heard it once already.
 
    Everything else stays in, INCLUDING the table-heavy ones. A section being
    mostly tables says nothing about whether it teaches: TERMS explains where
@@ -8886,7 +8889,6 @@ var FN = '/functions/v1/generate-podcast-script';
    so the two can never disagree about what exists. */
 window.PODCAST_SKIP = [
   { re: /^OBJECTIVES\b/i,            why: 'learning outcomes, not content' },
-  { re: /^APPENDIX\b/i,              why: 'explicitly not lectured' },
   { re: /^STILL TO COME\b/i,         why: 'a pointer to later lectures' }
 ];
 window.podcastSkipReason = function(heading){
