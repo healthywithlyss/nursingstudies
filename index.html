@@ -1276,6 +1276,11 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-cmp-t{white-space:pre-wrap;font-size:13.5px;line-height:1.7;color:var(--text);
   background:var(--g50);border-radius:8px;padding:12px 14px;margin-top:6px;
   max-height:460px;overflow-y:auto}
+.pod-fmt-t{border-collapse:collapse;font-size:12px;margin-top:8px;min-width:520px}
+.pod-fmt-t th,.pod-fmt-t td{border-bottom:1px solid var(--g200);padding:6px 10px;
+  text-align:left;vertical-align:top}
+.pod-fmt-t th{color:var(--text-muted);font-size:11px;text-transform:uppercase;
+  letter-spacing:.04em}
 
 /* whole-lecture run */
 .pod-lec{margin-bottom:12px}
@@ -9041,6 +9046,18 @@ function render(){
       + '<div class="pod-note" id="pod-cmp-s"></div>'
       + '<div id="pod-cmp-out"></div>'
     + '</div>'
+
+    + '<div class="pod-panel"><h3>Audio format probe</h3>'
+      + '<div class="pod-note" style="margin-top:0">Asks the TTS API, seven different '
+      + 'ways, whether it will return anything other than raw uncompressed PCM. One '
+      + 'short sentence per attempt. Nothing is stored and no episode is touched. '
+      + 'Storage today is uncompressed, so this decides whether a rerun gets cheaper '
+      + 'or stays the same size.</div>'
+      + '<button class="pod-btn" id="pod-fmt-go" onclick="podFormatProbe()">'
+        + 'Probe formats</button>'
+      + '<div class="pod-note" id="pod-fmt-s"></div>'
+      + '<div id="pod-fmt-out"></div>'
+    + '</div>'
     + '<div id="pod-status"></div>'
     + '<div class="pod-panel"><h3>Saved episodes</h3><div id="pod-eplist">'
       + '<div class="pod-empty">Loading&hellip;</div></div></div>'
@@ -9516,6 +9533,44 @@ function afn(body){
       return j;
     }); });
 }
+
+/* ── audio format probe ──
+   Every byte stored so far is uncompressed 24 kHz 16-bit mono PCM: 319.8 MB
+   for 116.4 minutes is exactly 48,000 bytes a second, which is that and
+   nothing else. Whether a rerun can be smaller depends entirely on whether
+   the API will hand back a compressed format, and nothing in the docs says
+   either way — so ask it rather than assume. Read-only: seven one-sentence
+   calls, nothing stored, no episode touched. */
+function podFormatProbe(){
+  if(audioBusy) return;
+  audioBusy=true;
+  var btn=$('pod-fmt-go'); if(btn) btn.disabled=true;
+  $('pod-fmt-s').textContent='Probing… seven short calls, about half a minute.';
+  $('pod-fmt-out').innerHTML='';
+  afn({action:'format-probe'}).then(function(j){
+    window.__fmt=j;
+    var rows=(j.results||[]).map(function(r){
+      return '<tr><td>'+esc(r.variant)+'</td>'
+        +'<td>'+(r.ok?'ok':('failed'+(r.status?' '+r.status:'')))+'</td>'
+        +'<td>'+esc(String(r.mime||r.error||'—').slice(0,80))+'</td>'
+        +'<td style="text-align:right">'+(r.b64_chars||0)+'</td></tr>';
+    }).join('');
+    $('pod-fmt-out').innerHTML='<div style="overflow-x:auto"><table class="pod-fmt-t">'
+      +'<tr><th>Variant</th><th></th><th>Returned</th><th>b64 chars</th></tr>'
+      +rows+'</table></div>';
+    $('pod-fmt-s').textContent=(j.any_compressed_format_accepted
+      ? 'A compressed format WAS accepted — see which row returned far fewer bytes.'
+      : 'No compressed format accepted. Default is '+(j.baseline_mime||'unknown')
+        +', so a rerun is the same size per minute as what is stored now.')
+      +' Full payload in window.__fmt.';
+  }).catch(function(e){
+    $('pod-fmt-s').textContent='Probe failed: '+(e.message||e);
+  }).then(function(){
+    audioBusy=false;
+    var b=$('pod-fmt-go'); if(b) b.disabled=false;
+  });
+}
+window.podFormatProbe=podFormatProbe;
 
 /* ══════════════════════════════════════════════════════════════════════
    COMPARE WRITING MODELS
