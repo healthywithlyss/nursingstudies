@@ -7,6 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- FSRS-6, ported from py-fsrs (MIT), and the exam-aware layer on top of it.
+     Vendored rather than fetched, so a filtered connection cannot break
+     scheduling, and separate files so both are testable under node. -->
+<script src="vendor/fsrs.js"></script>
+<script src="lib/exam-scheduler.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -330,6 +335,9 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .dash-overview{flex-direction:column;align-items:flex-start;gap:16px}
   .dash-sec-grid{grid-template-columns:1fr}
   .dash-quiz-row{flex-direction:column;align-items:flex-start}
+  .srs-exams{grid-template-columns:1fr}
+  .srs-dates{grid-template-columns:1fr}
+  .srs-q-row{flex-wrap:wrap}
   .dqr-stats{gap:16px}
 }
 /* card column (right) */
@@ -1312,6 +1320,75 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-term.at{border-color:var(--plum);background:var(--plum-bg);color:var(--plum)}
 .pod-term span{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text-muted);font-size:10.5px}
 .pod-term.at span{color:var(--plum)}
+
+/* exam readiness + spaced repetition */
+.srs-wrap{margin-bottom:22px}
+.srs-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin-bottom:10px;flex-wrap:wrap}
+.srs-title{font-size:15px;font-weight:800;color:var(--text)}
+.srs-sub{font-size:11.5px;color:var(--text-muted)}
+.srs-dates{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.srs-date{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:10px 12px}
+.srs-date label{display:block;font-size:11px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.srs-date input{width:100%;font:inherit;font-size:13px;color:var(--text);padding:7px 8px;
+  border:1px solid var(--border);border-radius:8px;background:var(--bg);min-height:38px}
+.srs-date input:focus{outline:none;border-color:var(--accent)}
+.srs-date.unset input{border-style:dashed}
+.srs-date-hint{font-size:11px;color:var(--text-muted);margin-top:5px}
+.srs-exams{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.srs-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:12px 14px}
+.srs-card.soon{border-color:var(--accent)}
+.srs-card.past{opacity:.6}
+.srs-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  margin-bottom:8px}
+.srs-card-name{font-size:12.5px;font-weight:700;color:var(--text)}
+.srs-card-days{font-size:11px;color:var(--text-muted);white-space:nowrap}
+.srs-pct{font-size:26px;font-weight:800;color:var(--text);line-height:1}
+.srs-pct small{font-size:11px;font-weight:600;color:var(--text-muted);margin-left:4px}
+.srs-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:8px 0}
+.srs-bar span{display:block;height:100%;border-radius:3px;background:var(--accent);
+  transition:width .5s ease}
+.srs-facts{display:flex;gap:12px;font-size:11px;color:var(--text-muted);flex-wrap:wrap}
+.srs-facts b{color:var(--text);font-weight:700}
+.srs-warn{background:var(--rust-bg);border:1px solid #fecaca;border-radius:var(--r-card);
+  padding:11px 13px;font-size:12.5px;line-height:1.55;color:#7f1d1d;margin-bottom:14px}
+.srs-ok{background:var(--cobalt-bg);border:1px solid #bfdbfe;border-radius:var(--r-card);
+  padding:11px 13px;font-size:12.5px;line-height:1.55;color:#1e3a8a;margin-bottom:14px}
+.srs-q{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:12px 14px;margin-bottom:14px}
+.srs-q-row{display:flex;gap:18px;align-items:baseline;margin-bottom:8px}
+.srs-q-n{font-size:22px;font-weight:800;color:var(--text);line-height:1}
+.srs-q-n.zero{color:var(--text-muted)}
+.srs-q-l{font-size:11px;color:var(--text-muted);display:block;margin-top:2px}
+.srs-actions{display:flex;gap:8px;flex-wrap:wrap}
+.srs-btn{font:inherit;font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:10px;
+  border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;
+  min-height:40px}
+.srs-btn:disabled{opacity:.5;cursor:default}
+.srs-btn-ghost{background:transparent;color:var(--accent)}
+.srs-weak{margin-bottom:6px}
+.srs-weak-row{display:flex;align-items:center;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--border);font-size:12px}
+.srs-weak-row:last-child{border-bottom:none}
+.srs-weak-id{font-weight:700;color:var(--text);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.srs-weak-bar{width:80px;height:5px;background:var(--border);border-radius:3px;flex-shrink:0}
+.srs-weak-bar span{display:block;height:100%;border-radius:3px;background:var(--unsure)}
+.srs-weak-pct{font-size:11px;color:var(--text-muted);width:66px;text-align:right;flex-shrink:0}
+.srs-units details{margin-top:10px}
+.srs-units summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text-muted);
+  min-height:34px;display:flex;align-items:center}
+.srs-unit-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12px;
+  border-bottom:1px solid var(--border)}
+.srs-unit-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srs-unit-row select{font:inherit;font-size:12px;padding:7px 8px;border-radius:7px;
+  border:1px solid var(--border);background:var(--bg);color:var(--text);min-height:40px}
+/* the fourth rating button */
+.rating-btn.easy{background:var(--accent);color:#fff}
+@media(max-width:479px){ .fc-actions{flex-wrap:wrap} .rating-btn{flex:1 1 45%} }
 
 /* voice preview */
 .pod-sample{background:var(--g50);border:1px solid var(--g200);border-left:3px solid var(--teal);
@@ -4403,9 +4480,10 @@ body.lsn-open #main-content{padding-bottom:80px}
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
             <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
-              <button class="rating-btn got"    onclick="fcRate('got_it')" id="btn-got"    disabled>&#10003; Got it</button>
-              <button class="rating-btn unsure" onclick="fcRate('unsure')" id="btn-unsure" disabled>&#8764; Unsure</button>
-              <button class="rating-btn missed" onclick="fcRate('missed')" id="btn-missed" disabled>&#10005; Missed</button>
+              <button class="rating-btn missed" onclick="fcRate('missed',1)" id="btn-missed" disabled>&#10005; Again</button>
+              <button class="rating-btn unsure" onclick="fcRate('unsure',2)" id="btn-unsure" disabled>&#8764; Hard</button>
+              <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Good</button>
+              <button class="rating-btn easy"   onclick="fcRate('got_it',4)" id="btn-easy"   disabled>&#9733; Easy</button>
             </div>
             <!-- mastery streak indicator — sits below buttons, outside the card -->
             <div style="text-align:center;min-height:24px;margin-top:6px">
@@ -4498,6 +4576,11 @@ body.lsn-open #main-content{padding-bottom:80px}
       <div class="course-empty" id="page-dashboard-empty" style="display:none"></div>
       <div class="dash-wrap">
         <div class="dash-heading">Progress Dashboard</div>
+
+        <!-- Exam readiness. Rendered by the spaced-repetition block; shown even
+             with zero reviews done, because "0% ready, 34 days" is the number
+             that is supposed to prompt studying. -->
+        <div class="srs-wrap" id="srs-exam-section"></div>
 
         <!-- Overview ring + key numbers -->
         <div class="dash-overview">
@@ -5567,7 +5650,10 @@ function upsertCardMastery(cardId,cs){
 function buildCycle(){
   var active=sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status!=='mastered';});
   if(!active.length){showCompletionScreen();return false;}
-  if(fcShuffleOn){
+  /* An SRS or cram deck arrives already ordered — never-seen first, then
+     weakest — and that ordering is the whole output of the scheduler, so
+     shuffle is ignored for it. Every other deck is unaffected. */
+  if(fcShuffleOn&&sess.deckFilter!=='__srs__'){
     var missed=active.filter(function(c){return(sess.cardState[c.id]||{}).lastResult==='missed';});
     var unsure=active.filter(function(c){
       var r=(sess.cardState[c.id]||{}).lastResult;return r&&r!=='missed'&&r!=='unseen';
@@ -5806,7 +5892,7 @@ function resetCardShell(){
   if(why) why.remove();
   var editBtn=document.getElementById('fc-edit-btn');
   if(editBtn) editBtn.style.display='none';
-  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+  ['btn-got','btn-unsure','btn-missed','btn-easy'].forEach(function(id){
     document.getElementById(id).disabled=true;
   });
 }
@@ -5866,7 +5952,7 @@ function showCurrentCard(){
   document.getElementById('fc-prog-fill').style.width=
     (sess.totalCards?(mastered/sess.totalCards*100).toFixed(1):0)+'%';
   /* Enable buttons — always, no flip required */
-  ['btn-got','btn-unsure','btn-missed'].forEach(function(id){
+  ['btn-got','btn-unsure','btn-missed','btn-easy'].forEach(function(id){
     document.getElementById(id).disabled=false;
   });
 }
@@ -5905,7 +5991,12 @@ function fcFlip(){
   }
 }
 
-function fcRate(result){
+/* `rating` is the FSRS grade 1-4 (Again/Hard/Good/Easy). It is deliberately a
+   SECOND argument rather than a new set of result strings: card_attempts.result
+   is constrained to got_it/unsure/missed and computeCardState branches on those
+   exact values, so Easy stores as got_it for the legacy layer and as a 4 for
+   the scheduler. Nothing downstream of the old path changes. */
+function fcRate(result,rating){
   if(fcRating||!fcCurrentCard) return;
   fcRating=true;setTimeout(function(){fcRating=false;},400);
   var c=fcCurrentCard;
@@ -5930,6 +6021,9 @@ function fcRate(result){
       body:JSON.stringify({card_id:c.id,result:result,session_id:sess.sessionId,user_id:currentUser.id})
     }).catch(function(e){console.warn('attempt:',e);});
     upsertCardMastery(c.id,newCs);
+    if(window.srsRecord)
+      window.srsRecord('card',c.id,rating||(result==='got_it'?3:result==='unsure'?2:1),
+                       c.objective_ids||[]);
   }
 
   updateStats();
@@ -7128,11 +7222,18 @@ function beginQuizSession(){
   quizSessionSubmitted=false;
   quizSessionResults=[];
   quizSessionId='qsess-'+Date.now();
-  quizCurrentQuestions=shuffleArr(quizCurrentQuestions.slice());
+  /* A cram or due deck arrives already ordered by the scheduler — never-seen
+     first, then weakest — and shuffling would throw that ranking away. Set only
+     by the SRS block, cleared here, so every other quiz shuffles as before. */
+  if(window.srsOrderedQuiz){ window.srsOrderedQuiz=false; }
+  else { quizCurrentQuestions=shuffleArr(quizCurrentQuestions.slice()); }
   renderQuizQuestion();
 }
 
 function renderQuizQuestion(){
+  /* when the question went on screen, so a fast correct answer can be graded
+     Easy rather than Good — see srsWasFast */
+  window.srsShownAt=Date.now();
   var q=quizCurrentQuestions[quizSessionIdx];
   var total=quizCurrentQuestions.length;
   var pct=Math.round((quizSessionIdx/total)*100);
@@ -7247,6 +7348,12 @@ function submitQuizAnswer(){
     var newMastery=computeQuizMastery(q.id,ok);
     quizMasteryData[q.id]=newMastery;
     upsertQuestionMastery(newMastery);
+    /* Correct/incorrect is binary, so it maps rather than growing a four-button
+       UI the question format cannot justify: wrong is Again, right is Good, and
+       a right answer that came back fast is Easy. */
+    if(window.srsRecord)
+      window.srsRecord('quiz',q.id,ok?(window.srsWasFast&&window.srsWasFast()?4:3):1,
+                       [quizCurrentObjId]);
   }
 
   /* colour options */
@@ -11557,6 +11664,656 @@ window.goTo=function(page){
   /* the mini player follows her everywhere once something is loaded */
   if($('lsn-mini')) setMini(!!current);
 };
+
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   SPACED REPETITION + EXAM READINESS
+
+   The scheduling itself lives in two files that know nothing about the DOM:
+   vendor/fsrs.js (the FSRS-6 engine, ported from py-fsrs) and
+   lib/exam-scheduler.js (clamping, resurfacing, coverage, pace). Both are
+   tested under node. This block is only wiring: read state, call them, paint,
+   write back.
+
+   Additive throughout. It adds one section to the dashboard, one button to the
+   flashcard rating row, and two hooks in the existing grading paths; it changes
+   no existing function's behaviour and touches no existing table column. The
+   legacy counters keep being written exactly as before, so every screen that
+   reads is_mastered still works while the real scheduler runs beside it.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+if(!window.FSRS||!window.ExamScheduler){
+  console.warn('SRS: scheduler files did not load; falling back to the old behaviour.');
+  return;
+}
+var ES = window.ExamScheduler;
+var sched = new window.FSRS.Scheduler();
+
+/* A correct answer inside this many milliseconds counts as Easy. Not tuned —
+   there is no data to tune it on yet — but deliberately generous, because the
+   cost of calling a merely-known item Easy is one interval that is slightly
+   too long, and the item comes straight back if that was wrong. */
+var FAST_MS = 8000;
+var PACE_WINDOW_DAYS = 14;
+
+var EXAM_LABEL = {unit1:'Unit 1 test', unit2:'Unit 2 test', final:'Final'};
+
+var plan = null;          /* last computed plan, for the current course */
+var loading = false;
+var fsrsRows = {card:{}, quiz:{}};   /* id -> the row we last read or wrote */
+var unitsMap = {};
+var objectiveList = [];   /* [{objective_id, unit}] for the current course */
+var examDates = {unit1:'',unit2:'',final:''};
+
+function $(id){ return document.getElementById(id); }
+function esc2(s){ return String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── how fast was that answer ──────────────────────────────────────────
+   Exposed for the quiz grading hook. A missing timestamp means "not fast",
+   never "fast", so a render path that forgets to stamp cannot silently start
+   awarding Easy to everything. */
+window.srsWasFast = function(){
+  return !!window.srsShownAt && (Date.now() - window.srsShownAt) <= FAST_MS;
+};
+
+/* ══ reading and writing one item's scheduling state ══════════════════ */
+
+function tableFor(kind){ return kind==='card' ? 'card_mastery' : 'question_mastery'; }
+function keyFor(kind){ return kind==='card' ? 'card_id' : 'question_id'; }
+
+function rowToCard(row){
+  return {
+    state: row && row.state && row.state!=='new' ? row.state : 'learning',
+    step: row && row.learning_step!=null ? row.learning_step : 0,
+    stability: row && row.stability!=null ? row.stability : null,
+    difficulty: row && row.difficulty!=null ? row.difficulty : null,
+    due: row && row.due_date ? Date.parse(row.due_date) : null,
+    last_review: row && row.last_reviewed_at ? Date.parse(row.last_reviewed_at) : null,
+    reps: (row && row.repetitions) || 0,
+    lapses: (row && row.lapses) || 0,
+    interval_days: (row && row.interval_days) || 0
+  };
+}
+
+/* The exam this item answers to, from its objectives. Falls back to no exam,
+   which is what makes NUR116 and NUR118 behave as plain FSRS. */
+function examForItem(objectiveIds, now){
+  var unit = ES.unitOf({objectiveIds: objectiveIds||[]}, unitsMap);
+  return ES.nextExamFor(unit, examDates, now);
+}
+
+/* The scheduling state for one kind, fetched at most once per session.
+
+   srsRecord needs an item's CURRENT stability and difficulty to compute the
+   next ones. Practice and Quiz can both be used without ever opening the
+   dashboard, and without this the cache would be empty there and every answer
+   would restart the item from zero — quietly throwing away its history. So the
+   table is pulled on the first grading if the dashboard has not already done
+   it, and the promise is shared so a fast run of answers triggers one fetch,
+   not one per card. */
+var rowsLoaded = {card:null, quiz:null};
+function ensureRows(kind){
+  if(rowsLoaded[kind]) return rowsLoaded[kind];
+  var uid = window.currentUser && window.currentUser.id;
+  if(!uid) return Promise.resolve();
+  rowsLoaded[kind] = window.sbFetch('/rest/v1/'+tableFor(kind)
+      +'?select='+keyFor(kind)+',state,stability,difficulty,due_date,last_reviewed_at,'
+      +'interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid)
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      (Array.isArray(rows)?rows:[]).forEach(function(m){
+        /* anything the dashboard already loaded or a grading already wrote is
+           newer than this fetch, so it wins */
+        if(!fsrsRows[kind][m[keyFor(kind)]]) fsrsRows[kind][m[keyFor(kind)]] = m;
+      });
+    })
+    .catch(function(e){
+      /* a failed fetch must not poison the cache forever */
+      rowsLoaded[kind] = null;
+      console.warn('srs preload '+kind+':', e);
+    });
+  return rowsLoaded[kind];
+}
+
+/* The exam dates and unit map, fetched at most once per course per session.
+
+   Without these, examForItem finds no exam and clampDue becomes a no-op — so
+   grading a card in Practice without having opened the dashboard would schedule
+   it 404 days out with the test in 12. Both are small; loading them is the
+   difference between the clamp working everywhere and working only on the
+   screen that happens to have fetched them. */
+var contextLoaded = null, contextCourse = null;
+function ensureContext(){
+  var course = window.currentCourse;
+  var uid = window.currentUser && window.currentUser.id;
+  if(!uid) return Promise.resolve();
+  if(contextLoaded && contextCourse === course) return contextLoaded;
+  contextCourse = course;
+  var j = function(r){ return r.json(); };
+  contextLoaded = Promise.all([
+    window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
+    window.sbFetch('/rest/v1/exam_schedule?select=exam,exam_date&user_id=eq.'+uid
+      +'&course=eq.'+course).then(j)
+  ]).then(function(r){
+    applyUnits(r[0], course);
+    applyExams(r[1]);
+  }).catch(function(e){
+    contextLoaded = null;
+    console.warn('srs context:', e);
+  });
+  return contextLoaded;
+}
+
+function applyUnits(units, course){
+  unitsMap={}; objectiveList=[];
+  (Array.isArray(units)?units:[]).forEach(function(u){
+    unitsMap[u.objective_id]=u.unit;
+    if(u.course===course) objectiveList.push({objective_id:u.objective_id, unit:u.unit});
+  });
+  objectiveList.sort(function(a,b){ return a.objective_id<b.objective_id?-1:1; });
+}
+
+function applyExams(exams){
+  examDates={unit1:'',unit2:'',final:''};
+  (Array.isArray(exams)?exams:[]).forEach(function(e){
+    if(e.exam_date) examDates[e.exam]=String(e.exam_date).slice(0,10);
+  });
+}
+
+/* Grade one item. Called from the flashcard and quiz paths; fire-and-forget,
+   because a scheduling write must never block or fail an answer. */
+window.srsRecord = function(kind, id, rating, objectiveIds){
+  if(!window.currentUser) return;
+  Promise.all([ensureRows(kind), ensureContext()])
+    .then(function(){ recordNow(kind, id, rating, objectiveIds); });
+};
+
+function recordNow(kind, id, rating, objectiveIds){
+  try{
+    var now = Date.now();
+    var before = rowToCard(fsrsRows[kind][id]);
+    var after = sched.review(before, rating, now);
+
+    /* Clamp the interval so this never comes back after the exam it counts
+       for. Learning steps are inside this sitting and are left alone. */
+    var exam = examForItem(objectiveIds, now);
+    var clamped = ES.clampDue(after.due, exam, now);
+    if(clamped !== after.due){
+      after.due = clamped;
+      after.interval_days = Math.max(0, Math.round((clamped - now)/86400000));
+    }
+
+    var row = {};
+    row[keyFor(kind)] = id;
+    row.user_id = window.currentUser.id;
+    row.state = after.state;
+    row.learning_step = after.step==null ? null : after.step;
+    row.stability = after.stability;
+    row.difficulty = after.difficulty;
+    row.due_date = new Date(after.due).toISOString();
+    row.last_reviewed_at = new Date(after.last_review).toISOString();
+    row.interval_days = after.interval_days;
+    row.repetitions = after.reps;
+    row.lapses = after.lapses;
+
+    fsrsRows[kind][id] = {
+      state: row.state, learning_step: row.learning_step,
+      stability: row.stability, difficulty: row.difficulty,
+      due_date: row.due_date, last_reviewed_at: row.last_reviewed_at,
+      interval_days: row.interval_days, repetitions: row.repetitions, lapses: row.lapses
+    };
+
+    /* merge-duplicates so this coexists with the legacy upsert on the same row
+       rather than fighting it — the two write disjoint column sets */
+    window.sbFetch('/rest/v1/'+tableFor(kind), {
+      method:'POST',
+      headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
+                            window.getAuthHdr()),
+      body:JSON.stringify(row)
+    }).catch(function(e){ console.warn('srs '+kind+':', e); });
+  }catch(e){ console.warn('srs record failed:', e); }
+}
+
+/* ══ loading everything the plan needs ════════════════════════════════ */
+
+function quizFilterForCourse(){
+  /* reuse the app's own course rule rather than restating it, so the two can
+     never disagree about which questions belong to which course */
+  return typeof window.getQuizCourseFilter==='function' ? window.getQuizCourseFilter() : '';
+}
+
+function loadAll(){
+  var course = window.currentCourse;
+  var uid = window.currentUser && window.currentUser.id;
+  if(!uid) return Promise.resolve(null);
+  var since = new Date(Date.now() - PACE_WINDOW_DAYS*86400000).toISOString();
+  var j = function(r){ return r.json(); };
+
+  return Promise.all([
+    window.sbFetch('/rest/v1/flashcards?select=id,objective_ids&course=eq.'+course).then(j),
+    window.sbFetch('/rest/v1/quiz_questions?select=id,objective_id&'+quizFilterForCourse()).then(j),
+    window.sbFetch('/rest/v1/card_mastery?select=card_id,state,stability,difficulty,due_date,'
+      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid).then(j),
+    window.sbFetch('/rest/v1/question_mastery?select=question_id,state,stability,difficulty,due_date,'
+      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid).then(j),
+    window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
+    window.sbFetch('/rest/v1/exam_schedule?select=exam,exam_date&user_id=eq.'+uid
+      +'&course=eq.'+course).then(j),
+    window.sbFetch('/rest/v1/card_attempts?select=created_at&user_id=eq.'+uid
+      +'&created_at=gte.'+since).then(j),
+    window.sbFetch('/rest/v1/quiz_attempts?select=created_at&user_id=eq.'+uid
+      +'&created_at=gte.'+since).then(j)
+  ]).then(function(r){
+    var cards=r[0]||[], quiz=r[1]||[], cm=r[2]||[], qm=r[3]||[],
+        units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[];
+
+    applyUnits(units, course);
+    applyExams(exams);
+    /* the dashboard just fetched the context in full, so grading need not */
+    contextCourse = course;
+    contextLoaded = Promise.resolve();
+
+    fsrsRows={card:{}, quiz:{}};
+    (Array.isArray(cm)?cm:[]).forEach(function(m){ fsrsRows.card[m.card_id]=m; });
+    (Array.isArray(qm)?qm:[]).forEach(function(m){ fsrsRows.quiz[m.question_id]=m; });
+    /* the dashboard just fetched both tables in full, so grading does not need
+       to fetch them again */
+    rowsLoaded.card = Promise.resolve();
+    rowsLoaded.quiz = Promise.resolve();
+
+    var items=[], seenObj={};
+    (Array.isArray(cards)?cards:[]).forEach(function(c){
+      (c.objective_ids||[]).forEach(function(o){ seenObj[o]=1; });
+      items.push(toItem('card', c.id, c.objective_ids||[], fsrsRows.card[c.id]));
+    });
+    (Array.isArray(quiz)?quiz:[]).forEach(function(q){
+      if(q.objective_id) seenObj[q.objective_id]=1;
+      items.push(toItem('quiz', q.id, q.objective_id?[q.objective_id]:[], fsrsRows.quiz[q.id]));
+    });
+
+    /* Any objective this course's content carries that has no unit row yet —
+       one added after the initial seed. It gets a dropdown like the rest,
+       defaulted to whichever unit is currently unfinished, and is listed first
+       so it is not lost among the assigned ones. */
+    var known={};
+    objectiveList.forEach(function(o){ known[o.objective_id]=1; });
+    var missing=Object.keys(seenObj).filter(function(o){ return !known[o]; }).sort();
+    if(missing.length){
+      var def = window.srsDefaultUnit();
+      objectiveList = missing.map(function(o){
+        unitsMap[o] = unitsMap[o] || def;
+        return {objective_id:o, unit:unitsMap[o], unassigned:true};
+      }).concat(objectiveList);
+    }
+
+    var attempts=(Array.isArray(ca)?ca.length:0)+(Array.isArray(qa)?qa.length:0);
+    return {items:items, pace: attempts/PACE_WINDOW_DAYS};
+  });
+}
+
+/* An item the scheduler understands. Note that an item with NO mastery row is
+   included with null state — that is exactly the never-seen population the
+   coverage guarantee exists for, and dropping it here would hide it. */
+function toItem(kind, id, objectiveIds, row){
+  return {
+    kind:kind, id:id, objectiveIds:objectiveIds,
+    state: row ? row.state : 'new',
+    stability: row ? row.stability : null,
+    difficulty: row ? row.difficulty : null,
+    due_date: row && row.due_date ? Date.parse(row.due_date) : null,
+    last_reviewed_at: row && row.last_reviewed_at ? Date.parse(row.last_reviewed_at) : null,
+    repetitions: row ? (row.repetitions||0) : 0,
+    lapses: row ? (row.lapses||0) : 0
+  };
+}
+
+/* ══ painting ═════════════════════════════════════════════════════════ */
+
+function render(){
+  var host = $('srs-exam-section');
+  if(!host) return;
+  if(!window.currentUser){ host.innerHTML=''; return; }
+  if(loading && !plan){
+    host.innerHTML='<div class="dash-loading">Working out where you stand…</div>';
+    return;
+  }
+  if(!plan){ host.innerHTML=''; return; }
+
+  host.innerHTML =
+      '<div class="srs-head"><div class="srs-title">Exam readiness</div>'
+    + '<div class="srs-sub">' + esc2(window.currentCourse.replace(/^NUR/,'NUR '))
+    + ' · predicted recall on exam day, at or above '
+    + Math.round(ES.READY_THRESHOLD*100) + '%</div></div>'
+    + datesHtml()
+    + paceHtml()
+    + examCardsHtml()
+    + queueHtml()
+    + weakHtml()
+    + unitsHtml();
+}
+
+/* Three date fields, always visible. An unset date shows the field prompting
+   for it rather than hiding the section — the point of the section is to be
+   looked at before any data exists. */
+function datesHtml(){
+  return '<div class="srs-dates">' + ES.EXAMS.map(function(k){
+    var v = examDates[k] || '';
+    return '<div class="srs-date' + (v?'':' unset') + '">'
+      + '<label for="srs-d-'+k+'">'+esc2(EXAM_LABEL[k])+'</label>'
+      + '<input type="date" id="srs-d-'+k+'" value="'+esc2(v)+'" '
+      + 'onchange="srsSetExamDate(\''+k+'\',this.value)">'
+      + (v?'':'<div class="srs-date-hint">Set a date to schedule around it</div>')
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+function examCardsHtml(){
+  return '<div class="srs-exams">' + plan.exams.map(function(e){
+    var cls = e.isPast ? ' past' : (e.daysRemaining!=null && e.daysRemaining<=14 ? ' soon' : '');
+    var days = e.daysRemaining==null ? 'no date set'
+      : e.isPast ? 'passed'
+      : e.daysRemaining===0 ? 'today'
+      : e.daysRemaining+' day'+(e.daysRemaining===1?'':'s')+' away';
+    return '<div class="srs-card'+cls+'">'
+      + '<div class="srs-card-top"><div class="srs-card-name">'+esc2(e.label)+'</div>'
+      + '<div class="srs-card-days">'+esc2(days)+'</div></div>'
+      + '<div class="srs-pct">'+e.readyPct+'%<small>ready</small></div>'
+      + '<div class="srs-bar"><span style="width:'+e.readyPct+'%"></span></div>'
+      + '<div class="srs-facts">'
+      + '<div><b>'+e.total+'</b> items</div>'
+      + '<div><b>'+e.neverSeen+'</b> never seen</div>'
+      + '<div><b>'+e.failing+'</b> failing</div>'
+      + '</div></div>';
+  }).join('') + '</div>';
+}
+
+/* The honest version of "will I finish". Only the nearest exam that is
+   actually set gets a line, so this is one clear sentence and not three. */
+function paceHtml(){
+  var live = plan.projection.filter(function(p){ return p.applicable; });
+  if(!live.length){
+    return '<div class="srs-ok">No exam dates set for this course, so everything '
+      + 'below is scheduled on plain spaced repetition. Set a date above and it '
+      + 'starts working backwards from that day.</div>';
+  }
+  live.sort(function(a,b){ return a.daysLeft-b.daysLeft; });
+  var p = live[0];
+  var name = esc2(EXAM_LABEL[p.key]);
+  if(p.totalWork===0)
+    return '<div class="srs-ok">Nothing outstanding before the '+name+'.</div>';
+  if(p.noPaceData)
+    return '<div class="srs-warn"><b>'+p.totalWork.toLocaleString()+'</b> items to get through '
+      + 'before the '+name+', in '+p.daysLeft+' day'+(p.daysLeft===1?'':'s')+' — that is '
+      + '<b>'+p.needPerDay+' a day</b>. No recent study to compare against yet.</div>';
+  if(p.behind)
+    return '<div class="srs-warn">You are behind. <b>'+p.totalWork.toLocaleString()+'</b> items '
+      + 'before the '+name+' over '+p.daysLeft+' day'+(p.daysLeft===1?'':'s')+' needs '
+      + '<b>'+p.needPerDay+' a day</b>; you have been doing about <b>'+p.recentPace+' a day</b>.</div>';
+  return '<div class="srs-ok">On track: <b>'+p.needPerDay+' a day</b> gets you through the '
+    + p.totalWork.toLocaleString()+' items before the '+name+', and you have been doing about '
+    + p.recentPace+' a day.</div>';
+}
+
+function queueHtml(){
+  var q = plan.queue, c = q.counts;
+  var over = q.totalQueued > q.cap;
+  return '<div class="srs-q">'
+    + '<div class="srs-q-row">'
+    + '<div><div class="srs-q-n'+(c.newItems?'':' zero')+'">'+c.newItems+'</div>'
+      + '<span class="srs-q-l">new</span></div>'
+    + '<div><div class="srs-q-n'+(c.learning?'':' zero')+'">'+c.learning+'</div>'
+      + '<span class="srs-q-l">learning</span></div>'
+    + '<div><div class="srs-q-n'+(c.due?'':' zero')+'">'+c.due+'</div>'
+      + '<span class="srs-q-l">due</span></div>'
+    + '<div><div class="srs-q-n'+(c.cards?'':' zero')+'">'+c.cards+'</div>'
+      + '<span class="srs-q-l">flashcards</span></div>'
+    + '<div><div class="srs-q-n'+(c.quiz?'':' zero')+'">'+c.quiz+'</div>'
+      + '<span class="srs-q-l">quiz</span></div>'
+    + '</div>'
+    + (over ? '<div class="srs-sub" style="margin-bottom:8px">'+q.totalQueued.toLocaleString()
+        + ' waiting · showing the '+q.cap+' that matter most today</div>' : '')
+    + '<div class="srs-actions">'
+    + '<button class="srs-btn" onclick="srsStudyDue()"'+(q.shownCounts.cards?'':' disabled')+'>'
+      + 'Cards today ('+q.shownCounts.cards+')</button>'
+    + '<button class="srs-btn" onclick="srsStudyDueQuiz()"'+(q.shownCounts.quiz?'':' disabled')+'>'
+      + 'Quiz today ('+q.shownCounts.quiz+')</button>'
+    + '</div>'
+    + '<div class="srs-sub" style="margin-top:10px;margin-bottom:6px">'
+      + 'Cram — ignores scheduling, drills the whole unit, weakest and unseen first</div>'
+    + '<div class="srs-actions">'
+    + cramButtons(1) + cramButtons(2)
+    + '</div></div>';
+}
+
+/* Cram is offered per unit and per bank, because the two have separate decks
+   and cramming 300 quiz questions is a different sitting from 90 cards. A unit
+   with nothing in it gets no button rather than a button that says "none". */
+function cramButtons(unit){
+  if(!plan || !plan._items) return '';
+  var inUnit = plan._items.filter(function(i){
+    return ES.unitOf(i, unitsMap) === unit;
+  });
+  var cards = inUnit.filter(function(i){ return i.kind==='card'; }).length;
+  var quiz  = inUnit.filter(function(i){ return i.kind==='quiz'; }).length;
+  if(!cards && !quiz) return '';
+  return (cards ? '<button class="srs-btn srs-btn-ghost" onclick="srsCram('+unit+')">'
+            + 'Unit '+unit+' cards ('+cards+')</button>' : '')
+       + (quiz ? '<button class="srs-btn srs-btn-ghost" onclick="srsCramQuiz('+unit+')">'
+            + 'Unit '+unit+' quiz ('+quiz+')</button>' : '');
+}
+
+function weakHtml(){
+  if(!plan.weakest.length) return '';
+  return '<div class="srs-q srs-weak"><div class="srs-title" style="font-size:13px;'
+    + 'margin-bottom:6px">Weakest topics</div>'
+    + plan.weakest.map(function(w){
+        return '<div class="srs-weak-row">'
+          + '<div class="srs-weak-id">'+esc2(w.objective_id)+'</div>'
+          + '<div class="srs-weak-bar"><span style="width:'+w.pct+'%"></span></div>'
+          + '<div class="srs-weak-pct">'+w.pct+'% · '+w.total+'</div></div>';
+      }).join('')
+    + '</div>';
+}
+
+/* Unit assignment. Collapsed, because it is a thing you set once and then
+   forget, but present so a newly added objective never sits unassigned. */
+function unitsHtml(){
+  if(!objectiveList.length) return '';
+  var unassigned = objectiveList.filter(function(o){ return o.unassigned; }).length;
+  return '<div class="srs-q srs-units"><details'+(unassigned?' open':'')+'><summary>Unit assignment · '
+    + objectiveList.length + ' objective' + (objectiveList.length===1?'':'s')
+    + (unassigned ? ' · ' + unassigned + ' need' + (unassigned===1?'s':'') + ' a unit' : '')
+    + '</summary>'
+    + objectiveList.map(function(o){
+        return '<div class="srs-unit-row"><span>'+esc2(o.objective_id)
+          + (o.unassigned?' <b style="color:var(--unsure)">· not assigned yet</b>':'')+'</span>'
+          + '<select onchange="srsSetUnit(\''+esc2(o.objective_id)+'\',this.value)">'
+          + '<option value="1"'+(o.unit===1?' selected':'')+'>Unit 1</option>'
+          + '<option value="2"'+(o.unit===2?' selected':'')+'>Unit 2</option>'
+          + '</select></div>';
+      }).join('')
+    + '</details></div>';
+}
+
+/* ══ actions ══════════════════════════════════════════════════════════ */
+
+window.srsSetExamDate = function(exam, value){
+  if(!window.currentUser) return;
+  examDates[exam] = value || '';
+  window.sbFetch('/rest/v1/exam_schedule',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
+                          window.getAuthHdr()),
+    body:JSON.stringify({user_id:window.currentUser.id, course:window.currentCourse,
+                         exam:exam, exam_date: value || null,
+                         updated_at:new Date().toISOString()})
+  }).then(function(){ contextLoaded=null; contextCourse=null; recompute(); })
+   .catch(function(e){ console.warn('exam date:', e); });
+};
+
+/* Defaults to whichever unit is currently unfinished, per the spec: if the
+   unit 1 date has passed, a new objective is much more likely to be unit 2. */
+window.srsDefaultUnit = function(){
+  var now = Date.now();
+  var u1 = ES.parseDate(examDates.unit1);
+  return (u1 !== null && u1 < ES.startOfDay(now)) ? 2 : 1;
+};
+
+window.srsSetUnit = function(objectiveId, unit){
+  if(!window.currentUser) return;
+  unit = Number(unit)===2 ? 2 : 1;
+  unitsMap[objectiveId] = unit;
+  objectiveList.forEach(function(o){ if(o.objective_id===objectiveId) o.unit=unit; });
+  window.sbFetch('/rest/v1/objective_units',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
+                          window.getAuthHdr()),
+    body:JSON.stringify({objective_id:objectiveId, course:window.currentCourse, unit:unit,
+                         updated_at:new Date().toISOString(),
+                         updated_by:window.currentUser.id})
+  }).then(function(){ recompute(); })
+   .catch(function(e){
+     /* writes are admin-only; say so rather than leaving a dropdown that
+        silently snaps back on the next load */
+     alert('Could not save that unit assignment — objective units are admin-only.');
+     console.warn('objective unit:', e);
+   });
+};
+
+/* Hand an ordered list of card ids to the existing practice deck. Order
+   matters — it is the whole output of the scheduler — so the cards are
+   assembled here rather than through startSessionWithIds, which filters and
+   therefore returns them in table order. */
+function startCards(ids){
+  if(!ids.length){ alert('Nothing to study there right now.'); return; }
+  if(!window.fcAllCards || !window.fcAllCards.length){
+    /* The deck loads when Practice is first opened. Go there and wait for it
+       rather than guessing at a delay — and give up after a few seconds rather
+       than polling forever on a course that has no cards. */
+    window.goTo('practice');
+    var tries=0;
+    var t=setInterval(function(){
+      if(window.fcAllCards && window.fcAllCards.length){
+        clearInterval(t); startCards(ids);
+      } else if(++tries>25){
+        clearInterval(t);
+      }
+    },200);
+    return;
+  }
+  var byId = {};
+  window.fcAllCards.forEach(function(c){ byId[c.id]=c; });
+  var ordered = ids.map(function(i){ return byId[i]; }).filter(Boolean);
+  if(!ordered.length){ alert('Those cards are not in this course’s deck.'); return; }
+  window.goTo('practice');
+  window.startSession(ordered, '__srs__');
+}
+
+window.srsStudyDue = function(){
+  if(!plan) return;
+  startCards(plan.queue.queue.filter(function(i){ return i.kind==='card'; })
+                        .map(function(i){ return i.id; }));
+};
+
+/* Start a quiz over an explicit, already-ordered list of question ids. The
+   existing quiz flow is built around one objective at a time, so the questions
+   are fetched by id and the session is begun directly rather than going through
+   the picker, which has no concept of a cross-objective deck. */
+function startQuiz(ids, label){
+  if(!ids.length){ alert('No quiz questions there right now.'); return; }
+  var chunk = ids.slice(0, 200);   /* a URL, not a POST — keep it sane */
+  window.sbFetch('/rest/v1/quiz_questions?select=*&id=in.('+chunk.join(',')+')')
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!Array.isArray(rows)||!rows.length){ alert('Could not load those questions.'); return; }
+      var byId={}; rows.forEach(function(q){ byId[q.id]=q; });
+      var ordered = chunk.map(function(i){ return byId[i]; }).filter(Boolean);
+      window.goTo('quiz');
+      window.quizCurrentQuestions = ordered;
+      window.quizCurrentObjId = ordered[0].objective_id;
+      window.quizIsTargeted = false;
+      window.quizBuilderCount = ordered.length;
+      window.srsOrderedQuiz = true;      /* keep the scheduler's order */
+      window.beginQuizSession();
+    })
+    .catch(function(e){ alert('Could not start that quiz: '+(e.message||e)); });
+}
+
+window.srsStudyDueQuiz = function(){
+  if(!plan) return;
+  startQuiz(plan.queue.queue.filter(function(i){ return i.kind==='quiz'; })
+                       .map(function(i){ return i.id; }), 'due');
+};
+
+window.srsCramQuiz = function(unit){
+  if(!plan || !plan._items) return;
+  var q = ES.cramQueue(sched, plan._items, unitsMap, Number(unit), Date.now());
+  startQuiz(q.filter(function(i){ return i.kind==='quiz'; }).map(function(i){ return i.id; }),
+            'cram');
+};
+
+/* Cram: scheduling is ignored entirely, the whole unit is drilled, ordered by
+   never-seen first and then by how badly it is going. */
+window.srsCram = function(unit){
+  if(!plan || !plan._items) return;
+  var q = ES.cramQueue(sched, plan._items, unitsMap, Number(unit), Date.now());
+  var ids = q.filter(function(i){ return i.kind==='card'; }).map(function(i){ return i.id; });
+  if(!ids.length){
+    alert('No flashcards in unit '+unit+' for '+window.currentCourse+'.');
+    return;
+  }
+  startCards(ids);
+};
+
+/* ══ entry ════════════════════════════════════════════════════════════ */
+
+function recompute(){
+  if(!window.currentUser){ plan=null; render(); return Promise.resolve(); }
+  loading = true; render();
+  return loadAll().then(function(data){
+    loading = false;
+    if(!data){ plan=null; render(); return; }
+    plan = ES.buildPlan({
+      scheduler: sched, now: Date.now(), items: data.items,
+      units: unitsMap, exams: examDates, recentPacePerDay: data.pace
+    });
+    plan._items = data.items;
+    window.srsPlan = plan;          /* inspectable from the console */
+    render();
+  }).catch(function(e){
+    loading = false;
+    console.warn('SRS load failed:', e);
+    var host = $('srs-exam-section');
+    if(host) host.innerHTML='<div class="srs-warn">Could not load exam readiness: '
+      + esc2(e.message||e) + '</div>';
+  });
+}
+window.srsRefresh = recompute;
+
+/* Wrap goTo the way the other feature blocks do, rather than editing it. */
+var _goTo = window.goTo;
+window.goTo = function(page){
+  var r = _goTo.apply(this, arguments);
+  if(page==='dashboard') recompute();
+  return r;
+};
+
+/* A course switch changes every number here. */
+var _switchCourse = window.switchCourse;
+if(typeof _switchCourse==='function'){
+  window.switchCourse = function(course){
+    var r = _switchCourse.apply(this, arguments);
+    contextLoaded = null; contextCourse = null;
+    if(window.currentPage==='dashboard') recompute();
+    return r;
+  };
+}
 
 })();
 </script>
