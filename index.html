@@ -1261,6 +1261,22 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
 .pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
 
+/* model comparison */
+.pod-cmp-c{border:1px solid var(--g200);border-radius:var(--r-card);padding:12px 14px;
+  margin-bottom:10px;font-size:12.5px}
+.pod-cmp-c.now{background:var(--cobalt-bg);border-color:#bfdbfe}
+.pod-cmp-c.fail{background:var(--rust-bg);border-color:#fecaca}
+.pod-cmp-c.done{background:var(--surface)}
+.pod-cmp-c b{font-size:13.5px;color:var(--text)}
+.pod-cmp-n{color:var(--text-muted);font-size:11.5px;margin-top:4px;line-height:1.5}
+.pod-cmp-u{background:var(--rust-bg);border-radius:6px;padding:8px 10px;margin-top:8px;
+  font-size:11.5px;line-height:1.5;color:#7f1d1d}
+.pod-cmp-c summary{cursor:pointer;font-size:11.5px;font-weight:700;color:var(--text-muted);
+  margin-top:9px;min-height:30px;display:flex;align-items:center}
+.pod-cmp-t{white-space:pre-wrap;font-size:13.5px;line-height:1.7;color:var(--text);
+  background:var(--g50);border-radius:8px;padding:12px 14px;margin-top:6px;
+  max-height:460px;overflow-y:auto}
+
 /* whole-lecture run */
 .pod-lec{margin-bottom:12px}
 .pod-lec-bar{height:6px;border-radius:3px;background:var(--g200);overflow:hidden;margin-bottom:8px}
@@ -9008,6 +9024,23 @@ function render(){
       + '<div class="pod-note">Runs fact extraction, writing, then a semantic coverage check, '
         + 'retrying the script with the missing facts named. Usually 1&ndash;3 minutes.</div>'
     + '</div>'
+
+    + '<div class="pod-panel"><h3>Compare writing models</h3>'
+      + '<div class="pod-note" style="margin-top:0">Runs the SAME prompt on the section '
+      + 'selected above through each model you pick, and shows the scripts side by side with '
+      + 'their coverage. Every run is a dry run &mdash; nothing is saved and no audio is '
+      + 'touched. Model ranking puts newer above higher-tier, which is right for extraction '
+      + 'and grading and may be wrong for prose; this is how to find out.</div>'
+      + '<div class="pod-row" style="margin-top:10px">'
+        + '<div class="pod-field"><label for="pod-cmp-models">Models '
+          + '(ctrl or cmd to pick several)</label>'
+          + '<select id="pod-cmp-models" multiple size="6" '
+          + 'style="min-height:132px"></select></div>'
+      + '</div>'
+      + '<button class="pod-btn" id="pod-cmp-go" onclick="podCompare()">Compare</button>'
+      + '<div class="pod-note" id="pod-cmp-s"></div>'
+      + '<div id="pod-cmp-out"></div>'
+    + '</div>'
     + '<div id="pod-status"></div>'
     + '<div class="pod-panel"><h3>Saved episodes</h3><div id="pod-eplist">'
       + '<div class="pod-empty">Loading&hellip;</div></div></div>'
@@ -9017,6 +9050,21 @@ function render(){
   loadEpisodes();
   loadModels();
   loadVoiceCatalogue();
+}
+
+/* The comparison list is every ranked text model, with the ones worth trying
+   pre-selected: whatever Auto would pick, plus the highest-tier alternatives —
+   which is the actual question being asked. */
+function fillCompareModels(ranked){
+  var sel=$('pod-cmp-models');
+  if(!sel||!ranked||!ranked.length) return;
+  var auto=ranked[0];
+  var pros=ranked.filter(function(m){ return /pro/i.test(m); }).slice(0,2);
+  var want={}; want[auto]=1; pros.forEach(function(m){ want[m]=1; });
+  sel.innerHTML=ranked.map(function(m){
+    return '<option value="'+esc(m)+'"'+(want[m]?' selected':'')+'>'+esc(m)
+      +(m===auto?' — what Auto picks':(/pro/i.test(m)?' — higher tier':''))+'</option>';
+  }).join('');
 }
 
 /* Model names change constantly, so the choices come from the API, not a
@@ -9037,6 +9085,7 @@ function loadModels(){
         var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o);
       });
     });
+    fillCompareModels(d.ranked);
   }).catch(function(){ /* Auto still works */ });
 }
 
@@ -9466,6 +9515,104 @@ function afn(body){
       if(!r.ok) throw new Error(j.error||('Audio request failed ('+r.status+')'));
       return j;
     }); });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPARE WRITING MODELS
+
+   The model ranking puts NEWER above HIGHER TIER, so a 3.8 flash beats a 3.1
+   pro. That is the right call for extraction and for grading, where the job is
+   to be literal and fast. It may be exactly the wrong call for sustained
+   interesting prose, because flash models are tuned for speed.
+
+   Rather than argue about it, run the same prompt through several models and
+   read them side by side. Every run is a dry run: nothing is saved, so the
+   existing audio and episodes are untouched.
+   ══════════════════════════════════════════════════════════════════════ */
+var cmpRun = null;
+
+function podCompare(){
+  if(audioBusy) return;
+  var slug=$('pod-guide').value, heading=$('pod-section').value;
+  var g=guideBySlug(slug);
+  if(!g||!heading) return;
+  var picked=[].filter.call($('pod-cmp-models').options,function(o){ return o.selected; })
+    .map(function(o){ return o.value; });
+  if(picked.length<2){ $('pod-cmp-s').textContent='Pick at least two models.'; return; }
+
+  audioBusy=true;
+  var btn=$('pod-cmp-go'); if(btn) btn.disabled=true;
+  cmpRun={ heading:heading, models:picked.map(function(m){ return {model:m,state:'wait'}; }) };
+  paintCompare();
+
+  loadMarkdown(g).then(function(md){
+    return picked.reduce(function(chain,m,i){
+      return chain.then(function(){
+        cmpRun.models[i].state='now';
+        $('pod-cmp-s').textContent='Running '+m+' ('+(i+1)+' of '+picked.length+')… '
+          +'about two to four minutes each.';
+        paintCompare();
+        var t0=Date.now();
+        return fetch(SB_URL+FN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+          guide_slug:slug, section_heading:heading, markdown:md,
+          dry_run:true, cross_check:true, gen_model:m })})
+        .then(function(r){ return r.json().then(function(j){
+          if(!r.ok) throw new Error(j.error||('failed ('+r.status+')'));
+          return j; }); })
+        .then(function(j){
+          var c=j.coverage_report||{};
+          cmpRun.models[i]=Object.assign(cmpRun.models[i],{
+            state:'done', data:j, seconds:Math.round((Date.now()-t0)/1000),
+            words:c.words||0,
+            minutes:Math.round(((c.words||0)/155)*10)/10,   /* measured speaking rate */
+            model_cov:(c.model_extracted||{}).covered+'/'+(c.model_extracted||{}).total,
+            quiz_cov:(c.quiz_derived||{}).covered+'/'+(c.quiz_derived||{}).total,
+            unsourced:(c.unsourced_claims||[]).length,
+            docrefs:(c.document_references||[]).length,
+            attempts:(c.attempts||[]).length });
+        })
+        .catch(function(e){
+          cmpRun.models[i].state='fail';
+          cmpRun.models[i].error=(e.message||String(e)).slice(0,140);
+        })
+        .then(paintCompare);
+      });
+    },Promise.resolve());
+  }).then(function(){
+    $('pod-cmp-s').textContent='Done. Scripts are below, and the full payloads are '
+      +'in window.__cmp for copying.';
+    window.__cmp=cmpRun;
+    paintCompare();
+  }).catch(function(e){
+    $('pod-cmp-s').textContent='Comparison stopped: '+(e.message||e);
+  }).then(function(){
+    audioBusy=false;
+    var b=$('pod-cmp-go'); if(b) b.disabled=false;
+  });
+}
+window.podCompare=podCompare;
+
+function paintCompare(){
+  var box=$('pod-cmp-out');
+  if(!box||!cmpRun) return;
+  box.innerHTML=cmpRun.models.map(function(m){
+    if(m.state==='wait') return '<div class="pod-cmp-c"><b>'+esc(m.model)+'</b> — waiting</div>';
+    if(m.state==='now')  return '<div class="pod-cmp-c now"><b>'+esc(m.model)+'</b> — writing…</div>';
+    if(m.state==='fail') return '<div class="pod-cmp-c fail"><b>'+esc(m.model)+'</b> — '+esc(m.error)+'</div>';
+    var d=m.data;
+    return '<div class="pod-cmp-c done"><b>'+esc(m.model)+'</b>'
+      +'<div class="pod-cmp-n">'+m.words+' words · about '+m.minutes+' min of audio · '
+      +'model-extracted '+esc(m.model_cov)+' · quiz-derived '+esc(m.quiz_cov)+' · '
+      +m.unsourced+' unsourced · '+m.docrefs+' document refs · '
+      +m.attempts+' attempt'+(m.attempts===1?'':'s')+' · '+m.seconds+'s</div>'
+      +((d.coverage_report.unsourced_claims||[]).length
+        ? '<div class="pod-cmp-u"><b>Unsourced:</b> '
+          +d.coverage_report.unsourced_claims.map(function(u){
+            return esc(u.claim)+' <i>('+esc(u.why)+')</i>'; }).join('<br>')+'</div>'
+        : '')
+      +'<details open><summary>Script</summary><div class="pod-cmp-t">'
+      +esc(d.script)+'</div></details></div>';
+  }).join('');
 }
 
 /* ══════════════════════════════════════════════════════════════════════

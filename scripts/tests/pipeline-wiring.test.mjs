@@ -27,11 +27,14 @@ const SCRIPT = [F('a',14), `[[CHECKPOINT]] ${Q[0]}`, F('b',14), `[[CHECKPOINT]] 
                 F('c',14), `[[CHECKPOINT]] ${Q[2]}`, F('d',8)].join(' ');
 
 let round = 0;
+const scriptPrompts = [], unsourcedPrompts = [];
 let gemOverride = null;   /* scenario 2 swaps in its own script responses */
 function gem(prompt){
   if (gemOverride) { const r = gemOverride(prompt); if (r !== null) return r; }
   if(prompt.includes('Return ONLY a JSON array of the atomic facts')||prompt.includes('atomic'))
     return JSON.stringify(['fact one','fact two']);
+  if(prompt.includes('spoken lecture script')) scriptPrompts.push(prompt);
+  if(prompt.includes('Find every DECLARATIVE CLINICAL CLAIM')) unsourcedPrompts.push(prompt);
   if(prompt.includes('spoken lecture script')||prompt.includes('Revise the lecture script'))
     return JSON.stringify({script:SCRIPT, checkpoints:Q.map(q=>({question:q,expected_points:['p1','p2']}))});
   if(prompt.includes('Find every DECLARATIVE CLINICAL CLAIM')){
@@ -102,6 +105,30 @@ ck('document_references reported', Array.isArray(c.document_references) && c.doc
 ck('attempts track document_references', c.attempts.every(a=>a.document_references===0), c.attempts.map(a=>a.document_references));
 ck('dry run wrote nothing', !calls.some(u=>u.includes('podcast_episodes')), calls.filter(u=>u.includes('podcast')));
 ck('markers stripped', !/CHECKPOINT/i.test(d.script));
+
+/* the teaching instructions are the whole point of the rewrite, so assert they
+   actually reach the model rather than trusting the file */
+const sp = scriptPrompts[0] || '';
+ck('asks for 2500-3500 words', /2500-3500 words/.test(sp), sp.match(/Target [\d-]+ words/));
+ck('mechanism before terminology', /TEACH THE MECHANISM, THEN NAME IT/.test(sp));
+ck('carries the pyrosis worked example', /That burning behind the breastbone/.test(sp));
+ck('asks for analogies', /ANALOGY AND CONCRETE IMAGERY/.test(sp));
+ck('binds analogies to the source', /may only explain something ALREADY IN THE SECTION TEXT/.test(sp));
+ck('asks for stakes and opinion', /STAKES/.test(sp) && /BE OPINIONATED/.test(sp));
+ck('asks for callbacks', /CALLBACKS/.test(sp));
+ck('asks for varied rhythm', /VARY THE RHYTHM/.test(sp));
+ck('bans setup-and-punchline jokes', /NEVER write a joke with a setup and a punchline/.test(sp));
+ck('bans announcing structure', /DO NOT ANNOUNCE STRUCTURE/.test(sp));
+ck('keeps the TTS spellouts', /B twelve/.test(sp) && /H two receptor antagonists/.test(sp));
+ck('checkpoint count follows length, not a fixed number',
+   /Let the count follow the length/.test(sp) && !/expect 3 checkpoints/.test(sp));
+
+const up = unsourcedPrompts[0] || '';
+ck('unsourced pass is told analogies are the hard case', /ANALOGIES AND IMAGERY/.test(up));
+ck('it allows an image that re-describes a sourced fact', /DO NOT FLAG an analogy/.test(up));
+ck('it catches an image that smuggles content', /SMUGGLES IN CONTENT/.test(up));
+ck('it gives the subtraction test', /The test is subtraction/.test(up));
+ck('it does not flag opinions about the material', /opinion about the MATERIAL/.test(up));
 /* ---------------------------------------------------------------- scenario 2
    The narrator describes the document she is listening to. The lint must catch
    it on attempt 1, drive a repair round, and the run must not be called
