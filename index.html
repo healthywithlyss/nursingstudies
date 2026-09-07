@@ -1261,6 +1261,27 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
 .pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
 
+/* whole-lecture run */
+.pod-lec{margin-bottom:12px}
+.pod-lec-bar{height:6px;border-radius:3px;background:var(--g200);overflow:hidden;margin-bottom:8px}
+.pod-lec-bar i{display:block;height:100%;background:var(--teal);border-radius:3px;transition:width .3s}
+.pod-lec-now{font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px}
+.pod-lec-list{border:1px solid var(--g200);border-radius:var(--r-btn);overflow:hidden}
+.pod-lec-s{display:flex;align-items:flex-start;gap:9px;padding:7px 10px;font-size:12px;
+  border-bottom:1px solid var(--g200)}
+.pod-lec-s:last-child{border-bottom:none}
+.pod-lec-s.now{background:var(--cobalt-bg)}
+.pod-lec-s.done{background:var(--forest-bg)}
+.pod-lec-s.fail{background:var(--rust-bg)}
+.pod-lec-s.skip{opacity:.6}
+.pod-lec-m{flex:0 0 14px;font-weight:800;color:var(--text-muted)}
+.pod-lec-s.done .pod-lec-m{color:var(--forest)}
+.pod-lec-s.fail .pod-lec-m{color:var(--rust)}
+.pod-lec-s.now .pod-lec-m{color:var(--cobalt)}
+.pod-lec-n{flex:1;min-width:0;color:var(--text);overflow-wrap:anywhere}
+.pod-lec-t{flex:0 0 auto;color:var(--text-muted);font-size:11px;max-width:45%;text-align:right;
+  overflow-wrap:anywhere}
+
 /* voice preview */
 .pod-sample{background:var(--g50);border:1px solid var(--g200);border-left:3px solid var(--teal);
   border-radius:var(--r-btn);padding:10px 12px;font-size:12.5px;line-height:1.55;color:var(--text);
@@ -1345,7 +1366,15 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .lsn-chev{flex:0 0 16px;transition:transform .18s}
 .lsn-chev svg{width:16px;height:16px;display:block}
 .lsn-lec.open .lsn-chev{transform:rotate(180deg)}
+.lsn-lec-play{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  border:none;background:var(--teal);color:#fff;font-family:inherit;font-size:14px;font-weight:800;
+  padding:13px 14px;cursor:pointer;min-height:50px;letter-spacing:-.01em}
+.lsn-lec-play:hover{filter:brightness(1.07)}
+.lsn-lec-play svg{width:17px;height:17px}
+.lsn-lec-play + .lsn-lec-hd{background:var(--slate)}
 .lsn-lec-body{display:none;padding:10px 12px 12px}
+.lsn-chap{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text-muted);margin:0 0 8px}
 .lsn-lec.open .lsn-lec-body{display:block}
 
 .lsn-sec{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
@@ -1437,6 +1466,9 @@ body.lsn-open #main-content{padding-bottom:80px}
 .lsn-cpmark{position:absolute;top:11px;width:3px;height:13px;border-radius:2px;
   background:var(--plum);margin-left:-1px;pointer-events:none}
 .lsn-cpmark.passed{background:var(--g200)}
+/* where one section ends and the next begins — a chapter, not a stop */
+.lsn-chmark{position:absolute;top:14px;width:1px;height:7px;background:var(--text-muted);
+  opacity:.5;pointer-events:none}
 .lsn-times{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);
   font-variant-numeric:tabular-nums;margin-bottom:16px}
 .lsn-legend{font-size:11px;color:var(--text-muted);margin:-10px 0 18px;display:flex;
@@ -8825,6 +8857,36 @@ window.sgToggleIntro = function(){
 var MANIFEST_URL = 'content/study-guides.json';
 var FN = '/functions/v1/generate-podcast-script';
 
+/* ── sections with nothing to teach ──────────────────────────────────────
+   Not everything in a guide is lecture material. These three carry no
+   teachable content at all, so narrating them would spend her time without
+   giving her anything:
+     OBJECTIVES   nine learning outcomes ("Review anatomy…", "Discuss terms…")
+     APPENDIX     its own first line says none of it appears on any slide;
+                  it is a stub index kept in case the professor mentions one
+     STILL TO COME  thirty-three words listing which lectures come next
+
+   Everything else stays in, INCLUDING the table-heavy ones. A section being
+   mostly tables says nothing about whether it teaches: TERMS explains where
+   absorption begins, ENZYMES carries the lipase-versus-trypsin trap the
+   professor wrote a Knowledge Check on, TYPES OF BLOOD explains why the colour
+   tells you where the bleed is. Those are exactly the sections worth hearing.
+
+   Matched on the heading, and both the generator and Listen use this one list
+   so the two can never disagree about what exists. */
+window.PODCAST_SKIP = [
+  { re: /^OBJECTIVES\b/i,            why: 'learning outcomes, not content' },
+  { re: /^APPENDIX\b/i,              why: 'explicitly not lectured' },
+  { re: /^STILL TO COME\b/i,         why: 'a pointer to later lectures' }
+];
+window.podcastSkipReason = function(heading){
+  var h = String(heading || '');
+  for (var i = 0; i < window.PODCAST_SKIP.length; i++) {
+    if (window.PODCAST_SKIP[i].re.test(h)) return window.PODCAST_SKIP[i].why;
+  }
+  return null;
+};
+
 var manifest = null;
 var mdCache  = {};      /* guide file -> markdown */
 var current  = null;    /* last generated/loaded result */
@@ -9228,6 +9290,7 @@ function renderResult(d){
 
   $('pod-result').innerHTML=h;
   if(d.episode_id){ fillVoices(); podAudioStatus(); }
+  paintLecture();
 }
 
 function scriptHtml(script,cps){
@@ -9368,13 +9431,154 @@ function afn(body){
     }); });
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   GENERATE A WHOLE LECTURE
+
+   Gemini's TTS is capped near 655 seconds a request, so a lecture MUST be built
+   in parts. The point of this is that the parts stop being something she has to
+   think about: one button walks every section in order, script then audio, and
+   reports where it is.
+
+   It never regenerates what already exists. A section with a saved episode
+   keeps its script; a segment already in Storage is not re-synthesised. So this
+   is also the resume button — if it stops halfway, pressing it again carries on
+   from where it stopped rather than starting over.
+
+   One failing section does not end the run. It is recorded and the loop moves
+   on, because losing an hour of successful work to one bad section would be
+   absurd.
+   ══════════════════════════════════════════════════════════════════════ */
+var lectureRun = null;
+
+function lectureProgressHtml(r){
+  if(!r) return '';
+  var pct = r.total ? Math.round((r.done/r.total)*100) : 0;
+  return '<div class="pod-lec-run">'
+    +'<div class="pod-lec-bar"><i style="width:'+pct+'%"></i></div>'
+    +'<div class="pod-lec-now">'+esc(r.status)+'</div>'
+    +'<div class="pod-lec-list">'+r.sections.map(function(x){
+        return '<div class="pod-lec-s '+x.state+'">'
+          +'<span class="pod-lec-m">'+(x.state==='done'?'&#10003;':x.state==='fail'?'!':
+              x.state==='now'?'&#9679;':'&middot;')+'</span>'
+          +'<span class="pod-lec-n">'+esc(x.heading)+'</span>'
+          +'<span class="pod-lec-t">'+esc(x.note||'')+'</span></div>';
+      }).join('')+'</div></div>';
+}
+
+function paintLecture(){
+  var box=$('pod-lec-progress');
+  if(box) box.innerHTML=lectureProgressHtml(lectureRun);
+}
+
+function podGenerateLecture(){
+  if(audioBusy||!manifest) return;
+  var slug=$('pod-guide').value;
+  var g=guideBySlug(slug);
+  if(!g) return;
+  stopPreview();
+  var voice=$('pod-voice')?$('pod-voice').value:'Charon';
+
+  audioBusy=true;
+  var btn=$('pod-lec-go'); if(btn) btn.disabled=true;
+
+  loadMarkdown(g).then(function(md){
+    var all=splitSections(md);
+    var skipped=all.filter(function(x){ return window.podcastSkipReason(x.heading); });
+    var todo=all.filter(function(x){ return !window.podcastSkipReason(x.heading); });
+
+    lectureRun={ total:todo.length, done:0, status:'Starting…',
+      sections:todo.map(function(x){ return {heading:x.heading,state:'wait',note:''}; })
+        .concat(skipped.map(function(x){ return {heading:x.heading,state:'skip',
+          note:window.podcastSkipReason(x.heading)}; })) };
+    paintLecture();
+
+    /* existing episodes decide what can be skipped outright */
+    return sbFetch('/rest/v1/podcast_episodes?select=id,section_heading&guide_slug=eq.'
+        +encodeURIComponent(slug)).then(function(r){ return r.json(); })
+      .then(function(existing){
+        var byHeading={};
+        (existing||[]).forEach(function(e){ byHeading[e.section_heading]=e.id; });
+
+        return todo.reduce(function(chain,sec,i){
+          return chain.then(function(){
+            var row=lectureRun.sections[i];
+            row.state='now';
+            lectureRun.status='Section '+(i+1)+' of '+todo.length+' — '+sec.heading;
+            paintLecture();
+
+            var epId=byHeading[sec.heading];
+            var script = epId
+              ? Promise.resolve({episode_id:epId, reused:true})
+              : fetch(SB_URL+FN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+                  guide_slug:slug, section_heading:sec.heading, markdown:md,
+                  dry_run:false, cross_check:true })})
+                  .then(function(r){ return r.json().then(function(j){
+                    if(!r.ok) throw new Error(j.error||('script failed ('+r.status+')'));
+                    return j; }); });
+
+            return script.then(function(sc){
+              row.note=sc.reused?'script already saved':'script written';
+              paintLecture();
+              return afn({action:'plan',episode_id:sc.episode_id}).then(function(plan){
+                var missing=plan.segments.map(function(x){ return x.ordinal; })
+                  .filter(function(o){ return !(plan.generated||[]).some(function(gg){ return gg.ordinal===o; }); });
+                if(!missing.length){ row.note='audio already generated'; paintLecture(); return; }
+                return missing.reduce(function(c2,ord){
+                  return c2.then(function(){
+                    lectureRun.status='Section '+(i+1)+' of '+todo.length+' — '+sec.heading
+                      +' — part '+(ord+1)+' of '+plan.segments.length;
+                    paintLecture();
+                    return afn({action:'synthesize',episode_id:sc.episode_id,segment:ord,voice:voice});
+                  });
+                },Promise.resolve()).then(function(){ row.note='audio generated'; });
+              });
+            }).then(function(){
+              row.state='done'; lectureRun.done++; paintLecture();
+            }).catch(function(e){
+              /* one bad section must not cost the whole run */
+              row.state='fail'; row.note=(e.message||String(e)).slice(0,90);
+              lectureRun.done++; paintLecture();
+            });
+          });
+        },Promise.resolve());
+      });
+  }).then(function(){
+    if(!lectureRun) return;
+    var failed=lectureRun.sections.filter(function(x){ return x.state==='fail'; });
+    lectureRun.status = failed.length
+      ? 'Finished with '+failed.length+' section(s) failed — listed below. '
+        +'Press Generate lecture again to retry just those.'
+      : 'Finished. Every section has a script and audio.';
+    paintLecture();
+  }).catch(function(e){
+    if(lectureRun){ lectureRun.status='Run stopped: '+(e.message||e); paintLecture(); }
+  }).then(function(){
+    audioBusy=false;
+    var b=$('pod-lec-go'); if(b) b.disabled=false;
+  });
+}
+window.podGenerateLecture=podGenerateLecture;
+
 function audioPanel(d){
   if(!d.episode_id){
     return '<div class="pod-panel"><h3>Audio</h3><div class="pod-note">'
       +'This was a dry run, so there is no saved episode to attach audio to. '
       +'Generate it again with saving on first.</div></div>';
   }
-  return '<div class="pod-panel"><h3>Voices</h3>'
+  return '<div class="pod-panel"><h3>Whole lecture</h3>'
+    +'<div class="pod-note" style="margin-top:0">Runs every teachable section in order, '
+    +'script then audio. Skips anything already generated, so this is also the resume '
+    +'button. A failing section is recorded and the run carries on.</div>'
+    +'<div class="pod-audio-row" style="margin-top:10px">'
+    +'<button class="pod-btn" id="pod-lec-go" onclick="podGenerateLecture()">Generate lecture</button>'
+    +'</div>'
+    +'<div class="pod-lec" id="pod-lec-progress"></div>'
+    +'<div class="pod-note">Leaving this page stops the run — it is driven from the browser. '
+    +'Nothing is lost: everything finished is saved, and pressing the button again continues '
+    +'from where it stopped.</div>'
+    +'</div>'
+
+    +'<div class="pod-panel"><h3>Voices</h3>'
     +'<div class="pod-sample" id="pod-sample"><b>Every voice reads this same passage</b>'
     +'<span id="pod-sample-t">…</span></div>'
     +'<div class="pod-voices" id="pod-vlist"></div>'
@@ -9783,6 +9987,9 @@ function loadLibrary(){
     (res[2]||[]).forEach(function(s){ (segsBy[s.episode_id]=segsBy[s.episode_id]||[]).push(s); });
     (res[3]||[]).forEach(function(p){ progBy[p.episode_id]=p; });
     lectures.forEach(function(l){ l.sections=[]; });
+    /* a section with nothing to teach never appears here either, so the two
+       halves of the feature agree about what a lecture contains */
+    episodes=episodes.filter(function(e){ return !window.podcastSkipReason(e.section_heading); });
     episodes.forEach(function(e){
       e._segs=(segsBy[e.id]||[]).sort(function(a,b){ return a.ordinal-b.ordinal; });
       e._prog=progBy[e.id]||null;
@@ -9846,6 +10053,10 @@ function libraryHtml(){
       var mins=sumDur([].concat.apply([],withAudio.map(function(e){ return e._segs; })));
       var isOpen=openLectures[l.slug]!==false&&(openLectures[l.slug]||withAudio.length>0);
       h+='<div class="lsn-lec'+(isOpen?' open':'')+'" id="lsn-lec-'+esc(l.slug)+'">'
+        +(withAudio.length
+          ? '<button class="lsn-lec-play" onclick="lsnPlayLecture(\''+esc(l.slug)+'\')">'
+            +ICON.play+'Play the whole lecture · '+mmss(mins)+'</button>'
+          : '')
         +'<button class="lsn-lec-hd" onclick="lsnToggleLec(\''+esc(l.slug)+'\')"'
         +(withAudio.length?'':' disabled')+'>'
         +'<span class="lsn-lec-t">'
@@ -9873,13 +10084,12 @@ function sectionsHtml(l){
       :st==='part'?'<span class="lsn-tag part">in progress</span>'
       :st==='none'?'<span class="lsn-tag none">no audio</span>':'';
     return '<button class="lsn-sec'+(isNow?' playing':'')+' '+st+(ready?'':' locked')+'"'
-      +(ready?' onclick="lsnPlay(\''+esc(e.id)+'\')"':' disabled')+'>'
+      +(ready?' onclick="lsnJump(\''+esc(e.id)+'\')"':' disabled')+'>'
       +'<span class="lsn-sec-mark">'+(st==='done'?ICON.tick:(i+1))+'</span>'
       +'<span class="lsn-sec-b">'
       +'<span class="lsn-sec-name">'+esc(e.section_heading)+tag+'</span>'
       +'<span class="lsn-sec-meta">'+(ready
           ? mmss(e._dur)+(st==='part'?' · '+pct+'% through':'')
-            +' · '+e._segs.length+' part'+(e._segs.length===1?'':'s')
           : 'not generated')+'</span>'
       +(ready&&pct>0?'<span class="lsn-sec-bar"><i style="width:'+Math.min(100,pct)+'%"></i></span>':'')
       +'</span></button>';
@@ -9955,7 +10165,7 @@ function fullHtml(){
 
     +'<div class="lsn-row2">'
     +'<button class="lsn-rate" id="lsn-rate" onclick="lsnRate()">1x</button>'
-    +'<label class="lsn-auto"><input type="checkbox" id="lsn-autochk" onchange="lsnAuto(this.checked)">'
+    +'<label class="lsn-auto" id="lsn-auto-w"><input type="checkbox" id="lsn-autochk" onchange="lsnAuto(this.checked)">'
     +'Play the next section automatically</label>'
     +'</div>'
 
@@ -10023,29 +10233,48 @@ function syncAll(){
   var el=elapsed(), total=current.total||1, pct=Math.min(100,(el/total)*100);
   var playing=audio&&!audio.paused;
 
+  var isLec=!!current.lecture;
+  var title=isLec?(current.lec.lectureLabel+(current.lec.label?' — '+current.lec.label:''))
+                 :current.ep.section_heading;
+  var sub=isLec?current.ep.section_heading:'';
+
   $('lsn-mini-play').innerHTML=playing?ICON.pause:ICON.play;
-  $('lsn-mini-t').textContent=current.ep.section_heading;
+  $('lsn-mini-t').textContent=isLec?sub:title;
   $('lsn-mini-s').textContent=mmss(el)+' / '+mmss(total)
     +(current.segs.length>1?' · part '+(segIdx+1)+' of '+current.segs.length:'');
   $('lsn-mini-fill').style.width=pct+'%';
 
   if($('lsn-full')&&!$('lsn-full').hidden){
     $('lsn-play').innerHTML=playing?ICON.pause:ICON.play;
-    $('lsn-title').textContent=current.ep.section_heading;
-    $('lsn-lecline').textContent=current.lec.lectureLabel
-      +(current.lec.label?' — '+current.lec.label:'');
+    /* in a lecture listen the LECTURE is the thing being played and the
+       section is where she happens to be in it, so they swap places */
+    $('lsn-title').textContent=isLec?title:current.ep.section_heading;
+    $('lsn-lecline').textContent=isLec
+      ? (chapterIndex()+1)+' of '+current.chapters.length+' · '+sub
+      : (current.lec.lectureLabel+(current.lec.label?' — '+current.lec.label:''));
     $('lsn-full-lbl').textContent=current.lec.courseLabel;
     $('lsn-fill').style.width=pct+'%';
     $('lsn-knob').style.left=pct+'%';
     $('lsn-el').textContent=mmss(el);
     $('lsn-rem').textContent='-'+mmss(Math.max(0,total-el));
     $('lsn-rate').textContent=(rate===1?'1':String(rate))+'x';
-    $('lsn-part').textContent=current.segs.length>1
-      ? 'Part '+(segIdx+1)+' of '+current.segs.length : '';
-    var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
-    var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
-    $('lsn-prev').disabled=(at<=0&&el<3);
-    $('lsn-next').disabled=(at<0||at>=sibs.length-1);
+    var aw=$('lsn-auto-w');
+    if(aw) aw.style.display=isLec?'none':'';
+    if(isLec){
+      var ci=chapterIndex();
+      /* the parts are an implementation detail, so a lecture listen never
+         mentions them */
+      $('lsn-part').textContent='Section '+(ci+1)+' of '+current.chapters.length;
+      $('lsn-prev').disabled=(ci<=0&&el-current.chapters[0].startsAt<3);
+      $('lsn-next').disabled=(ci>=current.chapters.length-1);
+    }else{
+      $('lsn-part').textContent=current.segs.length>1
+        ? 'Part '+(segIdx+1)+' of '+current.segs.length : '';
+      var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
+      var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
+      $('lsn-prev').disabled=(at<=0&&el<3);
+      $('lsn-next').disabled=(at<0||at>=sibs.length-1);
+    }
   }
 }
 
@@ -10053,7 +10282,12 @@ function renderMarks(){
   var box=$('lsn-marks');
   if(!box||!current) return;
   var el=elapsed();
-  box.innerHTML=current.segs.map(function(s,i){
+  var chapters=(current.lecture?current.chapters:[]).filter(function(c){ return c.startsAt>0; })
+    .map(function(c){
+      var pct=Math.min(100,(c.startsAt/(current.total||1))*100);
+      return '<div class="lsn-chmark" style="left:'+pct+'%" title="'+esc(c.heading)+'"></div>';
+    }).join('');
+  box.innerHTML=chapters+current.segs.map(function(s,i){
     if(s.ends_at_checkpoint===null||s.ends_at_checkpoint===undefined) return '';
     if(i>=current.segs.length-1) return '';
     var at=current.cum[i+1];
@@ -10065,6 +10299,9 @@ function renderMarks(){
 function renderJumps(){
   var box=$('lsn-jumps');
   if(box&&current) box.innerHTML=sectionsHtml(current.lec);
+  var h=document.querySelector('.lsn-jump h4');
+  if(h&&current) h.textContent=current.lecture
+    ? 'Jump to a section' : 'Sections in this lecture';
 }
 
 function setMini(show){
@@ -10118,6 +10355,11 @@ function reSign(){
 function playSegment(i,startAt,autoplay){
   if(!current||i<0||i>=current.segs.length) return;
   segIdx=i;
+  /* in a lecture listen the "current episode" moves with the playlist, so
+     progress is written against the section actually playing */
+  if(current.lecture&&current.segs[i].epIndex!=null){
+    current.ep=current.eps[current.segs[i].epIndex]||current.ep;
+  }
   var a=ensureAudio();
   var url=current.urls[i];
   if(!url){ showError('That part has no audio file.'); return; }
@@ -10141,7 +10383,9 @@ function onSegmentEnd(){
   var seg=current&&current.segs[segIdx];
   var cpOrd=seg?seg.ends_at_checkpoint:null;
   if(cpOrd!==null&&cpOrd!==undefined&&segIdx<current.segs.length-1){
-    var cp=(current.cps||[]).filter(function(c){ return c.ordinal===cpOrd; })[0];
+    var epId=seg.epId||current.ep.id;
+    var cp=(current.cps||[]).filter(function(c){
+      return c.ordinal===cpOrd && (!c.episode_id || c.episode_id===epId); })[0];
     if(cp){ showCheckpoint(cp); return; }
   }
   if(segIdx<current.segs.length-1){ playSegment(segIdx+1,0,true); return; }
@@ -10153,7 +10397,9 @@ function finishEpisode(){
   else if(current) current.ep._prog={completed:true,segment_ordinal:segIdx,position_seconds:0};
   saveProgress(true,true);
   renderLibrary(); renderJumps();
-  if(autoAdvance){
+  /* in a lecture listen the playlist already spans every section, so reaching
+     the end means the lecture is finished — there is nothing to advance to */
+  if(autoAdvance&&!current.lecture){
     var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
     var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
     if(at>-1&&at<sibs.length-1){ openEpisode(sibs[at+1].id,true); return; }
@@ -10556,6 +10802,75 @@ function saveSettings(){
 
 /* ── opening a section ────────────────────────────────────────────────── */
 
+/* ══════════════════════════════════════════════════════════════════════
+   A LECTURE IS ONE LISTEN
+
+   The audio has to be generated in parts — Gemini's TTS is capped near 655
+   seconds a request — and a section is where a script gets written. Neither of
+   those is her problem. So the player flattens every segment of every section
+   in the lecture into ONE playlist: elapsed time, the scrub bar and the
+   remaining time are all against the whole lecture, and a section boundary is
+   just the next file, played with no pause and nothing to press.
+
+   Sections survive as CHAPTERS: each one still knows where it starts, so
+   jumping to "gastritis" still works and the section list still shows what she
+   has finished. They are navigation, not episodes.
+
+   Progress is still stored per episode, because that is what the table is keyed
+   by and it means a lecture listen and a single-section listen leave the same
+   trail. Resuming a lecture picks the furthest section that was started and not
+   finished.
+   ══════════════════════════════════════════════════════════════════════ */
+function openLecture(slug,autoplay){
+  var token=++loadToken;
+  showError('');
+  var lec=bySlug[slug];
+  if(!lec) { showError('That lecture is not in the library.'); return Promise.resolve(); }
+  var eps=lec.sections.filter(function(e){ return e._segs.length; });
+  if(!eps.length){ showError('No audio has been generated for that lecture yet.'); return Promise.resolve(); }
+
+  var ids=eps.map(function(e){ return e.id; });
+  return sbGet('podcast_checkpoints?select=episode_id,ordinal,question,position_in_script'
+      +'&episode_id=in.('+ids.join(',')+')&order=ordinal.asc')
+  .then(function(cps){
+    if(token!==loadToken) return;
+    /* one flat playlist, each segment remembering which section it came from */
+    var segs=[], chapters=[];
+    eps.forEach(function(ep,ei){
+      chapters.push({ ep:ep, epIndex:ei, firstSeg:segs.length, heading:ep.section_heading });
+      ep._segs.forEach(function(sg){
+        segs.push(Object.assign({},sg,{ epId:ep.id, epHeading:ep.section_heading, epIndex:ei }));
+      });
+    });
+    var cum=[0];
+    segs.forEach(function(sg,i){ cum[i+1]=cum[i]+Number(sg.duration_seconds||0); });
+    chapters.forEach(function(c){ c.startsAt=cum[c.firstSeg]; });
+
+    return signAll(segs.map(function(x){ return x.storage_path; })).then(function(urls){
+      if(token!==loadToken) return;
+      current={ lecture:true, lec:lec, eps:eps, chapters:chapters,
+        ep:eps[0], segs:segs, cps:cps||[], urls:urls, cum:cum, total:cum[cum.length-1] };
+
+      /* resume at the furthest section she started and did not finish */
+      var startSeg=0, into=0;
+      for(var i=eps.length-1;i>=0;i--){
+        var pr=eps[i]._prog;
+        if(pr&&!pr.completed){
+          var ch=chapters[i];
+          var off=Math.min(Number(pr.segment_ordinal||0),eps[i]._segs.length-1);
+          startSeg=ch.firstSeg+off; into=Number(pr.position_seconds||0);
+          break;
+        }
+      }
+      var box=$('lsn-cp'); if(box) box.hidden=true;
+      current.ep=segs[startSeg]?eps[segs[startSeg].epIndex]:eps[0];
+      playSegment(startSeg,into,autoplay!==false);
+    });
+  }).catch(function(e){
+    if(token===loadToken) showError(e.message||String(e));
+  });
+}
+
 function openEpisode(id,autoplay){
   var token=++loadToken;
   showError('');
@@ -10592,6 +10907,19 @@ function openFull(){
 
 /* ── public handlers ──────────────────────────────────────────────────── */
 
+window.lsnPlayLecture=function(slug){
+  ensureMic();
+  openLecture(slug,true).then(openFull);
+};
+/* jumping to a section inside a lecture listen is a seek, not a new episode —
+   the continuous playlist is the point */
+window.lsnJump=function(id){
+  if(current&&current.lecture){
+    var ch=(current.chapters||[]).filter(function(c){ return c.ep.id===id; })[0];
+    if(ch){ $('lsn-cp').hidden=true; endTurn(); playSegment(ch.firstSeg,0,true); return; }
+  }
+  window.lsnPlay(id);
+};
 window.lsnPlay=function(id){
   /* this click is the gesture the microphone permission needs; asking now means
      never having to ask at a checkpoint, where there is no gesture to use */
@@ -10630,8 +10958,22 @@ window.lsnAuto=function(on){
   autoAdvance=!!on;
   localStorage.setItem(LS_AUTO,on?'1':'0');
 };
+function chapterIndex(){
+  if(!current||!current.lecture) return -1;
+  for(var i=current.chapters.length-1;i>=0;i--)
+    if(segIdx>=current.chapters[i].firstSeg) return i;
+  return 0;
+}
 window.lsnPrevSection=function(){
   if(!current) return;
+  if(current.lecture){
+    var i=chapterIndex(), ch=current.chapters[i];
+    /* first press restarts this chapter, second goes back one — the usual
+       behaviour of a track button */
+    if(elapsed()-ch.startsAt>3){ playSegment(ch.firstSeg,0,true); return; }
+    if(i>0) playSegment(current.chapters[i-1].firstSeg,0,true);
+    return;
+  }
   if(elapsed()>3){ seekEpisode(0); return; }
   var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
   var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
@@ -10639,6 +10981,11 @@ window.lsnPrevSection=function(){
 };
 window.lsnNextSection=function(){
   if(!current) return;
+  if(current.lecture){
+    var i=chapterIndex();
+    if(i>-1&&i<current.chapters.length-1) playSegment(current.chapters[i+1].firstSeg,0,true);
+    return;
+  }
   var sibs=current.lec.sections.filter(function(e){ return e._segs.length; });
   var at=sibs.findIndex(function(e){ return e.id===current.ep.id; });
   if(at>-1&&at<sibs.length-1) openEpisode(sibs[at+1].id,true);
