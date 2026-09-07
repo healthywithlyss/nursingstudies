@@ -44,8 +44,12 @@ const CORS = {
 const JSON_HDR = { ...CORS, 'Content-Type': 'application/json' };
 
 const MAX_RETRIES_DEFAULT = 3;
-const WORDS_MIN = 1200;
-const WORDS_MAX = 1600;
+/* Room to TEACH. At 1200-1600 words a section with 57 facts in it was spending
+   one fact every 21 words — no space to build an idea, so it came out as a list
+   of facts in sentence form: accurate, complete, and boring. Length is not the
+   goal; it is the room the explanation needs. */
+const WORDS_MIN = 2500;
+const WORDS_MAX = 3500;
 
 let modelCache: string[] | null = null;
 /* each model's real output-token ceiling, straight from ListModels, so the
@@ -258,61 +262,97 @@ as the FIRST pass through this material, before flashcards and before quizzing.
 ${SOURCE_RULES}
 
 VOICE AND FORM:
-- ONE narrator speaking directly to her as "you". Warm, plain, direct.
-- Conversational but DENSE. This is a full lecture, not a summary. Every fact
-  below must be taught, not gestured at.
-- Plain flowing prose meant to be read aloud. NO stage directions, NO [pause]
-  or [beat] markers, NO speaker labels, NO headings, NO bullet points, NO
-  markdown, NO numbered lists. Just paragraphs.
-- USE CONTRACTIONS. Write "let's", "here's", "that's", "you'll", "it's",
-  "doesn't", "don't". "Let us walk through" is stilted; "let's walk through"
-  is how a person talks. This is speech, not prose read aloud.
-- Target ${WORDS_MIN}-${WORDS_MAX} words.
+- ONE narrator speaking directly to her as "you". Warm, plain, direct — a person
+  who finds this genuinely interesting talking to someone who wants to get it.
+- USE CONTRACTIONS. "let's", "here's", "that's", "you'll", "it's", "doesn't".
+  "Let us walk through" is stilted. This is speech, not prose read aloud.
+- Plain flowing prose. NO stage directions, NO [pause] markers, NO speaker
+  labels, NO headings, NO bullet points, NO markdown, NO numbered lists.
+- Target ${WORDS_MIN}-${WORDS_MAX} words. That is deliberately generous: it is
+  the room the explanations need, not a quota to pad toward.
+
+TEACH THE MECHANISM, THEN NAME IT:
+- Build the idea first, in plain words, then let the term land as the NAME for
+  something she already understands. Never state a fact and then explain it —
+  by then she has already heard a term that meant nothing and stopped listening.
+- Wrong: "Pyrosis is heartburn caused by reflux of acid into the esophagus."
+  Right: "Acid that belongs in the stomach washes back up into the esophagus,
+  which has no protection against it. That burning behind the breastbone is what
+  she means by pyrosis."
+- Every mechanism the source explains gets built, not summarised. If the source
+  says WHY, that why is the spine of the passage.
+
+ANALOGY AND CONCRETE IMAGERY — this is what makes a mechanism stick:
+- Reach for a physical image whenever it explains a mechanism the source states.
+  Food acting as a buffer that gets used up, which is why the pain comes back a
+  couple of hours after eating. The colon pulling water back out, which is why
+  output gets more formed the further along it sits. Digestive enzymes landing
+  on skin that was never built to meet them.
+- HARD RULE: an analogy may only explain something ALREADY IN THE SECTION TEXT.
+  It never introduces a clinical fact, a number, a mechanism or a consequence
+  that the source does not state. If the source does not say why something
+  happens, do not invent a reason and dress it as an image. An analogy is a way
+  of seeing what is there; it is not a source.
+- Keep them short and physical. One good image beats three laboured ones.
+
+SOUND LIKE A PODCAST, NOT A TEXTBOOK BEING READ ALOUD:
+- When something is genuinely surprising, say so and let it land. The stomach
+  producing acid strong enough to digest tissue. Blood turning black as it
+  travels. A stoma's output telling you where along the bowel it sits.
+- STAKES: what actually happens to the patient if this is missed. Not
+  melodrama — the real consequence, where the source gives one.
+- BE OPINIONATED about the material: what is genuinely hard, what gets confused
+  with what, what is obviously going to be tested. She wants a guide with a
+  point of view, not a neutral reader.
+- CALLBACKS. When something connects to a point made earlier, say so out loud —
+  "this is that same barrier problem again". The mucosal barrier explains
+  gastritis, ulcers, perforation and hemorrhage; when the thread reappears, make
+  it visible.
+- VARY THE RHYTHM. Read it back to yourself. If every sentence is a declarative
+  of roughly the same length, it drones. Use a short sentence to land a point.
+  Use a question to set one up. Let a long sentence carry a chain of reasoning
+  and then stop hard.
+
+HUMOUR — light and dry, or none:
+- A wry aside is welcome: that the exam loves the perforation-versus-penetration
+  distinction, or that nobody remembers "rectorrhagia" the first time.
+- NEVER write a joke with a setup and a punchline. Forced humour in a study
+  script is worse than no humour. If a line would not make a real person smile
+  slightly in a real conversation, cut it.
+
+DO NOT ANNOUNCE STRUCTURE:
+- No "next, let's look at", no "now let's turn to", no "first... second...
+  third", no "in this section we will cover". That is a table of contents read
+  aloud and it wastes her attention.
+- Move between topics THROUGH THE CONTENT. The last idea of one passage should
+  hand over to the first idea of the next: what you just explained is the reason
+  the next thing happens.
+
+FLAGGING EXAM-CRITICAL MATERIAL:
+- When the source marks something must-know, say so — but a DIFFERENT WAY EVERY
+  TIME. "this one's on the exam"; "she circled this in lecture"; "if you keep
+  one thing from this, keep this"; or simply put the weight in the sentence and
+  use no tag at all.
+- Never write the same flagging sentence twice.
 
 SAY IT ALOUD-FRIENDLY (keep doing this):
-- Spell out symbols and abbreviations the way a person says them: "↓" becomes
+- Spell symbols and abbreviations the way a person says them: "↓" becomes
   "decreased", "1500 mL" becomes "fifteen hundred milliliters", "B12" becomes
   "B twelve", "I&O" becomes "I and O", "H2 receptor antagonists" becomes
   "H two receptor antagonists", "GI" stays "G I".
 
-FLAGGING EXAM-CRITICAL MATERIAL:
-- When the source marks something as must-know or exam-relevant, say so — but
-  say it a DIFFERENT WAY EVERY TIME. Never reuse a stock phrase.
-  Rotate through forms like: "this one's on the exam"; "she circled this in
-  lecture"; "if you remember one thing here, make it this"; "this is the piece
-  she said to know cold"; "expect to see this asked"; or simply put the weight
-  in the sentence itself without any tag at all.
-- Do NOT write the same flagging sentence twice. If you have already used a
-  phrasing, use a different one or drop the tag entirely.
-
 SHE IS LISTENING, NOT READING — there is no document in front of her:
 - NEVER refer to the source document, its formatting, or its structure. No
-  "the source", "the guide", "the table", "this section", "the slide", "the
-  list above", "as shown", "side by side", "the first column", "bullet points",
-  "the chart". She cannot see any of it.
-- Writing "the source lays these two out side by side in a comparison table so
-  you can appreciate their differences" is exactly wrong. Teach the contrast
-  itself: "acute comes on fast and burns out in one to three days; chronic just
-  grinds on, and that's the one that atrophies the tissue."
-- Never say the material is presented, listed, organised, or grouped a certain
-  way. Say the material.
-
-TEACHING, NOT RESTATING:
-- Connect facts to each other. Explain mechanism wherever the source explains
-  it ("the reason that matters is…"). Build causal chains the source builds.
-- Where the source puts two things side by side in a comparison table, TEACH IT
-  AS A CONTRAST — that is what the table is for.
-- Only draw a contrast the SOURCE actually draws. Do not say "unlike X, Y does
-  not…" unless the source states the difference. Never assert the absence of a
-  finding the source is simply silent about.
-- Do not restate a full noun phrase you have just used. Once you have named
-  "nonerosive chronic gastritis", the next sentence can say "it" or "this form".
-- Never write two flat declarative sentences in a row that share a subject and
-  add no connection between them. Fold the second into the first.
+  "the source", "the guide", "the table", "this section", "the slide", "as
+  shown", "side by side", "the first column", "bullet points". She cannot see
+  any of it.
+- Where the source puts two things side by side, TEACH THE CONTRAST — that is
+  what the comparison is for. Only draw a contrast the source actually draws,
+  and never assert the absence of a finding the source is simply silent about.
 
 CHECKPOINTS:
 - Pause roughly every 400-500 words to ask ONE open recall question, then keep
-  teaching. For a script this length expect 3 checkpoints, sometimes 4.
+  teaching. Let the count follow the length rather than aiming at a number.
 - Prefer MORE, SMALLER checkpoints over fewer big ones. Each should test 2-3
   specific things, not a whole topic sweep.
 - Open recall only — never multiple choice, never yes/no.
@@ -390,7 +430,11 @@ HOW TO ADD THE MISSING MATERIAL — this matters as much as the content:
 - Do NOT repeat the full noun phrase as the subject of consecutive sentences.
   Once the subject is established, use pronouns and connectives.
 - Keep every fact already taught. Do not drop anything to make room.
-- Keep the same narrator, voice and contractions.
+- Keep the same narrator, voice and contractions. Keep the analogies and the
+  concrete images: they are how the mechanisms stick, not decoration to trim.
+- Do NOT shorten the script to make room. It is meant to be long enough to
+  explain things; adding a fact means teaching it, not compressing everything
+  else to fit.
 - Keep the checkpoint questions in the narration and return the matching
   checkpoints array. Each question string you return must match the sentence in
   the script CHARACTER FOR CHARACTER — the pause is located by finding that
@@ -520,9 +564,27 @@ FLAG (these are the failure modes):
 - correct outside nursing knowledge that simply is not in this section text.
   Being TRUE is not the test. Being IN THE SECTION TEXT is the test.
 
+ANALOGIES AND IMAGERY — read these carefully, they are the hard case:
+The narration is SUPPOSED to explain mechanisms with physical images. An image
+is not a claim. Judge what it ASSERTS, not whether the words appear in the text.
+- DO NOT FLAG an analogy that only re-describes something the source states.
+  If the source says pain returns two to three hours after eating, then "food is
+  buffering the acid, and a couple of hours later that buffer is used up" is that
+  same fact made visible. Fine.
+- DO FLAG an analogy that SMUGGLES IN CONTENT. If the source never says why the
+  pain returns, then inventing the buffer mechanism to explain it is an unsourced
+  mechanism wearing an image as a disguise — exactly the thing to catch.
+- The test is subtraction: strip the image away and ask what clinical assertion
+  is left. If that assertion is in the section text, the image is fine. If the
+  image is the only thing holding the assertion up, flag it.
+
 DO NOT FLAG:
 - teaching scaffolding with no clinical content: "let's start here", "here's why
   that matters", "picture a patient", transitions, second-person address.
+- an opinion about the MATERIAL rather than about medicine: that something is
+  hard, commonly confused, or likely to be examined. That is the narrator
+  talking about her studying, not making a clinical claim.
+- emphasis, surprise, or a callback to something said earlier in the narration.
 - restatement, paraphrase, summary, or reordering of sourced material.
 - a recall question posed to the listener.
 - spelling a symbol or abbreviation out for speech ("B twelve", "I and O",
