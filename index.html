@@ -8928,7 +8928,11 @@ function splitSections(md){
     if(cur) cur.lines.push(line); else intro.push(line);
   });
   return secs.map(function(s,i){
-    return { ordinal:i, heading:s.heading, chars:s.lines.join('\n').trim().length };
+    var body=s.lines.join('\n').trim();
+    /* words as well as chars: the lecture estimate is a speaking-rate
+       calculation, and chars/6 was a guess where the real count is free */
+    return { ordinal:i, heading:s.heading, chars:body.length,
+             words:(body.match(/\S+/g)||[]).length };
   });
 }
 
@@ -8958,11 +8962,27 @@ function render(){
   host().innerHTML =
     '<div class="pod-wrap">'
     + '<div class="pod-hdr"><h1>Podcast Scripts</h1>'
-      + '<p>Generate a narrated lecture for one guide section and check it against the '
-      + 'source before any audio exists. Every fact extracted from the section must appear '
-      + 'in the script; anything missing is listed rather than dropped.</p></div>'
+      + '<p>Generate a whole lecture in one run, or one section at a time. Every script is '
+      + 'checked against the source before any audio exists: every fact extracted from the '
+      + 'section must appear in it, and anything missing is listed rather than dropped.</p></div>'
+    + '<div class="pod-panel"><h3>Whole lecture</h3>'
+      + '<div class="pod-note" style="margin-top:0">Runs every teachable section of the '
+      + 'selected guide in order, script then audio. Skips anything already generated, so '
+      + 'this is also the resume button. A failing section is recorded and the run carries on.</div>'
+      + '<div class="pod-audio-row" style="margin-top:10px">'
+        + '<button class="pod-btn" id="pod-lec-go" onclick="podGenerateLecture()">Generate lecture</button>'
+        + '<div class="pod-field" style="min-width:190px"><label for="pod-lec-voice">Voice</label>'
+        + '<select id="pod-lec-voice"><option value="">loading&hellip;</option></select></div>'
+      + '</div>'
+      + '<div class="pod-lec" id="pod-lec-progress"></div>'
+      + '<div class="pod-note" id="pod-lec-plan"></div>'
+      + '<div class="pod-note">Leaving this page stops the run &mdash; it is driven from the '
+      + 'browser. Nothing is lost: everything finished is saved, and pressing the button '
+      + 'again continues from where it stopped.</div>'
+    + '</div>'
+
     + '<div class="pod-panel">'
-      + '<h3>Generate</h3>'
+      + '<h3>One section at a time</h3>'
       + '<div class="pod-row">'
         + '<div class="pod-field"><label for="pod-guide">Guide</label>'
           + '<select id="pod-guide" onchange="podGuideChanged()"></select></div>'
@@ -8994,6 +9014,7 @@ function render(){
   fillGuides();
   loadEpisodes();
   loadModels();
+  loadVoiceCatalogue();
 }
 
 /* Model names change constantly, so the choices come from the API, not a
@@ -9038,9 +9059,13 @@ function guideChanged(){
   loadMarkdown(g).then(function(md){
     var secs=splitSections(md);
     sec.innerHTML = secs.map(function(s){
+      var skip=window.podcastSkipReason(s.heading);
+      /* a section the lecture run leaves out should say so here too, rather
+         than looking identical to one that will be generated */
       return '<option value="'+esc(s.heading)+'">'+(s.ordinal+1)+'. '+esc(s.heading)
-        +' ('+s.chars+' chars)</option>';
+        +' ('+s.chars+' chars)'+(skip?' — not in lecture runs: '+esc(skip):'')+'</option>';
     }).join('') || '<option value="">No ## sections found</option>';
+    showLecturePlan(secs);
   }).catch(function(e){
     sec.innerHTML='<option value="">'+esc(e.message)+'</option>';
   });
@@ -9480,13 +9505,35 @@ function paintLecture(){
   if(box) box.innerHTML=lectureProgressHtml(lectureRun);
 }
 
+/* What a lecture run would cost, said BEFORE the button is pressed rather than
+   discovered while it runs. Words are counted from the markdown; the rest is
+   arithmetic on the measured speaking rate and the uncompressed WAV size. */
+var LEC_WPM = 150, LEC_MB_PER_MIN = 2.88;
+
+function showLecturePlan(secs){
+  var box=$('pod-lec-plan');
+  if(!box) return;
+  var run=[], skip=[];
+  secs.forEach(function(s){
+    (window.podcastSkipReason(s.heading)?skip:run).push(s);
+  });
+  var words=run.reduce(function(a,s){ return a+(s.words||0); },0);
+  var mins=words/LEC_WPM;
+  box.innerHTML='<b>'+run.length+' section'+(run.length===1?'':'s')+'</b> would run'
+    +(skip.length?', '+skip.length+' skipped ('+skip.map(function(s){
+        return esc(s.heading.split(/[—(]/)[0].trim()); }).join(', ')+')':'')
+    +' · about '+Math.round(mins)+' minutes of audio · roughly '
+    +Math.round(mins*LEC_MB_PER_MIN)+' MB as WAV.';
+}
+
 function podGenerateLecture(){
   if(audioBusy||!manifest) return;
   var slug=$('pod-guide').value;
   var g=guideBySlug(slug);
   if(!g) return;
   stopPreview();
-  var voice=$('pod-voice')?$('pod-voice').value:'Charon';
+  var voice=($('pod-lec-voice')&&$('pod-lec-voice').value)
+    || ($('pod-voice')&&$('pod-voice').value) || 'Charon';
 
   audioBusy=true;
   var btn=$('pod-lec-go'); if(btn) btn.disabled=true;
@@ -9575,20 +9622,7 @@ function audioPanel(d){
       +'This was a dry run, so there is no saved episode to attach audio to. '
       +'Generate it again with saving on first.</div></div>';
   }
-  return '<div class="pod-panel"><h3>Whole lecture</h3>'
-    +'<div class="pod-note" style="margin-top:0">Runs every teachable section in order, '
-    +'script then audio. Skips anything already generated, so this is also the resume '
-    +'button. A failing section is recorded and the run carries on.</div>'
-    +'<div class="pod-audio-row" style="margin-top:10px">'
-    +'<button class="pod-btn" id="pod-lec-go" onclick="podGenerateLecture()">Generate lecture</button>'
-    +'</div>'
-    +'<div class="pod-lec" id="pod-lec-progress"></div>'
-    +'<div class="pod-note">Leaving this page stops the run — it is driven from the browser. '
-    +'Nothing is lost: everything finished is saved, and pressing the button again continues '
-    +'from where it stopped.</div>'
-    +'</div>'
-
-    +'<div class="pod-panel"><h3>Voices</h3>'
+  return '<div class="pod-panel"><h3>Voices</h3>'
     +'<div class="pod-sample" id="pod-sample"><b>Every voice reads this same passage</b>'
     +'<span id="pod-sample-t">…</span>'
     +'<div class="pod-terms" id="pod-terms"></div></div>'
@@ -9751,6 +9785,19 @@ function podPreviewAll(){
 }
 window.podPreviewAll=podPreviewAll;
 
+/* the whole-lecture panel is on the page before any episode is opened, so its
+   voice list is filled from the catalogue independently of the result view */
+function fillLectureVoices(){
+  var sel=$('pod-lec-voice');
+  if(!sel||!voiceCache) return;
+  var keep=sel.value;
+  sel.innerHTML=voiceCache.voices.map(function(x){
+    return '<option value="'+esc(x.name)+'"'
+      +((keep?x.name===keep:x.name===voiceCache.default_voice)?' selected':'')+'>'
+      +esc(x.name)+' — '+esc(x.character)+'</option>';
+  }).join('');
+}
+
 function podPreview(name){
   /* tapping the one that is playing stops it */
   if(previewing===name){ stopPreview(); return; }
@@ -9759,6 +9806,8 @@ function podPreview(name){
      just liked rather than whatever the dropdown happened to be left on */
   var sel=$('pod-voice');
   if(sel){ sel.value=name; sel.dataset.touched='1'; }
+  var lsel=$('pod-lec-voice');
+  if(lsel) lsel.value=name;
   previewing=name; renderVoices();
 
   var play=function(url){
@@ -9814,10 +9863,28 @@ function stopPreview(){
 window.podPreview=podPreview;
 window.podStopPreview=stopPreview;
 
+/* Fetching the voice catalogue and filling a particular dropdown are two
+   different jobs. They used to be one function that bailed out when the
+   result-panel select was absent — which is every fresh page load — so the
+   whole-lecture voice picker sat on "loading…" forever. */
+function loadVoiceCatalogue(){
+  if(voiceCache) { fillLectureVoices(); fillVoices(); return Promise.resolve(voiceCache); }
+  return afn({action:'voices'}).then(function(v){
+    voiceCache=v;
+    fillLectureVoices(); fillVoices();
+    return v;
+  }).catch(function(e){
+    var sel=$('pod-lec-voice');
+    if(sel) sel.innerHTML='<option value="">could not load voices</option>';
+    return null;
+  });
+}
+
 function fillVoices(){
   var sel=$('pod-voice'); if(!sel) return;
   var apply=function(v){
     voiceCache=v;
+    fillLectureVoices();
     sel.addEventListener('change',function(){ sel.dataset.touched='1'; renderVoices(); });
     sel.innerHTML=v.voices.map(function(x){
       return '<option value="'+esc(x.name)+'"'+(x.name===v.default_voice?' selected':'')+'>'
@@ -9835,7 +9902,7 @@ function fillVoices(){
   if(voiceCache) return apply(voiceCache);
   afn({action:'voices'}).then(apply).catch(function(e){
     sel.innerHTML='<option>could not load voices</option>';
-    $('pod-audio-status').textContent=e.message;
+    var st=$('pod-audio-status'); if(st) st.textContent=e.message;
   });
 }
 
