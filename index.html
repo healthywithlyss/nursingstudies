@@ -1261,6 +1261,32 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .pod-seg-b{flex:1;min-width:0;color:var(--text-muted);overflow-wrap:anywhere}
 .pod-seg-t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--text)}
 
+/* voice preview */
+.pod-sample{background:var(--g50);border:1px solid var(--g200);border-left:3px solid var(--teal);
+  border-radius:var(--r-btn);padding:10px 12px;font-size:12.5px;line-height:1.55;color:var(--text);
+  margin-bottom:10px}
+.pod-sample b{display:block;font-size:10px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.pod-voices{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:7px}
+.pod-v{display:flex;align-items:center;gap:9px;padding:7px 9px;border:1px solid var(--g200);
+  border-radius:var(--r-btn);background:var(--surface);cursor:pointer;font-family:inherit;
+  text-align:left;min-height:44px}
+.pod-v:hover{border-color:var(--teal);background:var(--teal-bg)}
+.pod-v.chosen{border-color:var(--teal);background:var(--teal-bg);box-shadow:inset 0 0 0 1px var(--teal)}
+.pod-v.playing{border-color:var(--plum);background:var(--plum-bg)}
+.pod-v-play{flex:0 0 26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;
+  display:flex;align-items:center;justify-content:center}
+.pod-v.playing .pod-v-play{background:var(--plum)}
+.pod-v-play svg{width:12px;height:12px}
+.pod-v-b{flex:1;min-width:0}
+.pod-v-n{display:block;font-size:12.5px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pod-v-c{display:block;font-size:10.5px;color:var(--text-muted)}
+.pod-v-dot{flex:0 0 6px;height:6px;border-radius:50%;background:var(--g200)}
+.pod-v.ready .pod-v-dot{background:var(--forest)}
+@media(max-width:767px){ .pod-voices{grid-template-columns:1fr 1fr} }
+@media(max-width:400px){ .pod-voices{grid-template-columns:1fr} }
+
 /* ══════════════ BOTTOM NAV — pre-existing bug ══════════════
    #bottom-nav is set to display:none in its base rule, and that rule is
    declared AFTER the max-width:767px media query that is supposed to turn it
@@ -9146,6 +9172,8 @@ function renderResult(d){
   var me=cov.model_extracted, qd=cov.quiz_derived;
   var h='';
 
+  h+=audioPanel(d);
+
   h+='<div class="pod-panel"><h3>Coverage &mdash; two independent passes</h3>';
   h+='<div class="pod-summary">'+esc(cov.summary
       || ('model-extracted facts '+me.covered+'/'+me.total
@@ -9193,8 +9221,6 @@ function renderResult(d){
       +'</code>, verification: <code>'+esc(cov.models.verification)+'</code></div>';
   }
   h+='</div>';
-
-  h+=audioPanel(d);
 
   h+='<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
     +'<h3 style="padding:0 2px">Script — '+esc(d.section_heading)+'</h3></div>'
@@ -9348,7 +9374,15 @@ function audioPanel(d){
       +'This was a dry run, so there is no saved episode to attach audio to. '
       +'Generate it again with saving on first.</div></div>';
   }
-  return '<div class="pod-panel"><h3>Audio</h3>'
+  return '<div class="pod-panel"><h3>Voices</h3>'
+    +'<div class="pod-sample" id="pod-sample"><b>Every voice reads this same passage</b>'
+    +'<span id="pod-sample-t">…</span></div>'
+    +'<div class="pod-voices" id="pod-vlist"></div>'
+    +'<div class="pod-note">First play of a voice generates the clip and stores it; '
+    +'after that it is instant. A green dot means the clip is already stored.</div>'
+    +'</div>'
+
+    +'<div class="pod-panel"><h3>Audio</h3>'
     +'<div class="pod-audio-row">'
     +'<label class="pod-field"><label>Voice</label>'
     +'<select id="pod-voice"><option>loading…</option></select></label>'
@@ -9365,11 +9399,83 @@ function audioPanel(d){
     +'</div>';
 }
 
+/* ── voice preview ──────────────────────────────────────────────────────
+   Comparing voices should cost seconds, not a nine-minute regeneration. Each
+   clip is generated once and kept in Storage, so the second listen is free and
+   flicking between three voices is instant. */
+var previewAudio=null, previewing=null, previewCache={};
+
+function renderVoices(){
+  var box=$('pod-vlist');
+  if(!box||!voiceCache) return;
+  var chosen=($('pod-voice')||{}).value;
+  box.innerHTML=voiceCache.voices.map(function(v){
+    var cls='pod-v'+(v.name===chosen?' chosen':'')
+      +(previewing===v.name?' playing':'')
+      +(previewCache[v.name]?' ready':'');
+    return '<button class="'+cls+'" onclick="podPreview(\''+esc(v.name)+'\')">'
+      +'<span class="pod-v-play">'+(previewing===v.name
+          ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>')+'</span>'
+      +'<span class="pod-v-b"><span class="pod-v-n">'+esc(v.name)+'</span>'
+      +'<span class="pod-v-c">'+esc(v.character)+'</span></span>'
+      +'<span class="pod-v-dot"></span></button>';
+  }).join('');
+}
+
+function podPreview(name){
+  /* tapping the one that is playing stops it */
+  if(previewing===name){ stopPreview(); return; }
+  stopPreview();
+  /* hearing a voice selects it, so "Regenerate in this voice" uses the one she
+     just liked rather than whatever the dropdown happened to be left on */
+  var sel=$('pod-voice');
+  if(sel){ sel.value=name; sel.dataset.touched='1'; }
+  previewing=name; renderVoices();
+
+  var play=function(url){
+    previewAudio=new Audio(url);
+    window.__pv=previewAudio;    /* observable, so playback can be asserted rather than assumed */
+    previewAudio.addEventListener('ended',function(){ previewing=null; renderVoices(); });
+    previewAudio.addEventListener('error',function(){
+      previewing=null; renderVoices();
+      $('pod-audio-status').textContent='Could not play the '+name+' sample.';
+    });
+    var pr=previewAudio.play();
+    if(pr&&pr.catch) pr.catch(function(){ previewing=null; renderVoices(); });
+  };
+
+  /* a signed URL is short-lived, so a cached entry is re-signed rather than
+     replayed from a link that may already have expired */
+  afn({action:'preview',voice:name}).then(function(r){
+    if(previewing!==name) return;          /* she moved on while it generated */
+    previewCache[name]=true;
+    if($('pod-sample-t')&&r.sample_text) $('pod-sample-t').textContent=r.sample_text;
+    $('pod-audio-status').textContent=name+' — '+(r.cached?'stored already':'generated '
+      +r.seconds+'s in '+Math.round(r.generation_ms/1000)+'s')
+      +(r.model?' · '+r.model:'');
+    renderVoices();
+    play(r.url);
+  }).catch(function(e){
+    previewing=null; renderVoices();
+    $('pod-audio-status').textContent='Preview failed: '+(e.message||e);
+  });
+}
+
+function stopPreview(){
+  if(previewAudio){ try{ previewAudio.pause(); }catch(_){} previewAudio=null; }
+  previewing=null;
+  renderVoices();
+}
+
+window.podPreview=podPreview;
+window.podStopPreview=stopPreview;
+
 function fillVoices(){
   var sel=$('pod-voice'); if(!sel) return;
   var apply=function(v){
     voiceCache=v;
-    sel.addEventListener('change',function(){ sel.dataset.touched='1'; });
+    sel.addEventListener('change',function(){ sel.dataset.touched='1'; renderVoices(); });
     sel.innerHTML=v.voices.map(function(x){
       return '<option value="'+esc(x.name)+'"'+(x.name===v.default_voice?' selected':'')+'>'
         +esc(x.name)+' — '+esc(x.character)+'</option>';
@@ -9377,6 +9483,8 @@ function fillVoices(){
     var st=$('pod-audio-status');
     if(st&&!st.textContent) st.textContent='TTS model: '+(v.would_use||'none found')
       +' (chosen from '+v.all_models_seen+' models on this key)';
+    if($('pod-sample-t')&&v.sample_text) $('pod-sample-t').textContent=v.sample_text;
+    renderVoices();
   };
   if(voiceCache) return apply(voiceCache);
   afn({action:'voices'}).then(apply).catch(function(e){
@@ -9420,6 +9528,7 @@ function podAudioGo(force){
   if(audioBusy||!current||!current.episode_id) return;
   var voice=$('pod-voice').value;
   var epId=current.episode_id;
+  stopPreview();
   audioBusy=true;
   $('pod-audio-go').disabled=true;
   if($('pod-audio-re')) $('pod-audio-re').disabled=true;

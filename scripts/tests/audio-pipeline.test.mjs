@@ -163,6 +163,45 @@ const st = (await call({ action: 'status', episode_id: EPISODE })).json;
 ck('status reports complete', st.complete === true, { generated: st.generated.length, segments: st.segments.length });
 ck('status totals the real durations', st.generated_seconds === 6, st.generated_seconds);
 
+console.log('voice preview');
+/* the storage list endpoint drives the cache check, so it needs its own stub */
+let listedPrefix=null, previewUploads=[], signRequests=[];
+const baseFetch=globalThis.fetch;
+globalThis.fetch=async(url,init={})=>{
+  const u=String(url), m=(init.method||'GET').toUpperCase();
+  const J=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json'}});
+  if(u.includes('/storage/v1/object/list/')){
+    listedPrefix=JSON.parse(init.body||'{}').prefix;
+    return J([...stored.keys()].filter(k=>k.startsWith('previews/'))
+      .map(k=>({name:k.replace('previews/',''),metadata:{size:stored.get(k).length}})));
+  }
+  if(u.includes('/storage/v1/object/sign/')){
+    signRequests.push(u); return J({signedURL:'/object/sign/'+u.split('/sign/')[1]+'?token=t'});
+  }
+  if(u.includes('/storage/v1/object/podcast-audio/previews/')&&m==='POST'){
+    previewUploads.push(u.split('/podcast-audio/')[1]);
+    stored.set(u.split('/podcast-audio/')[1],new Uint8Array(init.body));
+    return J({Key:'ok'});
+  }
+  return baseFetch(url,init);
+};
+let pv=(await call({action:'preview',voice:'Iapetus'})).json;
+ck('generated on the first play',pv.cached===false,pv);
+ck('stored under previews/',previewUploads[0]==='previews/Iapetus.wav',previewUploads);
+ck('checked storage before generating',listedPrefix==='previews');
+ck('returns a playable signed url',/^https?:.*\/storage\/v1\/object\/sign\//.test(pv.url||''),pv.url);
+ck('returns the sample text',/parietal cells/.test(pv.sample_text||''));
+ck('sample covers the hard words',['parietal','intrinsic factor','pernicious','pyrosis','halitosis','satiety','melena']
+  .every(w=>pv.sample_text.toLowerCase().includes(w)),pv.sample_text);
+const firstTts=ttsCalls.length;
+pv=(await call({action:'preview',voice:'Iapetus'})).json;
+ck('second play is served from cache',pv.cached===true,pv);
+ck('and costs no TTS call',ttsCalls.length===firstTts,{before:firstTts,after:ttsCalls.length});
+ck('every voice gets the SAME passage',(await call({action:'preview',voice:'Charon'})).json.sample_text===pv.sample_text);
+ck('an unknown voice is refused',/Unknown voice/.test((await call({action:'preview',voice:'Gandalf'})).json.error||''));
+ck('preview needs no episode_id',!/episode_id/.test(JSON.stringify(pv)));
+globalThis.fetch=baseFetch;
+
 console.log('delete');
 const del = (await call({ action: 'delete', episode_id: EPISODE })).json;
 ck('reports what it removed', del.deleted_segments === 3, del);

@@ -26,6 +26,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
    POST body:
      action        'plan' | 'synthesize' | 'status' | 'voices' | 'delete'
+                   | 'preview' (one short sample per voice, cached in Storage)
                    | 'format-probe' (asks the API what output formats it takes)
      episode_id    uuid                              (all but 'voices')
      segment       integer                           (synthesize)
@@ -129,6 +130,16 @@ const VOICES: { name: string; character: string }[] = [
 ];
 /* Ninety minutes of medical terminology wants intelligibility, not character. */
 const DEFAULT_VOICE = 'Charon';
+
+/* One short passage, identical for every voice, so comparing them is a fair
+   test rather than an impression of whatever text each happened to get. It is
+   real material rather than filler, and deliberately dense with the words that
+   actually go wrong: parietal, intrinsic factor, pernicious, pyrosis,
+   halitosis, satiety, melena — the whole pronunciation risk in a few seconds. */
+const SAMPLE_TEXT = 'In chronic gastritis, prolonged inflammation atrophies the parietal cells. '
+  + 'Without intrinsic factor, vitamin B twelve cannot be absorbed, which leads to pernicious anemia. '
+  + 'Watch for pyrosis, halitosis, early satiety, and melena.';
+const PREVIEW_PREFIX = 'previews';
 
 /* ── segmentation ─────────────────────────────────────────────────────────── */
 
@@ -415,6 +426,70 @@ Deno.serve(async (req: Request) => {
       }), { headers: JSON_HDR });
     }
 
+    /* ── preview ──
+       Nobody should have to regenerate nine minutes of audio to find out what a
+       voice sounds like. One short fixed passage per voice, stored once and
+       reused, so hearing a voice a second time costs nothing at all. */
+    if (action === 'preview') {
+      const voice = String(body.voice || DEFAULT_VOICE);
+      if (!VOICES.some((v) => v.name.toLowerCase() === voice.toLowerCase())) {
+        throw new Error(`Unknown voice "${voice}". Call action:"voices" for the list.`);
+      }
+      const path = `${PREVIEW_PREFIX}/${voice}.wav`;
+
+      /* Ask Storage what it already has rather than keeping a second index of
+         it that could drift out of step. */
+      const ls = await fetch(`${gate.SUPABASE_URL}/storage/v1/object/list/${BUCKET}`, {
+        method: 'POST',
+        headers: { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}`,
+                   'Content-Type': 'application/json' },
+        body: JSON.stringify({ prefix: PREVIEW_PREFIX, limit: 200 }),
+      });
+      const existing = ls.ok ? await ls.json() : [];
+      const hit = (Array.isArray(existing) ? existing : [])
+        .find((o: any) => String(o.name) === `${voice}.wav`);
+
+      let cached = !!hit, bytes = hit && hit.metadata ? Number(hit.metadata.size || 0) : 0;
+      let seconds = 0, genMs = 0, usage: any = null, model = '';
+
+      if (!cached) {
+        const available = await listModels(apiKey);
+        const ranked = rankTtsModels(available);
+        model = body.tts_model || ranked[0];
+        if (!model) throw new Error('No TTS model available to make a preview.');
+        const t0 = Date.now();
+        const audio = await synthesize(apiKey, model, voice, SAMPLE_TEXT, '');
+        genMs = Date.now() - t0;
+        seconds = audio.seconds; bytes = audio.wav.length; usage = audio.usage;
+        const up = await fetch(`${gate.SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+          method: 'POST',
+          headers: { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}`,
+                     'Content-Type': 'audio/wav', 'x-upsert': 'true' },
+          body: audio.wav,
+        });
+        if (!up.ok) throw new Error(`Storage upload failed (${up.status}): ${(await up.text()).slice(0,200)}`);
+      }
+
+      /* an <audio src> cannot send an auth header, so it needs a signed URL */
+      const sg = await fetch(`${gate.SUPABASE_URL}/storage/v1/object/sign/${BUCKET}/${path}`, {
+        method: 'POST',
+        headers: { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}`,
+                   'Content-Type': 'application/json' },
+        body: JSON.stringify({ expiresIn: 3600 }),
+      });
+      const sj = await sg.json();
+      if (!sg.ok || !(sj.signedURL || sj.signedUrl)) {
+        throw new Error(`Could not sign the preview (${sg.status})`);
+      }
+
+      return new Response(JSON.stringify({
+        voice, storage_path: path, cached,
+        url: gate.SUPABASE_URL + '/storage/v1' + (sj.signedURL || sj.signedUrl),
+        sample_text: SAMPLE_TEXT,
+        seconds: Math.round(seconds * 10) / 10, bytes, model, generation_ms: genMs, usage,
+      }), { headers: JSON_HDR });
+    }
+
     if (action === 'voices') {
       const available = await listModels(apiKey);
       const ranked = rankTtsModels(available);
@@ -425,6 +500,7 @@ Deno.serve(async (req: Request) => {
         all_models_seen: available.length,
         voices: VOICES,
         default_voice: DEFAULT_VOICE,
+        sample_text: SAMPLE_TEXT,
         voices_are_hardcoded: true,
         note: 'Voice names are not exposed by ListModels; the model name is discovered live, the voice list is not.',
       }), { headers: JSON_HDR });
@@ -432,6 +508,7 @@ Deno.serve(async (req: Request) => {
 
     const episodeId = body.episode_id;
     if (!episodeId) throw new Error('episode_id is required');
+
 
     const epRes = await rest(`podcast_episodes?select=id,guide_slug,section_heading,ordinal,script,status&id=eq.${episodeId}`);
     const epRows = await epRes.json();
