@@ -1388,7 +1388,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   border:1px solid var(--border);background:var(--bg);color:var(--text);min-height:40px}
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
-@media(max-width:479px){ .fc-actions{flex-wrap:wrap} .rating-btn{flex:1 1 45%} }
+/* Four buttons need two rows on a narrow phone; the three-button row that
+   every other course still uses is untouched. */
+@media(max-width:479px){
+  .rating-row.rr-four{flex-wrap:wrap}
+  .rating-row.rr-four .rating-btn{flex:1 1 45%}
+}
 
 /* voice preview */
 .pod-sample{background:var(--g50);border:1px solid var(--g200);border-left:3px solid var(--teal);
@@ -4480,10 +4485,13 @@ body.lsn-open #main-content{padding-bottom:80px}
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
             <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
-              <button class="rating-btn missed" onclick="fcRate('missed',1)" id="btn-missed" disabled>&#10005; Again</button>
-              <button class="rating-btn unsure" onclick="fcRate('unsure',2)" id="btn-unsure" disabled>&#8764; Hard</button>
-              <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Good</button>
-              <button class="rating-btn easy"   onclick="fcRate('got_it',4)" id="btn-easy"   disabled>&#9733; Easy</button>
+              <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Got it</button>
+              <button class="rating-btn unsure" onclick="fcRate('unsure',2)" id="btn-unsure" disabled>&#8764; Unsure</button>
+              <button class="rating-btn missed" onclick="fcRate('missed',1)" id="btn-missed" disabled>&#10005; Missed</button>
+              <!-- Fourth grade, revealed only on courses with FSRS scheduling;
+                   see syncRatingButtons in the spaced-repetition block. -->
+              <button class="rating-btn easy"   onclick="fcRate('got_it',4)" id="btn-easy"   disabled
+                      style="display:none">&#9733; Easy</button>
             </div>
             <!-- mastery streak indicator — sits below buttons, outside the card -->
             <div style="text-align:center;min-height:24px;margin-top:6px">
@@ -11703,6 +11711,17 @@ var PACE_WINDOW_DAYS = 14;
 
 var EXAM_LABEL = {unit1:'Unit 1 test', unit2:'Unit 2 test', final:'Final'};
 
+/* Exam-date scheduling is NUR144 only. The other two courses keep the deck
+   behaviour they have always had: no readiness section, no due queue, and no
+   scheduling writes at all, so nothing about Practice or Quiz changes there.
+   One list rather than a scatter of course checks, so turning it on for
+   another course later is a single edit here.
+
+   The FSRS columns on their rows are already populated from the backfill and
+   are simply not read; nothing has to be undone if that day comes. */
+var SRS_COURSES = ['NUR144'];
+function srsEnabled(){ return SRS_COURSES.indexOf(window.currentCourse) > -1; }
+
 var plan = null;          /* last computed plan, for the current course */
 var loading = false;
 var fsrsRows = {card:{}, quiz:{}};   /* id -> the row we last read or wrote */
@@ -11829,7 +11848,7 @@ function applyExams(exams){
 /* Grade one item. Called from the flashcard and quiz paths; fire-and-forget,
    because a scheduling write must never block or fail an answer. */
 window.srsRecord = function(kind, id, rating, objectiveIds){
-  if(!window.currentUser) return;
+  if(!window.currentUser || !srsEnabled()) return;
   Promise.all([ensureRows(kind), ensureContext()])
     .then(function(){ recordNow(kind, id, rating, objectiveIds); });
 };
@@ -11978,7 +11997,10 @@ function toItem(kind, id, objectiveIds, row){
 function render(){
   var host = $('srs-exam-section');
   if(!host) return;
-  if(!window.currentUser){ host.innerHTML=''; return; }
+  /* Outside the courses this is live for, the section leaves no trace on the
+     dashboard — not an empty panel, not a "not available here" message. Those
+     dashboards look exactly as they did. */
+  if(!window.currentUser || !srsEnabled()){ host.innerHTML=''; return; }
   if(loading && !plan){
     host.innerHTML='<div class="dash-loading">Working out where you stand…</div>';
     return;
@@ -12271,10 +12293,46 @@ window.srsCram = function(unit){
   startCards(ids);
 };
 
+/* The fourth grade, and the FSRS wording, only where the scheduler is live.
+   Everywhere else the row is left exactly as the markup ships it: three
+   buttons reading Got it / Unsure / Missed. */
+var RATING_LABELS = {
+  on:  {'btn-missed':'\u2715 Again', 'btn-unsure':'\u223c Hard', 'btn-got':'\u2713 Good'},
+  off: {'btn-missed':'\u2715 Missed', 'btn-unsure':'\u223c Unsure', 'btn-got':'\u2713 Got it'}
+};
+
+function syncRatingButtons(){
+  var row = $('fc-rating-row');
+  if(!row) return;
+  var on = srsEnabled();
+  var labels = on ? RATING_LABELS.on : RATING_LABELS.off;
+  Object.keys(labels).forEach(function(id){
+    var b = $(id); if(b) b.textContent = labels[id];
+  });
+  var easy = $('btn-easy');
+  if(easy) easy.style.display = on ? '' : 'none';
+  row.classList.toggle('rr-four', on);
+  /* Order follows the grade, hardest first, the way every spaced-repetition
+     app does it — but only in four-button mode, so the existing three-button
+     row keeps its original order. */
+  if(on){
+    ['btn-missed','btn-unsure','btn-got','btn-easy'].forEach(function(id){
+      var b = $(id); if(b) row.appendChild(b);
+    });
+  } else {
+    ['btn-got','btn-unsure','btn-missed','btn-easy'].forEach(function(id){
+      var b = $(id); if(b) row.appendChild(b);
+    });
+  }
+}
+window.srsSyncRatingButtons = syncRatingButtons;
+
 /* ══ entry ════════════════════════════════════════════════════════════ */
 
 function recompute(){
-  if(!window.currentUser){ plan=null; render(); return Promise.resolve(); }
+  /* Bail before the eight requests, not after: on NUR116 and NUR118 this
+     feature costs nothing at all, including network. */
+  if(!window.currentUser || !srsEnabled()){ plan=null; render(); return Promise.resolve(); }
   loading = true; render();
   return loadAll().then(function(data){
     loading = false;
@@ -12301,6 +12359,7 @@ var _goTo = window.goTo;
 window.goTo = function(page){
   var r = _goTo.apply(this, arguments);
   if(page==='dashboard') recompute();
+  if(page==='practice') syncRatingButtons();
   return r;
 };
 
@@ -12310,6 +12369,7 @@ if(typeof _switchCourse==='function'){
   window.switchCourse = function(course){
     var r = _switchCourse.apply(this, arguments);
     contextLoaded = null; contextCourse = null;
+    syncRatingButtons();
     if(window.currentPage==='dashboard') recompute();
     return r;
   };
