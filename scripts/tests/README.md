@@ -83,3 +83,17 @@ resurface unit 1 material before the comprehensive final, guarantee nothing
 goes into an exam unseen, and say plainly when the required pace exceeds the
 recent one. Also readiness from a standing start, because "0% ready, 460 never
 seen, 34 days" has to be right before any review exists.
+
+### daily load control (in exam-scheduler)
+
+The new-item caps, the load balancer, the forecast and the sweep. Three things
+worth knowing about what these assert:
+
+- **Caps govern new material; the coverage rate does not.** Capping at 10 a day
+  because 460 items over 46 days works out that way would just be slower than
+  the cap allows. Whether the configured rate finishes in time is a separate
+  question that `newItemPlan` answers out loud.
+- **Levelling happens strictly inside the exam clamp.** The test asserts an
+  interval can be moved to a lighter day and can never be moved past the exam.
+- **The sweep overrides both caps.** The test asserts that a sweep needing 90 a
+  day reports 90, rather than being trimmed to the working set.

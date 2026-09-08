@@ -1386,6 +1386,38 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-unit-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .srs-unit-row select{font:inherit;font-size:12px;padding:7px 8px;border-radius:7px;
   border:1px solid var(--border);background:var(--bg);color:var(--text);min-height:40px}
+/* sweep countdown — the loudest thing on the page while it runs */
+.srs-sweep{background:var(--gold);background:linear-gradient(0deg,var(--surface),var(--surface));
+  border:2px solid var(--unsure);border-radius:var(--r-card);padding:12px 14px;margin-bottom:14px}
+.srs-sweep-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  font-size:13px;color:var(--text);margin-bottom:8px}
+.srs-sweep-top span{font-size:11.5px;color:var(--gold);font-weight:700;white-space:nowrap}
+.srs-sweep .srs-bar span{background:var(--unsure)}
+.srs-sweep-n{font-size:12px;color:var(--text-muted)}
+
+/* 14-day forecast. One series, so no legend — the heading names it. Single hue
+   for magnitude; the warning token marks a day over the ceiling and that day
+   also prints its number, so the state is never carried by colour alone. */
+.srs-fc{overflow-x:auto;padding-bottom:2px}
+.srs-fc-plot{position:relative;display:flex;gap:2px;align-items:flex-end;
+  min-width:280px;height:132px;padding-top:16px}
+.srs-fc-col{flex:1 1 0;min-width:16px;display:flex;flex-direction:column;
+  align-items:center;height:100%}
+.srs-fc-n{font-size:9.5px;line-height:1;color:var(--text-muted);height:11px;
+  font-variant-numeric:tabular-nums}
+.srs-fc-n.hide{visibility:hidden}
+.srs-fc-track{flex:1;width:100%;display:flex;align-items:flex-end;min-height:0}
+.srs-fc-bar{width:100%;background:var(--accent);border-radius:4px 4px 0 0;
+  min-height:2px;transition:height .4s ease}
+.srs-fc-bar.over{background:var(--unsure)}
+.srs-fc-bar.today{outline:2px solid var(--surface);outline-offset:-2px}
+.srs-fc-d{font-size:9.5px;color:var(--text-muted);margin-top:4px;line-height:1}
+.srs-fc-d.is-today{color:var(--accent);font-weight:800}
+.srs-fc-ceiling{position:absolute;left:0;right:0;border-top:1px dashed var(--text-muted);
+  opacity:.55;pointer-events:none}
+.srs-fc-ceiling span{position:absolute;right:0;top:-13px;font-size:9.5px;
+  color:var(--text-muted);background:var(--surface);padding:0 3px}
+
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
 /* Four buttons need two rows on a narrow phone; the three-button row that
@@ -11728,6 +11760,8 @@ var fsrsRows = {card:{}, quiz:{}};   /* id -> the row we last read or wrote */
 var unitsMap = {};
 var objectiveList = [];   /* [{objective_id, unit}] for the current course */
 var examDates = {unit1:'',unit2:'',final:''};
+var settings = null;      /* null until loaded; ES defaults apply meanwhile */
+var loadMap = null;       /* dayIndex -> items already due, for levelling */
 
 function $(id){ return document.getElementById(id); }
 function esc2(s){ return String(s==null?'':s)
@@ -11818,10 +11852,13 @@ function ensureContext(){
   contextLoaded = Promise.all([
     window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
     window.sbFetch('/rest/v1/exam_schedule?select=exam,exam_date&user_id=eq.'+uid
+      +'&course=eq.'+course).then(j),
+    window.sbFetch('/rest/v1/srs_settings?select=*&user_id=eq.'+uid
       +'&course=eq.'+course).then(j)
   ]).then(function(r){
     applyUnits(r[0], course);
     applyExams(r[1]);
+    applySettings(r[2]);
   }).catch(function(e){
     contextLoaded = null;
     console.warn('srs context:', e);
@@ -11845,6 +11882,18 @@ function applyExams(exams){
   });
 }
 
+/* No row means never changed, which means the scheduler's own defaults. Kept
+   that way rather than seeded, so the two can never drift apart. */
+function applySettings(rows){
+  var r = Array.isArray(rows) && rows[0];
+  settings = {
+    newCardsPerDay: r ? r.new_cards_per_day : ES.DEFAULT_SETTINGS.newCardsPerDay,
+    newQuizPerDay:  r ? r.new_quiz_per_day  : ES.DEFAULT_SETTINGS.newQuizPerDay,
+    dailyCeiling:   r ? r.daily_ceiling     : ES.DEFAULT_SETTINGS.dailyCeiling
+  };
+}
+function currentSettings(){ return settings || ES.DEFAULT_SETTINGS; }
+
 /* Grade one item. Called from the flashcard and quiz paths; fire-and-forget,
    because a scheduling write must never block or fail an answer. */
 window.srsRecord = function(kind, id, rating, objectiveIds){
@@ -11859,13 +11908,22 @@ function recordNow(kind, id, rating, objectiveIds){
     var before = rowToCard(fsrsRows[kind][id]);
     var after = sched.review(before, rating, now);
 
-    /* Clamp the interval so this never comes back after the exam it counts
-       for. Learning steps are inside this sitting and are left alone. */
+    /* Clamp the interval so this never comes back after the exam it counts for,
+       then let it slide a day or two onto the lightest nearby day so one heavy
+       session does not echo forward as a wall. Levelling happens strictly
+       inside the clamp, so it can never move an item past its exam. Learning
+       steps are inside this sitting and are left alone by both. */
     var exam = examForItem(objectiveIds, now);
-    var clamped = ES.clampDue(after.due, exam, now);
-    if(clamped !== after.due){
-      after.due = clamped;
-      after.interval_days = Math.max(0, Math.round((clamped - now)/86400000));
+    var placed = ES.balanceDue(after.due, exam, now, loadMap);
+    if(placed !== after.due){
+      after.due = placed;
+      after.interval_days = Math.max(0, Math.round((placed - now)/86400000));
+    }
+    /* keep the running histogram honest so the next answer in this session
+       levels against the day this one just took */
+    if(loadMap && placed - now >= 86400000){
+      var di = ES.daysBetween(placed, now);
+      if(loadMap[di] != null) loadMap[di]++;
     }
 
     var row = {};
@@ -11927,13 +11985,20 @@ function loadAll(){
     window.sbFetch('/rest/v1/card_attempts?select=created_at&user_id=eq.'+uid
       +'&created_at=gte.'+since).then(j),
     window.sbFetch('/rest/v1/quiz_attempts?select=created_at&user_id=eq.'+uid
-      +'&created_at=gte.'+since).then(j)
+      +'&created_at=gte.'+since).then(j),
+    /* The load settings belong here as much as the exam dates do. Fetching them
+       only in ensureContext meant the dashboard computed its whole plan —
+       caps, ceiling, forecast, conflict — against the DEFAULTS whenever it
+       rendered before any grading had happened, which is almost always. */
+    window.sbFetch('/rest/v1/srs_settings?select=*&user_id=eq.'+uid
+      +'&course=eq.'+course).then(j)
   ]).then(function(r){
     var cards=r[0]||[], quiz=r[1]||[], cm=r[2]||[], qm=r[3]||[],
-        units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[];
+        units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[], sets=r[8]||[];
 
     applyUnits(units, course);
     applyExams(exams);
+    applySettings(sets);
     /* the dashboard just fetched the context in full, so grading need not */
     contextCourse = course;
     contextLoaded = Promise.resolve();
@@ -12013,9 +12078,13 @@ function render(){
     + ' · predicted recall on exam day, at or above '
     + Math.round(ES.READY_THRESHOLD*100) + '%</div></div>'
     + datesHtml()
+    + settingsHtml()
+    + sweepHtml()
+    + conflictHtml()
     + paceHtml()
     + examCardsHtml()
     + queueHtml()
+    + forecastHtml()
     + weakHtml()
     + unitsHtml();
 }
@@ -12033,6 +12102,129 @@ function datesHtml(){
       + (v?'':'<div class="srs-date-hint">Set a date to schedule around it</div>')
       + '</div>';
   }).join('') + '</div>';
+}
+
+/* Three numbers, next to the dates, because they are the same kind of decision:
+   what shape is this run-up to the exam. */
+function settingsHtml(){
+  var st = currentSettings();
+  var f = function(id, label, val, hint){
+    return '<div class="srs-date"><label for="'+id+'">'+esc2(label)+'</label>'
+      + '<input type="number" inputmode="numeric" min="0" max="500" id="'+id+'" value="'+val+'" '
+      + 'onchange="srsSetSetting(\''+id+'\',this.value)">'
+      + '<div class="srs-date-hint">'+esc2(hint)+'</div></div>';
+  };
+  return '<div class="srs-dates">'
+    + f('srs-s-cards',  'New cards / day',    st.newCardsPerDay, 'flashcards started per day')
+    + f('srs-s-quiz',   'New questions / day', st.newQuizPerDay,  'quiz questions started per day')
+    + f('srs-s-ceiling','Daily ceiling',       st.dailyCeiling,   'reviews levelled toward')
+    + '</div>';
+}
+
+/* The conflict. A cap silently respected while the runway runs out is worse
+   than no cap, so this is a banner with the real numbers and the fix in it. */
+function conflictHtml(){
+  var bad = (plan.newItems || []).filter(function(r){ return !r.ok; });
+  if(!bad.length) return '';
+  /* one line per bank for the nearest exam that has a problem */
+  var exam = bad[0].exam;
+  var rows = bad.filter(function(r){ return r.exam === exam; });
+  var name = esc2(EXAM_LABEL[exam]);
+  return '<div class="srs-warn">'
+    + rows.map(function(r){
+        return 'At <b>'+r.cap+' new '+esc2(r.noun)+'/day</b> you’ll see <b>'
+          + r.willSee.toLocaleString()+' of '+r.unseen.toLocaleString()+'</b> before the '
+          + name + ' — you need <b>'+r.needPerDay+'/day</b>.';
+      }).join('<br>')
+    + '<div class="srs-actions" style="margin-top:9px">'
+    + rows.map(function(r){
+        return '<button class="srs-btn" onclick="srsAcceptRate(\''+r.kind+'\','+r.needPerDay+')">'
+          + 'Use '+r.needPerDay+' '+(r.kind==='card'?'cards':'questions')+'/day</button>';
+      }).join('')
+    + (rows.length>1
+        ? '<button class="srs-btn srs-btn-ghost" onclick="srsAcceptAllRates()">Use both</button>'
+        : '')
+    + '</div>'
+    + '<div class="srs-sub" style="margin-top:7px;color:inherit;opacity:.8">'
+    + 'Counted over the ' + rows[0].days + ' day' + (rows[0].days===1?'':'s')
+    + ' before the sweep week opens — nothing new is started in the last '
+    + ES.SWEEP_DAYS + '.</div>'
+    + '</div>';
+}
+
+/* The sweep countdown. Deliberately the loudest thing on the page while it is
+   running, and it reports the real daily number even when that number is ugly. */
+function sweepHtml(){
+  var sw = plan.sweep;
+  if(!sw || !sw.active) return '';
+  var pct = sw.total ? Math.round((sw.covered/sw.total)*100) : 0;
+  return '<div class="srs-sweep">'
+    + '<div class="srs-sweep-top"><b>'+esc2(sw.label)+' sweep</b>'
+    + '<span>day '+sw.day+' of '+sw.totalDays+'</span></div>'
+    + '<div class="srs-bar"><span style="width:'+pct+'%"></span></div>'
+    + '<div class="srs-sweep-n">'+sw.covered.toLocaleString()+' of '
+    + sw.total.toLocaleString()+' items covered</div>'
+    + '<div class="srs-facts" style="margin-top:8px">'
+    + '<div><b>'+sw.perDay.toLocaleString()+'</b> a day to finish</div>'
+    + '<div><b>'+sw.neverSeen.toLocaleString()+'</b> still never seen</div>'
+    + '<div><b>'+sw.failing.toLocaleString()+'</b> failing</div>'
+    + '</div>'
+    + '<div class="srs-sub" style="margin-top:8px">Every item in this unit is seen '
+    + 'at least once before the exam. New material outside it is paused, and '
+    + 'neither the daily cap nor the ceiling trims this.</div>'
+    + '</div>';
+}
+
+/* Fourteen days of review load. One series, so no legend — the heading names
+   it. Single hue for magnitude; a day over the ceiling switches to the warning
+   token AND gets its number printed, so it is never colour alone. */
+function forecastHtml(){
+  var f = plan.forecast || [];
+  if(!f.length) return '';
+  var ceiling = currentSettings().dailyCeiling;
+  var peak = f.reduce(function(m,d){ return Math.max(m, d.count); }, 0);
+  var scaleTop = Math.max(peak, ceiling, 1);
+  var overDays = f.filter(function(d){ return d.over; }).length;
+  var DOW = ['S','M','T','W','T','F','S'];
+
+  var bars = f.map(function(d){
+    var h = Math.round((d.count/scaleTop)*100);
+    var label = d.isToday ? 'Today' : d.date.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    /* a number on every bar is noise; print the ones that matter */
+    var showN = d.over || d.count === peak || d.isToday;
+    return '<div class="srs-fc-col" title="'+esc2(label)+': '+d.count+' review'
+      + (d.count===1?'':'s') + (d.over?' — over the '+ceiling+' ceiling':'') + '">'
+      + '<div class="srs-fc-n'+(showN?'':' hide')+'">'+d.count+'</div>'
+      + '<div class="srs-fc-track"><div class="srs-fc-bar'+(d.over?' over':'')
+      + (d.isToday?' today':'')+'" style="height:'+h+'%"></div></div>'
+      + '<div class="srs-fc-d'+(d.isToday?' is-today':'')+'">'+DOW[d.date.getDay()]+'</div>'
+      + '</div>';
+  }).join('');
+
+  /* the ceiling sits at its true height on the same scale */
+  var ceilPct = Math.round((ceiling/scaleTop)*100);
+
+  return '<div class="srs-q">'
+    + '<div class="srs-head" style="margin-bottom:4px">'
+    + '<div class="srs-title" style="font-size:13px">Reviews due, next 14 days</div>'
+    + '<div class="srs-sub">ceiling '+ceiling+'</div></div>'
+    + '<div class="srs-fc"><div class="srs-fc-plot">'
+    + '<div class="srs-fc-ceiling" style="bottom:'+ceilPct+'%"><span>'+ceiling+'</span></div>'
+    + bars + '</div></div>'
+    + (overDays
+        ? '<div class="srs-sub" style="margin-top:8px;color:var(--gold)"><b>'+overDays+' day'
+          + (overDays===1?'':'s') + '</b> projected over the ceiling. New answers level '
+          + 'themselves onto the lighter days either side; days already booked stay as they are.</div>'
+        : '<div class="srs-sub" style="margin-top:8px">No day is projected over the ceiling.</div>')
+    /* Scheduled reviews only. During a sweep the real day is much bigger than
+       this chart, and letting it read as the whole picture would be the quiet
+       trimming the sweep exists to avoid. */
+    + (plan.sweep && plan.sweep.active
+        ? '<div class="srs-sub" style="margin-top:5px">Scheduled reviews only — the '
+          + esc2(plan.sweep.label) + ' sweep adds about <b>' + plan.sweep.perDay.toLocaleString()
+          + '</b> more a day on top until the exam.</div>'
+        : '')
+    + '</div>';
 }
 
 function examCardsHtml(){
@@ -12187,6 +12379,59 @@ window.srsDefaultUnit = function(){
   return (u1 !== null && u1 < ES.startOfDay(now)) ? 2 : 1;
 };
 
+/* ── the settings, and accepting a suggested rate ────────────────────── */
+
+var SETTING_FIELD = {
+  'srs-s-cards':   {key:'newCardsPerDay', col:'new_cards_per_day', min:0,  max:500},
+  'srs-s-quiz':    {key:'newQuizPerDay',  col:'new_quiz_per_day',  min:0,  max:500},
+  'srs-s-ceiling': {key:'dailyCeiling',   col:'daily_ceiling',     min:5,  max:2000}
+};
+
+function saveSettings(next){
+  settings = next;
+  if(!window.currentUser) return Promise.resolve();
+  return window.sbFetch('/rest/v1/srs_settings',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
+                          window.getAuthHdr()),
+    body:JSON.stringify({
+      user_id: window.currentUser.id, course: window.currentCourse,
+      new_cards_per_day: next.newCardsPerDay,
+      new_quiz_per_day:  next.newQuizPerDay,
+      daily_ceiling:     next.dailyCeiling,
+      updated_at: new Date().toISOString()
+    })
+  }).then(function(){ contextLoaded=null; contextCourse=null; return recompute(); });
+}
+
+window.srsSetSetting = function(id, value){
+  var f = SETTING_FIELD[id];
+  if(!f) return;
+  var n = Math.round(Number(value));
+  if(!isFinite(n)) return;
+  n = Math.min(f.max, Math.max(f.min, n));
+  var next = Object.assign({}, currentSettings());
+  next[f.key] = n;
+  saveSettings(next);
+};
+
+/* One tap to take the rate the conflict banner just named. */
+window.srsAcceptRate = function(kind, perDay){
+  var next = Object.assign({}, currentSettings());
+  next[kind==='card' ? 'newCardsPerDay' : 'newQuizPerDay'] = Math.min(500, Math.max(0, perDay));
+  saveSettings(next);
+};
+
+window.srsAcceptAllRates = function(){
+  var next = Object.assign({}, currentSettings());
+  (plan && plan.newItems || []).filter(function(r){ return !r.ok; })
+    .forEach(function(r){
+      next[r.kind==='card' ? 'newCardsPerDay' : 'newQuizPerDay'] =
+        Math.min(500, Math.max(0, r.needPerDay));
+    });
+  saveSettings(next);
+};
+
 window.srsSetUnit = function(objectiveId, unit){
   if(!window.currentUser) return;
   unit = Number(unit)===2 ? 2 : 1;
@@ -12339,9 +12584,12 @@ function recompute(){
     if(!data){ plan=null; render(); return; }
     plan = ES.buildPlan({
       scheduler: sched, now: Date.now(), items: data.items,
-      units: unitsMap, exams: examDates, recentPacePerDay: data.pace
+      units: unitsMap, exams: examDates, recentPacePerDay: data.pace,
+      settings: currentSettings(), dailyCap: currentSettings().dailyCeiling
     });
     plan._items = data.items;
+    /* the levelling target: what each of the next few weeks already holds */
+    loadMap = ES.loadHistogram(data.items, Date.now(), 60);
     window.srsPlan = plan;          /* inspectable from the console */
     render();
   }).catch(function(e){

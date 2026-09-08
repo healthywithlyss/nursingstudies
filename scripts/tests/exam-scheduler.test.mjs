@@ -106,9 +106,14 @@ console.log('\nguaranteeing nothing goes in unseen');
   const debt = ES.coverageDebt(unseen.concat(scheduled), UNITS, exams, NOW);
   ck('every never-seen item is coverage debt', debt.length === 90, debt.length);
 
-  const plan = ES.buildQueue(sched, unseen.concat(scheduled), UNITS, exams, NOW, { dailyCap: 40 });
-  ck('the debt is spread over the days left, not dumped on day one',
-    plan.coverage.unit1.perDay === Math.ceil(90 / 9), plan.coverage);
+  const plan = ES.buildQueue(sched, unseen.concat(scheduled), UNITS, exams, NOW,
+    { dailyCap: 40, settings: { newCardsPerDay: 12, newQuizPerDay: 15 } });
+  /* New material is governed by the daily cap, not by dividing the syllabus by
+     the days left — capping at 10 when 12 a day is comfortable would just be
+     slower. Whether 12 a day actually finishes in time is newItemPlan's job,
+     and it says so out loud rather than quietly rationing. */
+  ck('new items come in at the configured rate, not a derived one',
+    plan.coverage.unit1.introduced.card === 12, plan.coverage.unit1);
   const firstTen = plan.queue.slice(0, 10);
   ck('unseen items take the front of the queue over 200 overdue reviews',
     firstTen.every((i) => ES.neverSeen(i)), firstTen.map((i) => i.state));
@@ -127,12 +132,14 @@ console.log('\nguaranteeing nothing goes in unseen');
     kind: 'quiz', id: 1000 + i, state: 'new', stability: null, due_date: null,
     last_reviewed_at: null, repetitions: 0
   })));
-  const mp = ES.buildQueue(sched, mixed, UNITS, { unit1: inDays(34) }, NOW, {});
+  const mp = ES.buildQueue(sched, mixed, UNITS, { unit1: inDays(34) }, NOW,
+    { settings: { newCardsPerDay: 20, newQuizPerDay: 15 } });
   ck('a day of coverage draws from both flashcards and quiz',
     mp.counts.cards > 0 && mp.counts.quiz > 0, mp.counts);
-  ck('and roughly in proportion to the two banks',
-    Math.abs(mp.counts.quiz / (mp.counts.cards + mp.counts.quiz) - 316 / 460) < 0.2,
-    mp.counts);
+  /* Each bank advances at its own configured rate — the point of two settings
+     is that a flashcard and a quiz question are not the same unit of work. */
+  ck('and each at its own cap rather than one starving the other',
+    mp.counts.cards === 20 && mp.counts.quiz === 15, mp.counts);
 
   /* the closer exam wins the day */
   const two = unseen.slice(0, 10).map((i) => ({ ...i, objectiveIds: ['N144_PSY'] }))
@@ -240,6 +247,244 @@ console.log('\nweakest topics');
   ck('an objective never opened ranks weakest', w[0].objective_id === 'B', w.map((x) => x.objective_id));
   ck('and it is not scored as strong just for being unanswered', w[0].pct === 0, w[0]);
   ck('solid material ranks last', w[w.length - 1].objective_id === 'A', w.map((x) => x.objective_id));
+}
+
+/* ── daily load control ──────────────────────────────────────────────── */
+console.log('\nnew-item caps');
+{
+  const exams = { unit1: inDays(60) };            /* far enough that the cap, not the exam, governs */
+  const items = Array.from({ length: 100 }, (_, i) => item({
+    kind: i < 50 ? 'card' : 'quiz', state: 'new', stability: null,
+    due_date: null, last_reviewed_at: null, repetitions: 0
+  }));
+  const q = ES.buildQueue(sched, items, UNITS, exams, NOW,
+    { settings: { newCardsPerDay: 5, newQuizPerDay: 3 } });
+  const intro = q.coverage.unit1.introduced;
+  ck('flashcards and quiz have separate caps and both are honoured',
+    intro.card === 5 && intro.quiz === 3, intro);
+
+  const dflt = ES.buildQueue(sched, items, UNITS, exams, NOW, {}).coverage.unit1.introduced;
+  ck('defaults are 20 new cards and 15 new questions',
+    ES.DEFAULT_SETTINGS.newCardsPerDay === 20 && ES.DEFAULT_SETTINGS.newQuizPerDay === 15
+    && dflt.card === 20 && dflt.quiz === 15, dflt);
+
+  /* a cap is a ceiling, not a target */
+  const few = Array.from({ length: 3 }, () => item({
+    kind: 'card', state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+  ck('with less new material than the cap, the day is just shorter',
+    ES.buildQueue(sched, few, UNITS, exams, NOW, {}).coverage.unit1.introduced.card === 3);
+
+  /* resurfacing is not new material */
+  const resurface = item({ objectiveIds: ['N144_L1'],
+    last_reviewed_at: ES.parseDate(inDays(-40)) });
+  const rq = ES.buildQueue(sched, [resurface], UNITS,
+    { unit1: inDays(-20), final: inDays(30) }, NOW, { settings: { newCardsPerDay: 0 } });
+  ck('a cap of zero new items does not block resurfacing already-started work',
+    rq.queue.length === 1, rq.queue.length);
+}
+
+console.log('\nsmoothing the review load');
+{
+  /* 200 items all answered the same day come back on the same day */
+  const spike = {}; for (let d = 0; d <= 21; d++) spike[d] = 0;
+  spike[10] = 200; spike[11] = 15; spike[9] = 12;
+  const base = NOW + 10 * DAY;
+  const moved = ES.balanceDue(base, null, NOW, spike);
+  ck('an interval landing on a heavy day slides to a lighter one',
+    ES.daysBetween(moved, NOW) !== 10, ES.daysBetween(moved, NOW));
+  ck('and only by a day or two', Math.abs(ES.daysBetween(moved, NOW) - 10) <= 2,
+    ES.daysBetween(moved, NOW));
+  ck('it picks a genuinely empty day, not just a lighter one',
+    spike[ES.daysBetween(moved, NOW)] === 0, ES.daysBetween(moved, NOW));
+  ck('the time of day is preserved, only the date moves',
+    (moved - ES.startOfDay(moved)) === (base - ES.startOfDay(base)));
+
+  const flat = {}; for (let d = 0; d <= 21; d++) flat[d] = 20;
+  ck('on a flat load it is a no-op', ES.balanceDue(base, null, NOW, flat) === base);
+
+  ck('short intervals have no room to slide — moving a 2-day interval is a 50% change',
+    ES.slideRoom(2) === 0 && ES.slideRoom(5) === 1 && ES.slideRoom(10) === 2 && ES.slideRoom(30) === 3);
+  ck('a 2-day interval is never moved',
+    ES.balanceDue(NOW + 2 * DAY, null, NOW, spike) === NOW + 2 * DAY);
+
+  /* levelling must never break the exam clamp */
+  const exam = { key: 'unit1', date: ES.parseDate(inDays(12)) };
+  const clampedThenBalanced = ES.balanceDue(NOW + 40 * DAY, exam, NOW, spike);
+  ck('levelling never pushes an item past its exam',
+    clampedThenBalanced <= exam.date - DAY,
+    { got: ES.daysBetween(clampedThenBalanced, NOW), latest: 11 });
+  ck('and never before tomorrow',
+    ES.balanceDue(NOW + DAY, null, NOW, spike) >= ES.startOfDay(NOW) + DAY);
+  ck('a sub-day learning step is never levelled',
+    ES.balanceDue(NOW + 600000, null, NOW, spike) === NOW + 600000);
+
+  /* The case this exists for: a batch answered in one sitting is in identical
+     FSRS state, so it gets an identical interval and, unlevelled, comes back as
+     one wall. Levelling each against the load the previous ones just took
+     spreads them. */
+  const load = {}; for (let d = 0; d <= 60; d++) load[d] = 0;
+  const target = NOW + 29 * DAY, placedDays = {};
+  for (let i = 0; i < 30; i++) {
+    const at = ES.balanceDue(target, null, NOW, load);
+    const d = ES.daysBetween(at, NOW);
+    load[d]++; placedDays[d] = (placedDays[d] || 0) + 1;
+  }
+  const spreadDays = Object.keys(placedDays).length;
+  const busiest = Math.max.apply(null, Object.keys(placedDays).map((k) => placedDays[k]));
+  ck('30 identical items do not all land on the same day',
+    spreadDays >= 5, placedDays);
+  ck('and no day takes more than a fraction of them', busiest <= 8, busiest);
+  ck('all still within the slide room of the original day',
+    Object.keys(placedDays).every((d) => Math.abs(Number(d) - 29) <= ES.slideRoom(29)),
+    Object.keys(placedDays));
+}
+
+console.log('\nthe forecast');
+{
+  const items = [];
+  for (const [day, n] of [[0, 30], [1, 5], [3, 200], [13, 7]])
+    for (let i = 0; i < n; i++) items.push(item({ due_date: NOW + day * DAY }));
+  items.push(item({ due_date: NOW - 9 * DAY }));      /* overdue */
+  const f = ES.forecast(items, NOW, 14, 120);
+  ck('fourteen days', f.length === 14);
+  ck('overdue counts as today, because that is when it gets answered',
+    f[0].count === 31, f[0].count);
+  ck('each day carries its own count', f[1].count === 5 && f[3].count === 200 && f[13].count === 7,
+    f.map((d) => d.count));
+  ck('a day over the ceiling is flagged',
+    f[3].over === true && f[1].over === false, f.map((d) => d.over));
+  ck('day zero is marked as today', f[0].isToday === true && f[1].isToday === false);
+  ck('a quiet day is zero, not missing', ES.forecast([], NOW, 14, 120)[5].count === 0);
+}
+
+console.log('\nwhen the cap and the exam date disagree');
+{
+  const mk = (n) => Array.from({ length: n }, () => item({
+    kind: 'card', state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+
+  /* 460 items, 34 days, 20/day — the case that works */
+  const ok = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(34) }, NOW,
+    { newCardsPerDay: 20 })[0];
+  ck('460 items in 34 days at 20/day is fine', ok.ok === true && ok.shortfall === 0, ok);
+
+  /* 460 items, 15 days — the case that does not */
+  const bad = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(15) }, NOW,
+    { newCardsPerDay: 20 })[0];
+  ck('460 items in 15 days at 20/day does not cover it', bad.ok === false, bad);
+  ck('it says how many will actually be seen', bad.willSee === 160, bad.willSee);
+  ck('and the rate that would be needed', bad.needPerDay === Math.ceil(460 / bad.days),
+    { need: bad.needPerDay, days: bad.days });
+  ck('the sweep week is excluded from the days new material can start in',
+    bad.days === Math.max(0, ES.daysBetween(ES.parseDate(inDays(15)), ES.startOfDay(NOW))
+      - ES.EXAM_BUFFER_DAYS + 1 - ES.SWEEP_DAYS), bad.days);
+
+  /* the worked example from the spec */
+  const spec = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(24) }, NOW,
+    { newCardsPerDay: 20 })[0];
+  ck('the shortfall and the required rate are both concrete numbers',
+    spec.willSee < 460 && spec.needPerDay > 20,
+    { willSee: spec.willSee, need: spec.needPerDay });
+
+  /* accepting the higher rate resolves it */
+  const fixed = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(24) }, NOW,
+    { newCardsPerDay: spec.needPerDay })[0];
+  ck('taking the suggested rate clears the shortfall', fixed.ok === true, fixed);
+
+  /* the two banks are reported separately */
+  const both = ES.newItemPlan(
+    mk(300).concat(Array.from({ length: 300 }, () => item({
+      kind: 'quiz', state: 'new', stability: null, due_date: null,
+      last_reviewed_at: null, repetitions: 0 }))),
+    UNITS, { unit1: inDays(20) }, NOW, { newCardsPerDay: 20, newQuizPerDay: 15 });
+  ck('flashcards and quiz get their own verdicts',
+    both.length === 2 && both.some((r) => r.kind === 'card') && both.some((r) => r.kind === 'quiz'),
+    both.map((r) => r.kind));
+  ck('no exam date means nothing to conflict with',
+    ES.newItemPlan(mk(460), UNITS, {}, NOW, {}).length === 0);
+
+  /* Inside the sweep window there are no days left to start new material on,
+     so "you need 316/day" would be arithmetic noise rather than advice. The
+     sweep is the mechanism there and reports its own number. */
+  ck('no rate is suggested once the sweep window has opened',
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(5) }, NOW, { newCardsPerDay: 15 }).length === 0,
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(5) }, NOW, { newCardsPerDay: 15 }));
+  ck('but it is still suggested the day before the window opens',
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(9) }, NOW, { newCardsPerDay: 15 }).length === 1);
+}
+
+/* ── the week before ─────────────────────────────────────────────────── */
+console.log('\nthe sweep');
+{
+  const mk = (n, over) => Array.from({ length: n }, () => item(over || {}));
+  /* reviewed well before any sweep window opens, so it starts as uncovered */
+  const stale = { last_reviewed_at: NOW - 40 * DAY };
+  const scope = mk(60, stale).concat(
+    Array.from({ length: 20 }, () => item({ state: 'new', stability: null,
+      due_date: null, last_reviewed_at: null, repetitions: 0 })),
+    Array.from({ length: 10 }, () => item({ stability: 0.3, lapses: 3,
+      last_reviewed_at: NOW - 30 * DAY })));
+  /* 60 stale + 20 never seen + 10 failing = 90 in the unit */
+
+  ck('no sweep while the exam is further out than a week',
+    ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(9) }, NOW).active === false);
+
+  const sw = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(7) }, NOW);
+  ck('it starts exactly seven days out', sw.active === true, sw.active);
+  ck('day 1 of 7 on the day it opens', sw.day === 1 && sw.totalDays === 7, sw);
+  ck('the whole unit is in scope', sw.total === 90, sw.total);
+  ck('nothing counts as covered before the window opens', sw.covered === 0, sw.covered);
+  ck('the work is spread, not dumped', sw.perDay === Math.ceil(90 / 7) && sw.todayList.length === 13,
+    { perDay: sw.perDay, today: sw.todayList.length });
+  ck('never-seen items lead', sw.todayList.slice(0, 13).every((i) => ES.neverSeen(i)),
+    sw.todayList.map((i) => i.state));
+
+  const mid = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(5) }, NOW);
+  ck('day 3 of 7 two days in', mid.day === 3, mid.day);
+
+  /* items reviewed inside the window count as covered */
+  const partly = scope.map((it, i) => i < 42
+    ? Object.assign({}, it, { last_reviewed_at: NOW - DAY, repetitions: 2, stability: 5, state: 'review' })
+    : it);
+  const sw2 = ES.sweepPlan(sched, partly, UNITS, { unit1: inDays(5) }, NOW);
+  ck('coverage is counted from the window start, not from all time',
+    sw2.covered === 42 && sw2.remaining === 48, { c: sw2.covered, r: sw2.remaining });
+  ck('the countdown has the numbers the dashboard needs',
+    sw2.day === 3 && sw2.total === 90 && sw2.covered === 42, sw2);
+
+  /* it overrides both caps */
+  const q = ES.buildQueue(sched, scope, UNITS, { unit1: inDays(7) }, NOW,
+    { dailyCap: 5, settings: { newCardsPerDay: 1, newQuizPerDay: 1 } });
+  ck('the sweep overrides the daily working set rather than being trimmed to it',
+    q.queue.length >= 13, q.queue.length);
+  ck('and overrides the new-item cap: 20 never-seen items still get swept',
+    q.queue.filter(ES.neverSeen).length >= 13, q.queue.filter(ES.neverSeen).length);
+  ck('the queue reports the sweep so the number shown is the real one',
+    q.sweep.active === true && q.cap >= 13, { cap: q.cap, requested: q.requestedCap });
+
+  /* a late sweep with a lot left is honestly large */
+  const late = ES.sweepPlan(sched, mk(180, stale), UNITS, { unit1: inDays(2) }, NOW);
+  ck('two days out with 180 items it says 90 a day rather than quietly trimming',
+    late.perDay === 90, late.perDay);
+
+  ck('no exam, no sweep', ES.sweepPlan(sched, scope, UNITS, {}, NOW).active === false);
+  ck('a passed exam does not sweep',
+    ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(-2) }, NOW).active === false);
+}
+
+console.log('\nbuildPlan carries all of it');
+{
+  const items = Array.from({ length: 100 }, (_, i) => item({
+    kind: i % 2 ? 'quiz' : 'card', state: 'new', stability: null,
+    due_date: null, last_reviewed_at: null, repetitions: 0 }));
+  const plan = ES.buildPlan({ scheduler: sched, now: NOW, items, units: UNITS,
+    exams: { unit1: inDays(20) }, settings: { newCardsPerDay: 7, newQuizPerDay: 4, dailyCeiling: 50 } });
+  ck('settings are echoed back', plan.settings.newCardsPerDay === 7 && plan.settings.dailyCeiling === 50);
+  ck('forecast is fourteen days', plan.forecast.length === 14);
+  ck('the new-item verdicts are there', plan.newItems.length === 2, plan.newItems.length);
+  ck('the sweep is there', plan.sweep.active === false);
+  ck('the queue honours the caps', plan.queue.coverage.unit1.introduced.card === 7);
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall exam scheduler checks passed');
