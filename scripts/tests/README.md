@@ -97,3 +97,20 @@ worth knowing about what these assert:
   interval can be moved to a lighter day and can never be moved past the exam.
 - **The sweep overrides both caps.** The test asserts that a sweep needing 90 a
   day reports 90, rather than being trimmed to the working set.
+
+## study-session
+
+`lib/study-session.js`: the queue a flashcard sitting runs on.
+
+The headline is **"a failed card cannot escape a session unseen"**, and it is
+tested by driving a full 25-card session to completion — failing the first eight
+answers — then checking that every card that was ever failed was answered again
+afterwards. Not a flag; the actual sequence of cards handed out.
+
+Also asserted: Again on a new card returns in about a minute rather than after
+the whole deck; a first Good does NOT finish a new card (the old bug); Again on
+a review card enters relearning, loses stability and counts a lapse; Hard
+schedules days out on a review card while Again stays in the sitting; interval
+previews are pure; steps are configurable and nonsense falls back to defaults;
+undo restores state exactly, including removing a card from learning; a snapshot
+resumes and drops cards deleted since; extra study is flagged not to persist.

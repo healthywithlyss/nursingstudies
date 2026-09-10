@@ -68,6 +68,12 @@ jobs:
       - name: Exam scheduler
         run: node scripts/tests/exam-scheduler.test.mjs
 
+      # The flashcard loop, including the guarantee that a card you failed
+      # cannot leave a session unseen — driven through a whole session rather
+      # than asserted from a flag.
+      - name: Study session
+        run: node scripts/tests/study-session.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
