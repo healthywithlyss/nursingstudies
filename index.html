@@ -6299,7 +6299,7 @@ function fcRate(result,rating){
     }).catch(function(e){console.warn('attempt:',e);});
     upsertCardMastery(c.id,newCs);
     if(window.srsRecord)
-      window.srsRecord('card',c.id,rating||(result==='got_it'?3:result==='unsure'?2:1),
+      window.srsRecord('card',c.id,window.ratingFromResult(result,rating),
                        c.objective_ids||[]);
   }
 
@@ -12018,6 +12018,20 @@ window.srsWasFast = function(){
 function tableFor(kind){ return kind==='card' ? 'card_mastery' : 'question_mastery'; }
 function keyFor(kind){ return kind==='card' ? 'card_id' : 'question_id'; }
 
+/* ── THE ONE PLACE A LEGACY RESULT BECOMES AN FSRS RATING ────────────────
+   The four buttons carry both: a legacy result string for card_attempts and
+   the FSRS rating for the scheduler. Got it and Easy share 'got_it', which is
+   why the history cannot recover an Easy — see scripts/replay-mastery.mjs.
+
+   The ternary that expresses this was written out twice, at two call sites, in
+   two different script blocks. Two statements of one rule is two chances for
+   them to drift apart, so there is one. */
+function ratingFromResult(result, rating){
+  if(rating) return rating;
+  return result === 'got_it' ? 3 : result === 'unsure' ? 2 : 1;
+}
+window.ratingFromResult = ratingFromResult;
+
 /* ── THE ONE PLACE THE EXAM CLAMP IS APPLIED ─────────────────────────────
    Both scheduling paths — the flashcard session and the quiz grader — must run
    an interval through compressToRunway before storing it. They each used to
@@ -14234,7 +14248,7 @@ window.fcRate = function(result, rating){
     if(window.fcRating) return;                 /* the legacy double-tap guard */
     window.fcRating = true;
     setTimeout(function(){ window.fcRating = false; }, 350);
-    return window.srsRate(rating || (result==='got_it'?3:result==='unsure'?2:1));
+    return window.srsRate(ratingFromResult(result, rating));
   }
   return _fcRate.apply(this, arguments);
 };
@@ -14270,6 +14284,47 @@ if(typeof _renderDeckDropdown === 'function'){
     }
     return _renderDeckDropdown.apply(this, arguments);
   };
+}
+
+/* ── THE ONE GUARD ON THE LEGACY SESSION ────────────────────────────────
+   When the SRS loop owns the practice page, the legacy session must never
+   start underneath it: startSession() resets sess.cardState and drives
+   buildCycle/showCurrentCard, which contradicts the queue actually running.
+
+   This was guarded at startSessionForFilter alone, which turned out to be one
+   of THREE doors — startSessionWithIds (the Trouble Spots button) and
+   startCards (srsStudyDue) both reach startSession without passing it. The
+   Trouble Spots door was unreachable only because total_attempts was never
+   written; repairing those counters made it live.
+
+   Same lesson as the exam clamp: guard the function everything funnels into,
+   not each path that reaches it. A test asserts this is the only wrapper. */
+var _startSession = window.startSession;
+if(typeof _startSession === 'function'){
+  window.startSession = function(cards, filter){
+    if(fsrsPractice()){ srsStudyCards(cards); return; }
+    return _startSession.apply(this, arguments);
+  };
+}
+
+/* An SRS session over an explicit set of cards — trouble spots, a due list,
+   anything chosen by id rather than by the day's queue. It is a SCHEDULED
+   session, not extra study: she picked these deliberately and her answers are
+   real signal, so they are written. */
+function srsStudyCards(cards){
+  if(!plan || !plan._items){ idlePrompt(); return; }
+  var want = {};
+  (cards || []).forEach(function(c){ if(c && c.id != null) want[c.id] = 1; });
+  var items = plan._items.filter(function(i){
+    return i.kind === 'card' && want[i.id];
+  });
+  if(!items.length){ idlePrompt(); return; }
+  var opts = sessionOpts(Date.now(), currentSettings(), false);
+  opts.items = items;
+  SESS = window.StudySession.create(opts);
+  saveSession();
+  renderDeckPanel();
+  paintSession();
 }
 
 var _startSessionForFilter = window.startSessionForFilter;
