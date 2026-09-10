@@ -79,6 +79,13 @@ jobs:
       - name: Card generation
         run: node scripts/tests/card-gen.test.mjs
 
+      # Ratings reaching the database and coming back. The upserts aimed at the
+      # surrogate primary key instead of the natural one, so every rating after
+      # the first on a card was rejected with a 409 that nothing surfaced. This
+      # pins the conflict targets, the loud failure path, and the round trip.
+      - name: Persistence
+        run: node scripts/tests/persistence.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
