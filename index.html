@@ -1485,6 +1485,47 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   font-variant-numeric:tabular-nums}
 .rating-row.rr-four .rating-btn{min-height:64px}
 
+/* ── compacting the study surface ─────────────────────────────────────
+   The card is the only element that should grow, and it was growing far past
+   what a flashcard needs: a 300px floor plus 32px padding plus a hover lift
+   pushed the ratings below the fold on a laptop and well below it on a phone.
+   Everything above the card is tightened, the card is given a sensible ceiling,
+   and the buttons come back into view. Scoped to the scheduled mode so the
+   legacy practice page on the other courses keeps the roomier layout. */
+.srs-study .card-col{gap:8px}
+.srs-study .srs-deck{padding:10px 12px;margin-bottom:8px}
+.srs-study .srs-deck-head{margin-bottom:7px}
+.srs-study .srs-chips{gap:5px;margin-bottom:8px}
+.srs-study .srs-chip{padding:6px 10px;min-height:34px;font-size:11px}
+.srs-study .srs-qc{gap:14px;margin-bottom:8px}
+.srs-study .srs-qc-i b{font-size:18px}
+.srs-study .srs-note{margin-top:6px}
+.srs-study .srs-actions .srs-btn{min-height:38px;padding:7px 13px;font-size:12px}
+.srs-study .srs-runway{padding:6px 11px;margin-bottom:6px}
+.srs-study .practice-progress-wrap{margin-bottom:8px}
+.srs-study .card-header-row{margin-bottom:0}
+.srs-study .fc-card{
+  min-height:0;
+  /* fills what is left after the panel, runway and buttons, and never more */
+  height:clamp(180px, 42vh, 360px);
+  padding:20px 22px}
+.srs-study .fc-card:hover{transform:none}
+.srs-study .fc-q-text{font-size:17px}
+.srs-study .fc-flip-hint{margin-top:8px;font-size:11px}
+@media(max-width:767px){
+  .srs-study .fc-card{height:clamp(160px, 34vh, 300px)}
+  .srs-study .srs-qc-i b{font-size:17px}
+}
+
+/* the running-session strip: one line, so the card and the ratings get the room */
+.srs-deck-mini{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 12px}
+.srs-mini-l{display:flex;align-items:baseline;gap:8px;min-width:0;flex-wrap:wrap}
+.srs-mini-l b{font-size:16px;font-weight:800;color:var(--text)}
+.srs-mini-l span{font-size:11px;color:var(--text-muted)}
+.srs-mini-end{flex-shrink:0}
+.srs-study .srs-deck-mini{padding:7px 11px}
+
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
 /* Four buttons need two rows on a narrow phone; the three-button row that
@@ -4568,6 +4609,10 @@ body.lsn-open #main-content{padding-bottom:80px}
               <button class="fc-ctrl-btn" id="shuffle-toggle" onclick="toggleShuffle()">&#8652; Shuffle: Off</button>
               <span class="practice-counter" id="fc-counter">— / —</span>
             </div>
+            <!-- How long is left, and whether the intervals are being compressed
+                 to fit it. Above the card, not between it and the buttons —
+                 there it pushed the buttons off the bottom of the screen. -->
+            <div id="srs-runway" class="srs-runway" style="display:none"></div>
             <!-- progress bar -->
             <div class="practice-progress-wrap">
               <div class="practice-progress-track">
@@ -4585,9 +4630,6 @@ body.lsn-open #main-content{padding-bottom:80px}
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
-            <!-- how long is left, and whether the intervals below are being
-                 compressed to fit it. Only on courses with exam scheduling. -->
-            <div id="srs-runway" class="srs-runway" style="display:none"></div>
             <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
               <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Got it</button>
@@ -12814,9 +12856,20 @@ function renderDeckPanel(){
   if(!fsrsPractice()){
     host.innerHTML=''; host.style.display='none';
     var rw = $('srs-runway'); if(rw){ rw.innerHTML=''; rw.style.display='none'; }
+    ['deck-bar','shuffle-toggle'].forEach(function(id){
+      var e = $(id); if(e) e.style.display = '';
+    });
+    var pw0 = $('practice-wrap'); if(pw0) pw0.classList.remove('srs-study');
     return;
   }
   host.style.display='';
+  /* the legacy deck dropdown and the shuffle toggle are replaced by the chips
+     and by scheduler order; leaving them on screen invites contradicting the
+     session that is actually running */
+  ['deck-bar','shuffle-toggle'].forEach(function(id){
+    var e = $(id); if(e) e.style.display = 'none';
+  });
+  var pw = $('practice-wrap'); if(pw) pw.classList.add('srs-study');
   if(!plan){ host.innerHTML='<div class="dash-loading">Loading deck…</div>'; return; }
 
   var now = Date.now();
@@ -12838,18 +12891,23 @@ function renderDeckPanel(){
     + '</div>';
 
   var total = q.newItems.length + q.learning.length + q.due.length;
-  var body;
+
+  /* Once a session is running the chips and the three big numbers are just
+     taking the room the card and the buttons need — on a phone they were
+     pushing the ratings 65px below the fold. Collapse to one line. */
   if(inSession){
     var p = SESS.progress();
-    body = '<div class="srs-note">Session in progress — <b>'+p.remaining+'</b> card'
-      + (p.remaining===1?'':'s')+' left of '+p.total
-      + (p.answered ? ', '+p.answered+' answer'+(p.answered===1?'':'s')+' so far' : '')
-      + '.</div>'
-      + '<div class="srs-actions">'
-      + '<button class="srs-btn" onclick="srsResumeSession()">Continue</button>'
-      + '<button class="srs-btn srs-btn-ghost" onclick="srsEndSession()">End session</button>'
-      + '</div>';
-  } else if(total){
+    var c = SESS.counts();
+    host.innerHTML = '<div class="srs-deck srs-deck-mini">'
+      + '<div class="srs-mini-l"><b>'+p.remaining+'</b> left'
+      + '<span>'+c.newItems+' new · '+c.learning+' learning · '+c.due+' due</span></div>'
+      + '<button class="srs-btn srs-btn-ghost srs-mini-end" onclick="srsEndSession()">'
+      + 'End</button></div>';
+    return;
+  }
+
+  var body;
+  if(total){
     body = '<div class="srs-actions">'
       + '<button class="srs-btn" onclick="srsStartSession()">Study '+total+' card'
         + (total===1?'':'s')+'</button>'
@@ -12992,6 +13050,10 @@ function paintSession(){
   window.fcCycleQueue = [full];
   window.fcCyclePos = 0;
   window.showCurrentCard();
+  var hint = $('fc-flip-hint'); if(hint) hint.style.display = '';
+  ['btn-missed','btn-unsure','btn-got','btn-easy'].forEach(function(id){
+    var b = $(id); if(b) b.disabled = false;
+  });
   decorate(card, now);
   scheduleTick();
 }
@@ -13267,6 +13329,59 @@ if(typeof _fcUndo === 'function'){
     if(fsrsPractice() && SESS) return window.srsUndo();
     return _fcUndo.apply(this, arguments);
   };
+}
+
+/* THE LEGACY DECK MUST NOT BOOT ITSELF HERE.
+
+   initPractice loads the cards and then calls startSessionForFilter(''), which
+   opens a session over the WHOLE course and puts up the old resume prompt —
+   "Continue where you left off? 2 / 144 mastered". That prompt was rendering on
+   top of the new deck panel, so selecting one lecture appeared to do nothing:
+   the panel was correctly filtered, and the card area underneath was showing a
+   144-card legacy session.
+
+   The deck load still has to happen (fcAllCards is what the new session renders
+   from), so only the session start is suppressed. */
+/* renderDeckDropdown sets deck-bar back to display:flex every time the deck
+   loads, so hiding it from renderDeckPanel never stuck. The chips replace it
+   entirely here, so it does not run at all. */
+var _renderDeckDropdown = window.renderDeckDropdown;
+if(typeof _renderDeckDropdown === 'function'){
+  window.renderDeckDropdown = function(){
+    if(fsrsPractice()){
+      var bar = $('deck-bar'); if(bar) bar.style.display = 'none';
+      return;
+    }
+    return _renderDeckDropdown.apply(this, arguments);
+  };
+}
+
+var _startSessionForFilter = window.startSessionForFilter;
+if(typeof _startSessionForFilter === 'function'){
+  window.startSessionForFilter = function(filter){
+    if(fsrsPractice()){
+      if(!SESS) restoreSession();
+      renderDeckPanel();
+      if(SESS) paintSession(); else idlePrompt();
+      return;
+    }
+    return _startSessionForFilter.apply(this, arguments);
+  };
+}
+
+/* What the card area says when no session is running. Not the legacy resume
+   dialog, and not a blank card. */
+function idlePrompt(){
+  var t = $('fc-card-text');
+  if(t) t.textContent = 'Choose a lecture above, then press Study.';
+  var lbl = $('fc-card-label'); if(lbl) lbl.textContent = 'Ready';
+  var hint = $('fc-flip-hint'); if(hint) hint.style.display = 'none';
+  var hist = $('fc-history'); if(hist){ hist.className='fc-history'; hist.textContent=''; }
+  ['btn-missed','btn-unsure','btn-got','btn-easy'].forEach(function(id){
+    var b = $(id); if(b) b.disabled = true;
+  });
+  var c = $('fc-counter'); if(c) c.textContent = '— / —';
+  var rw = $('srs-runway'); if(rw){ rw.style.display='none'; }
 }
 
 /* Restart means "throw this session away and rebuild it", not the legacy
