@@ -5904,7 +5904,13 @@ function getMasteredCount(){
 /* ── Supabase write (fire-and-forget analytics) ── */
 function upsertCardMastery(cardId,cs){
   if(!currentUser) return;
-  sbFetch('/rest/v1/card_mastery',{
+  /* on_conflict is NOT optional here. Without it PostgREST infers the conflict
+     target from the PRIMARY KEY, which on this table is the surrogate `id` —
+     never supplied, so it never conflicts, so every write was a plain INSERT
+     that then hit the (user_id, card_id) unique index and 409'd. The first
+     write for a card landed; every one after it was rejected and thrown away.
+     That is why total_attempts sat at 0 on 1,300 rows. */
+  sbFetch('/rest/v1/card_mastery?on_conflict=user_id,card_id',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
     body:JSON.stringify({
@@ -7589,7 +7595,8 @@ function computeQuizMastery(questionId, isCorrect){
 
 function upsertQuestionMastery(row){
   if(!currentUser) return;
-  sbFetch('/rest/v1/question_mastery',{
+  /* same surrogate-primary-key trap as card_mastery — see upsertCardMastery */
+  sbFetch('/rest/v1/question_mastery?on_conflict=user_id,question_id',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
     body:JSON.stringify(Object.assign({user_id:currentUser.id},row))
@@ -12011,6 +12018,44 @@ window.srsWasFast = function(){
 function tableFor(kind){ return kind==='card' ? 'card_mastery' : 'question_mastery'; }
 function keyFor(kind){ return kind==='card' ? 'card_id' : 'question_id'; }
 
+/* ── writing scheduling state ────────────────────────────────────────────
+   Every rating goes through here, and it is loud about failing.
+
+   The bug this exists to prevent: the mastery upserts were fire-and-forget
+   with `.catch(console.warn)`. fetch does not reject on an HTTP error, so a
+   409 never reached the catch at all — the write was rejected, the promise
+   resolved, and nothing anywhere said so. Ratings stopped persisting after the
+   first one on each card and the app carried on as though they had.
+
+   So: check the status, say so in the console with the server's own message,
+   and set a flag the dashboard can show. A rating that did not save is not a
+   detail to hide. */
+var srsWriteError = null;
+
+function srsUpsert(path, row, label){
+  return window.sbFetch('/rest/v1/' + path, {
+    method:'POST',
+    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
+                          window.getAuthHdr()),
+    body:JSON.stringify(row)
+  }).then(function(r){
+    if(r.ok){
+      if(srsWriteError){ srsWriteError = null; render(); }
+      return r;
+    }
+    return r.text().then(function(t){
+      srsWriteError = { at: Date.now(), status: r.status, body: (t||'').slice(0,300) };
+      console.error(label + ': ' + r.status + ' — the rating was NOT saved. ' + t);
+      render();
+      return r;
+    });
+  }).catch(function(e){
+    srsWriteError = { at: Date.now(), status: 0, body: String(e && e.message || e) };
+    console.error(label + ': ' + e + ' — the rating was NOT saved.');
+    render();
+  });
+}
+
 function rowToCard(row){
   return {
     state: row && row.state && row.state!=='new' ? row.state : 'learning',
@@ -12233,13 +12278,12 @@ function recordNow(kind, id, rating, objectiveIds){
     }
 
     /* merge-duplicates so this coexists with the legacy upsert on the same row
-       rather than fighting it — the two write disjoint column sets */
-    window.sbFetch('/rest/v1/'+tableFor(kind), {
-      method:'POST',
-      headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
-                            window.getAuthHdr()),
-      body:JSON.stringify(row)
-    }).catch(function(e){ console.warn('srs '+kind+':', e); });
+       rather than fighting it — the two write disjoint column sets. The
+       on_conflict parameter names the natural key; without it PostgREST aims
+       the upsert at the surrogate `id` primary key and every write after the
+       first one is rejected. See upsertCardMastery. */
+    srsUpsert(tableFor(kind) + '?on_conflict=user_id,' + keyFor(kind), row,
+              'srs ' + kind);
   }catch(e){ console.warn('srs record failed:', e); }
 }
 
@@ -12390,6 +12434,13 @@ function loadAll(){
 /* An item the scheduler understands. Note that an item with NO mastery row is
    included with null state — that is exactly the never-seen population the
    coverage guarantee exists for, and dropping it here would hide it. */
+/* The item the scheduler and the session both work from.
+
+   learning_step and interval_days were missing here, and they are not optional:
+   StudySession.cardFrom reads item.learning_step to know WHICH step a card is
+   on, so without it every resumed card restarted at step 0 and a card that had
+   already passed the 1-minute step was offered the 1-minute step again. The row
+   carried the value; this function dropped it on the floor. */
 function toItem(kind, id, objectiveIds, row){
   return {
     kind:kind, id:id, objectiveIds:objectiveIds,
@@ -12400,7 +12451,9 @@ function toItem(kind, id, objectiveIds, row){
     due_date: row && row.due_date ? Date.parse(row.due_date) : null,
     last_reviewed_at: row && row.last_reviewed_at ? Date.parse(row.last_reviewed_at) : null,
     repetitions: row ? (row.repetitions||0) : 0,
-    lapses: row ? (row.lapses||0) : 0
+    lapses: row ? (row.lapses||0) : 0,
+    learning_step: row && row.learning_step != null ? row.learning_step : null,
+    interval_days: row ? (row.interval_days||0) : 0
   };
 }
 
@@ -12424,6 +12477,7 @@ function render(){
     + '<div class="srs-sub">' + esc2(window.currentCourse.replace(/^NUR/,'NUR '))
     + ' · predicted recall on exam day, at or above '
     + Math.round(ES.READY_THRESHOLD*100) + '%</div></div>'
+    + writeErrorHtml()
     + datesHtml()
     + settingsHtml()
     + sweepHtml()
@@ -12436,6 +12490,19 @@ function render(){
     + termHtml()
     + weakHtml()
     + unitsHtml();
+}
+
+/* A rating that did not reach the server is the one failure that must never be
+   quiet: everything downstream — intervals, readiness, the projection — is
+   computed from state that is then wrong. */
+function writeErrorHtml(){
+  if(!srsWriteError) return '';
+  return '<div class="srs-warn"><b>A rating did not save.</b> The server answered '
+    + esc2(String(srsWriteError.status || 'no response'))
+    + '. Your last answer was not recorded, so the interval you were shown is not '
+    + 'the one that will be used. '
+    + esc2(srsWriteError.body || '')
+    + '</div>';
 }
 
 /* Three date fields, always visible. An unset date shows the field prompting
@@ -12897,7 +12964,7 @@ function unitsHtml(){
 window.srsSetExamDate = function(exam, value){
   if(!window.currentUser) return;
   examDates[exam] = value || '';
-  window.sbFetch('/rest/v1/exam_schedule',{
+  window.sbFetch('/rest/v1/exam_schedule?on_conflict=user_id,course,exam',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
                           window.getAuthHdr()),
@@ -12931,7 +12998,7 @@ var SETTING_FIELD = {
 function saveSettings(next){
   settings = next;
   if(!window.currentUser) return Promise.resolve();
-  return window.sbFetch('/rest/v1/srs_settings',{
+  return window.sbFetch('/rest/v1/srs_settings?on_conflict=user_id,course',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
                           window.getAuthHdr()),
@@ -12999,7 +13066,7 @@ window.srsSetUnit = function(objectiveId, unit){
   unit = Number(unit)===2 ? 2 : 1;
   unitsMap[objectiveId] = unit;
   objectiveList.forEach(function(o){ if(o.objective_id===objectiveId) o.unit=unit; });
-  window.sbFetch('/rest/v1/objective_units',{
+  window.sbFetch('/rest/v1/objective_units?on_conflict=objective_id',{
     method:'POST',
     headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
                           window.getAuthHdr()),
@@ -13379,21 +13446,32 @@ function afterDeckChange(){
 }
 
 /* ── running a session ──────────────────────────────────────────────── */
+
+/* The options every session is built with, whether it is being started fresh
+   or restored from a snapshot.
+
+   This is one function rather than two literals because restoreSession had its
+   own, and that one was missing `clamp` — so resuming a session silently
+   dropped the exam rules and went back to raw FSRS intervals. Exactly the bug
+   that made a Hard on a review card come back in two months with the test five
+   weeks away, reintroduced by the resume path alone. */
+function sessionOpts(now, st, extra){
+  return {
+    now: now, settings: st,
+    mode: extra ? 'extra' : 'scheduled',
+    /* The exam rules live in exam-scheduler; the session just asks. */
+    clamp: function(rawMs, maxRawMs, t){
+      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t, st);
+    }
+  };
+}
+
 window.srsStartSession = function(extra){
   if(!fsrsPractice() || !plan) return;
   var now = Date.now();
   var st = currentSettings();
   var items = deckItems();
-  var opts = {
-    now: now, settings: st,
-    mode: extra ? 'extra' : 'scheduled',
-    /* The exam rules live in exam-scheduler; the session just asks. Without
-       this every interval was raw FSRS, which is how a Hard on a review card
-       came back in two months with the test five weeks away. */
-    clamp: function(rawMs, maxRawMs, t){
-      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t, st);
-    }
-  };
+  var opts = sessionOpts(now, st, extra);
   if(extra){
     opts.items = items.slice();
   } else {
@@ -13444,7 +13522,7 @@ function restoreSession(){
   /* Restoring against the CURRENT selection, not the whole deck: a snapshot
      saved before a chip was toggled must not smuggle the old deck back in. */
   var s = window.StudySession.restore(saved, deckItems(),
-    { now: Date.now(), settings: currentSettings() });
+    sessionOpts(Date.now(), currentSettings(), saved.mode === 'extra'));
   if(s && !s.isComplete() && saved.deckSel === deckSelKey()) SESS = s;
   else { try{ localStorage.removeItem(sessionKey()); }catch(e){} }
 }
@@ -13618,13 +13696,11 @@ function persistCard(item, out, logAttempt){
   item.state = c.state; item.stability = c.stability; item.difficulty = c.difficulty;
   item.due_date = c.due; item.last_reviewed_at = c.last_review;
   item.repetitions = c.reps; item.lapses = c.lapses;
+  /* the two the reload path needs and the in-memory copy used to lose */
+  item.learning_step = c.step == null ? null : c.step;
+  item.interval_days = c.interval_days;
 
-  window.sbFetch('/rest/v1/card_mastery',{
-    method:'POST',
-    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},
-                          window.getAuthHdr()),
-    body:JSON.stringify(row)
-  }).catch(function(e){ console.warn('srs card:', e); });
+  srsUpsert('card_mastery?on_conflict=user_id,card_id', row, 'srs card');
 
   if(logAttempt === false) return;
 
