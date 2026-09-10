@@ -364,31 +364,42 @@ console.log('\nwhen the cap and the exam date disagree');
     kind: 'card', state: 'new', stability: null, due_date: null,
     last_reviewed_at: null, repetitions: 0 }));
 
-  /* 460 items, 34 days, 20/day — the case that works */
-  const ok = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(34) }, NOW,
+  /* A WIDER SWEEP COSTS RUNWAY, and the conflict check has to notice.
+     With the sweep at 15 days there are only 19 days left to start new material
+     in, so 460 items at 20/day reaches 380 — a real shortfall that used to be
+     hidden when the window was 7 days and there were 27 days to work with. */
+  const tight = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(34) }, NOW,
     { newCardsPerDay: 20 })[0];
-  ck('460 items in 34 days at 20/day is fine', ok.ok === true && ok.shortfall === 0, ok);
+  ck('a 15-day sweep leaves 19 days for new material, not 27',
+    tight.days === 19 && tight.sweepDays === 15, tight);
+  ck('and 460 at 20/day no longer covers it — the shortfall is reported',
+    tight.ok === false && tight.shortfall === 80 && tight.needPerDay === 25, tight);
 
-  /* 460 items, 15 days — the case that does not */
-  const bad = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(15) }, NOW,
+  /* the same deck with more runway is fine */
+  const ok = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(45) }, NOW,
     { newCardsPerDay: 20 })[0];
-  ck('460 items in 15 days at 20/day does not cover it', bad.ok === false, bad);
-  ck('it says how many will actually be seen', bad.willSee === 160, bad.willSee);
+  ck('460 items with 45 days is fine at 20/day', ok.ok === true && ok.shortfall === 0, ok);
+
+  /* 460 items with 25 days — 10 of runway once the 15-day sweep is taken out */
+  const bad = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(25) }, NOW,
+    { newCardsPerDay: 20 })[0];
+  ck('460 items on 10 days of runway at 20/day does not cover it', bad.ok === false, bad);
+  ck('it says how many will actually be seen', bad.willSee === 200, bad.willSee);
   ck('and the rate that would be needed', bad.needPerDay === Math.ceil(460 / bad.days),
     { need: bad.needPerDay, days: bad.days });
-  ck('the sweep week is excluded from the days new material can start in',
-    bad.days === Math.max(0, ES.daysBetween(ES.parseDate(inDays(15)), ES.startOfDay(NOW))
-      - ES.EXAM_BUFFER_DAYS + 1 - ES.SWEEP_DAYS), bad.days);
+  ck('the sweep window is excluded from the days new material can start in',
+    bad.days === Math.max(0, ES.daysBetween(ES.parseDate(inDays(25)), ES.startOfDay(NOW))
+      - ES.EXAM_BUFFER_DAYS + 1 - ES.sweepDaysFrom({}, 'unit1')), bad.days);
 
-  /* the worked example from the spec */
-  const spec = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(24) }, NOW,
+  /* the worked example from the spec, with room for the wider sweep */
+  const spec = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(32) }, NOW,
     { newCardsPerDay: 20 })[0];
   ck('the shortfall and the required rate are both concrete numbers',
     spec.willSee < 460 && spec.needPerDay > 20,
     { willSee: spec.willSee, need: spec.needPerDay });
 
   /* accepting the higher rate resolves it */
-  const fixed = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(24) }, NOW,
+  const fixed = ES.newItemPlan(mk(460), UNITS, { unit1: inDays(32) }, NOW,
     { newCardsPerDay: spec.needPerDay })[0];
   ck('taking the suggested rate clears the shortfall', fixed.ok === true, fixed);
 
@@ -408,10 +419,10 @@ console.log('\nwhen the cap and the exam date disagree');
      so "you need 316/day" would be arithmetic noise rather than advice. The
      sweep is the mechanism there and reports its own number. */
   ck('no rate is suggested once the sweep window has opened',
-    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(5) }, NOW, { newCardsPerDay: 15 }).length === 0,
-    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(5) }, NOW, { newCardsPerDay: 15 }));
-  ck('but it is still suggested the day before the window opens',
-    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(9) }, NOW, { newCardsPerDay: 15 }).length === 1);
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(12) }, NOW, { newCardsPerDay: 15 }).length === 0,
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(12) }, NOW, { newCardsPerDay: 15 }));
+  ck('but it is still suggested before the window opens',
+    ES.newItemPlan(mk(316), UNITS, { unit1: inDays(20) }, NOW, { newCardsPerDay: 15 }).length === 1);
 }
 
 /* ── the week before ─────────────────────────────────────────────────── */
@@ -427,41 +438,41 @@ console.log('\nthe sweep');
       last_reviewed_at: NOW - 30 * DAY })));
   /* 60 stale + 20 never seen + 10 failing = 90 in the unit */
 
-  ck('no sweep while the exam is further out than a week',
-    ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(9) }, NOW).active === false);
+  ck('no sweep while the exam is further out than the window',
+    ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(20) }, NOW).active === false);
 
-  const sw = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(7) }, NOW);
-  ck('it starts exactly seven days out', sw.active === true, sw.active);
-  ck('day 1 of 7 on the day it opens', sw.day === 1 && sw.totalDays === 7, sw);
+  const sw = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(15) }, NOW);
+  ck('a unit sweep starts 15 days out', sw.active === true, sw.active);
+  ck('day 1 of 15 on the day it opens', sw.day === 1 && sw.totalDays === 15, sw);
   ck('the whole unit is in scope', sw.total === 90, sw.total);
   ck('nothing counts as covered before the window opens', sw.covered === 0, sw.covered);
-  ck('the work is spread, not dumped', sw.perDay === Math.ceil(90 / 7) && sw.todayList.length === 13,
+  ck('the work is spread, not dumped', sw.perDay === Math.ceil(90 / 15) && sw.todayList.length === 6,
     { perDay: sw.perDay, today: sw.todayList.length });
-  ck('never-seen items lead', sw.todayList.slice(0, 13).every((i) => ES.neverSeen(i)),
+  ck('never-seen items lead', sw.todayList.every((i) => ES.neverSeen(i)),
     sw.todayList.map((i) => i.state));
 
-  const mid = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(5) }, NOW);
-  ck('day 3 of 7 two days in', mid.day === 3, mid.day);
+  const mid = ES.sweepPlan(sched, scope, UNITS, { unit1: inDays(13) }, NOW);
+  ck('day 3 of 15 two days in', mid.day === 3, mid.day);
 
   /* items reviewed inside the window count as covered */
   const partly = scope.map((it, i) => i < 42
     ? Object.assign({}, it, { last_reviewed_at: NOW - DAY, repetitions: 2, stability: 5, state: 'review' })
     : it);
-  const sw2 = ES.sweepPlan(sched, partly, UNITS, { unit1: inDays(5) }, NOW);
+  const sw2 = ES.sweepPlan(sched, partly, UNITS, { unit1: inDays(13) }, NOW);
   ck('coverage is counted from the window start, not from all time',
     sw2.covered === 42 && sw2.remaining === 48, { c: sw2.covered, r: sw2.remaining });
   ck('the countdown has the numbers the dashboard needs',
     sw2.day === 3 && sw2.total === 90 && sw2.covered === 42, sw2);
 
   /* it overrides both caps */
-  const q = ES.buildQueue(sched, scope, UNITS, { unit1: inDays(7) }, NOW,
-    { dailyCap: 5, settings: { newCardsPerDay: 1, newQuizPerDay: 1 } });
+  const q = ES.buildQueue(sched, scope, UNITS, { unit1: inDays(15) }, NOW,
+    { dailyCap: 2, settings: { newCardsPerDay: 1, newQuizPerDay: 1 } });
   ck('the sweep overrides the daily working set rather than being trimmed to it',
-    q.queue.length >= 13, q.queue.length);
-  ck('and overrides the new-item cap: 20 never-seen items still get swept',
-    q.queue.filter(ES.neverSeen).length >= 13, q.queue.filter(ES.neverSeen).length);
+    q.queue.length >= 6, q.queue.length);
+  ck('and overrides the new-item cap: never-seen items still get swept',
+    q.queue.filter(ES.neverSeen).length >= 6, q.queue.filter(ES.neverSeen).length);
   ck('the queue reports the sweep so the number shown is the real one',
-    q.sweep.active === true && q.cap >= 13, { cap: q.cap, requested: q.requestedCap });
+    q.sweep.active === true && q.cap >= 6, { cap: q.cap, requested: q.requestedCap });
 
   /* a late sweep with a lot left is honestly large */
   const late = ES.sweepPlan(sched, mk(180, stale), UNITS, { unit1: inDays(2) }, NOW);
@@ -498,12 +509,13 @@ console.log('\ncompressing intervals into the time that is left');
   const got = {};
   [1, 2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], maxRaw, exam, NOW); });
 
-  ck('the runway is the days to the exam minus the sweep week',
-    ES.runwayDays(exam, NOW) === 28, ES.runwayDays(exam, NOW));
+  ck('the runway is the days to the exam minus ITS sweep window',
+    ES.runwayDays(exam, NOW) === 35 - ES.SWEEP_DAYS_UNIT
+    && ES.runwayDays(exam, NOW) === 20, ES.runwayDays(exam, NOW));
   ck('nothing lands past the exam',
     [1, 2, 3, 4].every((r) => got[r].ms <= 35 * DAY), Object.keys(got).map((r) => got[r].ms / DAY));
-  ck('nothing lands inside the sweep week either',
-    [1, 2, 3, 4].every((r) => got[r].ms <= 28 * DAY),
+  ck('nothing lands inside the sweep window either',
+    [1, 2, 3, 4].every((r) => got[r].ms <= 20 * DAY),
     [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
   ck('the ordering survives: Again < Hard < Good < Easy',
     got[1].ms < got[2].ms && got[2].ms < got[3].ms && got[3].ms < got[4].ms,
@@ -511,12 +523,13 @@ console.log('\ncompressing intervals into the time that is left');
   ck('they land on FOUR different days, not all on exam minus one',
     new Set([1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 4,
     [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('roughly 3 / 6 / 14 days rather than 2mo / 3mo / 4mo',
-    Math.round(got[2].ms / DAY) === 3 && Math.round(got[3].ms / DAY) === 6
-    && Math.round(got[4].ms / DAY) === 14,
+  ck('roughly 2 / 4 / 10 days rather than 2mo / 3mo / 4mo — a 15-day sweep '
+   + 'leaves a 20-day runway, so the ladder is tighter than it was at 7',
+    Math.round(got[2].ms / DAY) === 2 && Math.round(got[3].ms / DAY) === 4
+    && Math.round(got[4].ms / DAY) === 10,
     [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
   ck('the longest leaves room for another review before the sweep',
-    got[4].ms <= (28 / 2 + 0.5) * DAY, got[4].ms / DAY);
+    got[4].ms <= (20 / 2 + 0.5) * DAY, got[4].ms / DAY);
   ck('each says whether it was compressed',
     got[2].compressed && got[3].compressed && got[4].compressed && !got[1].compressed,
     [1, 2, 3, 4].map((r) => got[r].compressed));
@@ -540,10 +553,10 @@ console.log('\nnormal spacing when the runway is long enough');
 
   /* the boundary: compression starts when the top of the ladder exceeds half
      the runway, not before */
-  const exam60 = { key: 'unit1', date: ES.parseDate(inDays(60)) };   /* usable 53, longest 26.5 */
+  const exam60 = { key: 'unit1', date: ES.parseDate(inDays(60)) };   /* usable 45, longest 22.5 */
   ck('just inside the threshold is untouched',
-    ES.compressToRunway(26 * DAY, 26 * DAY, exam60, NOW).compressed === false);
-  ck('just past it compresses', ES.compressToRunway(27 * DAY, 27 * DAY, exam60, NOW).compressed === true);
+    ES.compressToRunway(22 * DAY, 22 * DAY, exam60, NOW).compressed === false);
+  ck('just past it compresses', ES.compressToRunway(23 * DAY, 23 * DAY, exam60, NOW).compressed === true);
 }
 
 console.log('\ninside the sweep week');
@@ -567,10 +580,13 @@ console.log('\nwhen an exam passes, its material re-targets the next one');
   const u1 = ES.nextExamFor(1, exams, NOW);
   ck('a unit 1 card whose test was yesterday targets the FINAL',
     u1 !== null && u1.key === 'final', u1);
-  ck('the runway is positive, not negative or null',
-    ES.runwayDays(u1, NOW) === 90, ES.runwayDays(u1, NOW));
+  ck('the runway is positive, not negative or null — 97 days out, less the '
+   + 'final\u2019s wider 30-day sweep',
+    ES.runwayDays(u1, NOW) === 97 - ES.SWEEP_DAYS_FINAL
+    && ES.runwayDays(u1, NOW) === 67, ES.runwayDays(u1, NOW));
   ck('and it is the longer runway, so intervals relax rather than staying tight',
-    ES.runwayDays(u1, NOW) > ES.runwayDays({ date: ES.parseDate(inDays(35)) }, NOW));
+    ES.runwayDays(u1, NOW)
+      > ES.runwayDays({ key: 'unit1', date: ES.parseDate(inDays(35)) }, NOW));
 
   const u2 = ES.nextExamFor(2, exams, NOW);
   ck('unit 2 still targets its own test', u2.key === 'unit2', u2.key);
@@ -633,8 +649,8 @@ console.log('\ntwo sweeps at once');
   const u2items = Array.from({ length: 160 }, () => item({ objectiveIds: ['N144_PSY'],
     last_reviewed_at: NOW - 60 * DAY }));
   const all = u1items.concat(u2items);
-  /* unit 2 in two days, final in seven — the windows overlap */
-  const exams = { unit1: inDays(-90), unit2: inDays(2), final: inDays(7) };
+  /* unit 2 15 days out, the final 30 — both windows open today, and they overlap */
+  const exams = { unit1: inDays(-90), unit2: inDays(15), final: inDays(30) };
   const sw = ES.sweepPlan(sched, all, UNITS, exams, NOW);
 
   ck('BOTH windows are reported, not just the nearer one',
@@ -772,11 +788,11 @@ console.log('\nthe whole-term load projection');
     rows.every((r) => r.newItems <= ES.DEFAULT_SETTINGS.newCardsPerDay
       + ES.DEFAULT_SETTINGS.newQuizPerDay),
     Math.max.apply(null, rows.map((r) => r.newItems)));
-  ck('the sweep shows up in the week before the exam',
+  ck('the sweep shows up inside the configured window before the exam',
     rows.filter((r) => r.sweep > 0).length > 0
     && rows.filter((r) => r.sweep > 0).every((r) => {
       const d = ES.daysBetween(ES.parseDate(exams.unit1), ES.startOfDay(r.ms));
-      return d > 0 && d <= 7;
+      return d > 0 && d <= ES.sweepDaysFrom({}, 'unit1');
     }), rows.filter((r) => r.sweep > 0).length);
   ck('and it is deterministic — the same inputs give the same projection',
     JSON.stringify(ES.projectTerm(sched, items, UNITS, exams, NOW, { days: 60 }).map((r) => r.total))
@@ -796,25 +812,212 @@ console.log('\nthe whole-term load projection');
     { with: rows.reduce((a, r) => a + r.total, 0), without: fewer.reduce((a, r) => a + r.total, 0) });
 }
 
-console.log('\nthe sweep window is a setting, and it says when 7 days will not do');
+console.log('\nthe sweep window is a setting, and it is wider for the final');
 {
-  ck('the default matches the constant',
-    ES.DEFAULT_SETTINGS.sweepDays === ES.SWEEP_DAYS, ES.DEFAULT_SETTINGS.sweepDays);
+  ck('the unit default matches its constant',
+    ES.DEFAULT_SETTINGS.sweepDaysUnit === ES.SWEEP_DAYS_UNIT, ES.DEFAULT_SETTINGS.sweepDaysUnit);
+  ck('the final default matches its constant',
+    ES.DEFAULT_SETTINGS.sweepDaysFinal === ES.SWEEP_DAYS_FINAL, ES.DEFAULT_SETTINGS.sweepDaysFinal);
+  ck('a unit sweep runs 15 days, the final 30',
+    ES.sweepDaysFrom({}, 'unit1') === 15 && ES.sweepDaysFrom({}, 'final') === 30,
+    [ES.sweepDaysFrom({}, 'unit1'), ES.sweepDaysFrom({}, 'final')]);
   ck('600 cards in 7 days is 86 a day, so it suggests 15',
     ES.suggestSweepDays(600) === 15, ES.suggestSweepDays(600));
   ck('1,200 needs 30', ES.suggestSweepDays(1200) === 30, ES.suggestSweepDays(1200));
   ck('a small deck still gets the stated 7', ES.suggestSweepDays(100) === 7, ES.suggestSweepDays(100));
-  ck('nonsense falls back to 7',
-    ES.sweepDaysFrom({ sweepDays: 0 }) === 7 && ES.sweepDaysFrom({ sweepDays: 999 }) === 7
-    && ES.sweepDaysFrom(null) === 7);
+  ck('and those are exactly the defaults that shipped',
+    ES.suggestSweepDays(600) === ES.SWEEP_DAYS_UNIT
+    && ES.suggestSweepDays(1200) === ES.SWEEP_DAYS_FINAL);
+  ck('both windows are configurable',
+    ES.sweepDaysFrom({ sweepDaysUnit: 9, sweepDaysFinal: 21 }, 'unit2') === 9
+    && ES.sweepDaysFrom({ sweepDaysUnit: 9, sweepDaysFinal: 21 }, 'final') === 21);
+  ck('an older single sweepDays setting still applies to both',
+    ES.sweepDaysFrom({ sweepDays: 12 }, 'unit1') === 12
+    && ES.sweepDaysFrom({ sweepDays: 12 }, 'final') === 12);
+  ck('nonsense falls back to the per-exam default',
+    ES.sweepDaysFrom({ sweepDaysUnit: 0 }, 'unit1') === 15
+    && ES.sweepDaysFrom({ sweepDaysFinal: 999 }, 'final') === 30
+    && ES.sweepDaysFrom(null, 'unit1') === 15);
+  ck('the planning horizon is the wider of the two',
+    ES.maxSweepDays({}) === 30 && ES.maxSweepDays({ sweepDaysUnit: 40 }) === 40,
+    [ES.maxSweepDays({}), ES.maxSweepDays({ sweepDaysUnit: 40 })]);
 
   const items = Array.from({ length: 90 }, () => item({ last_reviewed_at: NOW - 60 * DAY }));
-  const wide = ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW, { sweepDays: 14 });
+  const wide = ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW, { sweepDaysUnit: 20 });
   ck('a wider window opens earlier', wide.active === true, wide.active);
   ck('and spreads the same work thinner',
     wide.perDay < Math.ceil(90 / 7), { wide: wide.perDay, narrow: Math.ceil(90 / 7) });
   ck('a 7-day window is not open 12 days out',
-    ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW).active === false);
+    ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW,
+      { sweepDaysUnit: 7 }).active === false);
+  ck('but the 15-day default is',
+    ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW).active === true);
+}
+
+/* ── the miss rate, measured rather than guessed ─────────────────────── */
+console.log('\nthe miss rate is measured once there is enough of it');
+{
+  const attempts = [];
+  for (let q = 1; q <= 100; q++) {
+    attempts.push({ question_id: q, created_at: 1000 + q, is_correct: q > 20 });
+    /* every one is eventually got right — later attempts must not dilute it */
+    attempts.push({ question_id: q, created_at: 9000 + q, is_correct: true });
+  }
+  const m = ES.missRateFrom(attempts);
+  ck('only FIRST attempts count, so 20 of 100 is 20%',
+    m.rate === 0.2 && m.questions === 100 && m.misses === 20, m);
+  ck('and it says it is measured', m.measured === true);
+
+  const thin = ES.missRateFrom(attempts.slice(0, 10));
+  ck('too small a sample falls back to the assumption rather than pretending',
+    thin.measured === false && thin.rate === ES.ASSUMED_MISS_RATE, thin);
+  ck('but it still reports how far off the sample is',
+    thin.questions < ES.MISS_RATE_MIN_SAMPLE, thin.questions);
+  ck('no data at all is not a crash',
+    ES.missRateFrom(null).rate === ES.ASSUMED_MISS_RATE
+    && ES.missRateFrom([]).measured === false);
+  ck('the fallback is overridable', ES.missRateFrom([], { fallback: 0.4 }).rate === 0.4);
+  ck('attempts with no question id are ignored, not counted as a miss',
+    ES.missRateFrom([{ question_id: null, is_correct: false }]).questions === 0);
+}
+
+/* ── auto-generated cards in the projection ──────────────────────────── */
+console.log('\ngenerated cards are in the term projection');
+{
+  const bulk = (obj, kind, n) => Array.from({ length: n }, () => item({
+    kind, objectiveIds: [obj], state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+  const items = bulk('N144_L1', 'card', 600).concat(bulk('N144_L1', 'quiz', 1500));
+  const exams = { unit1: inDays(35), unit2: inDays(110), final: inDays(140) };
+  const run = (auto) => ES.projectTerm(sched, items, UNITS, exams, NOW,
+    { days: 120, autoCards: auto });
+
+  const off = run({ enabled: false, missRate: 0.225 });
+  const on  = run({ missRate: 0.225, acceptRate: 1 });
+  ck('with them switched off nothing is generated',
+    ES.projectionSummary(off).autoCards === 0);
+  ck('with them on, missed questions become cards',
+    ES.projectionSummary(on).autoCards > 0, ES.projectionSummary(on).autoCards);
+
+  const low  = ES.projectionSummary(run({ missRate: 0.10, acceptRate: 1 })).autoCards;
+  const high = ES.projectionSummary(run({ missRate: 0.35, acceptRate: 1 })).autoCards;
+  ck('a higher miss rate generates more of them', high > low, { low, high });
+
+  const half = ES.projectionSummary(run({ missRate: 0.225, acceptRate: 0.5 })).autoCards;
+  const all  = ES.projectionSummary(on).autoCards;
+  ck('rejecting half generates about half as many', half < all, { half, all });
+  ck('deduplication suppresses them too',
+    ES.projectionSummary(run({ missRate: 0.225, acceptRate: 1, dedupRate: 1 })).autoCards === 0);
+
+  ck('one question offers a card once, not on every miss',
+    all <= 1500, all);
+  ck('they queue behind the same new-item cap, so no day spikes because of them',
+    on.every((r) => r.newItems <= ES.DEFAULT_SETTINGS.newCardsPerDay
+      + ES.DEFAULT_SETTINGS.newQuizPerDay),
+    Math.max.apply(null, on.map((r) => r.newItems)));
+  ck('and the ones still unseen are reported rather than hidden',
+    on.some((r) => r.autoBacklog > 0));
+
+  /* the sweep has to cover them: they are flashcards like any other */
+  const grownSweep = on.filter((r) => r.sweep > 0).map((r) => r.sweep);
+  const flatSweep = off.filter((r) => r.sweep > 0).map((r) => r.sweep);
+  ck('generated cards widen the sweep rather than escaping it',
+    Math.max.apply(null, grownSweep) >= Math.max.apply(null, flatSweep),
+    { grown: Math.max.apply(null, grownSweep), flat: Math.max.apply(null, flatSweep) });
+}
+
+/* ── the ceiling, and what a gap costs ───────────────────────────────── */
+console.log('\nthe projection respects the daily ceiling');
+{
+  const bulk = (obj, kind, n) => Array.from({ length: n }, () => item({
+    kind, objectiveIds: [obj], state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+  const items = bulk('N144_L1', 'card', 600).concat(bulk('N144_L1', 'quiz', 1500))
+    .concat(bulk('N144_PSY', 'card', 600), bulk('N144_PSY', 'quiz', 1500));
+  const exams = { unit1: inDays(35), unit2: inDays(110), final: inDays(140) };
+  const opts = { days: 145, autoCards: { missRate: 0.225, acceptRate: 1 } };
+  const rows = ES.projectTerm(sched, items, UNITS, exams, NOW, opts);
+
+  const ceiling = ES.DEFAULT_SETTINGS.dailyCeiling;
+  ck('no day asks for more than the ceiling, or the sweep if that is bigger',
+    rows.every((r) => r.total <= Math.max(ceiling, r.sweep) + 1),
+    rows.filter((r) => r.total > Math.max(ceiling, r.sweep) + 1)
+      .slice(0, 2).map((r) => ({ day: r.day, total: r.total, sweep: r.sweep })));
+  ck('what does not fit is reported as deferred rather than dropped',
+    rows.some((r) => r.deferred > 0));
+  ck('demand is reported alongside what actually gets done',
+    rows.every((r) => r.demand >= r.total - r.extra - r.sweep - 1),
+    rows.find((r) => r.demand < r.total - r.extra - r.sweep - 1));
+  ck('passed-unit throttling is counted as maintenance, not as a backlog',
+    rows.some((r) => r.held > 0) && rows[rows.length - 1].backlog
+      < rows[rows.length - 1].maintenance,
+    { held: rows.some((r) => r.held > 0),
+      backlog: rows[rows.length - 1].backlog,
+      maintenance: rows[rows.length - 1].maintenance });
+  ck('the current-unit backlog drains rather than growing without limit',
+    rows[rows.length - 1].backlog <= Math.max.apply(null, rows.map((r) => r.backlog)),
+    { end: rows[rows.length - 1].backlog,
+      peak: Math.max.apply(null, rows.map((r) => r.backlog)) });
+
+  /* a rating mix, because one rating for every pass made the whole bank march
+     in lockstep into exam eve */
+  const spread = new Set(rows.map((r) => r.total));
+  ck('the daily totals vary, rather than every card landing together',
+    spread.size > 10, spread.size);
+}
+
+console.log('\nskipping three days');
+{
+  const bulk = (obj, kind, n) => Array.from({ length: n }, () => item({
+    kind, objectiveIds: [obj], state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+  const items = bulk('N144_L1', 'card', 600).concat(bulk('N144_L1', 'quiz', 1500));
+  const exams = { unit1: inDays(35), unit2: inDays(110), final: inDays(140) };
+  const opts = { days: 120, autoCards: { missRate: 0.225, acceptRate: 1 } };
+
+  const gapped = ES.projectTerm(sched, items, UNITS, exams, NOW,
+    Object.assign({}, opts, { skip: [7, 8, 9] }));
+  ck('a skipped day does no work at all', [7, 8, 9].every((d) => gapped[d].total === 0),
+    [7, 8, 9].map((d) => gapped[d].total));
+  ck('and is marked so it cannot be mistaken for a quiet day',
+    [7, 8, 9].every((d) => gapped[d].skipped === true));
+  ck('the work is not lost — it shows as demand on the day it was skipped',
+    gapped[8].demand > 0, gapped[8].demand);
+
+  const k = ES.skipImpact(sched, items, UNITS, exams, NOW,
+    Object.assign({}, opts, { from: 7, skipDays: 3 }));
+  ck('skipImpact runs both projections and says which days were missed',
+    k.skippedDays.join(',') === '7,8,9', k.skippedDays);
+  ck('it answers whether the backlog levels out', typeof k.recovered === 'boolean');
+  ck('and, when it does, how long that takes',
+    !k.recovered || k.catchUpDays >= 0, k.catchUpDays);
+  ck('it names the worst day after the gap rather than an average',
+    k.worstExtra >= 0 && (k.worstDay === null || k.worstDay > 9), k);
+  ck('the clean run is carried alongside, so the two are comparable',
+    k.base.median > 0 && k.gapped.median > 0, { base: k.base.median, gapped: k.gapped.median });
+
+  /* a gap INSIDE a sweep is the one that costs: the same scope, fewer days */
+  const inSweep = ES.projectTerm(sched, items, UNITS, exams, NOW,
+    Object.assign({}, opts, { skip: [25, 26, 27] }));
+  const clean = ES.projectTerm(sched, items, UNITS, exams, NOW, opts);
+  /* the unit 1 window only — the final's own sweep is the bigger number and
+     would mask this entirely */
+  const u1Max = (rows) => Math.max.apply(null,
+    rows.slice(0, 40).map((r) => r.sweep).concat([0]));
+  ck('three days lost inside a sweep land on the days that are left',
+    u1Max(inSweep) > u1Max(clean), { gapped: u1Max(inSweep), clean: u1Max(clean) });
+  ck('the sweep is not quietly shortened to fit',
+    inSweep.slice(0, 40).filter((r) => r.sweep > 0).length
+      < clean.slice(0, 40).filter((r) => r.sweep > 0).length);
+  /* the same scope over fewer days, give or take the rounding that comes from
+     splitting a whole number of items across a whole number of days */
+  const cover = (rows) => {
+    const w = rows.slice(0, 40).filter((r) => r.sweep > 0);
+    return w.length * (w[0] ? w[0].sweep : 0);
+  };
+  ck('and the same material is still all covered',
+    cover(inSweep) >= cover(clean) - 40,
+    { gapped: cover(inSweep), clean: cover(clean) });
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall exam scheduler checks passed');
