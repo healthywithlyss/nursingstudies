@@ -258,6 +258,18 @@ console.log('\nresuming a session does not drop the exam clamp');
     (html.match(/clamp: function\(rawMs, maxRawMs, t\)/g) || []).length === 1,
     (html.match(/clamp: function\(rawMs, maxRawMs, t\)/g) || []).length);
 
+  /* The clamp has now gone missing twice, each time through a path that
+     restated the rule instead of calling the one that owns it. So: exactly one
+     call site, asserted. A second one is the bug coming back. */
+  const calls = (html.match(/ES\.compressToRunway\(/g) || []).length;
+  ck('compressToRunway is called from exactly ONE place in index.html',
+    calls === 1, calls);
+  ck('and that place is the named owner',
+    /function examClamp\(rawMs, maxRawMs, t, exam\)\{[\s\S]{0,160}?ES\.compressToRunway\(/.test(html));
+  ck('both scheduling paths go through it',
+    (html.match(/examClamp\(/g) || []).length >= 3,
+    (html.match(/examClamp\(/g) || []).length);
+
   /* behavioural: restore without a clamp gives raw FSRS, with one it is
      compressed — the difference the resume path was silently losing */
   const item = { id: 1, kind: 'card', objectiveIds: ['N144_L1'], state: 'review',

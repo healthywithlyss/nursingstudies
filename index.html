@@ -12018,6 +12018,21 @@ window.srsWasFast = function(){
 function tableFor(kind){ return kind==='card' ? 'card_mastery' : 'question_mastery'; }
 function keyFor(kind){ return kind==='card' ? 'card_id' : 'question_id'; }
 
+/* ── THE ONE PLACE THE EXAM CLAMP IS APPLIED ─────────────────────────────
+   Both scheduling paths — the flashcard session and the quiz grader — must run
+   an interval through compressToRunway before storing it. They each used to
+   call it themselves, and that is how the clamp went missing twice: once when
+   the flashcard session was written without it at all, and again when
+   restoreSession built its own options literal and left it out.
+
+   Two statements of one rule is two chances to forget it. So there is one
+   call site, and a test asserts index.html contains exactly one. Which exam
+   applies still differs by path — the deck's next exam vs the item's own — so
+   that stays a parameter. */
+function examClamp(rawMs, maxRawMs, t, exam){
+  return ES.compressToRunway(rawMs, maxRawMs, exam, t, currentSettings());
+}
+
 /* ── writing scheduling state ────────────────────────────────────────────
    Every rating goes through here, and it is loud about failing.
 
@@ -12209,7 +12224,7 @@ function recordNow(kind, id, rating, objectiveIds){
       if(a.due - now > maxRaw) maxRaw = a.due - now;
     });
     var after = raw[rating];
-    var comp = ES.compressToRunway(after.due - now, maxRaw, exam, now, currentSettings());
+    var comp = examClamp(after.due - now, maxRaw, now, exam);
     if(comp.ms !== after.due - now){
       after = Object.assign({}, after, {
         due: now + comp.ms,
@@ -13461,7 +13476,7 @@ function sessionOpts(now, st, extra){
     mode: extra ? 'extra' : 'scheduled',
     /* The exam rules live in exam-scheduler; the session just asks. */
     clamp: function(rawMs, maxRawMs, t){
-      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t, st);
+      return examClamp(rawMs, maxRawMs, t, deckExam(t));
     }
   };
 }
