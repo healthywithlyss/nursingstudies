@@ -13,6 +13,7 @@
 <script src="vendor/fsrs.js"></script>
 <script src="lib/exam-scheduler.js"></script>
 <script src="lib/study-session.js"></script>
+<script src="lib/card-gen.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1525,6 +1526,73 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-mini-l span{font-size:11px;color:var(--text-muted)}
 .srs-mini-end{flex-shrink:0}
 .srs-study .srs-deck-mini{padding:7px 11px}
+
+/* Chips stay reachable while a session runs — hiding them made the selection
+   invisible at exactly the moment it looked wrong. */
+.srs-mini-chips{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 100%;order:3}
+.srs-mini-chips .srs-chip{padding:5px 9px;min-height:32px;font-size:10.5px}
+
+/* ── the buttons are what she touches on every card ───────────────────
+   The answer, the four ratings and their intervals all have to be reachable
+   without scrolling, and the ratings should be the closest thing to the thumb.
+   The card no longer centres a two-line answer in 300px of white space: it
+   takes the room its content needs, up to a ceiling, and the buttons sit
+   directly under it. */
+.srs-study .card-col{gap:6px}
+.srs-study .fc-card{
+  height:auto;
+  min-height:0;
+  max-height:min(46vh, 380px);
+  overflow-y:auto;
+  padding:16px 18px}
+.srs-study .fc-card-body{align-items:flex-start;padding-top:2px}
+.srs-study .fc-q-text{text-align:left}
+.srs-study .fc-card-label{margin-bottom:8px}
+@media(max-width:767px){
+  .srs-study .fc-card{max-height:min(38vh, 300px);padding:14px 15px}
+  .srs-study .fc-q-text{font-size:16px}
+  /* the rating row is the last thing before the bottom of the screen */
+  .srs-study .rating-row.rr-four{margin-bottom:2px}
+  .srs-study .practice-progress-wrap{margin-bottom:6px}
+  .srs-study .srs-runway{padding:5px 10px;margin-bottom:5px}
+  .srs-study .srs-runway b{font-size:11.5px}
+  .srs-study .srs-runway span{font-size:10px}
+}
+
+/* term load — stacked bands, one bar a day */
+.tm-legend{display:flex;gap:12px;flex-wrap:wrap;margin:2px 0 8px}
+.tm-k{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-muted)}
+.tm-sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+.tm-sw.nw,.tm-s.nw{background:var(--cobalt)}
+.tm-sw.cu,.tm-s.cu{background:var(--accent)}
+.tm-sw.pu,.tm-s.pu{background:var(--teal)}
+.tm-sw.sw,.tm-s.sw{background:var(--unsure)}
+.tm-wrap{overflow-x:auto;padding-bottom:2px}
+.tm-plot{display:flex;gap:1px;align-items:flex-end;height:120px;min-width:260px}
+.tm-col{flex:1 1 0;min-width:2px;height:100%;display:flex;flex-direction:column;
+  justify-content:flex-end;border-radius:2px 2px 0 0;overflow:hidden}
+.tm-col.over{outline:1px solid var(--missed);outline-offset:-1px}
+.tm-s{width:100%;min-height:1px}
+.tm-stats{display:flex;gap:16px;margin:10px 0 10px;flex-wrap:wrap}
+.tm-stats div{display:flex;flex-direction:column;line-height:1.2}
+.tm-stats b{font-size:17px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.tm-stats span{font-size:10px;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.04em;font-weight:700}
+
+/* suggestions from missed questions */
+.srs-sugg-row{border:1px solid var(--border);border-radius:10px;padding:10px 11px;
+  margin-bottom:9px;background:var(--g50)}
+.srs-sugg-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--text-muted);margin-bottom:7px}
+.srs-sugg-l{display:block;font-size:10px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.srs-sugg-t{width:100%;font:inherit;font-size:12.5px;line-height:1.45;color:var(--text);
+  border:1px solid var(--border);border-radius:7px;padding:7px 8px;margin-bottom:7px;
+  background:var(--surface);resize:vertical;min-height:42px}
+.srs-sugg-t:focus{outline:none;border-color:var(--accent)}
+.srs-sugg-x summary{cursor:pointer;font-size:11px;font-weight:700;color:var(--text-muted);
+  min-height:30px;display:flex;align-items:center}
+.srs-sugg-x div{font-size:11.5px;line-height:1.55;color:var(--text-muted);padding:4px 0 2px}
 
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
@@ -12076,12 +12144,36 @@ function recordNow(kind, id, rating, objectiveIds){
     row.repetitions = after.reps;
     row.lapses = after.lapses;
 
+    /* A QUIZ QUESTION RETIRES WHEN IT IS ANSWERED CORRECTLY.
+
+       It asked whether she knew something; she did; it is finished. Keeping
+       1,500 answered questions in a review queue treats an assessment as a
+       study tool and buries the flashcards, which are the thing built for
+       repetition. A miss keeps it live — and separately proposes a card,
+       because a miss is a knowledge gap and gaps are what cards are for. */
+    if(kind === 'quiz'){
+      if(rating >= 3){
+        row.retired_at = new Date(now).toISOString();
+      } else {
+        row.retired_at = null;
+        proposeCardFor(id, objectiveIds);
+      }
+    }
+
     fsrsRows[kind][id] = {
       state: row.state, learning_step: row.learning_step,
       stability: row.stability, difficulty: row.difficulty,
       due_date: row.due_date, last_reviewed_at: row.last_reviewed_at,
-      interval_days: row.interval_days, repetitions: row.repetitions, lapses: row.lapses
+      interval_days: row.interval_days, repetitions: row.repetitions, lapses: row.lapses,
+      retired_at: row.retired_at
     };
+    /* keep the plan's copy honest so the counts do not lie until the next load */
+    if(plan && plan._items){
+      for(var pi=0; pi<plan._items.length; pi++){
+        var pit = plan._items[pi];
+        if(pit.kind === kind && pit.id === id){ pit.retired_at = row.retired_at; break; }
+      }
+    }
 
     /* merge-duplicates so this coexists with the legacy upsert on the same row
        rather than fighting it — the two write disjoint column sets */
@@ -12110,12 +12202,15 @@ function loadAll(){
   var j = function(r){ return r.json(); };
 
   return Promise.all([
-    window.sbFetch('/rest/v1/flashcards?select=id,objective_ids&course=eq.'+course).then(j),
+    /* question and answer come along because the duplicate check compares a
+       proposed card against what is already in the deck */
+    window.sbFetch('/rest/v1/flashcards?select=id,question,answer,objective_ids,'
+      +'auto_generated,source_question_id&course=eq.'+course).then(j),
     window.sbFetch('/rest/v1/quiz_questions?select=id,objective_id&'+quizFilterForCourse()).then(j),
     window.sbFetch('/rest/v1/card_mastery?select=card_id,state,stability,difficulty,due_date,'
       +'last_reviewed_at,interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/question_mastery?select=question_id,state,stability,difficulty,due_date,'
-      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid).then(j),
+      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,retired_at&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
     window.sbFetch('/rest/v1/exam_schedule?select=exam,exam_date&user_id=eq.'+uid
       +'&course=eq.'+course).then(j),
@@ -12128,10 +12223,18 @@ function loadAll(){
        caps, ceiling, forecast, conflict — against the DEFAULTS whenever it
        rendered before any grading had happened, which is almost always. */
     window.sbFetch('/rest/v1/srs_settings?select=*&user_id=eq.'+uid
-      +'&course=eq.'+course).then(j)
+      +'&course=eq.'+course).then(j),
+    window.sbFetch('/rest/v1/card_suggestions?select=*&user_id=eq.'+uid
+      +'&course=eq.'+course+'&order=created_at.asc').then(j),
+    /* Every attempt, not just the recent window: the passed-unit exemption
+       asks what she was failing AT that unit's exam, which is a question about
+       history rather than about now. */
+    window.sbFetch('/rest/v1/card_attempts?select=card_id,result,created_at&user_id=eq.'+uid
+      +'&order=created_at.asc').then(j)
   ]).then(function(r){
     var cards=r[0]||[], quiz=r[1]||[], cm=r[2]||[], qm=r[3]||[],
-        units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[], sets=r[8]||[];
+        units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[], sets=r[8]||[],
+        sugg=r[9]||[], allAttempts=r[10]||[];
 
     applyUnits(units, course);
     applyExams(exams);
@@ -12140,6 +12243,13 @@ function loadAll(){
     contextCourse = course;
     contextLoaded = Promise.resolve();
 
+    suggestions = Array.isArray(sugg) ? sugg : [];
+    deckCards = (Array.isArray(cards)?cards:[]).map(function(c){
+      return { id:c.id, question:c.question, answer:c.answer,
+               objective_ids:c.objective_ids||[],
+               source_question_id:c.source_question_id };
+    });
+
     fsrsRows={card:{}, quiz:{}};
     (Array.isArray(cm)?cm:[]).forEach(function(m){ fsrsRows.card[m.card_id]=m; });
     (Array.isArray(qm)?qm:[]).forEach(function(m){ fsrsRows.quiz[m.question_id]=m; });
@@ -12147,6 +12257,32 @@ function loadAll(){
        to fetch them again */
     rowsLoaded.card = Promise.resolve();
     rowsLoaded.quiz = Promise.resolve();
+
+    /* What she was failing when each unit's exam came round — the last attempt
+       on or before that date being a miss. Computed from the attempt history
+       rather than stamped at exam time, so it is right even for exams that
+       passed before this feature existed. */
+    var failingAtExam = {};
+    (function(){
+      var byExam = {};
+      [1,2].forEach(function(u){
+        var d = ES.parseDate(u===2 ? examDates.unit2 : examDates.unit1);
+        if(d !== null) byExam[u] = d;
+      });
+      if(!Object.keys(byExam).length) return;
+      var lastBefore = {};
+      (Array.isArray(allAttempts)?allAttempts:[]).forEach(function(a){
+        var t = Date.parse(a.created_at);
+        Object.keys(byExam).forEach(function(u){
+          if(t <= byExam[u]) lastBefore[u+':'+a.card_id] = a.result;
+        });
+      });
+      Object.keys(lastBefore).forEach(function(k){
+        if(lastBefore[k] === 'missed' || lastBefore[k] === 'unsure')
+          failingAtExam['card:'+k.split(':')[1]] = true;
+      });
+    })();
+    window.srsFailingAtExam = failingAtExam;
 
     var items=[], seenObj={};
     (Array.isArray(cards)?cards:[]).forEach(function(c){
@@ -12174,7 +12310,7 @@ function loadAll(){
     }
 
     var attempts=(Array.isArray(ca)?ca.length:0)+(Array.isArray(qa)?qa.length:0);
-    return {items:items, pace: attempts/PACE_WINDOW_DAYS};
+    return {items:items, pace: attempts/PACE_WINDOW_DAYS, failingAtExam: failingAtExam};
   });
 }
 
@@ -12184,6 +12320,7 @@ function loadAll(){
 function toItem(kind, id, objectiveIds, row){
   return {
     kind:kind, id:id, objectiveIds:objectiveIds,
+    retired_at: row && row.retired_at ? row.retired_at : null,
     state: row ? row.state : 'new',
     stability: row ? row.stability : null,
     difficulty: row ? row.difficulty : null,
@@ -12221,7 +12358,9 @@ function render(){
     + paceHtml()
     + examCardsHtml()
     + queueHtml()
+    + suggestionsHtml()
     + forecastHtml()
+    + termHtml()
     + weakHtml()
     + unitsHtml();
 }
@@ -12489,6 +12628,81 @@ function cramButtons(unit){
             + 'Unit '+unit+' cards ('+cards+')</button>' : '')
        + (quiz ? '<button class="srs-btn srs-btn-ghost" onclick="srsCramQuiz('+unit+')">'
             + 'Unit '+unit+' quiz ('+quiz+')</button>' : '');
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOTAL DAILY LOAD, ACROSS THE TERM
+
+   Not an average — averages hide the walls, and the walls are the question.
+   Every day between now and the final, split the way the work actually feels:
+   new material, the unit being studied now, the units already examined, and
+   the sweep on top.
+
+   One series per band, stacked, because they sum to a real total she has to
+   sit through. Colour is the band's identity and each is direct-labelled in
+   the legend; a day over the ceiling also prints its number, so nothing is
+   carried by colour alone.
+   ══════════════════════════════════════════════════════════════════════ */
+var TERM_MIN_PER_ITEM = 0.18;   /* ~11 seconds an item, from the measured pace */
+
+function termHtml(){
+  if(!plan || !plan._items || !plan.anyExamSet) return '';
+  var rows = plan.term;
+  if(!rows || !rows.length) return '';
+  var sum = plan.termSummary;
+  var ceiling = currentSettings().dailyCeiling;
+
+  /* one bar per day; weekly ticks so a 120-day axis stays readable */
+  var peak = rows.reduce(function(m,r){ return Math.max(m, r.total); }, 1);
+  var bars = rows.map(function(r){
+    var seg = function(v, cls){
+      return v ? '<div class="tm-s '+cls+'" style="height:'+((v/peak)*100)+'%"></div>' : '';
+    };
+    var over = r.total > ceiling;
+    return '<div class="tm-col'+(over?' over':'')+'" title="'
+      + r.date.toLocaleDateString(undefined,{month:'short',day:'numeric'})+': '
+      + r.total+' items — '+r.newItems+' new, '+r.currentUnit+' current unit, '
+      + r.passedUnit+' passed unit'+(r.sweep?', '+r.sweep+' sweep':'')+'">'
+      + seg(r.sweep,'sw') + seg(r.passedUnit,'pu') + seg(r.currentUnit,'cu')
+      + seg(r.newItems,'nw')
+      + '</div>';
+  }).join('');
+
+  var band = function(cls,label){
+    return '<span class="tm-k"><i class="tm-sw '+cls+'"></i>'+label+'</span>';
+  };
+
+  var verdict;
+  if(sum.p90Minutes >= 90)
+    verdict = '<div class="srs-warn">Nine days in ten are <b>'+sum.p90Minutes
+      + ' minutes or less</b>, and the worst day is <b>'+sum.peakMinutes
+      + ' minutes</b>. That is not survivable alongside clinical as configured — '
+      + 'lower the new-item rates or move a date.</div>';
+  else if(sum.p90Minutes >= 45)
+    verdict = '<div class="srs-ok">Typical day <b>'+sum.medianMinutes+' min</b>, '
+      + 'nine days in ten under <b>'+sum.p90Minutes+' min</b>, worst day <b>'
+      + sum.peakMinutes+' min</b>.</div>';
+  else
+    verdict = '<div class="srs-ok">Comfortable: typical day <b>'+sum.medianMinutes
+      + ' min</b>, worst day <b>'+sum.peakMinutes+' min</b>.</div>';
+
+  return '<div class="srs-q">'
+    + '<div class="srs-head" style="margin-bottom:4px">'
+    + '<div class="srs-title" style="font-size:13px">Daily load across the term</div>'
+    + '<div class="srs-sub">'+rows.length+' days · '
+      + Math.round(sum.minutesPerItem*60)+'s an item</div></div>'
+    + '<div class="tm-legend">'+band('nw','new')+band('cu','current unit')
+      + band('pu','passed unit')+band('sw','sweep')+'</div>'
+    + '<div class="tm-wrap"><div class="tm-plot">'+bars+'</div></div>'
+    + '<div class="tm-stats">'
+    + '<div><b>'+sum.median+'</b><span>median/day</span></div>'
+    + '<div><b>'+sum.p90+'</b><span>90th pct</span></div>'
+    + '<div><b>'+sum.peak+'</b><span>peak</span></div>'
+    + '<div><b>'+Math.round(sum.totalItems/1000*10)/10+'k</b><span>total reviews</span></div>'
+    + '</div>'
+    + verdict
+    + '</div>';
 }
 
 function weakHtml(){
@@ -12901,6 +13115,9 @@ function renderDeckPanel(){
     host.innerHTML = '<div class="srs-deck srs-deck-mini">'
       + '<div class="srs-mini-l"><b>'+p.remaining+'</b> left'
       + '<span>'+c.newItems+' new · '+c.learning+' learning · '+c.due+' due</span></div>'
+      + (objs.length > 1
+          ? '<div class="srs-mini-chips">'+chips+'</div>'
+          : '')
       + '<button class="srs-btn srs-btn-ghost srs-mini-end" onclick="srsEndSession()">'
       + 'End</button></div>';
     return;
@@ -12948,6 +13165,13 @@ function renderDeckPanel(){
     + counts + body + '</div>';
 }
 
+/* Out to the final, or 120 days if no final is set. */
+function termDays(){
+  var fin = ES.parseDate(examDates.final);
+  if(fin === null) return 120;
+  return Math.max(14, Math.min(400, ES.daysBetween(fin, ES.startOfDay(Date.now())) + 3));
+}
+
 function relativeWhen(ms, now){
   var d = ES.daysBetween(ms, now);
   if(d <= 0){
@@ -12961,7 +13185,7 @@ function relativeWhen(ms, now){
 }
 
 window.srsToggleDeck = function(objId){
-  if(objId === null){ deckSel = null; renderDeckPanel(); return; }
+  if(objId === null){ deckSel = null; afterDeckChange(); return; }
   var all = deckObjectives().map(function(o){ return o.id; });
   if(!deckSel || !deckSel.length) deckSel = all.slice();
   var i = deckSel.indexOf(objId);
@@ -12969,8 +13193,29 @@ window.srsToggleDeck = function(objId){
   /* deselecting the last one means "all", not "none" — a deck of nothing is
      never what the tap meant */
   if(!deckSel.length) deckSel = null;
-  renderDeckPanel();
+  afterDeckChange();
 };
+
+/* CHANGING THE SELECTION HAS TO CHANGE THE QUEUE.
+
+   Toggling a chip used to update deckSel and re-render, and stop there. A
+   session already running kept its original queue, so deselecting Skills
+   mid-session carried on serving Skills cards — the deck looked filtered and
+   was not. The session is rebuilt against the new selection instead.
+
+   Nothing is lost by rebuilding: every answer already given was written to
+   card_mastery as it happened, so the FSRS state survives; only the ordering
+   of what is left is recomputed. */
+function afterDeckChange(){
+  if(SESS && !SESS.isComplete()){
+    var mode = SESS.mode;
+    SESS = null; lastOutcome = null;
+    try{ localStorage.removeItem(sessionKey()); }catch(e){}
+    window.srsStartSession(mode === 'extra');
+    return;
+  }
+  renderDeckPanel();
+}
 
 /* ── running a session ──────────────────────────────────────────────── */
 window.srsStartSession = function(extra){
@@ -13012,9 +13257,19 @@ window.srsEndSession = function(){
   recompute();
 };
 
+/* A stable name for the current selection, so a snapshot knows which deck it
+   belongs to. */
+function deckSelKey(){
+  return (!deckSel || !deckSel.length) ? '*' : deckSel.slice().sort().join('|');
+}
+
 function saveSession(){
   if(!SESS) return;
-  try{ localStorage.setItem(sessionKey(), JSON.stringify(SESS.toJSON())); }catch(e){}
+  try{
+    var snap = SESS.toJSON();
+    snap.deckSel = deckSelKey();
+    localStorage.setItem(sessionKey(), JSON.stringify(snap));
+  }catch(e){}
 }
 
 /* Coming back mid-session picks up where it was rather than restarting. */
@@ -13025,9 +13280,11 @@ function restoreSession(){
   if(!raw) return;
   var saved;
   try{ saved = JSON.parse(raw); }catch(e){ return; }
-  var s = window.StudySession.restore(saved, deckItems().length ? plan._items.filter(
-    function(i){ return i.kind==='card'; }) : [], { now: Date.now(), settings: currentSettings() });
-  if(s && !s.isComplete()) SESS = s;
+  /* Restoring against the CURRENT selection, not the whole deck: a snapshot
+     saved before a chip was toggled must not smuggle the old deck back in. */
+  var s = window.StudySession.restore(saved, deckItems(),
+    { now: Date.now(), settings: currentSettings() });
+  if(s && !s.isComplete() && saved.deckSel === deckSelKey()) SESS = s;
   else { try{ localStorage.removeItem(sessionKey()); }catch(e){} }
 }
 
@@ -13260,6 +13517,172 @@ function finishSession(){
   recompute().then(renderDeckPanel);
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   A MISSED QUESTION PROPOSES A CARD
+
+   Never creates one. A suggestion sits in card_suggestions until it is
+   accepted, because auto-generated content entering the deck unreviewed is
+   how a deck fills with junk.
+
+   Three duplicate checks, because they fail differently: this question has
+   already proposed once (accepted OR rejected — a rejection is a decision,
+   not an invitation to ask again), a card was already generated from it, or
+   a hand-written card already covers the fact.
+   ══════════════════════════════════════════════════════════════════════ */
+var suggestions = [];        /* pending + decided, for this course */
+var deckCards = [];          /* id, question, answer, objective_ids, source_question_id */
+
+function proposeCardFor(questionId, objectiveIds){
+  if(!window.currentUser || !window.CardGen) return;
+  /* already decided on this one */
+  for(var i=0;i<suggestions.length;i++){
+    if(suggestions[i].question_id === questionId) return;
+  }
+  window.sbFetch('/rest/v1/quiz_questions?select=id,stem,fact_tested,explanation,objective_id&id=eq.'
+      + questionId)
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      var q = Array.isArray(rows) && rows[0];
+      if(!q) return;
+      var res = window.CardGen.propose(q, window.currentCourse,
+        { suggestions: suggestions, cards: deckCards });
+      if(!res.ok){
+        console.info('srs: no card proposed for question ' + questionId + ' — ' + res.reason);
+        return;
+      }
+      var d = res.draft;
+      var row = {
+        user_id: window.currentUser.id, question_id: d.question_id,
+        course: d.course, objective_ids: d.objective_ids,
+        fact_tested: d.fact_tested, front: d.front, back: d.back,
+        explanation: d.explanation, status: 'pending'
+      };
+      return window.sbFetch('/rest/v1/card_suggestions?on_conflict=user_id,question_id',{
+        method:'POST',
+        headers:Object.assign({'Prefer':'resolution=ignore-duplicates,return=representation'},
+                              window.getAuthHdr()),
+        body:JSON.stringify(row)
+      }).then(function(r2){ return r2.json(); })
+        .then(function(saved){
+          var s = Array.isArray(saved) && saved[0] ? saved[0] : row;
+          suggestions.push(s);
+          renderDeckPanel();
+        });
+    })
+    .catch(function(e){ console.warn('srs propose:', e); });
+}
+
+function pendingSuggestions(){
+  return suggestions.filter(function(s){ return s.status === 'pending'; });
+}
+
+/* ── the review queue ────────────────────────────────────────────────── */
+function suggestionsHtml(){
+  var pend = pendingSuggestions();
+  if(!pend.length) return '';
+  return '<div class="srs-q srs-sugg">'
+    + '<div class="srs-head" style="margin-bottom:8px">'
+    + '<div class="srs-title" style="font-size:13px">Cards from missed questions</div>'
+    + '<div class="srs-sub">'+pend.length+' waiting for review</div></div>'
+    + pend.slice(0,6).map(function(s){ return suggestionRow(s); }).join('')
+    + (pend.length > 6
+        ? '<div class="srs-note">'+(pend.length-6)+' more after these.</div>' : '')
+    + '<div class="srs-actions" style="margin-top:10px">'
+    + '<button class="srs-btn" onclick="srsAcceptAllSuggestions()">Accept all '
+      + pend.length + '</button></div>'
+    + '</div>';
+}
+
+function suggestionRow(s){
+  var id = s.id || ('q'+s.question_id);
+  return '<div class="srs-sugg-row" id="sg-'+esc2(id)+'">'
+    + '<div class="srs-sugg-tag">from a missed question · '+esc2((s.objective_ids||[]).join(', '))+'</div>'
+    + '<label class="srs-sugg-l">Front</label>'
+    + '<textarea class="srs-sugg-t" rows="2" id="sgf-'+esc2(id)+'">'+esc2(s.front)+'</textarea>'
+    + '<label class="srs-sugg-l">Back</label>'
+    + '<textarea class="srs-sugg-t" rows="2" id="sgb-'+esc2(id)+'">'+esc2(s.back)+'</textarea>'
+    + (s.explanation
+        ? '<details class="srs-sugg-x"><summary>Explanation</summary><div>'
+          + esc2(s.explanation)+'</div></details>'
+        : '')
+    /* single-quoted inside a double-quoted attribute; JSON.stringify emits
+       double quotes and closes the attribute early */
+    + '<div class="srs-actions" style="margin-top:8px">'
+    + '<button class="srs-btn" onclick="srsAcceptSuggestion(\''+esc2(id)+'\')">'
+      + 'Add to deck</button>'
+    + '<button class="srs-btn srs-btn-ghost" onclick="srsRejectSuggestion(\''
+      + esc2(id)+'\')">Reject</button>'
+    + '</div></div>';
+}
+
+function findSuggestion(id){
+  for(var i=0;i<suggestions.length;i++){
+    var s = suggestions[i];
+    if(String(s.id) === String(id) || ('q'+s.question_id) === String(id)) return s;
+  }
+  return null;
+}
+
+window.srsAcceptSuggestion = function(id){
+  var s = findSuggestion(id);
+  if(!s) return;
+  var f = $('sgf-'+id), b = $('sgb-'+id);
+  var front = f ? f.value.trim() : s.front;
+  var back  = b ? b.value.trim() : s.back;
+  if(!front || !back){ alert('A card needs both a front and a back.'); return; }
+  acceptOne(s, front, back).then(function(){ recompute().then(renderDeckPanel); });
+};
+
+function acceptOne(s, front, back){
+  /* the card itself — auto_generated and source_question_id are what make it
+     findable and manageable in bulk later */
+  return window.sbFetch('/rest/v1/flashcards',{
+    method:'POST',
+    headers:Object.assign({'Prefer':'return=representation'}, window.getAuthHdr()),
+    body:JSON.stringify({
+      question: front, answer: back, explanation: s.explanation || null,
+      course: s.course, objective_ids: s.objective_ids || [],
+      auto_generated: true, source_question_id: s.question_id
+    })
+  }).then(function(r){ return r.json(); })
+    .then(function(rows){
+      var card = Array.isArray(rows) && rows[0];
+      s.status = 'accepted';
+      s.card_id = card ? card.id : null;
+      if(card) deckCards.push({ id: card.id, question: front, answer: back,
+        objective_ids: s.objective_ids || [], source_question_id: s.question_id });
+      return window.sbFetch('/rest/v1/card_suggestions?id=eq.'+s.id,{
+        method:'PATCH',
+        headers:Object.assign({'Prefer':'return=minimal'}, window.getAuthHdr()),
+        body:JSON.stringify({status:'accepted', card_id: s.card_id,
+                             decided_at:new Date().toISOString()})
+      });
+    });
+}
+
+window.srsRejectSuggestion = function(id){
+  var s = findSuggestion(id);
+  if(!s) return;
+  s.status = 'rejected';
+  window.sbFetch('/rest/v1/card_suggestions?id=eq.'+s.id,{
+    method:'PATCH',
+    headers:Object.assign({'Prefer':'return=minimal'}, window.getAuthHdr()),
+    body:JSON.stringify({status:'rejected', decided_at:new Date().toISOString()})
+  }).catch(function(e){ console.warn('reject:', e); });
+  renderDeckPanel();
+  render();
+};
+
+window.srsAcceptAllSuggestions = function(){
+  var pend = pendingSuggestions();
+  if(!pend.length) return;
+  if(!confirm('Add all '+pend.length+' cards to the deck as drafted?')) return;
+  pend.reduce(function(chain, s){
+    return chain.then(function(){ return acceptOne(s, s.front, s.back); });
+  }, Promise.resolve()).then(function(){ recompute().then(renderDeckPanel); });
+};
+
 /* ══ entry ════════════════════════════════════════════════════════════ */
 
 function recompute(){
@@ -13273,9 +13696,14 @@ function recompute(){
     plan = ES.buildPlan({
       scheduler: sched, now: Date.now(), items: data.items,
       units: unitsMap, exams: examDates, recentPacePerDay: data.pace,
-      settings: currentSettings(), dailyCap: currentSettings().dailyCeiling
+      settings: currentSettings(), dailyCap: currentSettings().dailyCeiling,
+      failingAtExam: data.failingAtExam
     });
     plan._items = data.items;
+    /* the whole-term simulation, and the few numbers that summarise it */
+    plan.term = ES.projectTerm(sched, data.items, unitsMap, examDates, Date.now(),
+      { settings: currentSettings(), days: termDays() });
+    plan.termSummary = ES.projectionSummary(plan.term, { minutesPerItem: TERM_MIN_PER_ITEM });
     /* the levelling target: what each of the next few weeks already holds */
     loadMap = ES.loadHistogram(data.items, Date.now(), 60);
     window.srsPlan = plan;          /* inspectable from the console */

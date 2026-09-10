@@ -671,5 +671,151 @@ console.log('\ntwo sweeps at once');
     apart.overlap === false && apart.windows.length === 1, apart.windows.map((w) => w.label));
 }
 
+/* ── quiz questions retire ───────────────────────────────────────────── */
+console.log('\na correct quiz answer retires the question');
+{
+  const live = item({ kind: 'quiz', due_date: NOW - DAY });
+  const done = item({ kind: 'quiz', due_date: NOW - DAY, retired_at: NOW - 5 * DAY });
+  ck('a retired question is recognised', ES.isRetired(done) === true && ES.isRetired(live) === false);
+  ck('a retired FLASHCARD is a contradiction and is ignored',
+    ES.isRetired(item({ kind: 'card', retired_at: NOW })) === false);
+  ck('liveItems drops it', ES.liveItems([live, done]).length === 1);
+
+  const q = ES.buildQueue(sched, [live, done], UNITS, {}, NOW, {});
+  ck('it is gone from the due queue', q.totalDue === 1, q.totalDue);
+  const rep = ES.examReport(sched, [live, done], UNITS, { unit1: inDays(20) }, NOW, {});
+  ck('and out of the readiness scope', rep[0].total === 1, rep[0].total);
+  ck('and out of the coverage debt',
+    ES.coverageDebt([Object.assign({}, done, { state: 'new', repetitions: 0, last_reviewed_at: null })],
+      UNITS, { unit1: inDays(20) }, NOW).length === 0);
+}
+
+console.log('\nthe sweep after retirement');
+{
+  const cards = Array.from({ length: 40 }, () => item({ kind: 'card',
+    last_reviewed_at: NOW - 60 * DAY }));
+  const answered = Array.from({ length: 200 }, () => item({ kind: 'quiz',
+    last_reviewed_at: NOW - 60 * DAY, retired_at: NOW - 30 * DAY }));
+  const unseenQ = Array.from({ length: 12 }, () => item({ kind: 'quiz', state: 'new',
+    stability: null, due_date: null, last_reviewed_at: null, repetitions: 0 }));
+  const failingQ = Array.from({ length: 7 }, () => item({ kind: 'quiz',
+    state: 'relearning', stability: 0.3, last_reviewed_at: NOW - 60 * DAY }));
+  const sw = ES.sweepPlan(sched, cards.concat(answered, unseenQ, failingQ), UNITS,
+    { unit1: inDays(5) }, NOW);
+  ck('"see every question" is gone — 200 retired ones are not swept',
+    sw.total === 40 + 12 + 7, sw.total);
+  ck('every FLASHCARD is still swept',
+    sw.total >= 40 && cards.length === 40);
+  ck('plus questions never attempted or still being failed',
+    sw.total - 40 === 19, sw.total - 40);
+}
+
+/* ── passed-unit maintenance ─────────────────────────────────────────── */
+console.log('\npassed-unit material has its own ceiling');
+{
+  const exams = { unit1: inDays(-30), unit2: inDays(60), final: inDays(75) };
+  const passed = Array.from({ length: 200 }, () => item({ objectiveIds: ['N144_L1'],
+    due_date: NOW - DAY }));
+  const current = Array.from({ length: 30 }, () => item({ objectiveIds: ['N144_PSY'],
+    due_date: NOW - DAY }));
+
+  ck('the default allowance is 20 a day, not 10',
+    ES.DEFAULT_SETTINGS.passedUnitCardsPerDay === 20, ES.DEFAULT_SETTINGS.passedUnitCardsPerDay);
+
+  const q = ES.buildQueue(sched, passed.concat(current), UNITS, exams, NOW, { dailyCap: 500 });
+  ck('passed-unit work is capped', q.passedUnit.shown === 20, q.passedUnit);
+  ck('and the rest is reported as held back, not silently dropped',
+    q.passedUnit.held === 180, q.passedUnit.held);
+  ck('the current unit is NOT capped by it',
+    q.queue.filter((i) => ES.unitOf(i, UNITS) === 2).length === 30,
+    q.queue.filter((i) => ES.unitOf(i, UNITS) === 2).length);
+
+  /* the exemptions */
+  const failing = {};
+  const wasFailing = passed[0];
+  failing['card:' + wasFailing.id] = true;
+  const q2 = ES.buildQueue(sched, passed.concat(current), UNITS, exams, NOW,
+    { dailyCap: 500, settings: { passedUnitCardsPerDay: 0 }, failingAtExam: failing });
+  ck('with the allowance at zero, ordinary passed-unit work is held',
+    q2.passedUnit.shown === 0, q2.passedUnit);
+  ck('but what she was FAILING at that unit\u2019s exam still comes through',
+    q2.queue.some((i) => i.id === wasFailing.id), 'exempt item was dropped');
+
+  const relearn = item({ objectiveIds: ['N144_L1'], state: 'relearning', due_date: NOW - DAY });
+  const q3 = ES.buildQueue(sched, [relearn], UNITS, exams, NOW,
+    { settings: { passedUnitCardsPerDay: 0 } });
+  ck('and so does anything mid-repair', q3.queue.length === 1, q3.queue.length);
+
+  ck('a unit whose exam has NOT passed is not passed-unit material',
+    ES.isPassedUnit(current[0], UNITS, exams, NOW) === false
+    && ES.isPassedUnit(passed[0], UNITS, exams, NOW) === true);
+}
+
+/* ── the term projection ─────────────────────────────────────────────── */
+console.log('\nthe whole-term load projection');
+{
+  let n = 0;
+  const bulk = (obj, kind, count) => Array.from({ length: count }, () => item({
+    kind, objectiveIds: [obj], state: 'new', stability: null, due_date: null,
+    last_reviewed_at: null, repetitions: 0 }));
+  const items = bulk('N144_L1', 'card', 600).concat(bulk('N144_L1', 'quiz', 1500));
+  const exams = { unit1: inDays(35), unit2: inDays(125), final: inDays(140) };
+  const rows = ES.projectTerm(sched, items, UNITS, exams, NOW, { days: 60 });
+
+  ck('one row a day', rows.length === 60);
+  ck('every row splits new, current unit, passed unit and sweep',
+    rows.every((r) => 'newItems' in r && 'currentUnit' in r && 'passedUnit' in r && 'sweep' in r));
+  ck('the total is the sum of its parts',
+    rows.every((r) => r.total >= r.newItems + r.currentUnit + r.passedUnit),
+    rows.find((r) => r.total < r.newItems + r.currentUnit + r.passedUnit));
+  ck('new material is capped at the configured rate',
+    rows.every((r) => r.newItems <= ES.DEFAULT_SETTINGS.newCardsPerDay
+      + ES.DEFAULT_SETTINGS.newQuizPerDay),
+    Math.max.apply(null, rows.map((r) => r.newItems)));
+  ck('the sweep shows up in the week before the exam',
+    rows.filter((r) => r.sweep > 0).length > 0
+    && rows.filter((r) => r.sweep > 0).every((r) => {
+      const d = ES.daysBetween(ES.parseDate(exams.unit1), ES.startOfDay(r.ms));
+      return d > 0 && d <= 7;
+    }), rows.filter((r) => r.sweep > 0).length);
+  ck('and it is deterministic — the same inputs give the same projection',
+    JSON.stringify(ES.projectTerm(sched, items, UNITS, exams, NOW, { days: 60 }).map((r) => r.total))
+    === JSON.stringify(rows.map((r) => r.total)));
+
+  const sum = ES.projectionSummary(rows, { minutesPerItem: 0.18 });
+  ck('the summary carries median, p90 and peak',
+    sum.median > 0 && sum.p90 >= sum.median && sum.peak >= sum.p90, sum);
+  ck('and turns them into minutes', sum.peakMinutes === Math.round(sum.peak * 0.18));
+
+  /* quiz retirement has to show up as the quiz side DRAINING */
+  const withRetired = items.map((it, i) =>
+    it.kind === 'quiz' && i % 2 ? Object.assign({}, it, { retired_at: NOW }) : it);
+  const fewer = ES.projectTerm(sched, withRetired, UNITS, exams, NOW, { days: 60 });
+  ck('retiring half the questions lightens the projection',
+    fewer.reduce((a, r) => a + r.total, 0) < rows.reduce((a, r) => a + r.total, 0),
+    { with: rows.reduce((a, r) => a + r.total, 0), without: fewer.reduce((a, r) => a + r.total, 0) });
+}
+
+console.log('\nthe sweep window is a setting, and it says when 7 days will not do');
+{
+  ck('the default matches the constant',
+    ES.DEFAULT_SETTINGS.sweepDays === ES.SWEEP_DAYS, ES.DEFAULT_SETTINGS.sweepDays);
+  ck('600 cards in 7 days is 86 a day, so it suggests 15',
+    ES.suggestSweepDays(600) === 15, ES.suggestSweepDays(600));
+  ck('1,200 needs 30', ES.suggestSweepDays(1200) === 30, ES.suggestSweepDays(1200));
+  ck('a small deck still gets the stated 7', ES.suggestSweepDays(100) === 7, ES.suggestSweepDays(100));
+  ck('nonsense falls back to 7',
+    ES.sweepDaysFrom({ sweepDays: 0 }) === 7 && ES.sweepDaysFrom({ sweepDays: 999 }) === 7
+    && ES.sweepDaysFrom(null) === 7);
+
+  const items = Array.from({ length: 90 }, () => item({ last_reviewed_at: NOW - 60 * DAY }));
+  const wide = ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW, { sweepDays: 14 });
+  ck('a wider window opens earlier', wide.active === true, wide.active);
+  ck('and spreads the same work thinner',
+    wide.perDay < Math.ceil(90 / 7), { wide: wide.perDay, narrow: Math.ceil(90 / 7) });
+  ck('a 7-day window is not open 12 days out',
+    ES.sweepPlan(sched, items, UNITS, { unit1: inDays(12) }, NOW).active === false);
+}
+
 console.log(fail ? `\n${fail} FAILING` : '\nall exam scheduler checks passed');
 process.exit(fail ? 1 : 0);

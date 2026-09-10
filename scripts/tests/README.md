@@ -114,3 +114,20 @@ schedules days out on a review card while Again stays in the sitting; interval
 previews are pure; steps are configurable and nonsense falls back to defaults;
 undo restores state exactly, including removing a card from learning; a snapshot
 resumes and drops cards deleted since; extra study is flagged not to persist.
+
+## card-gen
+
+`lib/card-gen.js`: turning a missed quiz question into a proposed flashcard.
+
+The design was settled by measuring the real bank, not by guessing. All 316
+NUR144 questions carry a `fact_tested`; all 316 facts are distinct; not one stem
+is "which of the following"-shaped; 313 of 316 already end in a question mark.
+So the stem is the front, the fact is the back, and no language model is needed
+to invent either — 31,695 same-objective pairs were compared and none reached
+the 0.6 duplicate threshold, the highest between two genuinely distinct facts
+being 0.400.
+
+Tested: the draft and its fallback for a non-question stem, and all three
+duplicate checks — the same question proposing twice (including after a
+rejection, which is a decision), a card already generated from it, and a
+hand-written card already covering the fact under the same objective.

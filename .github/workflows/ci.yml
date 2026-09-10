@@ -74,6 +74,11 @@ jobs:
       - name: Study session
         run: node scripts/tests/study-session.test.mjs
 
+      # Cards generated from missed quiz questions: the draft, and the three
+      # duplicate checks that stop the deck filling with near-copies.
+      - name: Card generation
+        run: node scripts/tests/card-gen.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
