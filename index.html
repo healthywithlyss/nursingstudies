@@ -1469,6 +1469,18 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   .rating-row.rr-four #btn-missed{margin-right:0}
 }
 
+/* runway + compression markers */
+.srs-runway{display:flex;flex-direction:column;gap:1px;padding:8px 12px;margin-bottom:10px;
+  border-radius:10px;background:var(--slate-bg);border:1px solid var(--border)}
+.srs-runway b{font-size:12.5px;font-weight:800;color:var(--text)}
+.srs-runway span{font-size:11px;color:var(--text-muted);line-height:1.4}
+.srs-runway.on{background:var(--cobalt-bg);border-color:#bfdbfe}
+.srs-runway.on b{color:var(--cobalt)}
+.rating-row.rr-four .rb-c{font-style:normal;font-size:10px;margin-left:2px;opacity:.9}
+.rating-row.rr-four .rb-raw{font-size:9px;font-weight:600;opacity:.62;line-height:1;
+  font-variant-numeric:tabular-nums}
+.rating-row.rr-four .rating-btn{min-height:64px}
+
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
 /* Four buttons need two rows on a narrow phone; the three-button row that
@@ -4569,6 +4581,9 @@ body.lsn-open #main-content{padding-bottom:80px}
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
+            <!-- how long is left, and whether the intervals below are being
+                 compressed to fit it. Only on courses with exam scheduling. -->
+            <div id="srs-runway" class="srs-runway" style="display:none"></div>
             <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
               <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Got it</button>
@@ -11965,14 +11980,31 @@ function recordNow(kind, id, rating, objectiveIds){
   try{
     var now = Date.now();
     var before = rowToCard(fsrsRows[kind][id]);
-    var after = sched.review(before, rating, now);
-
-    /* Clamp the interval so this never comes back after the exam it counts for,
-       then let it slide a day or two onto the lightest nearby day so one heavy
-       session does not echo forward as a wall. Levelling happens strictly
-       inside the clamp, so it can never move an item past its exam. Learning
-       steps are inside this sitting and are left alone by both. */
     var exam = examForItem(objectiveIds, now);
+
+    /* Every rating's raw outcome, so the ladder can be compressed against its
+       own top rung. Capping each one independently at the exam collapsed Hard,
+       Good and Easy onto the same day — ordering gone, one review left before
+       the test. Compression keeps the shape and spreads them over the runway. */
+    var raw = {}, maxRaw = 0;
+    [1,2,3,4].forEach(function(r){
+      var a = sched.review(before, r, now);
+      raw[r] = a;
+      if(a.due - now > maxRaw) maxRaw = a.due - now;
+    });
+    var after = raw[rating];
+    var comp = ES.compressToRunway(after.due - now, maxRaw, exam, now);
+    if(comp.ms !== after.due - now){
+      after = Object.assign({}, after, {
+        due: now + comp.ms,
+        interval_days: comp.ms >= 86400000 ? Math.round(comp.ms/86400000) : 0
+      });
+    }
+
+    /* Then let it slide a day or two onto the lightest nearby day so one heavy
+       session does not echo forward as a wall. Levelling runs inside the clamp
+       and can never move an item past its exam; learning steps are left alone
+       by both. */
     var placed = ES.balanceDue(after.due, exam, now, loadMap);
     if(placed !== after.due){
       after.due = placed;
@@ -12686,6 +12718,18 @@ var SESSION_KEY = 'nur_srs_session_';
 function fsrsPractice(){ return srsEnabled() && !!window.StudySession; }
 function sessionKey(){ return SESSION_KEY + window.currentCourse; }
 
+/* The exam the cards on screen belong to. Mixed selections take the nearest,
+   because that is the deadline that actually binds. */
+function deckExam(now){
+  var t = now == null ? Date.now() : now;
+  var best = null;
+  deckItems().forEach(function(i){
+    var e = examForItem(i.objectiveIds, t);
+    if(e && (!best || e.date < best.date)) best = e;
+  });
+  return best;
+}
+
 function deckItems(){
   if(!plan || !plan._items) return [];
   return plan._items.filter(function(i){
@@ -12743,7 +12787,11 @@ function nextDueMs(items, now){
 function renderDeckPanel(){
   var host = $('srs-deck-panel');
   if(!host) return;
-  if(!fsrsPractice()){ host.innerHTML=''; host.style.display='none'; return; }
+  if(!fsrsPractice()){
+    host.innerHTML=''; host.style.display='none';
+    var rw = $('srs-runway'); if(rw){ rw.innerHTML=''; rw.style.display='none'; }
+    return;
+  }
   host.style.display='';
   if(!plan){ host.innerHTML='<div class="dash-loading">Loading deck…</div>'; return; }
 
@@ -12850,7 +12898,13 @@ window.srsStartSession = function(extra){
   var items = deckItems();
   var opts = {
     now: now, settings: st,
-    mode: extra ? 'extra' : 'scheduled'
+    mode: extra ? 'extra' : 'scheduled',
+    /* The exam rules live in exam-scheduler; the session just asks. Without
+       this every interval was raw FSRS, which is how a Hard on a review card
+       came back in two months with the test five weeks away. */
+    clamp: function(rawMs, maxRawMs, t){
+      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t);
+    }
   };
   if(extra){
     opts.items = items.slice();
@@ -12925,12 +12979,25 @@ function decorate(card, now){
 
   var LABEL = {'btn-missed':['Again',1],'btn-unsure':['Hard',2],
                'btn-got':['Good',3],'btn-easy':['Easy',4]};
+  var anyCompressed = false;
   Object.keys(LABEL).forEach(function(id){
     var b = $(id); if(!b) return;
-    var name = LABEL[id][0], rating = LABEL[id][1];
+    var name = LABEL[id][0], rating = LABEL[id][1], v = p[rating];
+    if(v.compressed) anyCompressed = true;
+    /* When an interval has been pulled in to fit the exam, say so on the
+       button and keep the number FSRS actually wanted next to it. Knowing you
+       are on a deadline schedule rather than normal spacing is the difference
+       between trusting the number and wondering about it. */
     b.innerHTML = '<span class="rb-n">'+name+'</span>'
-      + '<span class="rb-i">'+esc2(p[rating].label)+'</span>';
+      + '<span class="rb-i">'+esc2(v.label)
+      + (v.compressed ? '<i class="rb-c" aria-hidden="true">\u21e3</i>' : '')
+      + '</span>'
+      + (v.compressed ? '<span class="rb-raw">was '+esc2(v.rawLabel)+'</span>' : '');
+    b.title = v.compressed
+      ? name+': '+v.label+' — compressed from FSRS\u2019s '+v.rawLabel+' to fit the exam'
+      : name+': '+v.label;
   });
+  renderRunway(anyCompressed, now);
 
   var counter = $('fc-counter');
   if(counter) counter.textContent = (prog.done+1) + ' / ' + prog.total;
@@ -12964,6 +13031,31 @@ function decorate(card, now){
   }
   var ub = $('fc-undo-btn');
   if(ub) ub.style.display = SESS.canUndo() ? '' : 'none';
+}
+
+/* The number that makes the intervals make sense: how long is left. Sits
+   directly above the buttons, where the intervals are read. */
+function renderRunway(anyCompressed, now){
+  var host = $('srs-runway');
+  if(!host) return;
+  var exam = deckExam(now);
+  if(!exam){
+    host.style.display = 'none';
+    host.innerHTML = '';
+    return;
+  }
+  host.style.display = '';
+  var days = ES.daysBetween(exam.date, ES.startOfDay(now));
+  var usable = ES.runwayDays(exam, now);
+  var name = EXAM_LABEL[exam.key];
+  host.className = 'srs-runway' + (anyCompressed ? ' on' : '');
+  host.innerHTML = '<b>' + esc2(name) + ' in ' + days + ' day' + (days===1?'':'s')
+    + '</b>'
+    + (anyCompressed
+        ? '<span>deadline schedule — intervals compressed into the '
+          + Math.max(0, usable) + ' day' + (usable===1?'':'s')
+          + ' before the sweep</span>'
+        : '<span>normal spacing — FSRS already fits inside the runway</span>');
 }
 
 /* A learning card can come due while she is looking at another one. */

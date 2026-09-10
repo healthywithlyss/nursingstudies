@@ -487,5 +487,77 @@ console.log('\nbuildPlan carries all of it');
   ck('the queue honours the caps', plan.queue.coverage.unit1.introduced.card === 7);
 }
 
+/* ── compressing the ladder into the runway ──────────────────────────── */
+console.log('\ncompressing intervals into the time that is left');
+{
+  const exam = { key: 'unit1', date: ES.parseDate(inDays(35)) };
+  /* what FSRS actually asked for on a review card with stability 30, 31 days
+     elapsed — the case that shipped broken */
+  const raw = { 1: 10 * 60000, 2: 64 * DAY, 3: 86 * DAY, 4: 135 * DAY };
+  const maxRaw = raw[4];
+  const got = {};
+  [1, 2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], maxRaw, exam, NOW); });
+
+  ck('the runway is the days to the exam minus the sweep week',
+    ES.runwayDays(exam, NOW) === 28, ES.runwayDays(exam, NOW));
+  ck('nothing lands past the exam',
+    [1, 2, 3, 4].every((r) => got[r].ms <= 35 * DAY), Object.keys(got).map((r) => got[r].ms / DAY));
+  ck('nothing lands inside the sweep week either',
+    [1, 2, 3, 4].every((r) => got[r].ms <= 28 * DAY),
+    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
+  ck('the ordering survives: Again < Hard < Good < Easy',
+    got[1].ms < got[2].ms && got[2].ms < got[3].ms && got[3].ms < got[4].ms,
+    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
+  ck('they land on FOUR different days, not all on exam minus one',
+    new Set([1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 4,
+    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
+  ck('roughly 3 / 6 / 14 days rather than 2mo / 3mo / 4mo',
+    Math.round(got[2].ms / DAY) === 3 && Math.round(got[3].ms / DAY) === 6
+    && Math.round(got[4].ms / DAY) === 14,
+    [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
+  ck('the longest leaves room for another review before the sweep',
+    got[4].ms <= (28 / 2 + 0.5) * DAY, got[4].ms / DAY);
+  ck('each says whether it was compressed',
+    got[2].compressed && got[3].compressed && got[4].compressed && !got[1].compressed,
+    [1, 2, 3, 4].map((r) => got[r].compressed));
+  ck('and keeps the raw figure so the UI can show both',
+    got[4].rawMs === 135 * DAY, got[4].rawMs / DAY);
+
+  /* a learning step is not a schedule and must never be compressed */
+  ck('sub-day learning steps pass through untouched',
+    ES.compressToRunway(10 * 60000, maxRaw, exam, NOW).ms === 10 * 60000
+    && ES.compressToRunway(60000, maxRaw, exam, NOW).compressed === false);
+}
+
+console.log('\nnormal spacing when the runway is long enough');
+{
+  const far = { key: 'unit1', date: ES.parseDate(inDays(400)) };
+  const r = ES.compressToRunway(60 * DAY, 120 * DAY, far, NOW);
+  ck('an interval that already fits is left exactly as FSRS wanted it',
+    r.ms === 60 * DAY && r.compressed === false, r);
+  ck('no exam date means no compression at all',
+    ES.compressToRunway(400 * DAY, 400 * DAY, null, NOW).compressed === false);
+
+  /* the boundary: compression starts when the top of the ladder exceeds half
+     the runway, not before */
+  const exam60 = { key: 'unit1', date: ES.parseDate(inDays(60)) };   /* usable 53, longest 26.5 */
+  ck('just inside the threshold is untouched',
+    ES.compressToRunway(26 * DAY, 26 * DAY, exam60, NOW).compressed === false);
+  ck('just past it compresses', ES.compressToRunway(27 * DAY, 27 * DAY, exam60, NOW).compressed === true);
+}
+
+console.log('\ninside the sweep week');
+{
+  const soon = { key: 'unit1', date: ES.parseDate(inDays(4)) };
+  const r = ES.compressToRunway(90 * DAY, 135 * DAY, soon, NOW);
+  ck('there is no runway left', ES.runwayDays(soon, NOW) <= 0, ES.runwayDays(soon, NOW));
+  ck('a long interval becomes a few days, not months', r.ms <= 3 * DAY, r.ms / DAY);
+  ck('and never lands on or after the exam itself', r.ms < 4 * DAY, r.ms / DAY);
+  ck('it is reported as compressed', r.compressed === true && r.reason === 'sweep', r);
+  ck('the exam tomorrow still yields at least a day',
+    ES.compressToRunway(90 * DAY, 90 * DAY, { key: 'unit1', date: ES.parseDate(inDays(1)) }, NOW).ms
+      >= DAY);
+}
+
 console.log(fail ? `\n${fail} FAILING` : '\nall exam scheduler checks passed');
 process.exit(fail ? 1 : 0);

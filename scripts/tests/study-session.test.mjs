@@ -317,5 +317,59 @@ console.log('\nwaiting for a step');
   ck('no wait once the moment has passed', s.waitMs(NOW + 11 * MIN) === 0);
 }
 
+/* ── the session honours an injected clamp ───────────────────────────── */
+console.log('\nthe session schedules through the clamp, not around it');
+{
+  const ES = require('../../lib/exam-scheduler.js');
+  const examDate = ES.startOfDay(NOW + 35 * DAY);
+  const exam = { key: 'unit1', date: examDate };
+  const clamp = (raw, max, t) => ES.compressToRunway(raw, max, exam, t);
+
+  const item = reviewCard({ stability: 30, last_reviewed_at: NOW - 31 * DAY });
+  const s = SS.create({ items: [item], now: NOW, clamp });
+  const p = s.peek(item.id, NOW);
+
+  ck('nothing on the buttons lands past the exam',
+    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate),
+    [1, 2, 3, 4].map((r) => p[r].label));
+  ck('nor inside the sweep week',
+    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate - 7 * DAY),
+    [1, 2, 3, 4].map((r) => p[r].label));
+  ck('Hard is days, not months', /d$/.test(p[HARD].label), p[HARD].label);
+  ck('ordering holds after compression',
+    p[AGAIN].ms < p[HARD].ms && p[HARD].ms < p[GOOD].ms && p[GOOD].ms < p[EASY].ms,
+    [1, 2, 3, 4].map((r) => p[r].label));
+  ck('each button reports whether it was compressed, and from what',
+    p[HARD].compressed === true && /mo$/.test(p[HARD].rawLabel)
+    && p[AGAIN].compressed === false,
+    { hard: p[HARD].label + ' was ' + p[HARD].rawLabel, again: p[AGAIN].label });
+
+  /* THE THING THAT WAS BROKEN: what the button says must be what gets stored */
+  [1, 2, 3, 4].forEach((r) => {
+    const t = SS.create({ items: [item], now: NOW, clamp });
+    const shown = t.peek(item.id, NOW)[r];
+    const got = t.answer(item.id, r, NOW);
+    ck('rating ' + r + ': the stored interval is exactly the one on the button',
+      got.deltaMs === shown.ms && got.label === shown.label,
+      { shown: shown.label, stored: got.label });
+  });
+
+  const graded = SS.create({ items: [item], now: NOW, clamp });
+  const out = graded.answer(item.id, HARD, NOW);
+  ck('the outcome line says it was compressed', /compressed to fit/.test(out.text), out.text);
+  ck('the memory state itself is untouched — only the date moves',
+    out.card.stability > 0 && out.card.difficulty > 0 && out.card.state === 'review',
+    { s: out.card.stability, d: out.card.difficulty });
+  ck('interval_days matches the compressed date, not the raw one',
+    out.card.interval_days === Math.round(out.deltaMs / DAY), out.card.interval_days);
+
+  /* with no exam the session behaves exactly as before */
+  const plain = SS.create({ items: [item], now: NOW,
+    clamp: (raw) => ES.compressToRunway(raw, raw, null, NOW) });
+  ck('no exam means raw FSRS intervals, unchanged',
+    /mo$/.test(plain.peek(item.id, NOW)[GOOD].label),
+    plain.peek(item.id, NOW)[GOOD].label);
+}
+
 console.log(fail ? `\n${fail} FAILING` : '\nall study session checks passed');
 process.exit(fail ? 1 : 0);
