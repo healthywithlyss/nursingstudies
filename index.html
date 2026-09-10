@@ -303,6 +303,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   align-items:center;justify-content:center;pointer-events:none}
 .dr-pct{font-size:20px;font-weight:800;color:var(--text);line-height:1}
 .dr-lbl{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:2px;letter-spacing:.03em}
+.dash-note{font-size:11px;line-height:1.5;color:var(--text-muted);margin:0 0 10px;
+  padding-bottom:9px;border-bottom:1px solid var(--border)}
 .dash-stats{flex:1;display:flex;flex-direction:column;gap:12px}
 .dash-stat-row{display:flex;align-items:baseline;gap:8px}
 .dash-stat-val{font-size:24px;font-weight:800;color:var(--text);line-height:1;min-width:40px}
@@ -4693,7 +4695,7 @@ body.lsn-open #main-content{padding-bottom:80px}
               <span>&#128202; Progress</span><span class="mob-arrow">&#9660;</span>
             </div>
             <div class="prog-top">
-              <div class="prog-mastery-label">Mastered</div>
+              <div class="prog-mastery-label">Cleared this session</div>
               <div class="prog-mastery-num" id="prog-mastery-num">0 / 0</div>
               <div class="prog-mastery-track">
                 <div class="prog-mastery-fill" id="prog-mastery-fill"></div>
@@ -4863,13 +4865,16 @@ body.lsn-open #main-content{padding-bottom:80px}
             </svg>
             <div class="dash-ring-inner">
               <div class="dr-pct" id="dr-pct">—</div>
-              <div class="dr-lbl">mastered</div>
+              <div class="dr-lbl">last 2 correct</div>
             </div>
           </div>
           <div class="dash-stats">
+            <div class="dash-note">Counts a card once you have answered it
+              correctly twice in a row. It is a streak, not a judgement about
+              whether you know it — the study page schedules on recall.</div>
             <div class="dash-stat-row">
               <div class="dash-stat-val" id="dos-mastered">—</div>
-              <div class="dash-stat-lbl">cards mastered</div>
+              <div class="dash-stat-lbl">cards, last 2 correct</div>
             </div>
             <div class="dash-stat-row">
               <div class="dash-stat-val" id="dos-total">—</div>
@@ -4887,7 +4892,7 @@ body.lsn-open #main-content{padding-bottom:80px}
           <div class="dqr-label">📝 Quiz Performance</div>
           <div class="dqr-stats">
             <div class="dqr-stat"><span class="dqr-val" id="dqs-answered">—</span><span class="dqr-lbl">answered</span></div>
-            <div class="dqr-stat"><span class="dqr-val" id="dqs-mastered">—</span><span class="dqr-lbl">mastered</span></div>
+            <div class="dqr-stat"><span class="dqr-val" id="dqs-mastered">—</span><span class="dqr-lbl">last 2 correct</span></div>
             <div class="dqr-stat"><span class="dqr-val" id="dqs-accuracy">—</span><span class="dqr-lbl">accuracy</span></div>
           </div>
         </div>
@@ -5901,27 +5906,30 @@ function getMasteredCount(){
   return sess.cards.filter(function(c){return(sess.cardState[c.id]||{}).status==='mastered';}).length;
 }
 
-/* ── Supabase write (fire-and-forget analytics) ── */
-function upsertCardMastery(cardId,cs){
-  if(!currentUser) return;
-  /* on_conflict is NOT optional here. Without it PostgREST infers the conflict
-     target from the PRIMARY KEY, which on this table is the surrogate `id` —
-     never supplied, so it never conflicts, so every write was a plain INSERT
-     that then hit the (user_id, card_id) unique index and 409'd. The first
-     write for a card landed; every one after it was rejected and thrown away.
-     That is why total_attempts sat at 0 on 1,300 rows. */
-  sbFetch('/rest/v1/card_mastery?on_conflict=user_id,card_id',{
-    method:'POST',
-    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
-    body:JSON.stringify({
-      user_id:currentUser.id,card_id:cardId,
-      consecutive_correct:cs.consecutiveCorrect,
-      is_mastered:cs.status==='mastered',
-      last_result:cs.lastResult,missed_lock:false,
-      last_attempted_at:new Date().toISOString()
-    })
-  }).catch(function(e){console.warn('card_mastery:',e);});
-}
+/* ── mastery counters: owned by the database ──────────────────────────────
+   This used to POST consecutive_correct, is_mastered, last_result and
+   last_attempted_at from sess.cardState. It no longer writes anything, because
+   a trigger on card_attempts derives all of them from the attempt history
+   instead (supabase/migrations/20260911_mastery_from_history.sql).
+
+   Two reasons it had to move:
+
+   - is_mastered came from session-local state that startSession() resets every
+     sitting and resumeSession() seeds from localStorage, never from the table.
+     The first correct answer of any new session set it true, which is why 960
+     of 961 "mastered" cards had exactly one correct answer. It was measuring
+     the browser, not the student.
+   - total_attempts and total_correct were never written here AT ALL, by either
+     loop, so they sat at 0 on every row and quietly killed the five features
+     that read them.
+
+   Both study loops insert into card_attempts, so deriving from it covers every
+   writer. Keeping a client write here as well would race the trigger and put
+   the session-local answer back on top of the correct one.
+
+   Left as a no-op rather than deleted so the call sites keep reading in the
+   order they always did; the session still uses cs for its own rotation. */
+function upsertCardMastery(cardId,cs){ /* the database owns these columns now */ }
 
 /* ── Cycle management ── */
 function buildCycle(){
@@ -7582,26 +7590,26 @@ function isAnswerCorrect(selected,correct,type){
   return selected.length===1&&correct.indexOf(selected[0])>-1;
 }
 
-/* ── question mastery (2 consecutive correct = mastered) ── */
+/* ── question mastery ─────────────────────────────────────────────────────
+   The counters are derived by a trigger on quiz_attempts now, for the same
+   reasons as the card side. This still returns a row so the in-memory copy
+   stays current for the rest of the sitting without a refetch — but it is a
+   PREDICTION of what the trigger will compute, not the source of truth, and it
+   is no longer written back. Read-modify-write from a client snapshot is
+   exactly how these counters drifted in the first place. */
 function computeQuizMastery(questionId, isCorrect){
   var ex=quizMasteryData[questionId]||{consecutive_correct:0,total_correct:0,total_attempts:0,is_mastered:false};
   var cc=isCorrect?(ex.consecutive_correct||0)+1:0;
   var tc=(ex.total_correct||0)+(isCorrect?1:0);
   var ta=(ex.total_attempts||0)+1;
   return {question_id:questionId,consecutive_correct:cc,total_correct:tc,
-    total_attempts:ta,is_mastered:cc>=2,last_result:isCorrect,
+    total_attempts:ta,is_mastered:(tc>=2&&cc>=2),last_result:isCorrect,
     last_attempted_at:new Date().toISOString()};
 }
 
-function upsertQuestionMastery(row){
-  if(!currentUser) return;
-  /* same surrogate-primary-key trap as card_mastery — see upsertCardMastery */
-  sbFetch('/rest/v1/question_mastery?on_conflict=user_id,question_id',{
-    method:'POST',
-    headers:Object.assign({'Prefer':'resolution=merge-duplicates,return=minimal'},getAuthHdr()),
-    body:JSON.stringify(Object.assign({user_id:currentUser.id},row))
-  }).catch(function(e){console.warn('question_mastery upsert:',e);});
-}
+/* Superseded by the trigger on quiz_attempts — see upsertCardMastery for why
+   a client write here would race it and lose. */
+function upsertQuestionMastery(row){ /* the database owns these columns now */ }
 
 function submitQuizAnswer(){
   if(quizSessionSubmitted) return;
@@ -7622,10 +7630,9 @@ function submitQuizAnswer(){
       headers:getAuthHdr()
     }).catch(function(e){console.warn('save attempt:',e);});
 
-    /* upsert question mastery (2 consecutive correct = mastered) */
-    var newMastery=computeQuizMastery(q.id,ok);
-    quizMasteryData[q.id]=newMastery;
-    upsertQuestionMastery(newMastery);
+    /* Keep the in-memory copy current for the rest of this sitting. The row
+       itself is written by the trigger on quiz_attempts above, not from here. */
+    quizMasteryData[q.id]=computeQuizMastery(q.id,ok);
     /* Correct/incorrect is binary, so it maps rather than growing a four-button
        UI the question format cannot justify: wrong is Again, right is Good, and
        a right answer that came back fast is Easy. */
