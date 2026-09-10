@@ -286,5 +286,49 @@ console.log('\nresuming a session does not drop the exam clamp');
     { raw: g(noClamp), toExam: ES.daysBetween(EXAM.date, ES.startOfDay(T0)) });
 }
 
+/* ── 7. one owner per rule ───────────────────────────────────────────────
+   The exam clamp went missing twice, each time through a path that restated
+   the rule instead of calling the one that owns it. These assert the same
+   shape for every rule that had been written out more than once. */
+console.log('\nrules that exist in one place, not several');
+{
+  /* (a) the legacy session must not start under the SRS loop. Three paths
+     reach startSession — startSessionForFilter, startSessionWithIds and
+     startCards — so the guard belongs on startSession itself. */
+  ck('the legacy session is wrapped exactly once',
+    (html.match(/window\.startSession = function\(/g) || []).length === 1,
+    (html.match(/window\.startSession = function\(/g) || []).length);
+  ck('and the guard checks the SRS gate before delegating',
+    /window\.startSession = function\(cards, filter\)\{[\s\S]{0,120}?fsrsPractice\(\)/.test(html));
+  ck('the Trouble Spots path funnels into it rather than round it',
+    /function startSessionWithIds\(ids\)\{[\s\S]{0,300}?startSession\(cards,'__trouble__'\)/.test(html));
+  ck('so does startCards',
+    /function startCards\(ids\)\{[\s\S]{0,900}?window\.startSession\(ordered, '__srs__'\)/.test(html));
+  ck('an explicit card list starts an SRS session, not the legacy one',
+    /function srsStudyCards\(cards\)\{/.test(html));
+
+  /* (b) legacy result -> FSRS rating */
+  ck('the rating map has one owner',
+    /function ratingFromResult\(result, rating\)\{/.test(html));
+  /* exactly one occurrence, and it is the one inside the owner */
+  ck('the ternary appears exactly once',
+    (html.match(/got_it'\s*\?\s*3\s*:/g) || []).length === 1,
+    (html.match(/got_it'\s*\?\s*3\s*:/g) || []).length);
+  ck('and that once is inside ratingFromResult',
+    /function ratingFromResult\(result, rating\)\{[\s\S]{0,120}?got_it'\s*\?\s*3\s*:/.test(html));
+  ck('both callers use it',
+    (html.match(/ratingFromResult\(result, ?rating\)/g) || []).length >= 2,
+    (html.match(/ratingFromResult\(result, ?rating\)/g) || []).length);
+
+  /* (c) the exam clamp — already asserted above, restated here as the rule */
+  ck('the exam clamp still has exactly one call site',
+    (html.match(/ES\.compressToRunway\(/g) || []).length === 1);
+
+  /* (d) "new" means the same thing in both modules — asserted in section 5 */
+  ck('the new-item rule is shared, not restated',
+    /Deliberately the SAME rule as StudySession\.isNewItem/.test(
+      fs.readFileSync(path.join(ROOT, 'lib/exam-scheduler.js'), 'utf8')));
+}
+
 console.log(fail ? `\n${fail} FAILING` : '\nall persistence checks passed');
 process.exit(fail ? 1 : 0);
