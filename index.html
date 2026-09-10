@@ -1593,6 +1593,54 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-sugg-x summary{cursor:pointer;font-size:11px;font-weight:700;color:var(--text-muted);
   min-height:30px;display:flex;align-items:center}
 .srs-sugg-x div{font-size:11.5px;line-height:1.55;color:var(--text-muted);padding:4px 0 2px}
+/* bulk review: a full-height sheet rather than six rows in a dashboard panel,
+   because after a long quiz session there are dozens, not six */
+.srs-bulk{position:fixed;inset:0;z-index:900;background:var(--bg);display:flex;
+  flex-direction:column}
+.srs-bulk-top{flex:0 0 auto;padding:14px 16px 10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:10px}
+.srs-bulk-top h3{margin:0;font-size:15px;font-weight:800;color:var(--text)}
+.srs-bulk-top p{margin:3px 0 0;font-size:11.5px;color:var(--text-muted)}
+.srs-bulk-x{margin-left:auto;flex:0 0 auto;background:none;border:none;cursor:pointer;
+  font-size:22px;line-height:1;color:var(--text-muted);padding:0 2px}
+.srs-bulk-body{flex:1 1 auto;overflow-y:auto;padding:12px 16px 96px;-webkit-overflow-scrolling:touch}
+.srs-bulk-grp{margin-bottom:18px}
+.srs-bulk-grp-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:7px 0 8px;position:sticky;top:0;background:var(--bg);z-index:1}
+.srs-bulk-grp-h b{font-size:12.5px;font-weight:800;color:var(--text)}
+.srs-bulk-count{font-size:10.5px;font-weight:700;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+  border-radius:999px;padding:2px 8px}
+.srs-bulk-have{font-size:10.5px;color:var(--text-muted)}
+.srs-bulk-grp-h .srs-btn{margin-left:auto;padding:5px 10px;font-size:11px}
+.srs-bulk-row{display:flex;gap:10px;align-items:flex-start}
+.srs-bulk-row .srs-sugg-row{flex:1 1 auto;min-width:0}
+.srs-bulk-ck{flex:0 0 auto;width:22px;height:22px;margin-top:13px;accent-color:var(--accent)}
+.srs-bulk-d{padding:0}
+.srs-bulk-d>summary{cursor:pointer;list-style:none;padding:9px 11px;min-height:44px;
+  display:flex;flex-direction:column;justify-content:center;gap:2px}
+.srs-bulk-d>summary::-webkit-details-marker{display:none}
+.srs-bulk-d[open]>summary{border-bottom:1px solid var(--border);margin-bottom:8px}
+.srs-bulk-d>*:not(summary){margin-left:11px;margin-right:11px}
+.srs-bulk-d[open]{padding-bottom:10px}
+.srs-bulk-f{font-size:12.5px;font-weight:600;line-height:1.4;color:var(--text)}
+.srs-bulk-b{font-size:11.5px;line-height:1.4;color:var(--text-muted);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.srs-bulk-x{font-size:11.5px;line-height:1.55;color:var(--text-muted);padding:2px 0 4px}
+.srs-bulk-bar{position:fixed;left:0;right:0;bottom:0;z-index:901;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--border);background:var(--bg);
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.srs-bulk-bar .srs-btn{flex:1 1 auto;min-height:44px}
+.srs-bulk-sel{font-size:11.5px;color:var(--text-muted);flex:1 0 100%}
+.srs-obj-tally{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.srs-obj-tally span{font-size:10.5px;font-weight:700;color:var(--text-muted);
+  border:1px solid var(--border);border-radius:999px;padding:2px 8px}
+.srs-obj-tally span b{color:var(--text)}
+@media(max-width:420px){
+  .srs-bulk-body{padding:10px 12px 104px}
+  .srs-bulk-top{padding:12px 12px 9px}
+}
 
 /* the fourth rating button */
 .rating-btn.easy{background:var(--accent);color:#fff}
@@ -12074,6 +12122,15 @@ function applySettings(rows){
     newCardsPerDay: r ? r.new_cards_per_day : ES.DEFAULT_SETTINGS.newCardsPerDay,
     newQuizPerDay:  r ? r.new_quiz_per_day  : ES.DEFAULT_SETTINGS.newQuizPerDay,
     dailyCeiling:   r ? r.daily_ceiling     : ES.DEFAULT_SETTINGS.dailyCeiling,
+    /* The sweep windows and the passed-unit allowance were stored but never
+       read back, so the dashboard planned against the defaults even after she
+       changed them. */
+    sweepDaysUnit:  (r && r.sweep_days_unit  != null) ? r.sweep_days_unit
+      : ES.DEFAULT_SETTINGS.sweepDaysUnit,
+    sweepDaysFinal: (r && r.sweep_days_final != null) ? r.sweep_days_final
+      : ES.DEFAULT_SETTINGS.sweepDaysFinal,
+    passedUnitCardsPerDay: (r && r.passed_unit_cards_per_day != null)
+      ? r.passed_unit_cards_per_day : ES.DEFAULT_SETTINGS.passedUnitCardsPerDay,
     learningSteps:   (r && r.learning_steps   && r.learning_steps.length)
       ? r.learning_steps   : (SSm ? SSm.DEFAULT_LEARNING_STEPS   : [1,10]),
     relearningSteps: (r && r.relearning_steps && r.relearning_steps.length)
@@ -12107,7 +12164,7 @@ function recordNow(kind, id, rating, objectiveIds){
       if(a.due - now > maxRaw) maxRaw = a.due - now;
     });
     var after = raw[rating];
-    var comp = ES.compressToRunway(after.due - now, maxRaw, exam, now);
+    var comp = ES.compressToRunway(after.due - now, maxRaw, exam, now, currentSettings());
     if(comp.ms !== after.due - now){
       after = Object.assign({}, after, {
         due: now + comp.ms,
@@ -12230,11 +12287,16 @@ function loadAll(){
        asks what she was failing AT that unit's exam, which is a question about
        history rather than about now. */
     window.sbFetch('/rest/v1/card_attempts?select=card_id,result,created_at&user_id=eq.'+uid
-      +'&order=created_at.asc').then(j)
+      +'&order=created_at.asc').then(j),
+    /* Every quiz attempt, so the term projection can use the miss rate she
+       actually has rather than the 20-25% that was assumed before there was
+       any data. First attempts are what count; missRateFrom sorts that out. */
+    window.sbFetch('/rest/v1/quiz_attempts?select=question_id,is_correct,created_at&user_id=eq.'
+      +uid+'&order=created_at.asc').then(j)
   ]).then(function(r){
     var cards=r[0]||[], quiz=r[1]||[], cm=r[2]||[], qm=r[3]||[],
         units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[], sets=r[8]||[],
-        sugg=r[9]||[], allAttempts=r[10]||[];
+        sugg=r[9]||[], allAttempts=r[10]||[], quizAttempts=r[11]||[];
 
     applyUnits(units, course);
     applyExams(exams);
@@ -12247,8 +12309,19 @@ function loadAll(){
     deckCards = (Array.isArray(cards)?cards:[]).map(function(c){
       return { id:c.id, question:c.question, answer:c.answer,
                objective_ids:c.objective_ids||[],
+               auto_generated:c.auto_generated,
                source_question_id:c.source_question_id };
     });
+
+    /* Scoped to this course's questions: a miss rate from NUR116 says nothing
+       about how NUR144 will go. */
+    (function(){
+      var mine = {};
+      (Array.isArray(quiz)?quiz:[]).forEach(function(q){ mine[q.id]=1; });
+      var rows = (Array.isArray(quizAttempts)?quizAttempts:[])
+        .filter(function(a){ return mine[a.question_id]; });
+      missRate = ES.missRateFrom(rows);
+    })();
 
     fsrsRows={card:{}, quiz:{}};
     (Array.isArray(cm)?cm:[]).forEach(function(m){ fsrsRows.card[m.card_id]=m; });
@@ -12402,12 +12475,51 @@ function settingsHtml(){
     + f('srs-s-ceiling','Daily ceiling',       st.dailyCeiling,   'reviews levelled toward')
     + '</div>'
     + '<div class="srs-dates">'
+    + f('srs-s-swu',   'Unit sweep (days)',  st.sweepDaysUnit,
+        'days before a unit test when everything in it gets covered')
+    + f('srs-s-swf',   'Final sweep (days)', st.sweepDaysFinal,
+        'wider, because the final covers both units')
+    + f('srs-s-passed','Passed unit / day',  st.passedUnitCardsPerDay,
+        'ceiling on material from a unit already examined')
+    + '</div>'
+    + sweepAdviceHtml()
+    + '<div class="srs-dates">'
     + steps('srs-s-learn',   'Learning steps',   st.learningSteps,
             'minutes, in order — a new card passes each before it graduates')
     + steps('srs-s-relearn', 'Relearning steps', st.relearningSteps,
             'minutes — after you fail a card you already knew')
     + '</div>';
 }
+
+/* If a window is too narrow for the material it has to cover, say so with the
+   number, and offer the one that works. suggestSweepDays is the same function
+   the defaults came from. */
+function sweepAdviceHtml(){
+  var sw = plan && plan.sweep;
+  if(!sw || !sw.windows || !sw.windows.length) return '';
+  var st = currentSettings();
+  var bad = sw.windows.filter(function(w){
+    return w.perDay > ES.SUSTAINABLE_SWEEP_PER_DAY; });
+  if(!bad.length) return '';
+  return bad.map(function(w){
+    var want = ES.suggestSweepDays(w.total);
+    var key = w.key === 'final' ? 'sweepDaysFinal' : 'sweepDaysUnit';
+    if(want <= ES.sweepDaysFrom(st, w.key)) return '';
+    return '<div class="srs-warn">The '+esc2(w.label)+' sweep is <b>'+w.perDay
+      + '/day</b> across '+w.window+' days — '+w.total.toLocaleString()
+      + ' items. <b>'+want+' days</b> brings it to about '
+      + Math.ceil(w.total/want)+'/day.'
+      + '<div class="srs-actions" style="margin-top:9px">'
+      + '<button class="srs-btn" onclick="srsSetSweep(\''+key+'\','+want+')">'
+      + 'Widen to '+want+' days</button></div></div>';
+  }).join('');
+}
+
+window.srsSetSweep = function(key, days){
+  var next = Object.assign({}, currentSettings());
+  next[key] = Math.min(90, Math.max(1, Math.round(days)));
+  saveSettings(next);
+};
 
 /* The conflict. A cap silently respected while the runway runs out is worse
    than no cap, so this is a banner with the real numbers and the fix in it. */
@@ -12702,7 +12814,49 @@ function termHtml(){
     + '<div><b>'+Math.round(sum.totalItems/1000*10)/10+'k</b><span>total reviews</span></div>'
     + '</div>'
     + verdict
+    + missRateHtml()
+    + skipHtml()
     + '</div>';
+}
+
+/* Which miss rate the projection above is standing on, and whether it is hers
+   or a guess. A forecast that does not say which is not a forecast. */
+function missRateHtml(){
+  var m = (plan && plan.missRate) || missRate;
+  var sum = plan && plan.termSummary;
+  var gen = sum ? sum.autoCards : 0;
+  var pct = Math.round(m.rate*1000)/10;
+  return '<div class="srs-note">'
+    + (m.measured
+        ? 'Using <b>your</b> miss rate of <b>'+pct+'%</b>, from first attempts at '
+          + m.questions+' question'+(m.questions===1?'':'s')+'.'
+        : 'Using an <b>assumed</b> miss rate of <b>'+pct+'%</b> — only '
+          + m.questions+' question'+(m.questions===1?'':'s')
+          + ' answered so far, and it takes '+(m.minSample||ES.MISS_RATE_MIN_SAMPLE)
+          + ' before your own figure is worth trusting. It will switch over on '
+          + 'its own.')
+    + ' At that rate this projection expects <b>'+gen+'</b> generated card'
+    + (gen===1?'':'s') + ' over the term, every one of them accepted.'
+    + '</div>';
+}
+
+/* Three days off, costed from the same simulation. */
+function skipHtml(){
+  var k = plan && plan.skip3;
+  if(!k) return '';
+  var mins = function(n){ return Math.round(n * TERM_MIN_PER_ITEM); };
+  if(!k.recovered)
+    return '<div class="srs-warn">Three days off does <b>not</b> level out: the '
+      + 'load is still above normal at the end of the projection. Worst day '
+      + '<b>+'+k.worstExtra+' items</b> (+'+mins(k.worstExtra)+' min).</div>';
+  if(k.worstExtra <= 0)
+    return '<div class="srs-ok">Three days off costs nothing measurable — the '
+      + 'daily ceiling absorbs it, and the work reappears as items you see '
+      + 'later rather than as a longer day.</div>';
+  return '<div class="srs-ok">Three days off levels out'
+    + (k.catchUpDays ? ' in <b>'+k.catchUpDays+' day'+(k.catchUpDays===1?'':'s')+'</b>' : ' immediately')
+    + '. The worst day after the gap is <b>+'+k.worstExtra+' items</b> (+'
+    + mins(k.worstExtra)+' min), not a pile.</div>';
 }
 
 function weakHtml(){
@@ -12767,7 +12921,11 @@ window.srsDefaultUnit = function(){
 var SETTING_FIELD = {
   'srs-s-cards':   {key:'newCardsPerDay', col:'new_cards_per_day', min:0,  max:500},
   'srs-s-quiz':    {key:'newQuizPerDay',  col:'new_quiz_per_day',  min:0,  max:500},
-  'srs-s-ceiling': {key:'dailyCeiling',   col:'daily_ceiling',     min:5,  max:2000}
+  'srs-s-ceiling': {key:'dailyCeiling',   col:'daily_ceiling',     min:5,  max:2000},
+  'srs-s-swu':     {key:'sweepDaysUnit',  col:'sweep_days_unit',   min:1,  max:60},
+  'srs-s-swf':     {key:'sweepDaysFinal', col:'sweep_days_final',  min:1,  max:90},
+  'srs-s-passed':  {key:'passedUnitCardsPerDay',
+                    col:'passed_unit_cards_per_day',               min:0,  max:500}
 };
 
 function saveSettings(next){
@@ -12782,6 +12940,9 @@ function saveSettings(next){
       new_cards_per_day: next.newCardsPerDay,
       new_quiz_per_day:  next.newQuizPerDay,
       daily_ceiling:     next.dailyCeiling,
+      sweep_days_unit:   next.sweepDaysUnit,
+      sweep_days_final:  next.sweepDaysFinal,
+      passed_unit_cards_per_day: next.passedUnitCardsPerDay,
       learning_steps:    next.learningSteps,
       relearning_steps:  next.relearningSteps,
       updated_at: new Date().toISOString()
@@ -13230,7 +13391,7 @@ window.srsStartSession = function(extra){
        this every interval was raw FSRS, which is how a Hard on a review card
        came back in two months with the test five weeks away. */
     clamp: function(rawMs, maxRawMs, t){
-      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t);
+      return ES.compressToRunway(rawMs, maxRawMs, deckExam(t), t, st);
     }
   };
   if(extra){
@@ -13389,7 +13550,7 @@ function renderRunway(anyCompressed, now){
   }
   host.style.display = '';
   var days = ES.daysBetween(exam.date, ES.startOfDay(now));
-  var usable = ES.runwayDays(exam, now);
+  var usable = ES.runwayDays(exam, now, currentSettings());
   var name = EXAM_LABEL[exam.key];
   host.className = 'srs-runway' + (anyCompressed ? ' on' : '');
   var why;
@@ -13532,6 +13693,11 @@ function finishSession(){
    ══════════════════════════════════════════════════════════════════════ */
 var suggestions = [];        /* pending + decided, for this course */
 var deckCards = [];          /* id, question, answer, objective_ids, source_question_id */
+/* Her real first-attempt miss rate, once there is enough of it. Until then this
+   carries the assumed figure and says so, so the projection never quietly
+   presents a guess as a measurement. */
+var missRate = { rate: ES.ASSUMED_MISS_RATE, measured: false, questions: 0,
+                 misses: 0, assumed: ES.ASSUMED_MISS_RATE };
 
 function proposeCardFor(questionId, objectiveIds){
   if(!window.currentUser || !window.CardGen) return;
@@ -13578,23 +13744,234 @@ function pendingSuggestions(){
 }
 
 /* ── the review queue ────────────────────────────────────────────────── */
+
+/* How many auto-generated cards exist per objective, pending and already
+   accepted. After a long quiz session the question is not "what is this one
+   card" but "how much has this thing added to N144_L3", so that is the number
+   the panel leads with. */
+function autoCardTally(){
+  var by = {};
+  var bump = function(objs, key){
+    var list = (objs && objs.length) ? objs : ['(unfiled)'];
+    list.forEach(function(o){
+      var row = by[o] || (by[o] = { objective: o, pending: 0, accepted: 0 });
+      row[key]++;
+    });
+  };
+  suggestions.forEach(function(s){
+    if(s.status === 'pending') bump(s.objective_ids, 'pending');
+    else if(s.status === 'accepted') bump(s.objective_ids, 'accepted');
+  });
+  /* cards already in the deck that came from a question, including ones
+     accepted in an earlier session */
+  deckCards.forEach(function(c){
+    if(!c.auto_generated && !c.source_question_id) return;
+    var seen = suggestions.some(function(s){
+      return s.status === 'accepted' && String(s.card_id) === String(c.id); });
+    if(!seen) bump(c.objective_ids, 'accepted');
+  });
+  return Object.keys(by).sort().map(function(k){ return by[k]; });
+}
+
+function objTallyHtml(){
+  var rows = autoCardTally().filter(function(r){ return r.pending || r.accepted; });
+  if(!rows.length) return '';
+  return '<div class="srs-obj-tally">' + rows.map(function(r){
+    return '<span>' + esc2(r.objective) + ' <b>' + r.accepted + '</b>'
+      + (r.pending ? ' +' + r.pending + ' waiting' : '') + '</span>';
+  }).join('') + '</div>';
+}
+
 function suggestionsHtml(){
   var pend = pendingSuggestions();
-  if(!pend.length) return '';
+  var tally = objTallyHtml();
+  if(!pend.length && !tally) return '';
+  var total = autoCardTally().reduce(function(a,r){ return a + r.accepted; }, 0);
   return '<div class="srs-q srs-sugg">'
     + '<div class="srs-head" style="margin-bottom:8px">'
     + '<div class="srs-title" style="font-size:13px">Cards from missed questions</div>'
-    + '<div class="srs-sub">'+pend.length+' waiting for review</div></div>'
-    + pend.slice(0,6).map(function(s){ return suggestionRow(s); }).join('')
-    + (pend.length > 6
-        ? '<div class="srs-note">'+(pend.length-6)+' more after these.</div>' : '')
-    + '<div class="srs-actions" style="margin-top:10px">'
-    + '<button class="srs-btn" onclick="srsAcceptAllSuggestions()">Accept all '
-      + pend.length + '</button></div>'
+    + '<div class="srs-sub">'
+      + (pend.length ? pend.length + ' waiting for review · ' : '')
+      + total + ' already in the deck</div></div>'
+    + tally
+    + (pend.length
+        ? '<div class="srs-actions" style="margin-top:10px">'
+          + '<button class="srs-btn" onclick="srsOpenBulkReview()">Review '
+            + pend.length + ' card' + (pend.length===1?'':'s') + '</button>'
+          + '<button class="srs-btn srs-btn-ghost" onclick="srsAcceptAllSuggestions()">'
+            + 'Accept all as drafted</button></div>'
+        : '')
     + '</div>';
 }
 
-function suggestionRow(s){
+/* ── the bulk review sheet ───────────────────────────────────────────── */
+
+/* Grouped by objective, because that is how she decides: a whole lecture's
+   worth of cards is one judgement, not thirty. Everything is ticked to begin
+   with — accepting is the common case; the sheet exists so rejecting a few is
+   possible without going one at a time. */
+function bulkGroups(){
+  var by = {};
+  pendingSuggestions().forEach(function(s){
+    var o = (s.objective_ids && s.objective_ids[0]) || '(unfiled)';
+    (by[o] || (by[o] = [])).push(s);
+  });
+  return Object.keys(by).sort().map(function(k){ return { objective: k, rows: by[k] }; });
+}
+
+function suggKey(s){ return s.id || ('q' + s.question_id); }
+
+/* Collapsed to one line each. Thirty cards at full height is a page and a half
+   of scrolling before she can reach the button, and the common case is reading
+   the front, agreeing, and moving on. The fields are still in the DOM, so the
+   accept path reads them whether or not the row was ever opened. */
+function bulkRow(s){
+  var id = suggKey(s);
+  return '<details class="srs-sugg-row srs-bulk-d" id="sg-'+esc2(id)+'">'
+    + '<summary><span class="srs-bulk-f">'+esc2(s.front)+'</span>'
+    + '<span class="srs-bulk-b">'+esc2(s.back)+'</span></summary>'
+    + '<label class="srs-sugg-l">Front</label>'
+    + '<textarea class="srs-sugg-t" rows="2" id="sgf-'+esc2(id)+'">'+esc2(s.front)+'</textarea>'
+    + '<label class="srs-sugg-l">Back</label>'
+    + '<textarea class="srs-sugg-t" rows="2" id="sgb-'+esc2(id)+'">'+esc2(s.back)+'</textarea>'
+    + (s.explanation
+        ? '<label class="srs-sugg-l">Explanation</label>'
+          + '<div class="srs-bulk-x">'+esc2(s.explanation)+'</div>'
+        : '')
+    + '</details>';
+}
+
+/* Test seams. The bulk sheet is the one part of this that is pure DOM, so it
+   is worth being able to drive it from a browser test without a database. */
+window.__setSugg = function(rows){ suggestions = rows || []; };
+window.__bulkTicked = function(){ return bulkTicked().length; };
+
+window.srsOpenBulkReview = function(){
+  var pend = pendingSuggestions();
+  if(!pend.length) return;
+  var host = document.getElementById('srs-bulk');
+  if(!host){
+    host = document.createElement('div');
+    host.id = 'srs-bulk';
+    document.body.appendChild(host);
+  }
+  var groups = bulkGroups();
+  var accepted = autoCardTally();
+  var have = {};
+  accepted.forEach(function(r){ have[r.objective] = r.accepted; });
+
+  host.innerHTML = '<div class="srs-bulk" role="dialog" aria-label="Review generated cards">'
+    + '<div class="srs-bulk-top">'
+      + '<div><h3>Cards from missed questions</h3>'
+      + '<p>' + pend.length + ' drafted from questions you missed. Edit any of them, '
+      + 'untick what you do not want, then add the rest in one go.</p></div>'
+      + '<button class="srs-bulk-x" onclick="srsCloseBulkReview()" aria-label="Close">&times;</button>'
+    + '</div>'
+    + '<div class="srs-bulk-body">'
+    + groups.map(function(g){
+        return '<div class="srs-bulk-grp" data-obj="' + esc2(g.objective) + '">'
+          + '<div class="srs-bulk-grp-h"><b>' + esc2(g.objective) + '</b>'
+          + '<span class="srs-bulk-count">' + g.rows.length + ' new</span>'
+          + '<span class="srs-bulk-have">' + (have[g.objective] || 0)
+            + ' already in the deck</span>'
+          + '<button class="srs-btn srs-btn-ghost" onclick="srsBulkToggleGroup(\''
+            + esc2(g.objective) + '\')">Tick / untick all</button></div>'
+          + g.rows.map(function(s){
+              var k = suggKey(s);
+              return '<div class="srs-bulk-row">'
+                + '<input type="checkbox" class="srs-bulk-ck" checked '
+                  + 'id="sgc-' + esc2(k) + '" onchange="srsBulkCount()" '
+                  + 'aria-label="Include this card">'
+                + bulkRow(s) + '</div>';
+            }).join('')
+          + '</div>';
+      }).join('')
+    + '</div>'
+    + '<div class="srs-bulk-bar">'
+      + '<div class="srs-bulk-sel" id="srs-bulk-sel"></div>'
+      + '<button class="srs-btn" id="srs-bulk-go" onclick="srsBulkAccept()">Add ticked cards</button>'
+      + '<button class="srs-btn srs-btn-ghost" onclick="srsBulkRejectUnticked()">'
+        + 'Reject the rest</button>'
+    + '</div></div>';
+  document.body.style.overflow = 'hidden';
+  srsBulkCount();
+};
+
+window.srsCloseBulkReview = function(){
+  var host = document.getElementById('srs-bulk');
+  if(host) host.innerHTML = '';
+  document.body.style.overflow = '';
+};
+
+function bulkTicked(){
+  var out = [];
+  pendingSuggestions().forEach(function(s){
+    var el = document.getElementById('sgc-' + suggKey(s));
+    if(el && el.checked) out.push(s);
+  });
+  return out;
+}
+
+window.srsBulkCount = function(){
+  var n = bulkTicked().length, all = pendingSuggestions().length;
+  var el = document.getElementById('srs-bulk-sel');
+  if(el) el.textContent = n + ' of ' + all + ' ticked'
+    + (all - n ? ' · ' + (all - n) + ' will be left pending unless you reject them' : '');
+  var go = document.getElementById('srs-bulk-go');
+  if(go){ go.disabled = n === 0; go.textContent = n ? 'Add ' + n + ' card' + (n===1?'':'s') : 'Nothing ticked'; }
+};
+
+window.srsBulkToggleGroup = function(obj){
+  var grp = document.querySelector('.srs-bulk-grp[data-obj="' + obj.replace(/"/g,'\\"') + '"]');
+  if(!grp) return;
+  var boxes = grp.querySelectorAll('.srs-bulk-ck');
+  var anyOff = Array.prototype.some.call(boxes, function(b){ return !b.checked; });
+  Array.prototype.forEach.call(boxes, function(b){ b.checked = anyOff; });
+  srsBulkCount();
+};
+
+window.srsBulkAccept = function(){
+  var picked = bulkTicked();
+  if(!picked.length) return;
+  var go = document.getElementById('srs-bulk-go');
+  if(go){ go.disabled = true; go.textContent = 'Adding\u2026'; }
+  /* one at a time and in order, so a failure part-way through leaves a
+     consistent deck rather than a half-written batch */
+  picked.reduce(function(chain, s){
+    return chain.then(function(){
+      var f = document.getElementById('sgf-' + suggKey(s));
+      var b = document.getElementById('sgb-' + suggKey(s));
+      var front = f ? f.value.trim() : s.front;
+      var back  = b ? b.value.trim() : s.back;
+      if(!front || !back) return null;          /* skip a blanked-out draft */
+      return acceptOne(s, front, back);
+    });
+  }, Promise.resolve()).then(function(){
+    srsCloseBulkReview();
+    recompute().then(renderDeckPanel);
+  }).catch(function(e){
+    console.warn('bulk accept:', e);
+    if(go){ go.disabled = false; go.textContent = 'Add ticked cards'; }
+    alert('Some cards could not be added. Nothing else was changed.');
+  });
+};
+
+window.srsBulkRejectUnticked = function(){
+  var ticked = {}, out = [];
+  bulkTicked().forEach(function(s){ ticked[suggKey(s)] = 1; });
+  pendingSuggestions().forEach(function(s){ if(!ticked[suggKey(s)]) out.push(s); });
+  if(!out.length){ alert('Everything is ticked — nothing to reject.'); return; }
+  if(!confirm('Reject ' + out.length + ' card' + (out.length===1?'':'s')
+      + '? They will not be offered again.')) return;
+  out.reduce(function(chain, s){
+    return chain.then(function(){ return rejectOne(s); });
+  }, Promise.resolve()).then(function(){
+    if(pendingSuggestions().length) srsOpenBulkReview();
+    else { srsCloseBulkReview(); recompute().then(renderDeckPanel); }
+  });
+};
+
+function suggestionRow(s, bulk){
   var id = s.id || ('q'+s.question_id);
   return '<div class="srs-sugg-row" id="sg-'+esc2(id)+'">'
     + '<div class="srs-sugg-tag">from a missed question · '+esc2((s.objective_ids||[]).join(', '))+'</div>'
@@ -13606,14 +13983,18 @@ function suggestionRow(s){
         ? '<details class="srs-sugg-x"><summary>Explanation</summary><div>'
           + esc2(s.explanation)+'</div></details>'
         : '')
-    /* single-quoted inside a double-quoted attribute; JSON.stringify emits
-       double quotes and closes the attribute early */
-    + '<div class="srs-actions" style="margin-top:8px">'
-    + '<button class="srs-btn" onclick="srsAcceptSuggestion(\''+esc2(id)+'\')">'
-      + 'Add to deck</button>'
-    + '<button class="srs-btn srs-btn-ghost" onclick="srsRejectSuggestion(\''
-      + esc2(id)+'\')">Reject</button>'
-    + '</div></div>';
+    /* In the bulk sheet the tickbox and the footer are the controls; two more
+       buttons per row would be thirty buttons on the screen.
+       Note: single-quoted inside a double-quoted attribute — JSON.stringify
+       emits double quotes and would close the attribute early. */
+    + (bulk ? '' :
+        '<div class="srs-actions" style="margin-top:8px">'
+      + '<button class="srs-btn" onclick="srsAcceptSuggestion(\''+esc2(id)+'\')">'
+        + 'Add to deck</button>'
+      + '<button class="srs-btn srs-btn-ghost" onclick="srsRejectSuggestion(\''
+        + esc2(id)+'\')">Reject</button>'
+      + '</div>')
+    + '</div>';
 }
 
 function findSuggestion(id){
@@ -13651,7 +14032,8 @@ function acceptOne(s, front, back){
       s.status = 'accepted';
       s.card_id = card ? card.id : null;
       if(card) deckCards.push({ id: card.id, question: front, answer: back,
-        objective_ids: s.objective_ids || [], source_question_id: s.question_id });
+        objective_ids: s.objective_ids || [], source_question_id: s.question_id,
+        auto_generated: true });
       return window.sbFetch('/rest/v1/card_suggestions?id=eq.'+s.id,{
         method:'PATCH',
         headers:Object.assign({'Prefer':'return=minimal'}, window.getAuthHdr()),
@@ -13661,15 +14043,19 @@ function acceptOne(s, front, back){
     });
 }
 
-window.srsRejectSuggestion = function(id){
-  var s = findSuggestion(id);
-  if(!s) return;
+function rejectOne(s){
   s.status = 'rejected';
-  window.sbFetch('/rest/v1/card_suggestions?id=eq.'+s.id,{
+  return window.sbFetch('/rest/v1/card_suggestions?id=eq.'+s.id,{
     method:'PATCH',
     headers:Object.assign({'Prefer':'return=minimal'}, window.getAuthHdr()),
     body:JSON.stringify({status:'rejected', decided_at:new Date().toISOString()})
   }).catch(function(e){ console.warn('reject:', e); });
+}
+
+window.srsRejectSuggestion = function(id){
+  var s = findSuggestion(id);
+  if(!s) return;
+  rejectOne(s);
   renderDeckPanel();
   render();
 };
@@ -13701,9 +14087,20 @@ function recompute(){
     });
     plan._items = data.items;
     /* the whole-term simulation, and the few numbers that summarise it */
+    /* Auto-generated cards are part of the projection now: a missed question
+       becomes a flashcard, so the bank GROWS as she works and a forecast that
+       held it fixed understated the back half of the term. acceptRate 1 is the
+       honest worst case — it is what "accept every suggestion" costs. */
+    var autoOpts = { missRate: missRate.rate, acceptRate: 1, dedupRate: 0 };
     plan.term = ES.projectTerm(sched, data.items, unitsMap, examDates, Date.now(),
-      { settings: currentSettings(), days: termDays() });
+      { settings: currentSettings(), days: termDays(), autoCards: autoOpts });
     plan.termSummary = ES.projectionSummary(plan.term, { minutesPerItem: TERM_MIN_PER_ITEM });
+    plan.missRate = missRate;
+    /* What three days off actually costs, from the same simulation rather than
+       from a rule of thumb. */
+    plan.skip3 = ES.skipImpact(sched, data.items, unitsMap, examDates, Date.now(),
+      { settings: currentSettings(), days: termDays(), autoCards: autoOpts,
+        minutesPerItem: TERM_MIN_PER_ITEM, from: 7, skipDays: 3 });
     /* the levelling target: what each of the next few weeks already holds */
     loadMap = ES.loadHistogram(data.items, Date.now(), 60);
     window.srsPlan = plan;          /* inspectable from the console */
