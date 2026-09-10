@@ -57,7 +57,7 @@ console.log('\nevery merge-duplicates write names its conflict target');
   let m;
   while ((m = re.exec(html))) urls.push(m[1]);
 
-  ck('the audit actually found the writes', urls.length >= 8, urls.length);
+  ck('the audit actually found the writes', urls.length >= 6, urls.length);
 
   /* '/rest/v1/' alone is srsUpsert's own prefix — its callers pass the rest. */
   const missing = urls.filter((u) => u !== '/rest/v1/' && !/on_conflict=/.test(u));
@@ -79,9 +79,14 @@ console.log('\nevery merge-duplicates write names its conflict target');
   ck('question_mastery upserts target (user_id, question_id)',
     /question_mastery\?on_conflict=user_id,question_id/.test(html)
     || /tableFor\(kind\) \+ '\?on_conflict=user_id,' \+ keyFor\(kind\)/.test(html));
-  ck('the LEGACY writes were fixed too, not just the new ones',
-    /sbFetch\('\/rest\/v1\/card_mastery\?on_conflict=user_id,card_id'/.test(html)
-    && /sbFetch\('\/rest\/v1\/question_mastery\?on_conflict=user_id,question_id'/.test(html));
+  /* The legacy mastery upserts are GONE rather than merely fixed: the counting
+     columns they wrote are derived by a trigger now, and a client write would
+     race it. What remains is the SRS write, which owns the FSRS columns. */
+  ck('the legacy mastery upserts no longer exist at all',
+    !/sbFetch\('\/rest\/v1\/card_mastery\?on_conflict/.test(html)
+    && !/sbFetch\('\/rest\/v1\/question_mastery\?on_conflict/.test(html));
+  ck('but the SRS scheduling write is still there, and still targeted',
+    /srsUpsert\('card_mastery\?on_conflict=user_id,card_id'/.test(html));
 }
 
 /* ── 2. a rejected write is never silent ─────────────────────────────── */
@@ -328,6 +333,52 @@ console.log('\nrules that exist in one place, not several');
   ck('the new-item rule is shared, not restated',
     /Deliberately the SAME rule as StudySession\.isNewItem/.test(
       fs.readFileSync(path.join(ROOT, 'lib/exam-scheduler.js'), 'utf8')));
+}
+
+/* ── 8. the mastery counters belong to the database ─────────────────────
+   is_mastered came from session state that startSession() resets every sitting,
+   and total_attempts/total_correct were never written to card_mastery by any
+   loop. Both are now derived by a trigger on the attempt tables. A client write
+   would race that trigger and put the wrong answer back on top. */
+console.log('\nthe mastery counters are derived, not posted');
+{
+  const mig = path.join(ROOT, 'supabase/migrations/20260911_mastery_from_history.sql');
+  ck('the migration exists', fs.existsSync(mig));
+  const sql = fs.existsSync(mig) ? fs.readFileSync(mig, 'utf8') : '';
+  ck('it triggers on BOTH attempt tables, so both study loops are covered',
+    /after insert on public\.card_attempts/.test(sql)
+    && /after insert on public\.quiz_attempts/.test(sql));
+  ck('and it states the rule: two correct in total, and the last two correct',
+    /v_correct >= 2 and v_last_two_ok/.test(sql));
+  ck('it does not touch the FSRS columns, which belong to the scheduler',
+    !/\bstability\s*=/.test(sql) && !/\bdifficulty\s*=/.test(sql)
+    && !/\bdue_date\s*=/.test(sql) && !/\blearning_step\s*=/.test(sql));
+
+  /* the client must no longer post the derived columns */
+  const cardUpsert = html.slice(html.indexOf('function upsertCardMastery('),
+                                html.indexOf('function upsertCardMastery(') + 400);
+  ck('upsertCardMastery no longer posts anything',
+    !/sbFetch/.test(cardUpsert), cardUpsert.slice(0, 160));
+  const qUpsert = html.slice(html.indexOf('function upsertQuestionMastery('),
+                             html.indexOf('function upsertQuestionMastery(') + 400);
+  ck('upsertQuestionMastery no longer posts anything',
+    !/sbFetch/.test(qUpsert), qUpsert.slice(0, 160));
+  ck('no request body sets is_mastered any more',
+    !/is_mastered\s*:/.test(html.replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/quizMasteryData\[[^\]]*\][^;]*/g, '')
+      .match(/body:\s*JSON\.stringify\([\s\S]{0,600}?\)/g)?.join('\n') || ''));
+
+  /* and the label says what the flag means */
+  ck('the dashboard no longer calls the flag "mastered"',
+    !/<div class="dr-lbl">mastered<\/div>/.test(html));
+  ck('it says what it actually measures',
+    /<div class="dr-lbl">last 2 correct<\/div>/.test(html));
+  ck('the stat rows agree', /cards, last 2 correct/.test(html)
+    && />last 2 correct<\/span>/.test(html));
+  ck('and the rule is spelled out once on the dashboard',
+    /correctly twice in a row/.test(html));
+  ck('the in-session counter is labelled as what IT counts, not mastery',
+    /Cleared this session/.test(html));
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall persistence checks passed');
