@@ -1395,6 +1395,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-sweep-top span{font-size:11.5px;color:var(--gold);font-weight:700;white-space:nowrap}
 .srs-sweep .srs-bar span{background:var(--unsure)}
 .srs-sweep-n{font-size:12px;color:var(--text-muted)}
+.srs-sweep-w + .srs-sweep-w{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.srs-sweep-overlap{margin-top:12px;padding:10px 11px;border-radius:8px;
+  background:var(--rust-bg);border:1px solid #fecaca;color:#7f1d1d;
+  font-size:12px;line-height:1.55}
 
 /* 14-day forecast. One series, so no legend — the heading names it. Single hue
    for magnitude; the warning token marks a day over the ceiling and that day
@@ -12260,20 +12264,38 @@ function conflictHtml(){
 function sweepHtml(){
   var sw = plan.sweep;
   if(!sw || !sw.active) return '';
-  var pct = sw.total ? Math.round((sw.covered/sw.total)*100) : 0;
-  return '<div class="srs-sweep">'
-    + '<div class="srs-sweep-top"><b>'+esc2(sw.label)+' sweep</b>'
-    + '<span>day '+sw.day+' of '+sw.totalDays+'</span></div>'
-    + '<div class="srs-bar"><span style="width:'+pct+'%"></span></div>'
-    + '<div class="srs-sweep-n">'+sw.covered.toLocaleString()+' of '
-    + sw.total.toLocaleString()+' items covered</div>'
-    + '<div class="srs-facts" style="margin-top:8px">'
-    + '<div><b>'+sw.perDay.toLocaleString()+'</b> a day to finish</div>'
-    + '<div><b>'+sw.neverSeen.toLocaleString()+'</b> still never seen</div>'
-    + '<div><b>'+sw.failing.toLocaleString()+'</b> failing</div>'
-    + '</div>'
-    + '<div class="srs-sub" style="margin-top:8px">Every item in this unit is seen '
-    + 'at least once before the exam. New material outside it is paused, and '
+  var wins = sw.windows || [sw];
+  var body = wins.map(function(w){
+    var pct = w.total ? Math.round((w.covered/w.total)*100) : 0;
+    return '<div class="srs-sweep-w">'
+      + '<div class="srs-sweep-top"><b>'+esc2(w.label)+' sweep</b>'
+      + '<span>day '+w.day+' of '+w.totalDays+'</span></div>'
+      + '<div class="srs-bar"><span style="width:'+pct+'%"></span></div>'
+      + '<div class="srs-sweep-n">'+w.covered.toLocaleString()+' of '
+      + w.total.toLocaleString()+' items covered</div>'
+      + '<div class="srs-facts" style="margin-top:8px">'
+      + '<div><b>'+w.perDay.toLocaleString()+'</b> a day to finish</div>'
+      + '<div><b>'+w.neverSeen.toLocaleString()+'</b> still never seen</div>'
+      + '<div><b>'+w.failing.toLocaleString()+'</b> failing</div>'
+      + '</div></div>';
+  }).join('');
+
+  /* Two windows open at once is not a detail to bury: it is the day the work
+     doubles, and it has to be visible before it lands rather than on the
+     morning it does. */
+  var overlapNote = sw.overlap
+    ? '<div class="srs-sweep-overlap"><b>Two sweeps are running at once.</b> '
+      + esc2(wins.map(function(w){ return w.label; }).join(' and '))
+      + ' are less than a week apart, so their windows overlap. Together that is '
+      + '<b>'+sw.combined.perDay.toLocaleString()+' items a day</b> across '
+      + sw.combined.remaining.toLocaleString()+' still to cover. Nothing is '
+      + 'counted twice — an item on both exams is scheduled against the nearer '
+      + 'one.</div>'
+    : '';
+
+  return '<div class="srs-sweep">' + body + overlapNote
+    + '<div class="srs-sub" style="margin-top:8px">Every item in scope is seen '
+    + 'at least once before its exam. New material outside it is paused, and '
     + 'neither the daily cap nor the ceiling trims this.</div>'
     + '</div>';
 }
@@ -12324,7 +12346,9 @@ function forecastHtml(){
        trimming the sweep exists to avoid. */
     + (plan.sweep && plan.sweep.active
         ? '<div class="srs-sub" style="margin-top:5px">Scheduled reviews only — the '
-          + esc2(plan.sweep.label) + ' sweep adds about <b>' + plan.sweep.perDay.toLocaleString()
+          + esc2((plan.sweep.windows||[plan.sweep]).map(function(w){ return w.label; }).join(' and '))
+          + ' sweep' + (plan.sweep.overlap ? 's add' : ' adds') + ' about <b>'
+          + (plan.sweep.combined ? plan.sweep.combined.perDay : plan.sweep.perDay).toLocaleString()
           + '</b> more a day on top until the exam.</div>'
         : '')
     + '</div>';
@@ -13049,13 +13073,20 @@ function renderRunway(anyCompressed, now){
   var usable = ES.runwayDays(exam, now);
   var name = EXAM_LABEL[exam.key];
   host.className = 'srs-runway' + (anyCompressed ? ' on' : '');
+  var why;
+  if(usable <= 0){
+    /* the sweep is running, so there is no runway left to compress into — the
+       intervals are fitted to the days that remain instead */
+    why = 'sweep week — every card is being covered anyway; intervals fit the '
+        + Math.max(0, days - 1) + ' day' + (days-1===1?'':'s') + ' left';
+  } else if(anyCompressed){
+    why = 'deadline schedule — intervals compressed into the ' + usable
+        + ' day' + (usable===1?'':'s') + ' before the sweep';
+  } else {
+    why = 'normal spacing — FSRS already fits inside the runway';
+  }
   host.innerHTML = '<b>' + esc2(name) + ' in ' + days + ' day' + (days===1?'':'s')
-    + '</b>'
-    + (anyCompressed
-        ? '<span>deadline schedule — intervals compressed into the '
-          + Math.max(0, usable) + ' day' + (usable===1?'':'s')
-          + ' before the sweep</span>'
-        : '<span>normal spacing — FSRS already fits inside the runway</span>');
+    + '</b><span>' + esc2(why) + '</span>';
 }
 
 /* A learning card can come due while she is looking at another one. */

@@ -559,5 +559,117 @@ console.log('\ninside the sweep week');
       >= DAY);
 }
 
+/* ── re-targeting across a passed exam ───────────────────────────────── */
+console.log('\nwhen an exam passes, its material re-targets the next one');
+{
+  const exams = { unit1: inDays(-1), unit2: inDays(90), final: inDays(97) };
+
+  const u1 = ES.nextExamFor(1, exams, NOW);
+  ck('a unit 1 card whose test was yesterday targets the FINAL',
+    u1 !== null && u1.key === 'final', u1);
+  ck('the runway is positive, not negative or null',
+    ES.runwayDays(u1, NOW) === 90, ES.runwayDays(u1, NOW));
+  ck('and it is the longer runway, so intervals relax rather than staying tight',
+    ES.runwayDays(u1, NOW) > ES.runwayDays({ date: ES.parseDate(inDays(35)) }, NOW));
+
+  const u2 = ES.nextExamFor(2, exams, NOW);
+  ck('unit 2 still targets its own test', u2.key === 'unit2', u2.key);
+
+  /* the intervals actually recompress against the new runway */
+  const tight = ES.compressToRunway(135 * DAY, 135 * DAY,
+    { key: 'unit1', date: ES.parseDate(inDays(35)) }, NOW);
+  const relaxed = ES.compressToRunway(135 * DAY, 135 * DAY, u1, NOW);
+  ck('the same card gets a much longer interval once it answers to the final',
+    relaxed.ms > tight.ms * 2, { tight: tight.ms / DAY, relaxed: relaxed.ms / DAY });
+  ck('unit 1 material does not stay stuck on 3-day intervals for months',
+    relaxed.ms >= 14 * DAY, relaxed.ms / DAY);
+
+  /* everything is covered until the final itself passes */
+  ck('nothing is left without a deadline while the final is ahead',
+    ES.nextExamFor(1, exams, NOW) !== null && ES.nextExamFor(2, exams, NOW) !== null);
+  const allPast = { unit1: inDays(-30), unit2: inDays(-10), final: inDays(-1) };
+  ck('once the final passes there is no deadline, and that means plain FSRS',
+    ES.nextExamFor(1, allPast, NOW) === null
+    && ES.compressToRunway(135 * DAY, 135 * DAY, null, NOW).compressed === false);
+  ck('a card is never left unscheduled by that — the interval is simply raw',
+    ES.compressToRunway(135 * DAY, 135 * DAY, null, NOW).ms === 135 * DAY);
+}
+
+console.log('\nthe ladder keeps its shape inside the sweep window too');
+{
+  const soon = { key: 'final', date: ES.parseDate(inDays(5)) };
+  const raw = { 2: 64 * DAY, 3: 86 * DAY, 4: 135 * DAY };
+  const got = {};
+  [2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], raw[4], soon, NOW); });
+  ck('Hard, Good and Easy do NOT all collapse onto the last day',
+    new Set([2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 3,
+    [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
+  ck('ordering holds', got[2].ms < got[3].ms && got[3].ms < got[4].ms,
+    [2, 3, 4].map((r) => got[r].ms / DAY));
+  ck('and nothing lands on or after the exam',
+    [2, 3, 4].every((r) => got[r].ms < 5 * DAY), [2, 3, 4].map((r) => got[r].ms / DAY));
+}
+
+/* ── sweeps ──────────────────────────────────────────────────────────── */
+console.log('\nthe final sweep covers BOTH units');
+{
+  const u1items = Array.from({ length: 300 }, () => item({ objectiveIds: ['N144_L1'],
+    last_reviewed_at: NOW - 60 * DAY }));
+  const u2items = Array.from({ length: 160 }, () => item({ objectiveIds: ['N144_PSY'],
+    last_reviewed_at: NOW - 60 * DAY }));
+  const all = u1items.concat(u2items);
+  const sw = ES.sweepPlan(sched, all, UNITS,
+    { unit1: inDays(-90), unit2: inDays(-30), final: inDays(5) }, NOW);
+  ck('the final sweep is active', sw.active === true);
+  ck('and its scope is unit 1 AND unit 2, all 460', sw.total === 460, sw.total);
+  ck('unit 1 material is genuinely in it, not just counted',
+    sw.todayList.some((i) => i.objectiveIds[0] === 'N144_L1'), 'no unit 1 in the day');
+}
+
+console.log('\ntwo sweeps at once');
+{
+  const u1items = Array.from({ length: 300 }, () => item({ objectiveIds: ['N144_L1'],
+    last_reviewed_at: NOW - 60 * DAY }));
+  const u2items = Array.from({ length: 160 }, () => item({ objectiveIds: ['N144_PSY'],
+    last_reviewed_at: NOW - 60 * DAY }));
+  const all = u1items.concat(u2items);
+  /* unit 2 in two days, final in seven — the windows overlap */
+  const exams = { unit1: inDays(-90), unit2: inDays(2), final: inDays(7) };
+  const sw = ES.sweepPlan(sched, all, UNITS, exams, NOW);
+
+  ck('BOTH windows are reported, not just the nearer one',
+    sw.windows.length === 2, sw.windows.map((w) => w.label));
+  ck('and it says plainly that they overlap', sw.overlap === true);
+  ck('the final sweep is running from ITS day 1, not waiting for unit 2 to pass',
+    sw.windows.find((w) => w.key === 'final').day === 1,
+    sw.windows.map((w) => w.label + ' day ' + w.day));
+  ck('unit 1 material is being swept during the overlap',
+    sw.todayList.some((i) => i.objectiveIds[0] === 'N144_L1'), 'unit 1 not started');
+
+  /* an item on both exams is only counted against the nearer one */
+  const totals = sw.windows.reduce((a, w) => a + w.total, 0);
+  ck('nothing is double counted: 300 + 160 = 460, not 620',
+    totals === 460 && sw.combined.total === 460, { totals, combined: sw.combined.total });
+  ck('the combined daily figure is the honest one',
+    sw.combined.perDay === sw.windows.reduce((a, w) => a + w.perDay, 0),
+    { combined: sw.combined.perDay, parts: sw.windows.map((w) => w.perDay) });
+  ck('today\u2019s list draws from both windows',
+    sw.todayList.length === sw.combined.perDay, {
+      list: sw.todayList.length, perDay: sw.combined.perDay });
+
+  /* the surprise this prevents: without it, the final's 300 items appeared
+     only after unit 2 passed, needing far more per day than a week's worth */
+  const after = ES.sweepPlan(sched, all, UNITS,
+    { unit1: inDays(-90), unit2: inDays(-1), final: inDays(4) }, NOW);
+  ck('after unit 2 passes the final sweep is already part-done rather than new',
+    after.windows.length === 1 && after.key === 'final', after.windows.map((w) => w.key));
+
+  /* far apart: no overlap, one window at a time */
+  const apart = ES.sweepPlan(sched, all, UNITS,
+    { unit1: inDays(-90), unit2: inDays(5), final: inDays(40) }, NOW);
+  ck('windows more than a week apart do not overlap',
+    apart.overlap === false && apart.windows.length === 1, apart.windows.map((w) => w.label));
+}
+
 console.log(fail ? `\n${fail} FAILING` : '\nall exam scheduler checks passed');
 process.exit(fail ? 1 : 0);
