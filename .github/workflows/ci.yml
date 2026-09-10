@@ -86,6 +86,13 @@ jobs:
       - name: Persistence
         run: node scripts/tests/persistence.test.mjs
 
+      # The repair tool that rebuilds FSRS state from attempt history. It writes
+      # to real scheduling data, so what makes it safe is asserted: original
+      # timestamps, never overwriting a better-informed row, and an is_mastered
+      # that means something.
+      - name: Replay
+        run: node scripts/tests/replay.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
