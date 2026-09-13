@@ -836,6 +836,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   padding:10px 0 12px;margin-bottom:4px;
   border-bottom:1px solid var(--border)}
 .sg-tb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sg-lec-tabs{display:inline-flex;gap:6px;margin-right:4px}
+.sg-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .sg-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);
   padding:7px 13px;border-radius:var(--r-btn);font-size:12px;font-weight:600;
   cursor:pointer;font-family:inherit;box-shadow:var(--shadow);white-space:nowrap;
@@ -8704,6 +8706,16 @@ function renderSidebarIndex(){
 /* ══════════════════════════════════════════════════
    GUIDE DETAIL
 ══════════════════════════════════════════════════ */
+/* The page opens ON the guide, the way NUR116 and NUR118 open on their
+   content: no card index to click through. With one guide that is the
+   guide; with several, the first, and the toolbar carries lecture tabs. The
+   index survives only as the empty state. */
+function openDefault(){
+  var gs = currentCourseGuides();
+  if (!gs.length){ renderIndex(); return; }
+  openGuide(gs[0].slug);
+}
+
 function openGuide(slug){
   var g = findGuide(slug);
   var host = guideHost();
@@ -8727,7 +8739,7 @@ function openGuide(slug){
   }).catch(function(err){
     host.innerHTML = '<div class="sg-wrap">'
       + '<div class="sg-tb-row" style="margin-bottom:12px">'
-      + '<button class="sg-btn" onclick="sgBack()">← All guides</button></div>'
+      + '<button class="sg-btn" onclick="sgOpen(\'' + esc(slug) + '\')">Try again</button></div>'
       + '<div class="sg-err">' + esc(err.message || String(err)) + '</div></div>';
   });
 }
@@ -8742,10 +8754,16 @@ function drawGuide(g, md){
   var h = '<div class="sg-wrap">';
 
   /* sticky toolbar */
+  var siblings = currentCourseGuides();
+  var tabs = siblings.length > 1
+    ? '<div class="sg-lec-tabs">' + siblings.map(function(x){
+        return '<button class="sg-btn' + (x.slug === g.slug ? ' on' : '') + '" '
+          + 'aria-pressed="' + (x.slug === g.slug) + '" onclick="sgOpen(\'' + esc(x.slug) + '\')">'
+          + esc(x.lectureLabel) + '</button>';
+      }).join('') + '</div>'
+    : '';
   h += '<div class="sg-toolbar"><div class="sg-tb-row">'
-     + '<button class="sg-btn sg-btn-back" onclick="sgBack()">'
-       + svg('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>')
-       + '<span>All guides</span></button>'
+     + tabs
      + '<button class="sg-btn sg-toc-btn" onclick="sgToggleToc(true)">'
        + svg('<path d="M3 6h18M3 12h18M3 18h18"/>')
        + '<span>Contents</span></button>'
@@ -9184,7 +9202,7 @@ function init(){
     }
     if (slug) { openGuide(slug); }
     else if (view === 'guide' && guide) { openGuide(guide.slug); }
-    else { renderIndex(); }
+    else { openDefault(); }
     warmCache();
     checkIntegrity();
   }).catch(function(err){
@@ -9272,7 +9290,7 @@ if (document.readyState !== 'loading'){
 
 /* ══ exports used by inline onclick handlers (matches the app's style) ══ */
 window.sgOpen        = function(slug){ openGuide(slug); };
-window.sgBack        = function(){ renderIndex(); };
+window.sgBack        = function(){ openDefault(); };
 window.sgToggleSec   = function(id){ toggleSec(id); };
 window.sgToggleLecture = function(){ toggleLecture(); };
 window.sgToggleAll   = toggleAll;
