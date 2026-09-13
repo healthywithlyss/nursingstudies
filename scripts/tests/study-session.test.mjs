@@ -528,6 +528,52 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
   ck('srsStartSession honours `only` for each kind', /only === 'new' \? q\.newItems/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
 }
 
+/* ── 18. per-lecture progress ────────────────────────────────────────── */
+console.log('\nper-lecture progress: how far in, what is left, how well known');
+{
+  const day = Date.parse('2026-09-13T04:00:00Z'), now = day + 14 * 3600000;
+  const L1 = (over) => newCard(Object.assign({ objectiveIds: ['N144_L1'] }, over));
+  const items = [
+    ...Array.from({ length: 5 }, () => L1()),                                                   /* never seen */
+    L1({ state: 'learning', stability: 0.5, last_reviewed_at: now - 600000, due_date: now - 1000, learning_step: 1 }),
+    L1({ state: 'review', stability: 8.3, last_reviewed_at: now - 3600000, due_date: now + 5 * DAY, repetitions: 1 }),   /* done today */
+    L1({ state: 'review', stability: 20, last_reviewed_at: now - 10 * DAY, due_date: now - DAY, repetitions: 4 }),        /* due */
+    L1({ state: 'review', stability: 20, last_reviewed_at: now - 2 * DAY, due_date: now + 18 * DAY, repetitions: 4 }),    /* reviewed before today */
+    newCard({ objectiveIds: ['N144_SKILLS'] }),
+    newCard({ objectiveIds: ['N144_L1', 'N144_SKILLS'], state: 'review', stability: 4, last_reviewed_at: now - DAY, due_date: now + 3 * DAY })
+  ];
+  const recall = (s, d) => Math.pow(1 + d / (9 * s), -1);          /* a simple forgetting curve, for the test */
+  const st = SS.objectiveStats(items, { now, dayStart: day, recall });
+  const l1 = st.N144_L1, sk = st.N144_SKILLS;
+  ck('Lecture 1: 10 cards, 5 started, 5 new left, 50%', l1.total === 10 && l1.started === 5 && l1.newLeft === 5 && l1.pctStarted === 50, l1);
+  ck('learning 1, learned 4, due 1, done today 1', l1.learning === 1 && l1.learned === 4 && l1.due === 1 && l1.doneToday === 1, l1);
+  ck('recall averages the started cards that have a stability, between 0 and 1', l1.recall > 0.5 && l1.recall < 1, l1.recall);
+  ck('a card in two lectures counts in both', sk.total === 2 && sk.started === 1 && sk.newLeft === 1, sk);
+  ck('a lecture with nothing started has no recall figure', SS.objectiveStats([newCard()], { now, dayStart: day, recall }).N144_L1.recall === null);
+  ck('without a recall function the counts still come back', SS.objectiveStats(items, { now, dayStart: day }).N144_L1.recall === null);
+}
+
+/* ── 19. index.html: names, chips, sidebar, flip back ────────────────── */
+console.log('\nindex.html: lecture names, new-left chips, the sidebar shows progress, cards flip back');
+{
+  const fs = await import('node:fs');
+  const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+  ck('the loader fetches the objectives table for names', /\/rest\/v1\/objectives\?select=id,lecture,description/.test(html));
+  ck('objLabel falls back to a name derived from the id, never the raw id for a lecture', /function objLabel\(id\)/.test(html) && /'Lecture '\+m\[1\]/.test(html));
+  const panel = html.slice(html.indexOf('function renderDeckPanel('), html.indexOf('function srsToggleDeck'));
+  ck('chips show the lecture name and the new cards left, not the objective id', /objLabel\(o\.id\)/.test(panel) && /o\.newLeft\+' new/.test(panel) && !/esc2\(o\.id\)\+' <span>'\+o\.count/.test(panel));
+  ck('the deck panel renders the sidebar progress on every paint', /renderObjProgress\(now\)/.test(panel));
+  const side = html.slice(html.indexOf('function renderObjProgress('), html.indexOf('function renderDeckPanel('));
+  ck('the sidebar uses StudySession.objectiveStats with the scheduler\'s recall', /StudySession\.objectiveStats\(/.test(side) && /recall: recallNow/.test(side));
+  ck('each lecture row shows started %, new left, recall, learned and learning', /pctStarted/.test(side) && /newLeft/.test(side) && /recall/.test(side) && /learned/.test(side) && /learning/.test(side));
+  ck('the sidebar never shows "Loading" under FSRS: the legacy bar renderer is a no-op there', /window\.renderObjBars = function\(\)\{\s*if\(fsrsPractice\(\)\) return;/.test(html));
+  ck('idle, the top of the sidebar shows today\'s progress rather than an empty session', /'Done today'/.test(side));
+  const flip = html.slice(html.indexOf('function fcFlip('), html.indexOf('function fcRate('));
+  ck('tapping a flipped card flips it back to the question', /if\(fcFlipped\)\{ fcFlipBack\(\); return; \}/.test(flip) && /function fcFlipBack\(\)/.test(flip));
+  const back = flip.slice(flip.indexOf('function fcFlipBack('));
+  ck('flip back restores the question and hint without wiping the outcome line', /textContent=c\.question/.test(back) && /fc-flip-hint/.test(back) && !/fc-history/.test(back));
+}
+
 /* ── the session honours an injected clamp ───────────────────────────── */
 console.log('\nthe session schedules through the clamp, not around it');
 {

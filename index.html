@@ -288,6 +288,12 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .prog-obj-count{font-size:10px;color:var(--text-muted);flex-shrink:0}
 .prog-obj-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:14px}
 .prog-obj-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.srs-obj{cursor:pointer}
+.srs-obj .prog-obj-name{white-space:normal}
+.srs-obj .prog-obj-name b{font-weight:800}
+.srs-obj .prog-obj-name em{display:block;font-style:normal;font-size:10.5px;color:var(--text-muted);line-height:1.3}
+.srs-obj-stats{font-size:10.5px;color:var(--text-muted);margin-left:14px;line-height:1.5;margin-top:2px}
+.srs-obj-empty{padding:12px 16px;font-size:12px;color:var(--text-muted)}
 /* ── Dashboard ── */
 .dash-wrap{max-width:800px;margin:0 auto;padding:24px 20px 60px}
 .dash-heading{font-size:22px;font-weight:800;color:var(--text);margin-bottom:20px}
@@ -5838,6 +5844,7 @@ var NUR116_OBJ_GROUPS={
 var NUR116_FC_OBJ_MAP={};  /* populated by initPractice() from DB; NUR116_T01 key format */
 var NUR144_OBJ_GROUPS={
   'N144_L1':'Lecture 1 \u2014 Gastric & Duodenal Disorders',
+  'N144_L2':'Lecture 2 \u2014 Hepatic Disorders',
   'N144_SKILLS':'Lab Skills'
 };
 /* objective_ids seen in NUR144 data that the map above doesn't name yet — kept
@@ -6249,7 +6256,8 @@ function showCurrentCard(){
 }
 
 function fcFlip(){
-  if(fcFlipped||!fcCurrentCard) return;
+  if(!fcCurrentCard) return;
+  if(fcFlipped){ fcFlipBack(); return; }
   fcFlipped=true;
   var c=fcCurrentCard;
   document.getElementById('fc-card-label').textContent='Answer';
@@ -6280,6 +6288,21 @@ function fcFlip(){
     var cardEl=document.getElementById('fc-card');
     cardEl.appendChild(wrap);
   }
+}
+
+/* Tapping a flipped card shows the question again. The rating buttons stay
+   as they were — she has seen the answer — and the outcome line is left alone. */
+function fcFlipBack(){
+  var c=fcCurrentCard; if(!c) return;
+  fcFlipped=false;
+  var lbl=document.getElementById('fc-card-label');
+  lbl.textContent='Question';lbl.classList.remove('is-answer');
+  var t=document.getElementById('fc-card-text');
+  t.className='fc-q-text';t.textContent=c.question;
+  var hint=document.getElementById('fc-flip-hint');
+  if(hint){hint.style.display='';hint.textContent='Tap card to see the answer again';}
+  document.getElementById('fc-card').style.background='';
+  var why=document.getElementById('fc-why-wrap'); if(why) why.remove();
 }
 
 /* `rating` is the FSRS grade 1-4 (Again/Hard/Good/Easy). It is deliberately a
@@ -12009,6 +12032,7 @@ var plan = null;          /* last computed plan, for the current course */
 var loading = false;
 var fsrsRows = {card:{}, quiz:{}};   /* id -> the row we last read or wrote */
 var unitsMap = {};
+var objNames = {};             /* objective id -> {lecture, description} */
 var objectiveList = [];   /* [{objective_id, unit}] for the current course */
 var examDates = {unit1:'',unit2:'',final:''};
 var settings = null;      /* null until loaded; ES defaults apply meanwhile */
@@ -12182,6 +12206,28 @@ function ensureContext(){
     console.warn('srs context:', e);
   });
   return contextLoaded;
+}
+
+/* Human names for objective ids. From the objectives table; when a row is
+   missing the name is derived from the id, so a lecture is never shown as
+   backend text like N144_L1. */
+function applyObjNames(rows){
+  objNames = {};
+  (Array.isArray(rows)?rows:[]).forEach(function(o){
+    if(o && o.id) objNames[o.id] = {lecture:o.lecture||'', description:o.description||''};
+  });
+}
+function objLabel(id){
+  var o = objNames[id] || {};
+  var name = o.lecture;
+  if(!name){
+    var m = /_L(\d+)$/.exec(id||'');
+    name = m ? 'Lecture '+m[1] : /SKILLS/i.test(id||'') ? 'Skills' : String(id||'');
+  }
+  var sub = o.description || '';
+  var cut = sub.indexOf(' - '); if(cut > -1) sub = sub.slice(cut+3);
+  if(sub.length > 48) sub = sub.slice(0, 45).replace(/\s+\S*$/, '') + '\u2026';
+  return {name:name, sub:sub, full:o.description||''};
 }
 
 function applyUnits(units, course){
@@ -12378,13 +12424,16 @@ function loadAll(){
        actually has rather than the 20-25% that was assumed before there was
        any data. First attempts are what count; missRateFrom sorts that out. */
     window.sbFetch('/rest/v1/quiz_attempts?select=question_id,is_correct,created_at&user_id=eq.'
-      +uid+'&order=created_at.asc').then(j)
+      +uid+'&order=created_at.asc').then(j),
+    /* human names for objective ids: "Lecture 1", not N144_L1 */
+    window.sbFetch('/rest/v1/objectives?select=id,lecture,description').then(j)
   ]).then(function(r){
     var cards=r[0]||[], quiz=r[1]||[], cm=r[2]||[], qm=r[3]||[],
         units=r[4]||[], exams=r[5]||[], ca=r[6]||[], qa=r[7]||[], sets=r[8]||[],
-        sugg=r[9]||[], allAttempts=r[10]||[], quizAttempts=r[11]||[];
+        sugg=r[9]||[], allAttempts=r[10]||[], quizAttempts=r[11]||[], objRows=r[12]||[];
 
     applyUnits(units, course);
+    applyObjNames(objRows);
     applyExams(exams);
     applySettings(sets);
     /* the dashboard just fetched the context in full, so grading need not */
@@ -13302,13 +13351,17 @@ function deckItems(){
    offers lectures that exist rather than everything in the units table. */
 function deckObjectives(){
   if(!plan || !plan._items) return [];
-  var seen = {};
+  var seen = {}, fresh = {};
   plan._items.forEach(function(i){
     if(i.kind !== 'card') return;
-    (i.objectiveIds||[]).forEach(function(o){ seen[o] = (seen[o]||0) + 1; });
+    var isNew = window.StudySession.isNewItem(i);
+    (i.objectiveIds||[]).forEach(function(o){
+      seen[o] = (seen[o]||0) + 1;
+      if(isNew) fresh[o] = (fresh[o]||0) + 1;
+    });
   });
   return Object.keys(seen).sort().map(function(o){
-    return {id:o, count:seen[o], unit:unitsMap[o]||1};
+    return {id:o, count:seen[o], newLeft:fresh[o]||0, unit:unitsMap[o]||1};
   });
 }
 
@@ -13337,6 +13390,71 @@ function nextDueMs(items, now){
   });
   return soonest;
 }
+
+/* ── the left panel: progress per lecture ───────────────────────────── */
+/* P(recall) right now for a started card, from the scheduler that made its
+   numbers — what "how well do I know this" means here. */
+var recallSched = null;
+function recallNow(stability, elapsedDays){
+  if(!recallSched) recallSched = new window.FSRS.Scheduler();
+  return recallSched.retrievability(stability, elapsedDays);
+}
+function renderObjProgress(now){
+  var el = $('obj-list');
+  if(!el) return;
+  if(!plan || !plan._items){
+    el.innerHTML = '<div class="srs-obj-empty">Working out where you are\u2026</div>';
+    return;
+  }
+  var all = plan._items.filter(function(i){ return i.kind === 'card'; });
+  var st = window.StudySession.objectiveStats(all, {
+    now: now, dayStart: dayStartMs(now), recall: recallNow
+  });
+  var ids = Object.keys(st).sort();
+  var tot = {total:0, started:0, newLeft:0, learned:0, learning:0, doneToday:0};
+  ids.forEach(function(o){ Object.keys(tot).forEach(function(k){ tot[k] += st[o][k]; }); });
+  var pctAll = tot.total ? Math.round(100*tot.started/tot.total) : 0;
+  var colourFor = function(r){
+    return r == null ? '#94a3b8' : r >= .9 ? 'var(--got)' : r >= .75 ? 'var(--unsure)' : 'var(--missed)';
+  };
+  var html = '<div class="prog-obj-item srs-obj srs-obj-all" onclick="srsSelectAll()" title="All lectures">'
+    + '<div class="prog-obj-item-top"><span class="prog-obj-dot" style="background:var(--accent)"></span>'
+    + '<span class="prog-obj-name"><b>All lectures</b></span>'
+    + '<span class="prog-obj-count">'+pctAll+'%</span></div>'
+    + '<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+pctAll+'%;background:var(--accent)"></div></div>'
+    + '<div class="srs-obj-stats">'+tot.started+' of '+tot.total+' started \u00b7 '+tot.newLeft+' new left'
+    + (tot.doneToday ? ' \u00b7 '+tot.doneToday+' done today' : '')+'</div></div>';
+  ids.forEach(function(o){
+    var s = st[o], lbl = objLabel(o), col = colourFor(s.recall);
+    var on = deckSel && deckSel.length === 1 && deckSel[0] === o;
+    html += '<div class="prog-obj-item srs-obj'+(on?' active':'')+'" onclick="srsOnlyDeck(\''+esc2(o)+'\')" title="'+esc2(lbl.full||lbl.name)+'">'
+      + '<div class="prog-obj-item-top"><span class="prog-obj-dot" style="background:'+col+'"></span>'
+      + '<span class="prog-obj-name"><b>'+esc2(lbl.name)+'</b>'+(lbl.sub ? '<em>'+esc2(lbl.sub)+'</em>' : '')+'</span>'
+      + '<span class="prog-obj-count">'+s.pctStarted+'%</span></div>'
+      + '<div class="prog-obj-track"><div class="prog-obj-fill" style="width:'+s.pctStarted+'%;background:'+col+'"></div></div>'
+      + '<div class="srs-obj-stats">'+s.started+' of '+s.total+' started \u00b7 '+s.newLeft+' new left'
+      + (s.started
+          ? '<br>'+(s.recall == null ? 'no recall estimate yet' : 'recall '+Math.round(s.recall*100)+'%')
+            +' \u00b7 '+s.learned+' learned \u00b7 '+s.learning+' learning'
+            +(s.due ? ' \u00b7 '+s.due+' due' : '')
+          : '')
+      + '</div></div>';
+  });
+  el.innerHTML = html;
+
+  /* the top of the panel, when no session is running: today, not an empty session */
+  if(!SESS || SESS.isComplete()){
+    var q = queueFor(deckItems(), now);
+    var todayTotal = q.done.length + q.learning.length + q.due.length + q.newItems.length;
+    var ml = document.querySelector('#progress-col .prog-mastery-label'); if(ml) ml.textContent = 'Done today';
+    var mn = $('prog-mastery-num'); if(mn) mn.textContent = q.done.length + ' / ' + todayTotal;
+    var mf = $('prog-mastery-fill'); if(mf) mf.style.width = (todayTotal ? Math.round(100*q.done.length/todayTotal) : 0) + '%';
+    var di = $('prog-deck-info');
+    if(di) di.textContent = q.learning.length+' learning \u00b7 '+q.due.length+' due \u00b7 '+q.newItems.length+' new left today';
+  }
+}
+window.srsOnlyDeck = function(id){ deckSel = [id]; renderDeckPanel(); };
+window.srsSelectAll = function(){ deckSel = null; renderDeckPanel(); };
 
 /* ── the deck panel ─────────────────────────────────────────────────── */
 /* The line under the buttons about new cards. When the day's budget is
@@ -13378,18 +13496,22 @@ function renderDeckPanel(){
     var e = $(id); if(e) e.style.display = 'none';
   });
   var pw = $('practice-wrap'); if(pw) pw.classList.add('srs-study');
-  if(!plan){ host.innerHTML='<div class="dash-loading">Loading deck…</div>'; return; }
+  if(!plan){ host.innerHTML='<div class="dash-loading">Loading deck…</div>'; renderObjProgress(Date.now()); return; }
 
   var now = Date.now();
   var items = deckItems();
   var q = queueFor(items, now);
   var objs = deckObjectives();
   var inSession = !!SESS && !SESS.isComplete();
+  renderObjProgress(now);
 
+  /* "Lecture 1 · 69 new": the name she uses, and how much of it is still
+     untouched — the number that actually changes as she works. */
   var chips = objs.map(function(o){
     var on = !deckSel || !deckSel.length || deckSel.indexOf(o.id) > -1;
-    return '<button class="srs-chip'+(on?' on':'')+'" onclick="srsToggleDeck(\''
-      + esc2(o.id)+'\')">'+esc2(o.id)+' <span>'+o.count+'</span></button>';
+    var lbl = objLabel(o.id);
+    return '<button class="srs-chip'+(on?' on':'')+'" title="'+esc2(lbl.full||lbl.name)+'" onclick="srsToggleDeck(\''
+      + esc2(o.id)+'\')">'+esc2(lbl.name)+' <span>'+o.newLeft+' new</span></button>';
   }).join('');
 
   /* Every number is a door: tap it to study just that kind. Done is extra
@@ -14459,6 +14581,17 @@ function idlePrompt(){
   });
   var c = $('fc-counter'); if(c) c.textContent = '— / —';
   var rw = $('srs-runway'); if(rw){ rw.style.display='none'; }
+}
+
+/* The left panel's per-objective bars are drawn by renderObjProgress in this
+   mode; the legacy renderer would overwrite them with mastery figures this
+   mode does not keep. */
+var _renderObjBars = window.renderObjBars;
+if(typeof _renderObjBars === 'function'){
+  window.renderObjBars = function(){
+    if(fsrsPractice()) return;
+    return _renderObjBars.apply(this, arguments);
+  };
 }
 
 /* Restart means "throw this session away and rebuild it", not the legacy
