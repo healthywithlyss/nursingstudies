@@ -1468,6 +1468,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-done{text-align:center;padding:18px 14px;font-size:13.5px;line-height:1.6}
 .srs-done b{display:block;font-size:16px;font-weight:800;margin-bottom:4px}
 .srs-wait #srs-wait-count{font-variant-numeric:tabular-nums}
+.srs-more-new{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--text-muted)}
+.srs-btn-sm{padding:6px 10px;font-size:12px;min-height:32px}
 .srs-wait .srs-btn{margin-top:10px}
 
 /* Four thumb-sized buttons with real space between them. Two lines each: the
@@ -12285,7 +12287,10 @@ function applySettings(rows){
     learningSteps:   (r && r.learning_steps   && r.learning_steps.length)
       ? r.learning_steps   : (SSm ? SSm.DEFAULT_LEARNING_STEPS   : [1,10]),
     relearningSteps: (r && r.relearning_steps && r.relearning_steps.length)
-      ? r.relearning_steps : (SSm ? SSm.DEFAULT_RELEARNING_STEPS : [10])
+      ? r.relearning_steps : (SSm ? SSm.DEFAULT_RELEARNING_STEPS : [10]),
+    /* "+N new today": an allowance for one local date, on top of the limit */
+    extraNew:     (r && r.extra_new) ? Number(r.extra_new) : 0,
+    extraNewDate: (r && r.extra_new_date) ? String(r.extra_new_date) : null
   };
 }
 function currentSettings(){ return settings || ES.DEFAULT_SETTINGS; }
@@ -13123,6 +13128,8 @@ function saveSettings(next){
       passed_unit_cards_per_day: next.passedUnitCardsPerDay,
       learning_steps:    next.learningSteps,
       relearning_steps:  next.relearningSteps,
+      extra_new:         next.extraNew || 0,
+      extra_new_date:    next.extraNewDate || null,
       updated_at: new Date().toISOString()
     })
   }).then(function(){ contextLoaded=null; contextCourse=null; return recompute(); });
@@ -13385,6 +13392,26 @@ function deckObjectives(){
 
 /* Local midnight: the day's budget resets when her day does, not at UTC. */
 function dayStartMs(now){ var d = new Date(now); d.setHours(0,0,0,0); return d.getTime(); }
+function localDateStr(now){
+  var d = new Date(now), p = function(n){ return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+/* Today's new-card limit: the standing setting plus whatever she added for
+   today only. The extra is tied to a local date, so it dies with the day. */
+function extraNewToday(st, now){
+  return st.extraNewDate === localDateStr(now) ? (Number(st.extraNew) || 0) : 0;
+}
+function effectiveNewLimit(st, now){
+  return (Number(st.newCardsPerDay) || 0) + extraNewToday(st, now);
+}
+window.srsMoreNew = function(n){
+  var now = Date.now();
+  var next = Object.assign({}, currentSettings());
+  next.extraNew = extraNewToday(next, now) + Math.max(0, Math.round(Number(n) || 0));
+  next.extraNewDate = localDateStr(now);
+  saveSettings(next).then(renderDeckPanel);
+  renderDeckPanel();          /* settings are already `next`; do not wait for the round trip */
+};
 
 /* What a session over the current selection would contain. The rule lives in
    StudySession.todayQueue: new cards are budgeted per DAY against the whole
@@ -13394,7 +13421,7 @@ function queueFor(items, now){
   var st = currentSettings();
   var all = (plan && plan._items ? plan._items : []).filter(function(i){ return i.kind === 'card'; });
   return window.StudySession.todayQueue(items, {
-    now: now, dayStart: dayStartMs(now), newCardsPerDay: st.newCardsPerDay, all: all
+    now: now, dayStart: dayStartMs(now), newCardsPerDay: effectiveNewLimit(st, now), all: all
   });
 }
 
@@ -13479,17 +13506,24 @@ window.srsSelectAll = function(){ deckSel = null; renderDeckPanel(); };
    spent it says so — "held back" was how a spent budget used to read as a
    fresh 30 every visit. */
 function budgetNote(q){
-  var limit = currentSettings().newCardsPerDay;
+  var st = currentSettings(), now = Date.now();
+  var base = st.newCardsPerDay, extra = extraNewToday(st, now);
+  var limitTxt = extra ? base+'/day plus '+extra+' added today' : base+'/day';
   if(!q.newAvailable) return '';
+  /* the only way to go past the limit and have it COUNT — extra study saves nothing */
+  var more = '<div class="srs-more-new"><span>More new today:</span>'
+    + [5,10,20].map(function(n){
+        return '<button class="srs-btn srs-btn-ghost srs-btn-sm" onclick="srsMoreNew('+n+')">+'+n+'</button>';
+      }).join('')+'</div>';
   if(q.newBudget === 0){
     return '<div class="srs-note">'+q.introducedToday+' new card'+(q.introducedToday===1?'':'s')
-      + ' started today — your limit is '+limit+'/day, so new cards resume tomorrow. '
-      + 'Extra study ignores the limit.</div>';
+      + ' started today — your limit is '+limitTxt+', so new cards resume tomorrow. '
+      + 'Extra study ignores the limit but saves nothing.</div>' + more;
   }
   if(q.newAvailable > q.newItems.length){
     return '<div class="srs-note">'+(q.newAvailable-q.newItems.length)+' more new card'
-      + (q.newAvailable-q.newItems.length===1?'':'s')+' held back by your '+limit+'/day limit'
-      + (q.introducedToday ? ' ('+q.introducedToday+' started today)' : '')+'.</div>';
+      + (q.newAvailable-q.newItems.length===1?'':'s')+' held back by your limit of '+limitTxt
+      + (q.introducedToday ? ' ('+q.introducedToday+' started today)' : '')+'.</div>' + more;
   }
   return '';
 }

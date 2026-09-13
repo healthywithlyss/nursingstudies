@@ -526,6 +526,16 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
   ck('when the budget is spent the note says so instead of counting "held back"', /q\.newBudget === 0/.test(note) && /started today/.test(note) && /resume tomorrow/.test(note));
   const start = html.slice(html.indexOf('window.srsStartSession = function(extra, only)'), html.indexOf('window.srsResumeSession'));
   ck('srsStartSession honours `only` for each kind', /only === 'new' \? q\.newItems/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+
+  /* "+N new today": past the limit for one local date only, and it counts */
+  ck('settings read the per-day extra and its date', /extraNew:\s+\(r && r\.extra_new\)/.test(html) && /extraNewDate: \(r && r\.extra_new_date\)/.test(html));
+  ck('settings write them back', /extra_new:\s+next\.extraNew \|\| 0/.test(html) && /extra_new_date:\s+next\.extraNewDate \|\| null/.test(html));
+  ck('the extra applies only when its date is today (local)', /return st\.extraNewDate === localDateStr\(now\) \? \(Number\(st\.extraNew\) \|\| 0\) : 0;/.test(html));
+  ck('queueFor budgets against the effective limit, not the bare setting', /newCardsPerDay: effectiveNewLimit\(st, now\)/.test(qf));
+  ck('srsMoreNew adds to today\'s extra and stamps today\'s date', /next\.extraNew = extraNewToday\(next, now\) \+ /.test(html) && /next\.extraNewDate = localDateStr\(now\);/.test(html));
+  ck('the panel offers +5 / +10 / +20 wherever new cards are being held back', /\[5,10,20\]\.map/.test(html.slice(html.indexOf('function budgetNote('), html.indexOf('function renderDeckPanel('))));
+  const mig = fs.readFileSync(new URL('../../supabase/migrations/20260914_extra_new_today.sql', import.meta.url), 'utf8');
+  ck('the migration adds the two columns additively with a safe default', /add column if not exists extra_new int not null default 0/.test(mig) && /add column if not exists extra_new_date date/.test(mig));
 }
 
 /* ── 18. per-lecture progress ────────────────────────────────────────── */
