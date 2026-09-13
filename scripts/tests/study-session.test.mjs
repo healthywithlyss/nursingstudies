@@ -304,17 +304,159 @@ console.log('\nextra study does not corrupt real intervals');
 }
 
 /* ── 11. waiting ─────────────────────────────────────────────────────── */
-console.log('\nwaiting for a step');
+console.log('\nwaiting for a step: the interval on the button is real');
 {
   const s = SS.create({ items: [newCard()], now: NOW });
-  const id = s.next(NOW).id;
+  const id = s.serve(NOW).id;
   s.answer(id, GOOD, NOW);                      /* due in 10 minutes */
-  ck('with nothing else to do it shows the card early rather than a blank wait',
-    s.next(NOW + 60000) !== null, s.next(NOW + 60000));
+  ck('with nothing else to do it does NOT show the card it just rated early',
+    s.serve(NOW + 60000) === null, s.serve(NOW + 60000));
   ck('and it can say how long until it is properly due',
     s.waitMs(NOW + 60000) > 8 * MIN && s.waitMs(NOW + 60000) <= 9 * MIN,
     s.waitMs(NOW + 60000));
-  ck('no wait once the moment has passed', s.waitMs(NOW + 11 * MIN) === 0);
+  ck('the user may choose to drill ahead', s.serve(NOW + 60000, { ahead: true }) !== null
+    && s.serve(NOW + 60000, { ahead: true }).id === id);
+  const s2 = SS.create({ items: [newCard()], now: NOW });
+  const id2 = s2.serve(NOW).id;
+  s2.answer(id2, AGAIN, NOW);
+  ck('once its minute is up it comes back on its own', s2.serve(NOW + 61000) !== null && s2.serve(NOW + 61000).id === id2);
+  ck('no wait once the moment has passed', s2.waitMs(NOW + 11 * MIN) === 0);
+  ck('the session is still not complete while it waits', s2.isComplete() === false);
+  ck('the served log marks the return as a repeat that was on time',
+    s2.served.length === 2 && s2.served[1].repeat === true && s2.served[1].early === false, s2.served);
+}
+
+/* ── 12. the rating lands on the card that was read ──────────────────── */
+console.log('\na rating belongs to the card on screen, not to whichever learning card came due meanwhile');
+{
+  /* Reconstructed from a real session on 2026-09-13: card A rated Again, card
+     B put on screen, and a minute later the rating meant for B was applied to
+     A because the rating path asked next() again at press time. B then stayed
+     on screen, which looked exactly like "the card I just rated came back". */
+  const A = newCard(), B = newCard(), C = newCard();
+  const s = SS.create({ items: [A, B, C], now: NOW });
+  ck('A is served first', s.serve(NOW).id === A.id);
+  s.answer(A.id, AGAIN, NOW);                          /* A due at NOW+1m */
+  const onScreen = s.serve(NOW + 1000);
+  ck('B goes on screen while A waits its minute', onScreen.id === B.id, onScreen.id);
+  const press = NOW + 70000;                           /* she reads B for 70 s: A is now due */
+  ck('by press time A has come due, so a naive next() would hand it the rating',
+    s.next(press).id === A.id, s.next(press) && s.next(press).id);
+  ck('but the card on screen is still B', s.current === B.id && s.currentAnswered === false);
+  const before = JSON.stringify(s.cards[A.id]);
+  s.answer(s.current, GOOD, press);
+  ck('the rating changed B', s.cards[B.id].reps === 1 && s.cards[B.id].last_review === press, s.cards[B.id]);
+  ck('and left A exactly as it was', JSON.stringify(s.cards[A.id]) === before);
+  const after = s.serve(press);
+  ck('A, now due, is the next card — B is not shown twice', after.id === A.id, after.id);
+  ck('the served log reads A, B, A', s.served.map((e) => e.id).join(',') === [A.id, B.id, A.id].join(','), s.served.map((e) => e.id));
+  ck('no consecutive repeat in the log', SS.repeatIn(s.served) === null, SS.repeatIn(s.served));
+}
+
+/* ── 13. never the same card twice in a row ──────────────────────────── */
+console.log('\nnever the same card twice in a row while anything else is available');
+{
+  /* Again on the first card of a deck of three: the other two come first */
+  const s = SS.create({ items: [newCard(), newCard(), newCard()], now: NOW });
+  const a = s.serve(NOW).id; s.answer(a, AGAIN, NOW);
+  const b = s.serve(NOW + 2000).id;
+  ck('Again is not followed by the same card', b !== a, { a, b });
+  s.answer(b, AGAIN, NOW + 2000);
+  const c = s.serve(NOW + 4000).id;
+  ck('nor is the second Again', c !== b && c !== a, { a, b, c });
+  s.answer(c, GOOD, NOW + 4000);                    /* c due in 10 min; a due at +1m, b at +1m2s */
+  const d = s.serve(NOW + 6000);
+  ck('with only early learning cards left, the earliest OTHER card is shown ahead of time',
+    d.id === a && d.id !== c, d && d.id);
+  ck('and the log says it was early and not a repeat', s.served[3].early === true && s.served[3].repeat === false, s.served[3]);
+
+  /* Random sessions: sizes 1..8, random ratings and think times, with the
+     countdown modelled (advance to waitMs when serve() says wait). */
+  let seed = 20260913;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+  let sessions = 0, serves = 0, waits = 0, offenders = [], nonTerminating = 0, notOnScreen = 0;
+  for (let n = 1; n <= 8; n++) for (let k = 0; k < 40; k++) {
+    const items = Array.from({ length: n }, () => (rnd() < 0.3 ? reviewCard() : newCard()));
+    const s = SS.create({ items, now: NOW });
+    let t = NOW, guard = 0;
+    const leftAtServe = [];                        /* cards unfinished when each serve happened */
+    while (!s.isComplete() && guard++ < 3000) {
+      const card = s.serve(t);
+      if (card && s.served.length > leftAtServe.length) leftAtServe.push(s.remaining().length);
+      if (!card) {
+        const w = s.waitMs(t);
+        if (w <= 0) { break; }
+        waits++; t += w; continue;                  /* the countdown ran out */
+      }
+      t += 3000 + Math.floor(rnd() * 90000);      /* she reads for 3-93 s */
+      if (s.current !== card.id) notOnScreen++;
+      const r = rnd(); const rating = r < 0.3 ? AGAIN : r < 0.45 ? HARD : r < 0.9 ? GOOD : EASY;
+      s.answer(s.current, rating, t);
+    }
+    sessions++; serves += s.served.length;
+    if (!s.isComplete()) nonTerminating++;
+    const bad = SS.repeatIn(s.served);
+    if (bad) offenders.push({ n, k, bad });
+    /* the strict form of the assertion, independent of the log's own flags:
+       the same id in two consecutive positions is allowed only when it was
+       the ONLY unfinished card at that moment, and it was on time */
+    for (let i = 1; i < s.served.length; i++) if (s.served[i].id === s.served[i - 1].id) {
+      if (leftAtServe[i] !== 1 || s.served[i].early) offenders.push({ n, k, i, strict: true, left: leftAtServe[i], early: s.served[i].early });
+    }
+    /* and every early serve was of a card other than the one just answered, or an explicit drill-ahead */
+    for (let i = 1; i < s.served.length; i++) {
+      const e = s.served[i];
+      if (e.early && e.repeat && !e.ahead) offenders.push({ n, k, i, earlyRepeat: e });
+    }
+  }
+  ck(`${sessions} random sessions, ${serves} serves, ${waits} countdowns: every session terminated`, nonTerminating === 0, nonTerminating);
+  ck('THE ASSERTION: no card id was served in two consecutive positions while any other card was unfinished, and a lone card only came back on time',
+    offenders.length === 0, offenders.slice(0, 3));
+  ck('the card answered was always the card on screen', notOnScreen === 0, notOnScreen);
+}
+
+/* ── 14. undo and resume keep the screen honest ──────────────────────── */
+console.log('\nundo and resume keep track of what is on screen');
+{
+  const A = newCard(), B = newCard();
+  const s = SS.create({ items: [A, B], now: NOW });
+  s.serve(NOW); s.answer(A.id, AGAIN, NOW);
+  s.serve(NOW + 1000);
+  ck('B is on screen after A', s.current === B.id);
+  s.undo();
+  ck('undo puts A back as the unanswered card on screen', s.current === A.id && s.currentAnswered === false, [s.current, s.currentAnswered]);
+  ck('and forgets the serve of B', s.served.length === 1 && s.served[0].id === A.id, s.served);
+  ck('so A is served again', s.serve(NOW + 1000).id === A.id);
+
+  s.answer(A.id, AGAIN, NOW + 1000);
+  s.serve(NOW + 2000);
+  const back = SS.restore(JSON.parse(JSON.stringify(s.toJSON())), [A, B], { now: NOW + 2000 });
+  ck('a restored session knows what was on screen', back.current === B.id && back.currentAnswered === false, [back.current, back.currentAnswered]);
+  ck('and keeps the served log', back.served.length === s.served.length && back.served[1].id === B.id, back.served);
+  const aBefore = JSON.stringify(back.cards[A.id]);
+  back.answer(back.current, GOOD, NOW + 3000);
+  ck('after the restore the rating still goes to the card on screen',
+    back.cards[B.id].reps === 1 && JSON.stringify(back.cards[A.id]) === aBefore, [back.cards[B.id].reps, back.cards[A.id]]);
+}
+
+/* ── 15. the page uses serve() and rates the card on screen ─────────── */
+console.log('\nindex.html: the rating path never asks next() at press time');
+{
+  const fs = await import('node:fs');
+  const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+  const rate = html.slice(html.indexOf('window.srsRate = function'), html.indexOf('function persistCard('));
+  ck('srsRate exists', rate.length > 20);
+  ck('srsRate does not call SESS.next()', !/SESS\.next\(/.test(rate));
+  ck('srsRate answers SESS.current', /SESS\.answer\(card\.id/.test(rate) && /SESS\.items\[SESS\.current\]/.test(rate));
+  ck('srsRate refuses to rate when nothing is on screen or it was already rated', /SESS\.current == null \|\| SESS\.currentAnswered/.test(rate));
+  const paint = html.slice(html.indexOf('function paintSession('), html.indexOf('function decorate('));
+  ck('paintSession serves through SESS.serve()', /SESS\.serve\(now, opts\)/.test(paint));
+  ck('when nothing else is available it shows the countdown, not the card', /if\(SESS\.waitMs\(now\) > 0\)\{ showWait\(\)/.test(paint));
+  ck('no SESS.next() call site is left anywhere in the page', (html.match(/SESS\.next\(/g) || []).length === 0, (html.match(/SESS\.next\(/g) || []).length);
+  ck('the countdown offers drill-ahead', /srsDrillAhead\(\)/.test(html) && /paintSession\(\{ahead:true\}\)/.test(html));
+  const wait = html.slice(html.indexOf('function showWait('), html.indexOf('function clearWait('));
+  ck('while waiting there is no card to flip, so a tap cannot reveal the last answer', /fcCurrentCard = null; fcFlipped = false;/.test(wait));
+  ck('while waiting the rating buttons are disabled', /\['btn-missed','btn-unsure','btn-got','btn-easy'\]\.forEach\(function\(id\)\{\s*var b = \$\(id\); if\(b\) b\.disabled = true;/.test(wait));
 }
 
 /* ── the session honours an injected clamp ───────────────────────────── */

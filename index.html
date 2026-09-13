@@ -1455,6 +1455,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-empty-q b{font-weight:800}
 .srs-done{text-align:center;padding:18px 14px;font-size:13.5px;line-height:1.6}
 .srs-done b{display:block;font-size:16px;font-weight:800;margin-bottom:4px}
+.srs-wait #srs-wait-count{font-variant-numeric:tabular-nums}
+.srs-wait .srs-btn{margin-top:10px}
 
 /* Four thumb-sized buttons with real space between them. Two lines each: the
    grade, and what pressing it costs. The gap is deliberate — these get tapped
@@ -13254,6 +13256,13 @@ window.srsSyncRatingButtons = syncRatingButtons;
    ══════════════════════════════════════════════════════════════════════ */
 
 var SESS = null;               /* the live StudySession */
+/* Read-only window on the live session for audits and the harness: which
+   card is on screen, and every card served with its due and served times. */
+window.srsDebug = function(){
+  return SESS ? { current: SESS.current, currentAnswered: SESS.currentAnswered,
+    served: SESS.served, dueAt: SESS.dueAt, learning: SESS.learning, doneIds: SESS.doneIds,
+    remaining: SESS.remaining().length } : null;
+};
 var deckSel = null;            /* selected objective ids, null = all */
 var lastOutcome = null;
 var sessionTimer = null;
@@ -13525,6 +13534,7 @@ window.srsStartSession = function(extra){
 window.srsResumeSession = function(){ window.goTo('practice'); paintSession(); };
 
 window.srsEndSession = function(){
+  clearWait();
   SESS = null; lastOutcome = null;
   try{ localStorage.removeItem(sessionKey()); }catch(e){}
   clearInterval(sessionTimer); sessionTimer = null;
@@ -13564,12 +13574,21 @@ function restoreSession(){
 }
 
 /* ── painting a card ────────────────────────────────────────────────── */
-function paintSession(){
+function paintSession(opts){
   if(!SESS) { renderDeckPanel(); return; }
   var now = Date.now();
+  clearWait();
   if(SESS.isComplete()){ finishSession(); return; }
-  var card = SESS.next(now);
-  if(!card){ finishSession(); return; }
+  /* serve(), not next(): the session remembers which card is on screen, and
+     that is the card a rating is applied to. It also never hands back the
+     card just rated while anything else is available. */
+  var card = SESS.serve(now, opts);
+  if(!card){
+    /* the only card left is the one just rated, and its interval is not up:
+       wait it out visibly rather than show the answer she was just reading */
+    if(SESS.waitMs(now) > 0){ showWait(); return; }
+    finishSession(); return;
+  }
   var full = (window.fcAllCards||[]).filter(function(c){ return c.id === card.id; })[0];
   if(!full){
     /* the deck has not loaded yet; try again shortly rather than showing an
@@ -13683,6 +13702,47 @@ function renderRunway(anyCompressed, now){
     + '</b><span>' + esc2(why) + '</span>';
 }
 
+/* Nothing else to show and the last card's minute is not up. A countdown on
+   the card, and the choice to drill ahead anyway — the interval on the button
+   is real unless she decides otherwise. */
+var waitTimer = null;
+function showWait(){
+  /* the legacy flip reveals fcCurrentCard; with nothing on screen there is
+     nothing to reveal — least of all the answer she was just reading */
+  fcCurrentCard = null; fcFlipped = false;
+  var t = $('fc-card-text'); if(t) t.textContent = 'Nothing else is due yet.'; if(t) t.className = 'fc-q-text';
+  var lbl = $('fc-card-label'); if(lbl){ lbl.textContent = 'Waiting'; lbl.className = 'fc-card-label'; }
+  var hint = $('fc-flip-hint'); if(hint) hint.style.display = 'none';
+  var hist = $('fc-history'); if(hist){ hist.className='fc-history'; hist.textContent=''; }
+  ['btn-missed','btn-unsure','btn-got','btn-easy'].forEach(function(id){
+    var b = $(id); if(b) b.disabled = true;
+  });
+  var box = $('fc-summary');
+  if(box){
+    box.style.display = '';
+    box.setAttribute('data-wait', '1');
+    box.innerHTML = '<div class="srs-done srs-wait"><b>Next card in <span id="srs-wait-count"></span></b>'
+      + '<div>That is the card you just rated — the only one left this round. '
+      + 'It comes back when its interval is up, so what you see is recall, not the answer you were just reading.</div>'
+      + '<button class="srs-btn srs-btn-ghost" onclick="srsDrillAhead()">Show it now</button></div>';
+  }
+  var tick = function(){
+    if(!SESS){ clearWait(); return; }
+    var ms = SESS.waitMs(Date.now());
+    var c = $('srs-wait-count');
+    if(c){ var sec = Math.ceil(ms/1000); c.textContent = Math.floor(sec/60) + ':' + ('0'+(sec%60)).slice(-2); }
+    if(ms <= 0){ paintSession(); }
+  };
+  tick();
+  waitTimer = setInterval(tick, 1000);
+}
+function clearWait(){
+  if(waitTimer){ clearInterval(waitTimer); waitTimer = null; }
+  var box = $('fc-summary');
+  if(box && box.getAttribute('data-wait')){ box.removeAttribute('data-wait'); box.style.display = 'none'; box.innerHTML = ''; }
+}
+window.srsDrillAhead = function(){ paintSession({ahead:true}); };
+
 /* A learning card can come due while she is looking at another one. */
 function scheduleTick(){
   clearInterval(sessionTimer);
@@ -13696,9 +13756,12 @@ function scheduleTick(){
 }
 
 window.srsRate = function(rating){
-  if(!SESS) return;
+  /* The rating belongs to the card on screen — SESS.current, set when it was
+     served — and to nothing else. Asking next() here instead would hand the
+     rating to whichever learning card came due while she was reading. */
+  if(!SESS || SESS.current == null || SESS.currentAnswered) return;
   var now = Date.now();
-  var card = SESS.next(now);
+  var card = SESS.items[SESS.current];
   if(!card) return;
   var out = SESS.answer(card.id, rating, now);
   lastOutcome = out;
@@ -13769,6 +13832,7 @@ window.srsUndo = function(){
 };
 
 function finishSession(){
+  clearWait();
   clearInterval(sessionTimer); sessionTimer = null;
   var p = SESS ? SESS.progress() : {answered:0,total:0};
   var mode = SESS ? SESS.mode : 'scheduled';
