@@ -1442,14 +1442,18 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 
 /* Queue counts. Anki's three colours — new blue, learning red, due green —
    each with its word underneath, so the state never rides on colour alone. */
-.srs-qc{display:flex;gap:18px;margin-bottom:11px}
-.srs-qc-i{display:flex;flex-direction:column;line-height:1.15}
+.srs-qc{display:flex;gap:18px;margin-bottom:11px;flex-wrap:wrap}
+.srs-qc-i{display:flex;flex-direction:column;line-height:1.15;font:inherit;background:none;
+  border:0;padding:0;text-align:left;cursor:pointer;border-radius:8px}
+.srs-qc-i:disabled{cursor:default;opacity:.55}
+.srs-qc-i:not(:disabled):hover b{text-decoration:underline}
 .srs-qc-i b{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}
 .srs-qc-i span{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;
   letter-spacing:.05em;font-weight:700}
 .srs-qc-i.new b{color:var(--cobalt)}
 .srs-qc-i.learn b{color:var(--missed)}
 .srs-qc-i.due b{color:var(--got)}
+.srs-qc-i.done b{color:var(--text-muted)}
 .srs-note{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-top:8px}
 .srs-empty-q{font-size:13px;color:var(--text);line-height:1.6;padding:6px 0 2px}
 .srs-empty-q b{font-weight:800}
@@ -12347,7 +12351,7 @@ function loadAll(){
       +'auto_generated,source_question_id&course=eq.'+course).then(j),
     window.sbFetch('/rest/v1/quiz_questions?select=id,objective_id&'+quizFilterForCourse()).then(j),
     window.sbFetch('/rest/v1/card_mastery?select=card_id,state,stability,difficulty,due_date,'
-      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step&user_id=eq.'+uid).then(j),
+      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,introduced_at&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/question_mastery?select=question_id,state,stability,difficulty,due_date,'
       +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,retired_at&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
@@ -12491,7 +12495,9 @@ function toItem(kind, id, objectiveIds, row){
     repetitions: row ? (row.repetitions||0) : 0,
     lapses: row ? (row.lapses||0) : 0,
     learning_step: row && row.learning_step != null ? row.learning_step : null,
-    interval_days: row ? (row.interval_days||0) : 0
+    interval_days: row ? (row.interval_days||0) : 0,
+    /* first shown, for the daily new-card budget */
+    introduced_at: row && row.introduced_at ? Date.parse(row.introduced_at) : null
   };
 }
 
@@ -13306,23 +13312,19 @@ function deckObjectives(){
   });
 }
 
-/* What a session over the current selection would contain. New cards are
-   capped by the daily setting; due and learning are never capped, because a
-   card that is due is due. */
+/* Local midnight: the day's budget resets when her day does, not at UTC. */
+function dayStartMs(now){ var d = new Date(now); d.setHours(0,0,0,0); return d.getTime(); }
+
+/* What a session over the current selection would contain. The rule lives in
+   StudySession.todayQueue: new cards are budgeted per DAY against the whole
+   course (so a lecture chip does not grant a fresh 30), learning and due are
+   never capped, and done is what was finished today. */
 function queueFor(items, now){
   var st = currentSettings();
-  var newOnes = [], learning = [], due = [];
-  items.forEach(function(i){
-    if(window.StudySession.isNewItem(i)) newOnes.push(i);
-    else if(i.state === 'learning' || i.state === 'relearning') learning.push(i);
-    else if(i.due_date != null && i.due_date <= now) due.push(i);
+  var all = (plan && plan._items ? plan._items : []).filter(function(i){ return i.kind === 'card'; });
+  return window.StudySession.todayQueue(items, {
+    now: now, dayStart: dayStartMs(now), newCardsPerDay: st.newCardsPerDay, all: all
   });
-  return {
-    newItems: newOnes.slice(0, st.newCardsPerDay),
-    newAvailable: newOnes.length,
-    learning: learning,
-    due: due.sort(function(a,b){ return a.due_date - b.due_date; })
-  };
 }
 
 /* When is the next card in this selection actually wanted? */
@@ -13337,6 +13339,25 @@ function nextDueMs(items, now){
 }
 
 /* ── the deck panel ─────────────────────────────────────────────────── */
+/* The line under the buttons about new cards. When the day's budget is
+   spent it says so — "held back" was how a spent budget used to read as a
+   fresh 30 every visit. */
+function budgetNote(q){
+  var limit = currentSettings().newCardsPerDay;
+  if(!q.newAvailable) return '';
+  if(q.newBudget === 0){
+    return '<div class="srs-note">'+q.introducedToday+' new card'+(q.introducedToday===1?'':'s')
+      + ' started today — your limit is '+limit+'/day, so new cards resume tomorrow. '
+      + 'Extra study ignores the limit.</div>';
+  }
+  if(q.newAvailable > q.newItems.length){
+    return '<div class="srs-note">'+(q.newAvailable-q.newItems.length)+' more new card'
+      + (q.newAvailable-q.newItems.length===1?'':'s')+' held back by your '+limit+'/day limit'
+      + (q.introducedToday ? ' ('+q.introducedToday+' started today)' : '')+'.</div>';
+  }
+  return '';
+}
+
 function renderDeckPanel(){
   var host = $('srs-deck-panel');
   if(!host) return;
@@ -13371,10 +13392,18 @@ function renderDeckPanel(){
       + esc2(o.id)+'\')">'+esc2(o.id)+' <span>'+o.count+'</span></button>';
   }).join('');
 
+  /* Every number is a door: tap it to study just that kind. Done is extra
+     study — re-drilling today's finished cards must not reschedule them. */
+  var tile = function(cls, n, label, extra, only){
+    return '<button class="srs-qc-i '+cls+'" '+(n ? '' : 'disabled ')
+      + 'onclick="srsStartSession('+(extra?'true':'false')+',\''+only+'\')" title="Study only these">'
+      + '<b>'+n+'</b><span>'+label+'</span></button>';
+  };
   var counts = '<div class="srs-qc">'
-    + '<div class="srs-qc-i new"><b>'+q.newItems.length+'</b><span>new</span></div>'
-    + '<div class="srs-qc-i learn"><b>'+q.learning.length+'</b><span>learning</span></div>'
-    + '<div class="srs-qc-i due"><b>'+q.due.length+'</b><span>due</span></div>'
+    + tile('new',   q.newItems.length, 'new',        false, 'new')
+    + tile('learn', q.learning.length, 'learning',   false, 'learning')
+    + tile('due',   q.due.length,      'due',        false, 'due')
+    + tile('done',  q.done.length,     'done today', true,  'done')
     + '</div>';
 
   var total = q.newItems.length + q.learning.length + q.due.length;
@@ -13403,17 +13432,13 @@ function renderDeckPanel(){
         + (total===1?'':'s')+'</button>'
       + '<button class="srs-btn srs-btn-ghost" onclick="srsStartSession(true)">Extra study</button>'
       + '</div>'
-      + (q.newAvailable > q.newItems.length
-          ? '<div class="srs-note">'+(q.newAvailable-q.newItems.length)+' more new card'
-            + (q.newAvailable-q.newItems.length===1?'':'s')+' held back by your '
-            + currentSettings().newCardsPerDay+'/day limit.</div>'
-          : '')
+      + budgetNote(q)
       + (q.due.length ? '' : '<div class="srs-note">Nothing overdue — this is new material '
           + 'and anything still in learning.</div>');
   } else {
     /* never a blank screen: say when the next card is actually wanted */
     var nd = nextDueMs(items, now);
-    body = '<div class="srs-empty-q"><b>Nothing due right now.</b><br>'
+    body = budgetNote(q) + '<div class="srs-empty-q"><b>Nothing due right now.</b><br>'
       + (nd === null
           ? (items.length
               ? 'Everything in this selection is scheduled beyond today.'
@@ -13511,18 +13536,25 @@ function sessionOpts(now, st, extra){
   };
 }
 
-window.srsStartSession = function(extra){
+window.srsStartSession = function(extra, only){
   if(!fsrsPractice() || !plan) return;
   var now = Date.now();
   var st = currentSettings();
   var items = deckItems();
+  /* `only` narrows the session to one kind: new, learning, due, or done
+     (today's finished cards, always extra study so nothing is rescheduled). */
+  if(only === 'done') extra = true;
   var opts = sessionOpts(now, st, extra);
-  if(extra){
+  if(extra && only !== 'done'){
     opts.items = items.slice();
   } else {
     var q = queueFor(items, now);
     /* learning first, then what is due, then new material */
-    opts.items = q.learning.concat(q.due, q.newItems);
+    opts.items = only === 'new' ? q.newItems.slice()
+      : only === 'learning' ? q.learning.slice()
+      : only === 'due' ? q.due.slice()
+      : only === 'done' ? q.done.slice()
+      : q.learning.concat(q.due, q.newItems);
   }
   if(!opts.items.length) return;
   SESS = window.StudySession.create(opts);
@@ -13782,6 +13814,8 @@ window.srsRate = function(rating){
 function persistCard(item, out, logAttempt){
   if(!window.currentUser) return;
   var c = out.card;
+  /* decided before the item is mutated below */
+  var wasNew = window.StudySession.isNewItem(item);
   var row = {
     card_id: item.id, user_id: window.currentUser.id,
     state: c.state, learning_step: c.step == null ? null : c.step,
@@ -13790,6 +13824,7 @@ function persistCard(item, out, logAttempt){
     last_reviewed_at: new Date(c.last_review).toISOString(),
     interval_days: c.interval_days, repetitions: c.reps, lapses: c.lapses
   };
+  if(wasNew){ row.introduced_at = new Date(c.last_review).toISOString(); item.introduced_at = c.last_review; }
   fsrsRows.card[item.id] = row;
   /* keep the item the plan holds in step, so the counts do not lie */
   item.state = c.state; item.stability = c.stability; item.difficulty = c.difficulty;
