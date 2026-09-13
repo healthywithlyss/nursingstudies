@@ -523,13 +523,19 @@ console.log('\ncompressing intervals into the time that is left');
   ck('they land on FOUR different days, not all on exam minus one',
     new Set([1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 4,
     [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('roughly 2 / 4 / 10 days rather than 2mo / 3mo / 4mo — a 15-day sweep '
-   + 'leaves a 20-day runway, so the ladder is tighter than it was at 7',
-    Math.round(got[2].ms / DAY) === 2 && Math.round(got[3].ms / DAY) === 4
-    && Math.round(got[4].ms / DAY) === 10,
+  /* A strong card — this one wants two to four months — lands near the END
+     of the runway, because it is strong. The old squared shape put it on days
+     2/4/10 instead, which looked like a nicely spread ladder until you noticed
+     that a card at stability 2 got the same 2/4/10: the shape was per card and
+     divided out how well the card was known. Now the ladder is compressed
+     but the card's strength is not thrown away. */
+  ck('a strong card lands in the back half of the runway, not the front',
+    got[2].ms > 10 * DAY && got[4].ms <= 20 * DAY,
     [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('the longest leaves room for another review before the sweep',
-    got[4].ms <= (20 / 2 + 0.5) * DAY, got[4].ms / DAY);
+  ck('and a WEAK card wanting six days lands well before it',
+    ES.compressToRunway(6 * DAY, 8 * DAY, exam, NOW).ms < got[2].ms,
+    { weak: ES.compressToRunway(6 * DAY, 8 * DAY, exam, NOW).ms / DAY,
+      strongHard: got[2].ms / DAY });
   ck('each says whether it was compressed',
     got[2].compressed && got[3].compressed && got[4].compressed && !got[1].compressed,
     [1, 2, 3, 4].map((r) => got[r].compressed));
@@ -617,11 +623,18 @@ console.log('\nthe ladder keeps its shape inside the sweep window too');
   const raw = { 2: 64 * DAY, 3: 86 * DAY, 4: 135 * DAY };
   const got = {};
   [2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], raw[4], soon, NOW); });
-  ck('Hard, Good and Easy do NOT all collapse onto the last day',
-    new Set([2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 3,
-    [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('ordering holds', got[2].ms < got[3].ms && got[3].ms < got[4].ms,
+  /* Four days of window and a card that wants months: the three buttons
+     cannot each own a whole day. They are still strictly ordered in time, and
+     none of them is pushed to the last day — that was the collapse. */
+  ck('Hard, Good and Easy do NOT collapse onto the last day',
+    [2, 3, 4].every((r) => got[r].ms < 4 * DAY),
     [2, 3, 4].map((r) => got[r].ms / DAY));
+  ck('ordering holds, strictly, in time', got[2].ms < got[3].ms && got[3].ms < got[4].ms,
+    [2, 3, 4].map((r) => got[r].ms / DAY));
+  /* and the thing that matters inside a sweep: a weak card comes first */
+  const weakInSweep = ES.compressToRunway(2 * DAY, 3 * DAY, soon, NOW);
+  ck('a card wanting two days comes back before a card wanting months',
+    weakInSweep.ms < got[2].ms, { weak: weakInSweep.ms / DAY, strong: got[2].ms / DAY });
   ck('and nothing lands on or after the exam',
     [2, 3, 4].every((r) => got[r].ms < 5 * DAY), [2, 3, 4].map((r) => got[r].ms / DAY));
 }
