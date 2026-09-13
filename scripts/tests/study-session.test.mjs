@@ -459,6 +459,75 @@ console.log('\nindex.html: the rating path never asks next() at press time');
   ck('while waiting the rating buttons are disabled', /\['btn-missed','btn-unsure','btn-got','btn-easy'\]\.forEach\(function\(id\)\{\s*var b = \$\(id\); if\(b\) b\.disabled = true;/.test(wait));
 }
 
+/* ── 16. the daily new-card budget ──────────────────────────────────── */
+console.log('\nnew cards are budgeted per day, not per session');
+{
+  /* Reconstructed from a real panel on 2026-09-13: 36 new cards started that
+     day against a 30/day limit, and the panel still offered 30 more, because
+     the cap was applied to the never-seen cards afresh on every render. */
+  const day = Date.parse('2026-09-13T04:00:00Z');        /* local midnight */
+  const now = day + 14 * 3600000;
+  const startedToday = (n, over) => Array.from({ length: n }, () => newCard(Object.assign({
+    state: 'review', introduced_at: now - 3 * 3600000, last_reviewed_at: now - 3600000,
+    due_date: now + DAY, repetitions: 3 }, over)));
+  const unseen = Array.from({ length: 196 }, () => newCard());
+  const learning = startedToday(11, { state: 'learning', due_date: now - 60000, learning_step: 1 });
+  /* 24 graduated, 11 in learning, 1 rated but its scheduling write was lost */
+  const lostOne = newCard({ introduced_at: now - 60000 });
+  const items = [...startedToday(24), ...learning, lostOne, ...unseen];
+  const q = SS.todayQueue(items, { now, dayStart: day, newCardsPerDay: 30, all: items });
+  ck('36 introduced today are counted', q.introducedToday === 36, q.introducedToday);
+  ck('so the new budget is 0, not 30', q.newBudget === 0 && q.newItems.length === 0, [q.newBudget, q.newItems.length]);
+  ck('the unseen cards are still reported as available (196 never seen + the one whose write was lost)', q.newAvailable === 197, q.newAvailable);
+  ck('learning is never capped', q.learning.length === 11, q.learning.length);
+  ck('nothing due: the 24 graduated today are scheduled for tomorrow', q.due.length === 0, q.due.length);
+  ck('and those 24 are "done today"', q.done.length === 24, q.done.length);
+
+  const q2 = SS.todayQueue(items, { now, dayStart: day, newCardsPerDay: 50, all: items });
+  ck('with a 50/day limit, 14 more new cards are offered (50 - 36)', q2.newBudget === 14 && q2.newItems.length === 14, [q2.newBudget, q2.newItems.length]);
+
+  /* the budget spans the course, not the selection */
+  const l2 = Array.from({ length: 10 }, () => newCard({ objectiveIds: ['N144_L2'] }));
+  const q3 = SS.todayQueue(l2, { now, dayStart: day, newCardsPerDay: 30, all: [...items, ...l2] });
+  ck('selecting another lecture does not grant a fresh 30', q3.newBudget === 0 && q3.newItems.length === 0, q3.newBudget);
+
+  /* yesterday does not count, and a learning card is not done */
+  const y = startedToday(5, { introduced_at: day - 3600000, last_reviewed_at: day - 3600000, due_date: now + DAY });
+  const q4 = SS.todayQueue([...y, ...unseen], { now, dayStart: day, newCardsPerDay: 30, all: [...y, ...unseen] });
+  ck('cards introduced yesterday do not use today\'s budget', q4.introducedToday === 0 && q4.newBudget === 30, [q4.introducedToday, q4.newBudget]);
+  ck('cards reviewed yesterday and due tomorrow are neither due nor done today', q4.due.length === 0 && q4.done.length === 0, [q4.due.length, q4.done.length]);
+  const q5 = SS.todayQueue(learning, { now, dayStart: day, newCardsPerDay: 30, all: learning });
+  ck('a card still in learning is not done', q5.done.length === 0 && q5.learning.length === 11);
+
+  /* a card rated but whose scheduling write was lost (state new, introduced today) */
+  const lost = newCard({ introduced_at: now - 60000 });
+  const q6 = SS.todayQueue([lost], { now, dayStart: day, newCardsPerDay: 30, all: [lost] });
+  ck('it counts as introduced today and is offered again as new', q6.introducedToday === 1 && q6.newItems.length === 1);
+}
+
+/* ── 17. index.html: the panel uses the budget and every tile is a door ── */
+console.log('\nindex.html: daily budget wired through, tiles start a session of just that kind');
+{
+  const fs = await import('node:fs');
+  const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+  ck('the mastery loader fetches introduced_at', /card_mastery\?select=card_id,state,[\s\S]{0,200}?learning_step,introduced_at&user_id/.test(html));
+  ck('toItem carries introduced_at as ms', /introduced_at: row && row\.introduced_at \? Date\.parse\(row\.introduced_at\) : null/.test(html));
+  const qf = html.slice(html.indexOf('function queueFor('), html.indexOf('function nextDueMs('));
+  ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\(items, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
+  ck('the day starts at LOCAL midnight', /setHours\(0,0,0,0\)/.test(html.slice(html.indexOf('function dayStartMs('), html.indexOf('function dayStartMs(') + 200)));
+  const pc = html.slice(html.indexOf('function persistCard('), html.indexOf('function rating2legacy('));
+  ck('the first real rating stamps introduced_at, and only the first', /var wasNew = window\.StudySession\.isNewItem\(item\);/.test(pc) && /if\(wasNew\)\{[^}]*row\.introduced_at = /.test(pc));
+  const panel = html.slice(html.indexOf('function renderDeckPanel('), html.indexOf('function srsToggleDeck'));
+  ck('a tile is a button that starts a session of only its kind', /var tile = function\(cls, n, label, extra, only\)/.test(panel) && /onclick="srsStartSession\('\+\(extra\?'true':'false'\)\+',\\''\+only\+'\\'\)"/.test(panel));
+  ck('new, learning and due tiles start SCHEDULED sessions', /tile\('new',\s+q\.newItems\.length,\s+'new',\s+false,\s+'new'\)/.test(panel)
+    && /tile\('learn', q\.learning\.length, 'learning',\s+false, 'learning'\)/.test(panel) && /tile\('due',\s+q\.due\.length,\s+'due',\s+false, 'due'\)/.test(panel));
+  ck('the done tile is EXTRA study: re-drilling today\'s cards never reschedules them', /tile\('done',\s+q\.done\.length,\s+'done today', true,\s+'done'\)/.test(panel) && /if\(only === 'done'\) extra = true;/.test(html));
+  const note = html.slice(html.indexOf('function budgetNote('), html.indexOf('function renderDeckPanel('));
+  ck('when the budget is spent the note says so instead of counting "held back"', /q\.newBudget === 0/.test(note) && /started today/.test(note) && /resume tomorrow/.test(note));
+  const start = html.slice(html.indexOf('window.srsStartSession = function(extra, only)'), html.indexOf('window.srsResumeSession'));
+  ck('srsStartSession honours `only` for each kind', /only === 'new' \? q\.newItems/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+}
+
 /* ── the session honours an injected clamp ───────────────────────────── */
 console.log('\nthe session schedules through the clamp, not around it');
 {
