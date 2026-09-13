@@ -99,6 +99,15 @@ jobs:
       - name: Replay
         run: node scripts/tests/replay.test.mjs
 
+      # Re-seeds and bulk deletes. A deck rebuild once deleted every student's
+      # attempt history on 145 cards. The migration keeps matched cards' ids so
+      # history carries over, archives the rest, and refuses to delete more
+      # than a handful of cards without a snapshot. CI has no Postgres, so this
+      # pins the migration's source: snapshot before write, archive before
+      # delete, six guarded tables, dry run by default, not callable from the app.
+      - name: Reseed and bulk-delete guard
+        run: node scripts/tests/reseed-guard.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
