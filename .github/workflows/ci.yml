@@ -108,6 +108,13 @@ jobs:
       - name: Reseed and bulk-delete guard
         run: node scripts/tests/reseed-guard.test.mjs
 
+      # Registering a course. A course rule written as "everything that is NOT
+      # the other courses" absorbs any new course silently — that is how NUR144
+      # questions landed in the NUR118 bank. Every course must claim its own
+      # prefixes positively, and no negative course filter may exist.
+      - name: Courses
+        run: node scripts/tests/courses.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.

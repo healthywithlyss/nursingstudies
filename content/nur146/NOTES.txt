@@ -1,0 +1,6 @@
+NUR 146 - Adult Health I study guides go here, one markdown file per lecture:
+
+  NUR146_Unit1_Lecture1_StudyGuide.md
+  images/            (diagrams referenced as ![alt](images/name.png))
+
+Then run `node scripts/build-guides-manifest.js` to register them.

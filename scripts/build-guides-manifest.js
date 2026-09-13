@@ -37,6 +37,7 @@ var CONTENT_DIR = path.join(ROOT, 'content');
 var OUT_FILE = path.join(CONTENT_DIR, 'study-guides.json');
 
 var COURSE_META = {
+  NUR146: { label: 'NUR 146', title: 'Adult Health I' },
   NUR144: { label: 'NUR 144', title: 'Medical-Surgical Nursing' },
   NUR118: { label: 'NUR 118', title: 'Fundamentals of Nursing' },
   NUR116: { label: 'NUR 116', title: 'Nursing Concepts' }

@@ -126,8 +126,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
   #user-email{display:none}
   .admin-badge{display:none}
   #logout-btn{padding:5px 10px;font-size:11px}
-  .course-tab{padding:5px 10px;font-size:12px}
-  .course-tab-group{padding:2px}
+  .course-tab{padding:5px 8px;font-size:11.5px}
+  .course-tab-group{padding:2px;flex-shrink:0;margin:0 auto}
+  /* four courses on a phone: the row scrolls rather than clipping the last tab */
+  .course-tabs{overflow-x:auto;justify-content:flex-start;scrollbar-width:none;min-width:0}
+  .course-tabs::-webkit-scrollbar{display:none}
   /* AI chat: lift above bottom nav */
   #ai-chat-btn{bottom:80px}
   #ai-chat-panel{bottom:56px;width:100vw;border-radius:16px 16px 0 0}
@@ -1078,7 +1081,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   #topbar{padding:0 10px;gap:8px}
   .logo{font-size:14px}
   .course-tab-group{gap:2px;padding:2px}
-  .course-tab{padding:5px 8px;font-size:11px}
+  .course-tab{padding:5px 7px;font-size:10.5px}
+  .logo em{display:none}   /* "NUR" alone: the word Study is what the tabs cannot afford */
   #logout-btn{padding:4px 8px;font-size:10px}
 }
 
@@ -1992,6 +1996,7 @@ body.lsn-open #main-content{padding-bottom:80px}
       <button class="course-tab"        id="tab-NUR116" onclick="switchCourse('NUR116')">NUR 116</button>
       <button class="course-tab active" id="tab-NUR118" onclick="switchCourse('NUR118')">NUR 118</button>
       <button class="course-tab"        id="tab-NUR144" onclick="switchCourse('NUR144')">NUR 144</button>
+      <button class="course-tab"        id="tab-NUR146" onclick="switchCourse('NUR146')" title="NUR 146 — Adult Health I" aria-label="NUR 146 — Adult Health I">NUR 146</button>
     </div>
   </div>
   <div class="user-area">
@@ -5487,9 +5492,9 @@ var NUR116_LECTURES_NAV=[
 /* currentNur118Unit retained as no-op for switchCourse compat */
 var currentNur118Unit=1;
 function getSections(){
-  /* NUR144 has no hardcoded sections — its sidebar is the markdown guide's
-     table of contents, rendered by the Study Guides block after renderCtx. */
-  if(currentCourse==='NUR144') return [];
+  /* Guide courses have no hardcoded sections — their sidebar is the markdown
+     guide's table of contents, rendered by the Study Guides block after renderCtx. */
+  if(GUIDE_COURSES.indexOf(currentCourse)>-1) return [];
   if(currentCourse==='NUR116'){
     return (typeof n116State!=='undefined' && n116State.currentTab==='lectures')
       ? NUR116_LECTURES_NAV
@@ -5726,7 +5731,7 @@ function showApp(){
   if(saved&&saved!==currentCourse) switchCourse(saved);
   else{
     /* just make sure the correct tab is highlighted */
-    ['NUR118','NUR116','NUR144'].forEach(function(c){
+    COURSES.forEach(function(c){
       var t=document.getElementById('tab-'+c);
       if(t) t.classList.toggle('active',c===currentCourse);
     });
@@ -5819,6 +5824,15 @@ var fcCycleQueue=[];   /* ordered card list for current cycle */
 var fcCyclePos=0;      /* position within fcCycleQueue */
 
 var currentCourse='NUR118';
+/* THE course list. Every per-course rule below reads from here or from a map
+   keyed by these strings; a course missing from a map is a bug the courses
+   test catches, not something that silently falls through to NUR118. */
+var COURSES=['NUR118','NUR116','NUR144','NUR146'];
+var COURSE_TITLES={NUR116:'Nursing Concepts',NUR118:'Fundamentals of Nursing',
+                   NUR144:'Medical-Surgical Nursing',NUR146:'Adult Health I'};
+/* Courses whose Study Guide pane is the markdown guide library and whose
+   Practice sidebar is that guide's table of contents. */
+var GUIDE_COURSES=['NUR144','NUR146'];
 
 var NUR118_OBJ_GROUPS={
   'NUR118-L1':'Infection Control (L1)','NUR118-L2':'Skin & Wounds (L2)',
@@ -5851,19 +5865,25 @@ var NUR144_OBJ_GROUPS={
   'N144_L2':'Lecture 2 \u2014 Hepatic Disorders',
   'N144_SKILLS':'Lab Skills'
 };
-/* objective_ids seen in NUR144 data that the map above doesn't name yet — kept
-   so a newly seeded objective still shows up (labelled by its id) instead of
-   silently vanishing the way N144_L1 did. */
-var NUR144_DISCOVERED={};
+var NUR146_OBJ_GROUPS={
+  'N146_L1':'Lecture 1 \u2014 Endocrine Review'
+};
+/* objective_ids seen in a course's data that its map doesn't name yet — kept,
+   per course, so a newly seeded objective still shows up (labelled by its id)
+   instead of silently vanishing the way N144_L1 once did. */
+var OBJ_DISCOVERED={};
+/* Every course's objective groups, keyed by course: nothing falls through to
+   another course's map. */
+var OBJ_GROUPS_BY_COURSE={NUR116:NUR116_OBJ_GROUPS,NUR118:NUR118_OBJ_GROUPS,
+                          NUR144:NUR144_OBJ_GROUPS,NUR146:NUR146_OBJ_GROUPS};
 
 function getObjGroups(){
-  if(currentCourse==='NUR144'){
-    var m={},k;
-    for(k in NUR144_OBJ_GROUPS) m[k]=NUR144_OBJ_GROUPS[k];
-    for(k in NUR144_DISCOVERED) if(!m[k]) m[k]=NUR144_DISCOVERED[k];
-    return m;
-  }
-  return currentCourse==='NUR116'?NUR116_OBJ_GROUPS:NUR118_OBJ_GROUPS;
+  var base=OBJ_GROUPS_BY_COURSE[currentCourse]||{};
+  var m={},k;
+  for(k in base) m[k]=base[k];
+  var disc=OBJ_DISCOVERED[currentCourse]||{};
+  for(k in disc) if(!m[k]) m[k]=disc[k];
+  return m;
 }
 /* For flashcard display: FC map if loaded (NUR116_T01 keys), else quiz map (N116T01 keys) */
 function getFCObjMap(){
@@ -6638,7 +6658,7 @@ function shuffleArr(arr){
 function switchCourse(course){
   currentCourse=course;
   localStorage.setItem('nur_course',course);
-  ['NUR118','NUR116','NUR144'].forEach(function(c){
+  COURSES.forEach(function(c){
     var t=document.getElementById('tab-'+c);
     if(t) t.classList.toggle('active',c===course);
   });
@@ -6647,8 +6667,9 @@ function switchCourse(course){
   var s144=document.getElementById('sg-nur144');
   if(s118) s118.style.display=(course==='NUR118'?'':'none');
   if(s116) s116.style.display=(course==='NUR116'?'':'none');
-  /* NUR144's Study Guide pane is the markdown guide index/reader */
-  if(s144) s144.style.display=(course==='NUR144'?'':'none');
+  /* the markdown guide pane serves every GUIDE_COURSES course; the guide
+     module picks the course's own guides from the manifest */
+  if(s144) s144.style.display=(GUIDE_COURSES.indexOf(course)>-1?'':'none');
   /* When switching back to NUR118, always default to Unit 2 view */
   /* scroll to top of study content on course switch */
   var mc=document.getElementById('main-content'); if(mc) mc.scrollTop=0;
@@ -6656,7 +6677,7 @@ function switchCourse(course){
   if(course==='NUR116' && typeof initN116==='function') initN116();
   /* reset practice state */
   fcLoaded=false;fcAllCards=[];fcCycleQueue=[];fcCyclePos=0;
-  fcReviewCardIds=null;fcWrapupCardIds=null;NUR116_FC_OBJ_MAP={};NUR144_DISCOVERED={};
+  fcReviewCardIds=null;fcWrapupCardIds=null;NUR116_FC_OBJ_MAP={};OBJ_DISCOVERED={};
   sess={deckFilter:'',totalCards:0,cards:[],cardState:{},sessionId:''};
   window._pendingResume=null;
   renderCtx(currentPage);
@@ -6787,23 +6808,20 @@ function isInSection(objId,sectionKey){
    NUR116: OR filter covers both N116T* topics and NUR116_WRAPUP.
    NOTE: % must be URL-encoded as %25 so PostgREST receives the literal % wildcard. */
 /* quiz_questions has no course column — a question's course is carried by its
-   objective_id prefix. Each course claims its own prefixes; NUR118 is the
-   original course and owns every id no other course has claimed, so a new
-   course must be listed here or its questions leak into NUR118. */
-var QUIZ_COURSE_PREFIXES={NUR116:['N116T'],NUR144:['N144']};
+   objective_id prefix. Every course claims its own prefixes, POSITIVELY.
+   NUR118 used to be "everything the other courses did not claim", which is how
+   NUR144's questions ended up in the NUR118 bank the day they were seeded: a
+   negative filter absorbs every new course. NUR118's ids are L1_01 … L910_07,
+   LAB, LAB_01 … and MED, MED_01 … — all under 'L' and 'MED'. A course missing
+   from this map gets a filter that matches nothing, never another course's bank. */
+var QUIZ_COURSE_PREFIXES={NUR116:['N116T'],NUR118:['L','MED'],NUR144:['N144'],NUR146:['N146']};
 
 function getQuizCourseFilter(){
   var mine=QUIZ_COURSE_PREFIXES[currentCourse];
-  if(mine)
-    return mine.map(function(p){return 'objective_id=like.'+p+'%25';}).join('&');
-  /* NUR118: everything not claimed above. Repeating a column ANDs the filters. */
-  var out=[];
-  Object.keys(QUIZ_COURSE_PREFIXES).forEach(function(c){
-    QUIZ_COURSE_PREFIXES[c].forEach(function(p){
-      out.push('objective_id=not.like.'+p+'%25');
-    });
-  });
-  return out.join('&');
+  if(!mine||!mine.length) return 'objective_id=like.'+encodeURIComponent('__no_course__')+'%25';
+  if(mine.length===1) return 'objective_id=like.'+mine[0]+'%25';
+  /* several prefixes must be ORed: repeating a column in PostgREST ANDs it */
+  return 'or=('+mine.map(function(p){return 'objective_id.like.'+p+'%25';}).join(',')+')';
 }
 var quizLoaded=false;
 var quizQCounts={};    /* objective_id → question count */
@@ -6840,7 +6858,11 @@ function initDashboard(){
     var noData=!dashCards.length
       &&!(Array.isArray(dashQAttempts)&&dashQAttempts.length)
       &&!Object.keys(dashQMastery||{}).length;
-    if(noData){
+    /* A scheduled course keeps its dashboard even with nothing studied yet:
+       the exam-readiness section is where the exam dates get set, and "0%
+       ready, 34 days" is the number meant to prompt studying. */
+    var scheduled=typeof window.srsEnabled==='function'&&window.srsEnabled();
+    if(noData&&!scheduled){
       courseEmptyShow('page-dashboard','No progress data for '+courseLabel()+' yet',
         'Progress here follows flashcards and quizzes. Take a quiz and it will show up. '
         +'Per-subsection review progress for the guides is on the Study Guide tab.');
@@ -6987,10 +7009,12 @@ function initQuiz(){
   function ingestQuizRows(data){
     if(!Array.isArray(data)) return;
     data.forEach(function(q){
-      /* register an unmapped NUR144 objective before its group key is resolved */
-      if(currentCourse==='NUR144'&&q.objective_id
-         &&!NUR144_OBJ_GROUPS[q.objective_id]&&!NUR144_DISCOVERED[q.objective_id])
-        NUR144_DISCOVERED[q.objective_id]=q.objective_id;
+      /* register an objective the course's map doesn't name yet, before its
+         group key is resolved */
+      if(q.objective_id&&!(OBJ_GROUPS_BY_COURSE[currentCourse]||{})[q.objective_id]){
+        var disc=OBJ_DISCOVERED[currentCourse]||(OBJ_DISCOVERED[currentCourse]={});
+        if(!disc[q.objective_id]) disc[q.objective_id]=q.objective_id;
+      }
       quizQCounts[q.objective_id]=(quizQCounts[q.objective_id]||0)+1;
       var grp=getObjGroupKey(q.objective_id);
       if(grp!==q.objective_id) quizQCounts[grp]=(quizQCounts[grp]||0)+1;
@@ -7250,7 +7274,7 @@ function updateBuilderSlider(){
       avail.textContent=available+' question'+(available!==1?'s':'')+' available';
     } else if(quizLoaded){
       var why=quizBuilderStatus.length?'No questions match the selected filters.'
-        :'No questions found. Questions may still be loading.';
+        :'No questions for '+courseLabel()+' yet.';
       avail.textContent=why;
     } else {
       avail.textContent='Loading questions\u2026';
@@ -8597,7 +8621,9 @@ function checkIntegrity(){
   var issues = [];
 
   (manifest.courses || []).forEach(function(c){
-    if (c.code === window.currentCourse) return;
+    /* every guide course has this page; only a course with no markdown pane
+       leaves its guides unreachable */
+    if (GUIDE_COURSES.indexOf(c.code) > -1) return;
     var n = 0;
     (c.units || []).forEach(function(u){ n += (u.guides || []).length; });
     if (n) issues.push({
@@ -9223,7 +9249,7 @@ function init(){
    through both run exactly as before.
 ══════════════════════════════════════════════════ */
 function onGuidesView(){
-  return window.currentPage === 'study' && window.currentCourse === 'NUR144';
+  return window.currentPage === 'study' && GUIDE_COURSES.indexOf(window.currentCourse) > -1;
 }
 
 function sync(){
@@ -9233,12 +9259,13 @@ function sync(){
   closeLightbox();
   clearHash();
 
-  /* NUR144 on a deck-backed page: renderCtx has just filled the sidebar with
-     an objective list that will never load, so replace it with the reason. */
-  if (window.currentCourse === 'NUR144'){
+  /* A guide course on a deck-backed page: renderCtx has just filled the
+     sidebar with an objective list that will never load, so replace it with
+     the reason. */
+  if (GUIDE_COURSES.indexOf(window.currentCourse) > -1){
     var ctx = $('sidebar-context');
     if (ctx){
-      ctx.innerHTML = '<div class="ctx-label">NUR 144</div>'
+      ctx.innerHTML = '<div class="ctx-label">' + esc(window.currentCourse.replace(/^NUR/,'NUR ')) + '</div>'
         + '<div style="padding:12px 16px;font-size:12px;color:rgba(255,255,255,.45);'
         + 'line-height:1.5">No flashcards or quizzes for this course.<br>'
         + 'Its written guides are under Study Guide.</div>';
@@ -9254,9 +9281,9 @@ window.goTo = function(page){
 
 var _switchCourse = window.switchCourse;
 window.switchCourse = function(course){
-  var leaving = (window.currentCourse === 'NUR144' && course !== 'NUR144');
+  var leaving = (GUIDE_COURSES.indexOf(window.currentCourse) > -1 && course !== window.currentCourse);
   _switchCourse(course);
-  /* dropping NUR144 state keeps a stale guide from flashing up on return */
+  /* dropping guide state keeps one course's guide from flashing up in another */
   if (leaving){ view = 'index'; guide = null; sections = []; mustOnly = false; }
   sync();
 };
@@ -12045,8 +12072,9 @@ var EXAM_LABEL = {unit1:'Unit 1 test', unit2:'Unit 2 test', final:'Final'};
 
    The FSRS columns on their rows are already populated from the backfill and
    are simply not read; nothing has to be undone if that day comes. */
-var SRS_COURSES = ['NUR144'];
+var SRS_COURSES = ['NUR144','NUR146'];
 function srsEnabled(){ return SRS_COURSES.indexOf(window.currentCourse) > -1; }
+window.srsEnabled = srsEnabled;
 
 var plan = null;          /* last computed plan, for the current course */
 var loading = false;
