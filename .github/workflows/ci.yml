@@ -86,6 +86,12 @@ jobs:
       - name: Persistence
         run: node scripts/tests/persistence.test.mjs
 
+      # Does a card's history actually change its future intervals? Storing a
+      # rating is not the same as using it: this drives cards through the full
+      # persist-and-reload round trip and asserts the numbers diverge.
+      - name: Feedback
+        run: node scripts/tests/feedback.test.mjs
+
       # The repair tool that rebuilds FSRS state from attempt history. It writes
       # to real scheduling data, so what makes it safe is asserted: original
       # timestamps, never overwriting a better-informed row, and an is_mastered
