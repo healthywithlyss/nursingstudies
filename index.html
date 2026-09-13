@@ -13,6 +13,7 @@
 <script src="vendor/fsrs.js"></script>
 <script src="lib/exam-scheduler.js"></script>
 <script src="lib/study-session.js"></script>
+<script src="lib/objective-tree.js"></script>
 <script src="lib/card-gen.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1451,6 +1452,47 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   cursor:pointer;min-height:38px}
 .srs-chip span{font-weight:600;opacity:.7;margin-left:3px}
 .srs-chip.on{background:var(--cobalt-bg);border-color:#bfdbfe;color:var(--cobalt)}
+.srs-chip.part{border-style:dashed;color:var(--cobalt)}
+/* the picker as a tree: a lecture row, and its objectives underneath */
+.srs-tree{flex-direction:column;align-items:stretch;gap:6px}
+.srs-tree-lec{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.srs-tree-exp{font:inherit;font-size:11px;font-weight:600;color:var(--text-muted);background:none;border:0;
+  padding:6px 4px;cursor:pointer;min-height:32px}
+.srs-tree-exp i{font-style:normal;margin-left:2px}
+.srs-tree-objs{flex-basis:100%;display:flex;flex-direction:column;gap:4px;padding:2px 0 4px 10px;
+  border-left:2px solid var(--border);margin-left:6px}
+.srs-obj-chip{font:inherit;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;
+  column-gap:8px;align-items:baseline;text-align:left;padding:7px 10px;border-radius:10px;
+  border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;min-height:40px}
+.srs-obj-chip.on{background:var(--cobalt-bg);border-color:#bfdbfe}
+.srs-obj-chip.implied{border-color:#bfdbfe;background:transparent}
+.srs-obj-num{font-size:11px;font-weight:800;color:var(--cobalt);grid-row:1/3;align-self:start;padding-top:1px}
+.srs-obj-txt{font-size:12.5px;line-height:1.3}
+.srs-obj-stat{font-size:10.5px;color:var(--text-muted);grid-column:2}
+.srs-fail{color:var(--missed);font-weight:700}
+/* sidebar objective rows under a lecture */
+.srs-side-objs{margin:4px 0 0 14px;display:flex;flex-direction:column;gap:2px}
+.srs-side-obj{display:grid;grid-template-columns:auto 1fr auto;gap:6px;font-size:10.5px;color:var(--text-muted);line-height:1.35;align-items:baseline}
+.srs-side-obj.bad .srs-side-stat{color:var(--missed);font-weight:700}
+.srs-side-num{font-weight:800;color:var(--cobalt)}
+.srs-side-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srs-side-stat{white-space:nowrap;font-variant-numeric:tabular-nums}
+/* dashboard objectives readout */
+.srs-objs-lec{border-top:1px solid var(--border);padding:6px 0}
+.srs-objs-lec summary{cursor:pointer;font-size:12.5px;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.srs-objs-lec summary span{color:var(--text-muted);font-size:11px}
+.srs-objs-lec summary em{margin-left:auto;font-style:normal;font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+.srs-objs-row{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto auto;column-gap:8px;padding:6px 0 6px 4px;font-size:12px}
+.srs-objs-num{grid-row:1/4;font-weight:800;color:var(--cobalt);font-size:11px;padding-top:2px}
+.srs-objs-txt{line-height:1.3}
+.srs-objs-stat{font-size:10.5px;color:var(--text-muted);margin-top:2px}
+.srs-objs-row.bad .srs-objs-stat b{color:var(--missed)}
+.srs-objs-bar{display:block;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.srs-objs-bar i{display:block;height:100%;background:var(--missed);border-radius:2px}
+.srs-weak-id small{display:block;font-weight:400;color:var(--text-muted);font-size:10.5px}
+.qb-tree-lec{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.qb-chip.part{border-style:dashed;color:var(--accent)}
+.section-link.sl-indent{padding-left:28px}
 
 /* Queue counts. Anki's three colours — new blue, learning red, due green —
    each with its word underneath, so the state never rides on colour alone. */
@@ -5894,6 +5936,21 @@ function getFCObjMap(){
 function sbFetch(path,opts){
   return fetch(SB_URL+path,Object.assign({headers:getAuthHdr()},opts));
 }
+/* The objectives table, fetched once and shared: every screen that names a
+   lecture or objective reads objectives.lecture / objectives.description from
+   here rather than from a map in code, so a new objective needs no edit. */
+var objRowsPromise=null;
+function loadObjectiveRows(){
+  if(objRowsPromise) return objRowsPromise;
+  objRowsPromise=sbFetch('/rest/v1/objectives?select=id,lecture,description')
+    .then(function(r){return r.json();})
+    .then(function(rows){ return Array.isArray(rows)?rows:[]; })
+    .catch(function(e){ console.warn('objectives:',e); objRowsPromise=null; return []; });
+  return objRowsPromise;
+}
+/* Courses whose objectives form a tree (lecture -> objective) and are named
+   from the table. NUR116/NUR118 keep their hardcoded groups untouched. */
+function objTreeCourse(){ return GUIDE_COURSES.indexOf(currentCourse)>-1; }
 
 /* ── localStorage ── */
 function lsKey(filter){
@@ -6824,6 +6881,8 @@ function getQuizCourseFilter(){
   return 'or=('+mine.map(function(p){return 'objective_id.like.'+p+'%25';}).join(',')+')';
 }
 var quizLoaded=false;
+var quizTree=null;     /* ObjectiveTree for tree courses (NUR144/NUR146); null elsewhere */
+var quizOpen={};       /* lecture id -> expanded in the builder */
 var quizQCounts={};    /* objective_id → question count */
 var quizScores={};     /* objective_id → {correct, total} from quiz_attempts (session scores) */
 var quizFcCards=[];    /* [{id, objective_ids}] for current course */
@@ -7010,8 +7069,10 @@ function initQuiz(){
     if(!Array.isArray(data)) return;
     data.forEach(function(q){
       /* register an objective the course's map doesn't name yet, before its
-         group key is resolved */
-      if(q.objective_id&&!(OBJ_GROUPS_BY_COURSE[currentCourse]||{})[q.objective_id]){
+         group key is resolved — but never a child objective (N144_L1_O4): the
+         tree names those; registering them would put raw ids in the legacy lists */
+      if(q.objective_id&&!(OBJ_GROUPS_BY_COURSE[currentCourse]||{})[q.objective_id]
+         &&!(objTreeCourse()&&window.ObjectiveTree.parentOf(q.objective_id))){
         var disc=OBJ_DISCOVERED[currentCourse]||(OBJ_DISCOVERED[currentCourse]={});
         if(!disc[q.objective_id]) disc[q.objective_id]=q.objective_id;
       }
@@ -7058,7 +7119,15 @@ function initQuiz(){
     .then(function(data){quizFcCards=Array.isArray(data)?data:[];})
     .catch(function(e){console.warn('quiz fc cards:',e);});
 
-  Promise.all([p1,p2,p3]).then(function(){
+  /* p4: the objectives table, for tree courses: names and the lecture -> objective shape */
+  var p4=objTreeCourse()?loadObjectiveRows():Promise.resolve(null);
+
+  Promise.all([p1,p2,p3,p4]).then(function(res){
+    if(objTreeCourse()){
+      var prefixes=QUIZ_COURSE_PREFIXES[currentCourse]||[];
+      quizTree=window.ObjectiveTree.build(res[3]||[],{ids:Object.keys(quizQCounts),
+        filter:function(id){ return prefixes.some(function(p){ return String(id).indexOf(p)===0; }); }});
+    } else quizTree=null;
     loadQuizMastery(function(){
       computeTroubleSpots();
       renderQuizBuilder();
@@ -7071,7 +7140,7 @@ function initQuiz(){
 function loadQuizMastery(cb){
   var p5=Promise.resolve(), p6=Promise.resolve();
   if(currentUser){
-    p5=sbFetch('/rest/v1/question_mastery?select=question_id,consecutive_correct,total_correct,total_attempts,is_mastered&user_id=eq.'+currentUser.id)
+    p5=sbFetch('/rest/v1/question_mastery?select=question_id,consecutive_correct,total_correct,total_attempts,is_mastered,last_result&user_id=eq.'+currentUser.id)
       .then(function(r){return r.json();})
       .then(function(data){
         quizMasteryData={};
@@ -7159,6 +7228,18 @@ function toggleStarQuestion(qId){
 }
 
 function toggleSectionChip(key){
+  if(quizTree){
+    /* same narrowing rule as the flashcard picker: a lecture covers its
+       objectives; tapping an objective under a selected lecture focuses on it */
+    var OT=window.ObjectiveTree, par=OT.parentOf(key);
+    var sel=quizBuilderSections.slice(), i=sel.indexOf(key);
+    if(i>-1) sel.splice(i,1);
+    else if(par&&sel.indexOf(par)>-1){ sel.splice(sel.indexOf(par),1); sel.push(key); quizOpen[par]=true; }
+    else { sel.push(key); if(!par) sel=sel.filter(function(x){ return OT.parentOf(x)!==key; }); else quizOpen[par]=true; }
+    quizBuilderSections=sel;
+    renderQuizBuilder();
+    return;
+  }
   var i=quizBuilderSections.indexOf(key);
   if(i>-1) quizBuilderSections.splice(i,1); else quizBuilderSections.push(key);
   var chip=document.getElementById('qbc-sec-'+key);
@@ -7176,9 +7257,11 @@ function toggleStatusFilter(status){
 /* Returns the question pool after applying section + status filters */
 function getFilteredPool(){
   var pool=quizBankQuestions;
-  /* section filter */
+  /* section filter — on a tree course a question is in the selection through
+     its own objective OR its lecture, each question once */
   if(quizBuilderSections.length>0){
     pool=pool.filter(function(q){
+      if(quizTree) return window.ObjectiveTree.matches([q.objective_id, quizTree.lectureOf(q.objective_id)], quizBuilderSections);
       return quizBuilderSections.indexOf(getObjGroupKey(q.objective_id))>-1;
     });
   }
@@ -7197,12 +7280,58 @@ function getFilteredPool(){
   return pool;
 }
 
+/* Per-objective progress on the quiz page: questions, answered, and how many
+   she is failing right now (last answer wrong). Each question once per node. */
+/* the quiz block has no escaper of its own; the objectives text is user data */
+function qbEsc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function quizObjStats(){
+  var items=quizBankQuestions.map(function(q){
+    var m=quizMasteryData[q.id];
+    return {id:q.id, objectiveIds:[q.objective_id], answered:!!(m&&(m.total_attempts||0)>0), failing:!!(m&&m.last_result===false)};
+  });
+  return window.ObjectiveTree.stats(null, items, {isNew:function(i){ return !i.answered; }, failing:function(i){ return i.failing; }});
+}
+function quizTreeChipsHtml(){
+  var st=quizObjStats();
+  var selAll=!quizBuilderSections.length;
+  var isOn=function(id){ return selAll||quizBuilderSections.indexOf(id)>-1; };
+  var statTxt=function(x){ return x ? x.cards+' question'+(x.cards===1?'':'s')+' · '+x.seen+' answered'+(x.failing?' · <b class="srs-fail">'+x.failing+' failing</b>':'') : ''; };
+  return quizTree.lectures.map(function(l){
+    var x=st[l.id]||{cards:0,seen:0,failing:0};
+    var lecOn=isOn(l.id);
+    var anyKidOn=!selAll&&l.objectives.some(function(k){ return quizBuilderSections.indexOf(k.id)>-1; });
+    var open=!!quizOpen[l.id]||anyKidOn;
+    var h='<div class="qb-tree-lec">'
+      +'<button class="qb-chip'+(lecOn?' active':'')+(anyKidOn?' part':'')+'" id="qbc-sec-'+l.id+'" title="'+qbEsc(l.full||l.name)+'" onclick="toggleSectionChip(\''+l.id+'\')">'
+      +qbEsc(l.name)+(x.cards?' <span style="opacity:.7;font-size:10px">('+x.cards+')</span>':'')+'</button>'
+      +(l.objectives.length
+        ?'<button class="srs-tree-exp" aria-expanded="'+open+'" onclick="quizOpen[\''+l.id+'\']=!quizOpen[\''+l.id+'\'];renderQuizBuilder()">'
+          +l.objectives.length+' objective'+(l.objectives.length===1?'':'s')+' <i>'+(open?'\u25B4':'\u25BE')+'</i></button>'
+        :'');
+    if(l.objectives.length&&open){
+      h+='<div class="srs-tree-objs">'+l.objectives.map(function(k){
+        var kx=st[k.id]||{cards:0,seen:0,failing:0};
+        var on=!selAll&&quizBuilderSections.indexOf(k.id)>-1;
+        return '<button class="srs-obj-chip'+(on?' on':lecOn&&!selAll?' implied':'')+'" id="qbc-sec-'+k.id+'" onclick="toggleSectionChip(\''+k.id+'\')" title="'+qbEsc(k.full||k.sub||k.name)+'">'
+          +'<span class="srs-obj-num">'+qbEsc(k.name.replace('Objective ','Obj '))+'</span>'
+          +'<span class="srs-obj-txt">'+qbEsc(k.sub||k.full||k.id)+'</span>'
+          +'<span class="srs-obj-stat">'+statTxt(kx)+'</span></button>';
+      }).join('')+'</div>';
+    }
+    return h+'</div>';
+  }).join('');
+}
+
 function renderQuizBuilder(){
   var og=getObjGroups();
 
   /* ── section chips ── */
   var chipsEl=document.getElementById('qb-section-chips');
-  if(chipsEl){
+  if(chipsEl&&quizTree){
+    chipsEl.className='qb-chips srs-tree';
+    chipsEl.innerHTML=quizTreeChipsHtml();
+  } else if(chipsEl){
+    chipsEl.className='qb-chips';
     var h='';
     Object.keys(og).forEach(function(key){
       var cnt=quizQCounts[key]||0;
@@ -7371,6 +7500,25 @@ function renderQuizSidebar(){
   if(!ctx||currentPage!=='quiz') return;
   var og=getObjGroups();
   var h='<div class="ctx-label">Quiz Mastery</div>';
+  if(quizTree){
+    /* lectures with their objectives nested, named from the table */
+    var row=function(key,label,indent){
+      var qm=getQuizQMastery(key);
+      var att=qm&&qm.attempted>0;
+      var pct=att?Math.round(qm.mastered/qm.total*100):-1;
+      var dot=att?(pct>=80?'var(--got)':pct>=50?'var(--unsure)':'var(--missed)'):'rgba(255,255,255,.18)';
+      return '<button class="section-link'+(indent?' sl-indent':'')+'" onclick="startQuizFromSidebar(\''+key+'\')" title="'+qbEsc(label.full||label.name)+'">'
+        +'<span class="dot" style="opacity:1;background:'+dot+'"></span>'
+        +'<span class="sl-text">'+qbEsc(indent?label.name.replace('Objective ','Obj ')+' · '+(label.sub||''):label.name)+'</span>'
+        +'<span class="sl-sub">'+(att?qm.mastered+'/'+qm.total:'\u2013')+'</span></button>';
+    };
+    quizTree.lectures.forEach(function(l){
+      h+=row(l.id,l,false);
+      l.objectives.forEach(function(k){ h+=row(k.id,k,true); });
+    });
+    ctx.innerHTML=h;
+    return;
+  }
   Object.keys(og).forEach(function(key){
     /* use persistent question_mastery data — mastered questions / total */
     var qm=getQuizQMastery(key);
@@ -12081,6 +12229,9 @@ var loading = false;
 var fsrsRows = {card:{}, quiz:{}};   /* id -> the row we last read or wrote */
 var unitsMap = {};
 var objNames = {};             /* objective id -> {lecture, description} */
+var objTree = null;            /* ObjectiveTree for the current course, from the objectives table */
+var objRowsAll = [];           /* the objectives table as last fetched */
+window.srsObjTree = function(){ return objTree; };
 var objectiveList = [];   /* [{objective_id, unit}] for the current course */
 var examDates = {unit1:'',unit2:'',final:''};
 var settings = null;      /* null until loaded; ES defaults apply meanwhile */
@@ -12261,11 +12412,21 @@ function ensureContext(){
    backend text like N144_L1. */
 function applyObjNames(rows){
   objNames = {};
-  (Array.isArray(rows)?rows:[]).forEach(function(o){
+  objRowsAll = Array.isArray(rows)?rows:[];
+  objRowsAll.forEach(function(o){
     if(o && o.id) objNames[o.id] = {lecture:o.lecture||'', description:o.description||''};
   });
 }
+/* The course's objectives as a tree, from the table plus whatever ids the
+   content carries; rebuilt whenever the context reloads. */
+function buildObjTree(course, seenIds){
+  var prefixes = QUIZ_COURSE_PREFIXES[course] || [];
+  var inCourse = function(id){ return prefixes.some(function(p){ return String(id).indexOf(p)===0; }); };
+  objTree = window.ObjectiveTree.build(objRowsAll, { ids: seenIds || [], units: unitsMap, filter: inCourse });
+  return objTree;
+}
 function objLabel(id){
+  if(objTree && objTree.has(id)) return objTree.label(id);
   var o = objNames[id] || {};
   var name = o.lecture;
   if(!name){
@@ -12448,7 +12609,7 @@ function loadAll(){
       +'auto_generated,source_question_id&course=eq.'+course).then(j),
     window.sbFetch('/rest/v1/quiz_questions?select=id,objective_id&'+quizFilterForCourse()).then(j),
     window.sbFetch('/rest/v1/card_mastery?select=card_id,state,stability,difficulty,due_date,'
-      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,introduced_at&user_id=eq.'+uid).then(j),
+      +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,introduced_at,last_result&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/question_mastery?select=question_id,state,stability,difficulty,due_date,'
       +'last_reviewed_at,interval_days,repetitions,lapses,learning_step,retired_at&user_id=eq.'+uid).then(j),
     window.sbFetch('/rest/v1/objective_units?select=objective_id,course,unit').then(j),
@@ -12559,14 +12720,28 @@ function loadAll(){
        so it is not lost among the assigned ones. */
     var known={};
     objectiveList.forEach(function(o){ known[o.objective_id]=1; });
-    var missing=Object.keys(seenObj).filter(function(o){ return !known[o]; }).sort();
+    /* An objective (N144_L1_O4) takes its lecture's unit; only LECTURES are
+       ever listed for assignment. */
+    var parentOf = window.ObjectiveTree.parentOf;
+    Object.keys(seenObj).forEach(function(o){
+      var par = parentOf(o);
+      if(par && unitsMap[par] != null && unitsMap[o] == null) unitsMap[o] = unitsMap[par];
+    });
+    var missing=Object.keys(seenObj).filter(function(o){ return !known[o] && !parentOf(o); }).sort();
+    /* children of a lecture that has no unit row yet follow the same default */
+    var def = window.srsDefaultUnit();
+    Object.keys(seenObj).forEach(function(o){
+      var par = parentOf(o);
+      if(par && unitsMap[o] == null) unitsMap[o] = unitsMap[par] || def;
+    });
     if(missing.length){
-      var def = window.srsDefaultUnit();
       objectiveList = missing.map(function(o){
         unitsMap[o] = unitsMap[o] || def;
         return {objective_id:o, unit:unitsMap[o], unassigned:true};
       }).concat(objectiveList);
     }
+    /* the course's objectives as a tree, now that every id the content carries is known */
+    buildObjTree(course, Object.keys(seenObj));
 
     var attempts=(Array.isArray(ca)?ca.length:0)+(Array.isArray(qa)?qa.length:0);
     return {items:items, pace: attempts/PACE_WINDOW_DAYS, failingAtExam: failingAtExam};
@@ -12597,7 +12772,9 @@ function toItem(kind, id, objectiveIds, row){
     learning_step: row && row.learning_step != null ? row.learning_step : null,
     interval_days: row ? (row.interval_days||0) : 0,
     /* first shown, for the daily new-card budget */
-    introduced_at: row && row.introduced_at ? Date.parse(row.introduced_at) : null
+    introduced_at: row && row.introduced_at ? Date.parse(row.introduced_at) : null,
+    /* the last legacy result: 'missed' = the last rating was Again = failing now */
+    last_result: row && row.last_result ? row.last_result : null
   };
 }
 
@@ -12632,6 +12809,7 @@ function render(){
     + suggestionsHtml()
     + forecastHtml()
     + termHtml()
+    + objectivesHtml()
     + weakHtml()
     + unitsHtml();
 }
@@ -13075,10 +13253,42 @@ function weakHtml(){
   return '<div class="srs-q srs-weak"><div class="srs-title" style="font-size:13px;'
     + 'margin-bottom:6px">Weakest topics</div>'
     + plan.weakest.map(function(w){
-        return '<div class="srs-weak-row">'
-          + '<div class="srs-weak-id">'+esc2(w.objective_id)+'</div>'
+        var wl = objLabel(w.objective_id), wp = window.ObjectiveTree.parentOf(w.objective_id);
+        return '<div class="srs-weak-row" title="'+esc2(wl.full||wl.name)+'">'
+          + '<div class="srs-weak-id">'+esc2(wp ? objLabel(wp).name+' · '+wl.name : wl.name)
+          + (wl.sub ? '<small>'+esc2(wl.sub)+'</small>' : '')+'</div>'
           + '<div class="srs-weak-bar"><span style="width:'+w.pct+'%"></span></div>'
           + '<div class="srs-weak-pct">'+w.pct+'% · '+w.total+'</div></div>';
+      }).join('')
+    + '</div>';
+}
+
+/* Per-objective readout — the reason the cards were tagged by objective:
+   which objectives she is weak on. Lecture by lecture, each objective with
+   its cards, how many she has seen, and how many she is failing right now. */
+function objectivesHtml(){
+  if(!objTree || !objTree.lectures.length) return '';
+  var st = deckStats();
+  var any = objTree.lectures.some(function(l){ return l.objectives.length; });
+  if(!any) return '';
+  return '<div class="srs-q srs-objs"><div class="srs-title" style="font-size:13px;margin-bottom:6px">'
+    + 'Objectives</div><div class="srs-note" style="margin-top:0;margin-bottom:8px">Cards seen, and how many you are failing right now (last rating Again).</div>'
+    + objTree.lectures.filter(function(l){ return l.objectives.length; }).map(function(l){
+        var lx = st[l.id] || {cards:0,seen:0,failing:0};
+        return '<details class="srs-objs-lec"'+(lx.failing?' open':'')+'><summary><b>'+esc2(l.name)+'</b>'
+          + (l.sub ? ' <span>'+esc2(l.sub)+'</span>' : '')
+          + '<em>'+lx.seen+'/'+lx.cards+' seen'+(lx.failing?' · '+lx.failing+' failing':'')+'</em></summary>'
+          + l.objectives.map(function(k){
+              var x = st[k.id] || {cards:0,seen:0,failing:0};
+              var pct = x.cards ? Math.round(100*x.failing/x.cards) : 0;
+              return '<div class="srs-objs-row'+(x.failing?' bad':'')+'">'
+                + '<span class="srs-objs-num">'+k.num+'</span>'
+                + '<span class="srs-objs-txt">'+esc2(k.sub||k.full||k.id)+'</span>'
+                + '<span class="srs-objs-stat">'+x.cards+' cards · '+x.seen+' seen · '+(x.failing?'<b>'+x.failing+' failing</b>':'0 failing')+'</span>'
+                + '<span class="srs-objs-bar"><i style="width:'+pct+'%"></i></span>'
+                + '</div>';
+            }).join('')
+          + '</details>';
       }).join('')
     + '</div>';
 }
@@ -13093,7 +13303,8 @@ function unitsHtml(){
     + (unassigned ? ' · ' + unassigned + ' need' + (unassigned===1?'s':'') + ' a unit' : '')
     + '</summary>'
     + objectiveList.map(function(o){
-        return '<div class="srs-unit-row"><span>'+esc2(o.objective_id)
+        var ul = objLabel(o.objective_id);
+        return '<div class="srs-unit-row"><span>'+esc2(ul.name)+(ul.sub?' <small>'+esc2(ul.sub)+'</small>':'')
           + (o.unassigned?' <b style="color:var(--unsure)">· not assigned yet</b>':'')+'</span>'
           + '<select onchange="srsSetUnit(\''+esc2(o.objective_id)+'\',this.value)">'
           + '<option value="1"'+(o.unit===1?' selected':'')+'>Unit 1</option>'
@@ -13393,12 +13604,24 @@ function deckExam(now){
 
 function deckItems(){
   if(!plan || !plan._items) return [];
+  /* a card matches if ANY of its tags is selected — so "Lecture 1" plus one of
+     its objectives still yields each card once (filter, never concat) */
   return plan._items.filter(function(i){
     if(i.kind !== 'card') return false;
-    if(!deckSel || !deckSel.length) return true;
-    return (i.objectiveIds||[]).some(function(o){ return deckSel.indexOf(o) > -1; });
+    return window.ObjectiveTree.matches(i.objectiveIds||[], deckSel);
   });
 }
+/* Per-node counts for the picker and the readouts: each card once per node.
+   seen = started; failing = the last rating was Again, or in relearning. */
+function isFailingItem(i){ return i.last_result === 'missed' || i.state === 'relearning'; }
+function deckStats(){
+  var all = (plan && plan._items ? plan._items : []).filter(function(i){ return i.kind === 'card'; });
+  return window.ObjectiveTree.stats(null, all, {
+    isNew: window.StudySession.isNewItem, failing: isFailingItem
+  });
+}
+var deckOpen = {};   /* lecture id -> expanded in the picker */
+window.srsExpandLecture = function(id){ deckOpen[id] = !deckOpen[id]; renderDeckPanel(); };
 
 /* The objectives this course's flashcards actually carry, so the selector
    offers lectures that exist rather than everything in the units table. */
@@ -13413,7 +13636,8 @@ function deckObjectives(){
       if(isNew) fresh[o] = (fresh[o]||0) + 1;
     });
   });
-  return Object.keys(seen).sort().map(function(o){
+  /* lectures only: an objective (N144_L1_O4) lives under its lecture in the tree */
+  return Object.keys(seen).filter(function(o){ return !window.ObjectiveTree.parentOf(o); }).sort().map(function(o){
     return {id:o, count:seen[o], newLeft:fresh[o]||0, unit:unitsMap[o]||1};
   });
 }
@@ -13483,9 +13707,11 @@ function renderObjProgress(now){
   var st = window.StudySession.objectiveStats(all, {
     now: now, dayStart: dayStartMs(now), recall: recallNow
   });
-  var ids = Object.keys(st).sort();
+  /* lectures only in the roll-up: an objective's cards are its lecture's cards */
+  var ids = Object.keys(st).filter(function(o){ return !window.ObjectiveTree.parentOf(o); }).sort();
   var tot = {total:0, started:0, newLeft:0, learned:0, learning:0, doneToday:0};
   ids.forEach(function(o){ Object.keys(tot).forEach(function(k){ tot[k] += st[o][k]; }); });
+  var ds = deckStats();
   var pctAll = tot.total ? Math.round(100*tot.started/tot.total) : 0;
   var colourFor = function(r){
     return r == null ? '#94a3b8' : r >= .9 ? 'var(--got)' : r >= .75 ? 'var(--unsure)' : 'var(--missed)';
@@ -13511,7 +13737,19 @@ function renderObjProgress(now){
             +' \u00b7 '+s.learned+' learned \u00b7 '+s.learning+' learning'
             +(s.due ? ' \u00b7 '+s.due+' due' : '')
           : '')
-      + '</div></div>';
+      + '</div>';
+    /* the objectives under this lecture: where she is weak, at a glance */
+    var kids = (objTree && objTree.has(o)) ? objTree.byId[o].objectives : [];
+    if(kids.length){
+      html += '<div class="srs-side-objs">' + kids.map(function(k){
+        var x = ds[k.id] || {cards:0,seen:0,failing:0};
+        return '<div class="srs-side-obj'+(x.failing?' bad':'')+'" title="'+esc2(k.sub||k.full)+'">'
+          + '<span class="srs-side-num">'+k.num+'</span>'
+          + '<span class="srs-side-txt">'+esc2(k.sub||k.full||k.id)+'</span>'
+          + '<span class="srs-side-stat">'+x.seen+'/'+x.cards+(x.failing?' · '+x.failing+' failing':'')+'</span></div>';
+      }).join('') + '</div>';
+    }
+    html += '</div>';
   });
   el.innerHTML = html;
 
@@ -13585,13 +13823,37 @@ function renderDeckPanel(){
   var inSession = !!SESS && !SESS.isComplete();
   renderObjProgress(now);
 
-  /* "Lecture 1 · 69 new": the name she uses, and how much of it is still
-     untouched — the number that actually changes as she works. */
+  /* The picker: course -> lecture -> objectives, collapsible. A lecture chip
+     reads "Lecture 1 · 69 new"; under it each objective shows its text and
+     how it is going. Names come from the objectives table. */
+  var st = deckStats();
+  var selAll = !deckSel || !deckSel.length;
+  var isOn = function(id){ return selAll || deckSel.indexOf(id) > -1; };
+  var statTxt = function(x){ return x ? x.cards+' card'+(x.cards===1?'':'s')+' · '+x.seen+' seen'+(x.failing?' · <b class="srs-fail">'+x.failing+' failing</b>':'') : ''; };
   var chips = objs.map(function(o){
-    var on = !deckSel || !deckSel.length || deckSel.indexOf(o.id) > -1;
-    var lbl = objLabel(o.id);
-    return '<button class="srs-chip'+(on?' on':'')+'" title="'+esc2(lbl.full||lbl.name)+'" onclick="srsToggleDeck(\''
-      + esc2(o.id)+'\')">'+esc2(lbl.name)+' <span>'+o.newLeft+' new</span></button>';
+    var lbl = objLabel(o.id), x = st[o.id] || {cards:0,seen:0,failing:0,newLeft:0};
+    var lecOn = isOn(o.id);
+    var kids = (objTree && objTree.has(o.id)) ? objTree.byId[o.id].objectives : [];
+    var anyKidOn = !selAll && kids.some(function(k){ return deckSel.indexOf(k.id) > -1; });
+    var open = !!deckOpen[o.id] || anyKidOn;
+    var h = '<div class="srs-tree-lec">'
+      + '<button class="srs-chip'+(lecOn?' on':'')+(anyKidOn?' part':'')+'" title="'+esc2(lbl.full||lbl.name)+'" onclick="srsToggleDeck(\''
+      + esc2(o.id)+'\')">'+esc2(lbl.name)+' <span>'+x.newLeft+' new</span></button>'
+      + (kids.length
+          ? '<button class="srs-tree-exp" aria-expanded="'+open+'" onclick="srsExpandLecture(\''+esc2(o.id)+'\')">'
+            + kids.length+' objective'+(kids.length===1?'':'s')+' <i>'+(open?'\u25B4':'\u25BE')+'</i></button>'
+          : '');
+    if(kids.length && open){
+      h += '<div class="srs-tree-objs">' + kids.map(function(k){
+        var kx = st[k.id] || {cards:0,seen:0,failing:0,newLeft:0};
+        var on = !selAll && deckSel.indexOf(k.id) > -1;
+        return '<button class="srs-obj-chip'+(on?' on':lecOn&&!selAll?' implied':'')+'" onclick="srsToggleDeck(\''+esc2(k.id)+'\')" title="'+esc2(k.full||k.sub||k.name)+'">'
+          + '<span class="srs-obj-num">'+esc2(k.name.replace('Objective ','Obj '))+'</span>'
+          + '<span class="srs-obj-txt">'+esc2(k.sub||k.full||k.id)+'</span>'
+          + '<span class="srs-obj-stat">'+statTxt(kx)+'</span></button>';
+      }).join('') + '</div>';
+    }
+    return h + '</div>';
   }).join('');
 
   /* Every number is a door: tap it to study just that kind. Done is extra
@@ -13661,7 +13923,7 @@ function renderDeckPanel(){
           + (deckSel && deckSel.length ? 'Select all' : 'All selected') + '</button>'
         : '')
     + '</div>'
-    + (objs.length > 1 ? '<div class="srs-chips">'+chips+'</div>' : '')
+    + (objs.length > 1 ? '<div class="srs-chips srs-tree">'+chips+'</div>' : '')
     + counts + body + '</div>';
 }
 
@@ -13684,15 +13946,24 @@ function relativeWhen(ms, now){
   return 'on '+new Date(ms).toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
 
+/* Tapping a chip narrows: from "all", the first tap selects only that lecture
+   or objective; further taps add or remove; removing the last means "all".
+   A lecture covers all of its objectives, so selecting a lecture drops its
+   objectives from the list, and tapping an objective while its lecture is
+   selected focuses on that objective alone. */
 window.srsToggleDeck = function(objId){
   if(objId === null){ deckSel = null; afterDeckChange(); return; }
-  var all = deckObjectives().map(function(o){ return o.id; });
-  if(!deckSel || !deckSel.length) deckSel = all.slice();
-  var i = deckSel.indexOf(objId);
-  if(i > -1) deckSel.splice(i,1); else deckSel.push(objId);
-  /* deselecting the last one means "all", not "none" — a deck of nothing is
-     never what the tap meant */
-  if(!deckSel.length) deckSel = null;
+  var OT = window.ObjectiveTree, par = OT.parentOf(objId);
+  var sel = (deckSel || []).slice();
+  var i = sel.indexOf(objId);
+  if(i > -1){ sel.splice(i,1); }
+  else if(par && sel.indexOf(par) > -1){ sel.splice(sel.indexOf(par),1); sel.push(objId); deckOpen[par] = true; }
+  else {
+    sel.push(objId);
+    if(!par) sel = sel.filter(function(x){ return OT.parentOf(x) !== objId; });
+    else deckOpen[par] = true;
+  }
+  deckSel = sel.length ? sel : null;
   afterDeckChange();
 };
 
@@ -14043,6 +14314,7 @@ function persistCard(item, out, logAttempt){
   /* the legacy row keeps being written too, so every existing screen that
      reads last_result and consecutive_correct still works */
   var legacy = rating2legacy(out);
+  item.last_result = legacy;          /* the objective readouts follow the rating at once */
   window.sbFetch('/rest/v1/card_attempts',{
     method:'POST',
     headers:Object.assign({'Prefer':'return=minimal'}, window.getAuthHdr()),

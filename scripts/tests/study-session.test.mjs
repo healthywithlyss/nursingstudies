@@ -510,7 +510,7 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
 {
   const fs = await import('node:fs');
   const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-  ck('the mastery loader fetches introduced_at', /card_mastery\?select=card_id,state,[\s\S]{0,200}?learning_step,introduced_at&user_id/.test(html));
+  ck('the mastery loader fetches introduced_at', /card_mastery\?select=card_id,state,[\s\S]{0,200}?learning_step,introduced_at,last_result&user_id/.test(html));
   ck('toItem carries introduced_at as ms', /introduced_at: row && row\.introduced_at \? Date\.parse\(row\.introduced_at\) : null/.test(html));
   const qf = html.slice(html.indexOf('function queueFor('), html.indexOf('function nextDueMs('));
   ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\(items, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
@@ -571,7 +571,7 @@ console.log('\nindex.html: lecture names, new-left chips, the sidebar shows prog
   ck('the loader fetches the objectives table for names', /\/rest\/v1\/objectives\?select=id,lecture,description/.test(html));
   ck('objLabel falls back to a name derived from the id, never the raw id for a lecture', /function objLabel\(id\)/.test(html) && /'Lecture '\+m\[1\]/.test(html));
   const panel = html.slice(html.indexOf('function renderDeckPanel('), html.indexOf('function srsToggleDeck'));
-  ck('chips show the lecture name and the new cards left, not the objective id', /objLabel\(o\.id\)/.test(panel) && /o\.newLeft\+' new/.test(panel) && !/esc2\(o\.id\)\+' <span>'\+o\.count/.test(panel));
+  ck('chips show the lecture name and the new cards left, not the objective id', /objLabel\(o\.id\)/.test(panel) && /newLeft\+' new/.test(panel) && !/esc2\(o\.id\)\+' <span>'\+o\.count/.test(panel));
   ck('the deck panel renders the sidebar progress on every paint', /renderObjProgress\(now\)/.test(panel));
   const side = html.slice(html.indexOf('function renderObjProgress('), html.indexOf('function renderDeckPanel('));
   ck('the sidebar uses StudySession.objectiveStats with the scheduler\'s recall', /StudySession\.objectiveStats\(/.test(side) && /recall: recallNow/.test(side));

@@ -115,6 +115,12 @@ jobs:
       - name: Courses
         run: node scripts/tests/courses.test.mjs
 
+      # Cards carry a lecture tag and an objective tag. The tree groups them,
+      # names them from the objectives table, and counts every card once per
+      # node — the double-count and double-serve this guards against.
+      - name: Objective tree
+        run: node scripts/tests/objective-tree.test.mjs
+
       # index.html is one large file with several inline <script> blocks and no
       # build step, so nothing else would catch a syntax error in it before it
       # reached the browser.
