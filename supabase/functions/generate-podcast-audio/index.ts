@@ -35,6 +35,18 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
      tts_model     optional model override
      style         optional natural-language delivery instruction, default none
      max_seconds   per-segment ceiling, default 420
+     learner_voice the Student voice of a CONVERSATION episode (format
+                   'dialogue'); pinned per lecture beside the narrator
+
+   CONVERSATION EPISODES (podcast_episodes.format = 'dialogue')
+   The script is Teacher:/Student: lines with a [[PAUSE]] line after each
+   question. Segments are cut only at pauses, so a segment ends on a silence
+   and the next begins with the answer. Each segment is synthesised chunk by
+   chunk — the text between pauses — with Gemini's two-speaker voice config,
+   and PAUSE_SECONDS of digital silence is spliced in at every marker before
+   the WAV is written. The silence is real samples in the file, not a pause
+   instruction the synthesiser could skip. No checkpoints: the player never
+   stops, she answers in her head during the silence.
    ═══════════════════════════════════════════════════════════════════════ */
 
 const CORS = {
@@ -53,6 +65,12 @@ const HARD_MAX_SECONDS = 640;
 const WORDS_PER_MINUTE = 150;
 
 const BUCKET = 'podcast-audio';
+
+/* the silence after a question in a conversation episode: long enough to
+   answer in her head, short enough not to read as a stalled file */
+const PAUSE_SECONDS = 4.5;
+const PAUSE_MARK = '[[PAUSE]]';
+const DEFAULT_LEARNER_VOICE = 'Zephyr';   /* bright, clearly a different person from Charon/Kore */
 
 /* ── model discovery ───────────────────────────────────────────────────────
    The text side of this project filters TTS models OUT. Here the filter is
@@ -239,6 +257,48 @@ function planSegments(script: string, checkpoints: any[], maxSeconds: number) {
   return segments;
 }
 
+/* Conversation episodes: cut ONLY at pauses. A block is everything up to and
+   including a [[PAUSE]] line (the mechanism talk, the question, the frame);
+   the segment that holds it ends on that silence, and the next segment opens
+   with "Okay —" and the answer. Blocks are grouped up to the duration cap,
+   counting PAUSE_SECONDS per pause. Never inside a block. */
+function planDialogueSegments(script: string, maxSeconds: number) {
+  const blocks: { text: string; start: number; end: number; pause: boolean }[] = [];
+  let pos = 0;
+  while (pos < script.length) {
+    const at = script.indexOf(PAUSE_MARK, pos);
+    if (at < 0) { blocks.push({ text: script.slice(pos), start: pos, end: script.length, pause: false }); break; }
+    const end = at + PAUSE_MARK.length;
+    blocks.push({ text: script.slice(pos, end), start: pos, end, pause: true });
+    pos = end;
+  }
+  const spoken = (t: string) => t.replace(/\[\[\s*PAUSE\s*\]\]/g, ' ');
+  const blockSeconds = (b: { text: string; pause: boolean }) => estSeconds(spoken(b.text)) + (b.pause ? PAUSE_SECONDS : 0);
+  const segments: any[] = [];
+  let buf: typeof blocks = [];
+  const flush = () => {
+    if (!buf.length) return;
+    const text = script.slice(buf[0].start, buf[buf.length - 1].end);
+    const pauses = buf.filter((b) => b.pause).length;
+    segments.push({
+      ordinal: segments.length, char_start: buf[0].start, char_end: buf[buf.length - 1].end,
+      text: text.trim(), words: wordCount(spoken(text)),
+      estimated_seconds: Math.round(buf.reduce((a, b) => a + blockSeconds(b), 0)),
+      pauses, ends_at_checkpoint: null,
+      split_reason: buf[buf.length - 1].pause ? 'pause' : 'end of episode',
+    });
+    buf = [];
+  };
+  for (const b of blocks) {
+    if (!b.text.trim()) continue;
+    const secs = buf.reduce((a, x) => a + blockSeconds(x), 0);
+    if (buf.length && secs + blockSeconds(b) > maxSeconds) flush();
+    buf.push(b);
+  }
+  flush();
+  return segments;
+}
+
 /* ── audio ────────────────────────────────────────────────────────────────── */
 
 /* Gemini TTS returns headerless signed 16-bit little-endian PCM. An <audio>
@@ -312,6 +372,83 @@ async function synthesize(apiKey: string, model: string, voice: string, text: st
   };
 }
 
+/* PAUSE_SECONDS of digital silence at this rate: 16-bit mono, all zeros */
+function silencePcm(sampleRate: number, seconds = PAUSE_SECONDS): Uint8Array {
+  return new Uint8Array(Math.round(sampleRate * seconds) * 2);
+}
+function concatBytes(parts: Uint8Array[]): Uint8Array {
+  const out = new Uint8Array(parts.reduce((a, p) => a + p.length, 0));
+  let o = 0;
+  for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+
+/* one spoken chunk of a conversation: two speakers, the labels in the text
+   name which voice reads each line */
+async function synthesizeDialogueChunk(apiKey: string, model: string, teacherVoice: string,
+                                       learnerVoice: string, text: string, style: string) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const prompt = (style || 'Read this conversation between Teacher and Student naturally, as two people talking.') + '\n\n' + text;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: { multiSpeakerVoiceConfig: { speakerVoiceConfigs: [
+          { speaker: 'Teacher', voiceConfig: { prebuiltVoiceConfig: { voiceName: teacherVoice } } },
+          { speaker: 'Student', voiceConfig: { prebuiltVoiceConfig: { voiceName: learnerVoice } } },
+        ] } },
+      },
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`TTS ${model} ${res.status}: ${JSON.stringify(data).slice(0, 500)}`);
+  const cand = data.candidates && data.candidates[0];
+  const part = cand && cand.content && (cand.content.parts || []).find((p: any) => p.inlineData && p.inlineData.data);
+  if (!part) throw new Error(`TTS ${model} returned no audio (finishReason ${cand && cand.finishReason}): ` + JSON.stringify(data).slice(0, 400));
+  const mime = String(part.inlineData.mimeType || '');
+  const rate = Number((mime.match(/rate=(\d+)/) || [])[1]) || 24000;
+  return { pcm: b64ToBytes(part.inlineData.data), rate, usage: data.usageMetadata || {}, sourceMime: mime };
+}
+
+/* a whole conversation segment: spoken chunks between the pause marks, with
+   real silence spliced in at every mark, as one WAV */
+async function synthesizeDialogue(apiKey: string, model: string, teacherVoice: string, learnerVoice: string,
+                                  segText: string, style: string) {
+  const chunks = segText.split(/\[\[\s*PAUSE\s*\]\]/);
+  const parts: Uint8Array[] = [];
+  let rate = 0, spokenSeconds = 0, pauseSeconds = 0, calls = 0, sourceMime = '';
+  const usage: any = { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
+  for (let i = 0; i < chunks.length; i++) {
+    const text = chunks[i].trim();
+    if (text) {
+      const a = await synthesizeDialogueChunk(apiKey, model, teacherVoice, learnerVoice, text, style);
+      if (rate && a.rate !== rate) throw new Error(`Sample rate changed mid-segment (${rate} -> ${a.rate}); cannot splice.`);
+      rate = a.rate; sourceMime = a.sourceMime; calls++;
+      parts.push(a.pcm);
+      spokenSeconds += a.pcm.length / (rate * 2);
+      ['promptTokenCount', 'candidatesTokenCount', 'totalTokenCount'].forEach((k) => { usage[k] += Number(a.usage[k]) || 0; });
+    }
+    /* a mark follows every chunk but the last */
+    if (i < chunks.length - 1) {
+      if (!rate) rate = 24000;
+      parts.push(silencePcm(rate));
+      pauseSeconds += PAUSE_SECONDS;
+    }
+  }
+  if (!calls) throw new Error('Segment has no spoken text.');
+  const pcm = concatBytes(parts);
+  return {
+    wav: wavFromPcm(pcm, rate), sampleRate: rate,
+    seconds: pcm.length / (rate * 2),
+    spokenSeconds, pauseSeconds, pauses: chunks.length - 1, calls,
+    usage: { ...usage, chunks: calls, pause_seconds: pauseSeconds, format: 'dialogue' },
+    sourceMime,
+  };
+}
+
 /* ── auth ─────────────────────────────────────────────────────────────────── */
 
 async function requireAdmin(req: Request) {
@@ -351,13 +488,21 @@ async function lectureVoice(rest: Rest, guideSlug: string): Promise<string> {
   const rows = await res.json().catch(() => []);
   return (Array.isArray(rows) && rows[0] && rows[0].voice) ? String(rows[0].voice) : '';
 }
+/* the Student voice of a conversation, pinned beside the narrator */
+async function lectureLearnerVoice(rest: Rest, guideSlug: string): Promise<string> {
+  const res = await rest(`podcast_lecture_voice?select=learner_voice&guide_slug=eq.${encodeURIComponent(guideSlug)}`);
+  if (!res.ok) return '';
+  const rows = await res.json().catch(() => []);
+  return (Array.isArray(rows) && rows[0] && rows[0].learner_voice) ? String(rows[0].learner_voice) : '';
+}
 
-async function setLectureVoice(rest: Rest, guideSlug: string, voice: string, uid: string) {
+async function setLectureVoice(rest: Rest, guideSlug: string, voice: string, uid: string, learnerVoice?: string) {
+  const row: any = { guide_slug: guideSlug, voice, pinned_at: new Date().toISOString(), pinned_by: uid || null };
+  if (learnerVoice) row.learner_voice = learnerVoice;
   const res = await rest('podcast_lecture_voice?on_conflict=guide_slug', {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates' },
-    body: JSON.stringify([{ guide_slug: guideSlug, voice, pinned_at: new Date().toISOString(),
-                            pinned_by: uid || null }]),
+    body: JSON.stringify([row]),
   });
   if (!res.ok) {
     throw new Error(`Could not pin the lecture voice (${res.status}): ${(await res.text()).slice(0, 200)}`);
@@ -550,7 +695,7 @@ Deno.serve(async (req: Request) => {
     if (!episodeId) throw new Error('episode_id is required');
 
 
-    const epRes = await rest(`podcast_episodes?select=id,guide_slug,section_heading,ordinal,script,status&id=eq.${episodeId}`);
+    const epRes = await rest(`podcast_episodes?select=id,guide_slug,section_heading,ordinal,script,status,format&id=eq.${episodeId}`);
     const epRows = await epRes.json();
     if (!epRes.ok) throw new Error(`Episode read failed (${epRes.status})`);
     const episode = Array.isArray(epRows) && epRows[0];
@@ -561,15 +706,20 @@ Deno.serve(async (req: Request) => {
     if (!cpRes.ok) throw new Error(`Checkpoint read failed (${cpRes.status})`);
 
     const maxSeconds = Math.max(60, Math.min(HARD_MAX_SECONDS, Number(body.max_seconds ?? MAX_SECONDS_DEFAULT)));
+    const isDialogue = String(episode.format || 'lecture') === 'dialogue';
     const script = String(episode.script || '')
       /* belt and braces: the script is stored already stripped, but a marker
-         must never reach the synthesiser and be read out as "bracket bracket" */
+         must never reach the synthesiser and be read out as "bracket bracket".
+         A conversation's [[PAUSE]] marks are different: they are what the
+         planner cuts on and what the splicer turns into silence. */
       .replace(/\[\[\s*CHECKPOINT\s*\]\]/gi, ' ')
       .replace(/[ \t]{2,}/g, ' ')
       .trim();
     if (!script) throw new Error('Episode has an empty script.');
 
-    const segments = planSegments(script, Array.isArray(checkpoints) ? checkpoints : [], maxSeconds);
+    const segments = isDialogue
+      ? planDialogueSegments(script, maxSeconds)
+      : planSegments(script, Array.isArray(checkpoints) ? checkpoints : [], maxSeconds);
 
     if (action === 'status' || action === 'plan') {
       const haveRes = await rest(`podcast_audio?select=ordinal,storage_path,duration_seconds,voice,model,bytes,ends_at_checkpoint&episode_id=eq.${episodeId}&order=ordinal.asc`);
@@ -578,6 +728,10 @@ Deno.serve(async (req: Request) => {
       const planPin = await lectureVoice(rest, episode.guide_slug);
       return new Response(JSON.stringify({
         episode_id: episodeId,
+        format: isDialogue ? 'dialogue' : 'lecture',
+        learner_voice: isDialogue ? ((await lectureLearnerVoice(rest, episode.guide_slug)) || null) : undefined,
+        pauses: isDialogue ? segments.reduce((a, s) => a + (s.pauses || 0), 0) : undefined,
+        pause_seconds: isDialogue ? PAUSE_SECONDS : undefined,
         /* so the page can show the narrator this lecture is committed to
            instead of whatever its dropdown happens to say */
         pinned_voice: planPin || null,
@@ -644,8 +798,23 @@ Deno.serve(async (req: Request) => {
         + `segments already generated stay in ${pin} until they are regenerated.`);
     }
     const voice = (repin && asked) ? asked : (pin || asked || DEFAULT_VOICE);
-    if (!pin || (repin && asked && asked.toLowerCase() !== pin.toLowerCase())) {
-      await setLectureVoice(rest, episode.guide_slug, voice, gate.uid);
+    /* the Student voice: pinned beside the narrator the first time a
+       conversation is voiced for this lecture, changed only with repin */
+    let learner = '';
+    if (isDialogue) {
+      const learnerPin = await lectureLearnerVoice(rest, episode.guide_slug);
+      const askedLearner = body.learner_voice ? String(body.learner_voice) : '';
+      if (askedLearner && !VOICES.some((v) => v.name.toLowerCase() === askedLearner.toLowerCase())) {
+        throw new Error(`Unknown learner_voice "${askedLearner}". Call action:"voices" for the list.`);
+      }
+      learner = (repin && askedLearner) ? askedLearner : (learnerPin || askedLearner || DEFAULT_LEARNER_VOICE);
+      if (learner.toLowerCase() === voice.toLowerCase()) {
+        throw new Error(`The Student voice (${learner}) must differ from the narrator (${voice}); pass learner_voice.`);
+      }
+    }
+    if (!pin || (repin && asked && asked.toLowerCase() !== pin.toLowerCase()) || (isDialogue && learner && !(await lectureLearnerVoice(rest, episode.guide_slug)))
+        || (isDialogue && repin && body.learner_voice)) {
+      await setLectureVoice(rest, episode.guide_slug, voice, gate.uid, isDialogue ? learner : undefined);
     }
 
     const available = await listModels(apiKey);
@@ -657,7 +826,9 @@ Deno.serve(async (req: Request) => {
     }
 
     const t0 = Date.now();
-    const audio = await synthesize(apiKey, model, voice, seg.text, String(body.style || ''));
+    const audio: any = isDialogue
+      ? await synthesizeDialogue(apiKey, model, voice, learner, seg.text, String(body.style || ''))
+      : await synthesize(apiKey, model, voice, seg.text, String(body.style || ''));
     const genMs = Date.now() - t0;
 
     if (audio.seconds > HARD_MAX_SECONDS + 30) {
@@ -687,7 +858,8 @@ Deno.serve(async (req: Request) => {
       bytes: audio.wav.length, mime_type: 'audio/wav',
       /* measured, not estimated: the first lecture's cost is unknowable
          because this block was computed and then thrown away */
-      usage: { ...(audio.usage || {}), generation_ms: genMs, tts_model: model },
+      usage: { ...(audio.usage || {}), generation_ms: genMs, tts_model: model,
+               ...(isDialogue ? { learner_voice: learner } : {}) },
     };
     const ins = await rest('podcast_audio?on_conflict=episode_id,ordinal', {
       method: 'POST',
@@ -715,6 +887,11 @@ Deno.serve(async (req: Request) => {
       generation_ms: genMs,
       usage: audio.usage,
       pinned_voice: voice,
+      learner_voice: isDialogue ? learner : undefined,
+      pauses: isDialogue ? audio.pauses : undefined,
+      spoken_seconds: isDialogue ? Math.round(audio.spokenSeconds * 100) / 100 : undefined,
+      pause_seconds: isDialogue ? audio.pauseSeconds : undefined,
+      tts_calls: isDialogue ? audio.calls : 1,
       repinned: repin && !!asked,
       ends_at_checkpoint: seg.ends_at_checkpoint,
       split_reason: seg.split_reason,

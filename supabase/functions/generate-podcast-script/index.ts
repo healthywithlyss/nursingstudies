@@ -24,6 +24,9 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
    POST body:
      action           'generate' (default) | 'list-sections' | 'list-models'
                       | 'scope-audit' (scoping verdicts only, nothing written)
+                      | 'generate-cards' (a two-voice CONVERSATION built from the
+                        flashcards of one objective or lecture; see the
+                        DIALOGUE block below — no markdown involved)
      guide_slug       e.g. "nur144-u1-l1"          (generate, list-sections)
      section_heading  exact H2 text                 (generate)
      markdown         full guide markdown           (generate, list-sections)
@@ -886,6 +889,197 @@ function overlapScore(fact: string, bodyWords: Set<string>): number {
   return Math.round((hit / seen.size) * 100) / 100;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   DIALOGUE — a conversation that prepares her for the deck
+
+   The lecture format above is something she listens to passively. This one
+   is built from the FLASHCARDS of one objective (or a whole lecture): for
+   each card, in deck order, two voices work out WHY the thing happens (the
+   explanation field, expanded into talk), the Teacher then asks the card's
+   question out loud, frames the silence ("take a second"), a [[PAUSE]] line
+   marks 4.5 seconds of real silence that the audio function splices in, and
+   the Teacher answers, then the why. The Student voice is her: asks why,
+   pushes back with intuition, restates the mechanism, connects to earlier
+   cards.
+
+   Verified two ways before it is saved: a local lint (one pause per card,
+   every question asked verbatim, a frame before each pause, an "Okay —"
+   after, only Teacher/Student lines, nothing that refers to the deck) and a
+   model coverage pass over every card's answer. A part that still fails after
+   the retries is saved as 'incomplete' with the misses listed.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const CARDS_PER_PART_DEFAULT = 12;     /* ~180 words + 4.5 s each -> about 15 minutes */
+const WORDS_PER_CARD = 180;
+const PAUSE_MARK = '[[PAUSE]]';
+
+type Card = { id: number; question: string; answer: string; explanation: string | null };
+
+function dialoguePrompt(objLabel: string, objDesc: string, lectureLabel: string, cards: Card[],
+                        part: number, parts: number, priorQuestions: string[]) {
+  const target = cards.length * WORDS_PER_CARD;
+  return `You are writing a two-voice CONVERSATION for one nursing student to listen to
+before she works through a set of flashcards. It is not a lecture and it is not
+a quiz. It is two people working out WHY things happen, and then testing recall.
+
+THE TWO VOICES
+- Teacher: knows the material, explains mechanisms in plain words, answers
+  objections honestly, never talks in lists.
+- Student: is her. Curious, sharp, a little sceptical. The Student does NOT feed
+  straight lines. She:
+  * asks WHY something happens, not just what happens
+    ("Dysphagia is worse with solids — but why are liquids different?")
+  * raises the obvious objection a student would have, from her own intuition,
+    and gets it answered ("It's a spasm, so wouldn't gravity still help the food
+    down?" "We put an NG tube in a GI bleed — wouldn't the suction make it bleed
+    more?" "Manometry measures pressure squeezing. How is that movement and not
+    structural?")
+  * restates the mechanism back in plainer words to check she has it ("So the
+    acid inflames the peritoneum, that makes the capillaries leaky, and the
+    fluid that leaks out is from the circulating blood?")
+  * connects it to something already covered ("That's the same reason ascites
+    happens, right?")
+  About one in three of her turns should be a pushback or a restatement rather
+  than a question. She is never a prompter.
+
+FOR EACH CARD, IN THE ORDER GIVEN. This structure is not optional:
+1. MECHANISM FIRST. Before any fact from the answer is stated, the two of them
+   build WHY it happens, conversationally. The card's WHY text is the raw
+   material: expand it into dialogue, never read it out. If it is thin, build the
+   why from the answer and from cards already covered. Never jump to detail
+   before the mechanism is on the table.
+2. THE QUESTION. The Teacher poses the card's question OUT LOUD, worded EXACTLY
+   as the card has it — copy it character for character, it is located by text.
+3. THE FRAME. In the SAME Teacher turn, right after the question, one short
+   sentence that tells her the coming silence is deliberate. Vary it every time:
+   "Take a second." "Think it through." "Give it a moment before I say it."
+   "See if you can get all of it." "Say it in your head first."
+4. THE PAUSE. Then a line containing exactly ${PAUSE_MARK} and nothing else.
+   One per card. Never two in a row.
+5. THE ANSWER. The next line is a Teacher turn that begins with "Okay —" (or
+   "Alright —" or "Right —"), gives the card's ANSWER in full, then the why in a
+   sentence or two. The Student may react briefly, then the next card begins
+   through the content, not with an announcement.
+
+CONTENT RULES
+- The cards are the ONLY source. No outside nursing knowledge. Every fact in the
+  dialogue comes from a card's question, answer or why, or from a card already
+  covered in this conversation. If the cards do not say why, the Teacher says
+  plainly that the why is not covered here — never invents one.
+- Cover every card. Every ANSWER must be said in full in its answer turn, even
+  where the mechanism talk already touched it.
+- Speak numbers, units and abbreviations the way a person says them: "fifteen
+  hundred milliliters", "B twelve", "G I", "H two blocker", "I and O", "N G tube".
+- She is listening, not reading: never say "the card", "this card", "the deck",
+  "the flashcard", "the list", "the explanation", "as written". No headings,
+  bullets, stage directions, brackets or markdown of any kind. The ONLY things
+  in the script are Teacher lines, Student lines and ${PAUSE_MARK} lines.
+- Contractions. Short sentences. Real speech. Dry humour is welcome; no jokes.
+- ${priorQuestions.length
+      ? `Cards already covered in an earlier part of this conversation (build on them, do not re-teach them):\n  - ${priorQuestions.join('\n  - ')}`
+      : 'This is the first part of the conversation for this objective.'}
+- Length: about ${target} words for these ${cards.length} cards, roughly
+  ${WORDS_PER_CARD} per card. Room to build the why, not a quota.
+
+FORMAT
+Return ONLY JSON: {"script": "<the dialogue>"}. The dialogue is plain lines:
+Teacher: ...
+Student: ...
+${PAUSE_MARK}
+Teacher: Okay — ...
+Every turn starts on its own line with its label. No other labels exist.
+
+OBJECTIVE: ${objLabel}${objDesc ? ' — ' + objDesc : ''}
+LECTURE: ${lectureLabel}${parts > 1 ? `\nPART ${part} OF ${parts}` : ''}
+
+CARDS, IN ORDER:
+${cards.map((c, i) => `${i + 1}. QUESTION: ${c.question}\n   ANSWER: ${c.answer}\n   WHY: ${(c.explanation || '').trim() || '(not given — do not invent one)'}`).join('\n')}`;
+}
+
+function dialogueRepairPrompt(script: string, issues: string[], missing: string[]) {
+  return `Revise this two-voice conversation. Keep everything that is right; change
+only what the problems below require. Same voices, same rules: Teacher and
+Student lines only, ${PAUSE_MARK} on its own line exactly once per card, the
+card's question copied character for character followed by a framing sentence
+in the same Teacher turn, and an answer turn beginning "Okay —" after each pause.
+The cards remain the only source.
+
+PROBLEMS FOUND:
+${issues.length ? issues.map((x) => '- ' + x).join('\n') : '- (structure is fine)'}
+
+ANSWERS A LISTENER WOULD NOT COME AWAY KNOWING (each must be said in full in its
+answer turn, and its why built beforehand):
+${missing.length ? missing.map((x) => '- ' + x).join('\n') : '- (none)'}
+
+Return ONLY JSON: {"script": "<the full revised dialogue>"}
+
+CURRENT SCRIPT:
+"""
+${script}
+"""`;
+}
+
+const FRAME_RE = /(take a (second|moment|beat)|think it through|think about it|give it a moment|see if you can|say it in your head|before i say it|give yourself a second|sit with it)/i;
+const OKAY_RE = /^Teacher:\s*(okay|alright|right|ok)\b/i;
+const DECK_REF_RE = /\b(the|this|that|each|every)\s+(card|cards|flashcard|flashcards|deck)\b|\bthe list\b|\bthe explanation\b|\bas written\b/i;
+
+/* Everything the structure demands, checked locally — a rule a script must
+   follow is not something to ask the model whether it followed. */
+function lintDialogue(script: string, cards: Card[]) {
+  const issues: string[] = [];
+  const lines = script.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const bad = lines.filter((l) => !/^(Teacher|Student):/.test(l) && l !== PAUSE_MARK);
+  if (bad.length) issues.push(`${bad.length} line(s) that are neither a Teacher/Student turn nor ${PAUSE_MARK}: "${bad[0].slice(0, 60)}"`);
+  const pauses = lines.filter((l) => l === PAUSE_MARK).length;
+  if (pauses !== cards.length) issues.push(`${pauses} ${PAUSE_MARK} lines for ${cards.length} cards — exactly one per card, after its question`);
+  for (let i = 1; i < lines.length; i++) if (lines[i] === PAUSE_MARK && lines[i - 1] === PAUSE_MARK) { issues.push('two pauses in a row'); break; }
+
+  /* each card: its question, verbatim, in a Teacher turn, followed by a frame,
+     then a pause, then an Okay turn — in deck order */
+  const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const normLines = lines.map(norm);
+  let cursor = 0;
+  const perCard: any[] = [];
+  cards.forEach((c, ci) => {
+    const qn = norm(c.question);
+    let at = -1;
+    for (let i = cursor; i < lines.length; i++) if (/^teacher/.test(normLines[i]) && normLines[i].includes(qn)) { at = i; break; }
+    const rec: any = { id: c.id, question: c.question, asked: at > -1, framed: false, paused: false, answered: false };
+    if (at < 0) {
+      issues.push(`card ${ci + 1}: the question is not asked verbatim in a Teacher turn: "${c.question.slice(0, 70)}"`);
+    } else {
+      const qAt = normLines[at].indexOf(qn);
+      /* what follows the question inside the same turn, on the normalised view */
+      const afterNorm = normLines[at].slice(qAt + qn.length).trim();
+      rec.framed = FRAME_RE.test(lines[at]) || afterNorm.length > 8;
+      if (!rec.framed) issues.push(`card ${ci + 1}: no framing sentence after the question ("Take a second." or similar, same turn)`);
+      rec.paused = lines[at + 1] === PAUSE_MARK;
+      if (!rec.paused) issues.push(`card ${ci + 1}: the line after the question must be ${PAUSE_MARK}`);
+      rec.answered = rec.paused && OKAY_RE.test(lines[at + 2] || '');
+      if (rec.paused && !rec.answered) issues.push(`card ${ci + 1}: the line after the pause must be a Teacher turn starting "Okay —"`);
+      cursor = at + 1;
+    }
+    perCard.push(rec);
+  });
+  const deckRefs = lines.filter((l) => DECK_REF_RE.test(l)).slice(0, 3);
+  if (deckRefs.length) issues.push(`refers to the deck she cannot see: "${deckRefs[0].slice(0, 80)}"`);
+  const docRefs = findDocumentReferences(script);
+  if (docRefs.length) issues.push(`describes a document: "${docRefs[0].context.slice(0, 80)}"`);
+  return { issues, perCard, pauses, deckRefs, docRefs };
+}
+
+function splitParts(cards: Card[], perPart: number) {
+  const parts = Math.max(1, Math.ceil(cards.length / perPart));
+  const size = Math.ceil(cards.length / parts);
+  const out: Card[][] = [];
+  for (let i = 0; i < cards.length; i += size) out.push(cards.slice(i, i + size));
+  return out;
+}
+
+/* "N144_L1_O4" -> its lecture "N144_L1"; a lecture -> null */
+const parentOf = (id: string) => { const p = id.replace(/_O\d+$/, ''); return p === id ? null : p; };
+const objectiveNum = (id: string) => { const m = /_O(\d+)$/.exec(id); return m ? Number(m[1]) : null; };
+
 async function requireAdmin(req: Request) {
   const auth = req.headers.get('Authorization') || '';
   const token = auth.replace(/^Bearer\s+/i, '').trim();
@@ -939,6 +1133,123 @@ Deno.serve(async (req: Request) => {
           const g = pickModel(available);
           return { generation: g, verification: pickModel(available, g) };
         })(),
+      }), { headers: JSON_HDR });
+    }
+
+    /* ── generate-cards: the conversation ── */
+    if (action === 'generate-cards') {
+      const objectiveId = String(body.objective_id || '').trim();
+      const course = String(body.course || '').trim();
+      if (!objectiveId) throw new Error('objective_id is required (e.g. N144_L1_O4, or a lecture N144_L1)');
+      if (!course) throw new Error('course is required (e.g. NUR144)');
+      const perPart = Math.max(1, Math.min(30, Number(body.cards_per_part ?? CARDS_PER_PART_DEFAULT)));
+      const hdr = { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}` };
+      const get = async (path: string) => {
+        const r = await fetch(`${gate.SUPABASE_URL}/rest/v1/${path}`, { headers: hdr });
+        const j = await r.json().catch(() => null);
+        if (!r.ok) throw new Error(`${path.split('?')[0]} read failed (${r.status})`);
+        return Array.isArray(j) ? j : [];
+      };
+
+      /* names from the objectives table; the lecture is the objective's parent */
+      const lectureId = parentOf(objectiveId) || objectiveId;
+      const objRows = await get(`objectives?select=id,lecture,description&id=in.(${encodeURIComponent(objectiveId)},${encodeURIComponent(lectureId)})`);
+      const objRow = objRows.find((r: any) => r.id === objectiveId) || {};
+      const lecRow = objRows.find((r: any) => r.id === lectureId) || {};
+      const num = objectiveNum(objectiveId);
+      const lm = /_L(\d+)$/.exec(lectureId);
+      const lectureLabel = String(lecRow.lecture || '').trim() || (lm ? 'Lecture ' + lm[1] : lectureId);
+      const objLabel = num != null ? `Objective ${num}` : lectureLabel;
+      const objDesc = num != null ? String(objRow.description || '').trim()
+        : String(lecRow.description || '').replace(/^.*? - /, '').trim();
+
+      /* the deck, in deck order: card ids ascend in the order the deck was
+         built (foundation first, then shared features, discriminators,
+         treatment), so id order IS the structure */
+      const cardRows = await get(`flashcards?select=id,question,answer,explanation,objective_ids&course=eq.${encodeURIComponent(course)}&objective_ids=cs.{${encodeURIComponent(objectiveId)}}&order=id.asc`);
+      const cards: Card[] = cardRows.map((r: any) => ({
+        id: Number(r.id), question: String(r.question || '').trim(), answer: String(r.answer || '').trim(),
+        explanation: r.explanation == null ? null : String(r.explanation),
+      })).filter((c: Card) => c.question && c.answer);
+      if (!cards.length) throw new Error(`No flashcards carry ${objectiveId} in ${course}.`);
+
+      const partsArr = splitParts(cards, perPart);
+      const parts = partsArr.length;
+      const part = Math.max(1, Math.min(parts, Number(body.part ?? 1)));
+      const mine = partsArr[part - 1];
+      const prior = partsArr.slice(0, part - 1).flat().map((c) => c.question);
+
+      /* the lecture this belongs to, for the voice pin and the Listen library */
+      let guideSlug = String(body.guide_slug || '').trim();
+      if (!guideSlug) {
+        const units = await get(`objective_units?select=unit&objective_id=eq.${encodeURIComponent(lectureId)}`);
+        const unit = units[0] && units[0].unit ? Number(units[0].unit) : 1;
+        const cn = (/^NUR(\d+)/i.exec(course) || [])[1] || course.toLowerCase();
+        guideSlug = `nur${cn}-u${unit}-${lm ? 'l' + lm[1] : lectureId.split('_').pop()!.toLowerCase()}`;
+      }
+      const heading = `${objLabel}${objDesc ? ' — ' + objDesc : ''}${parts > 1 ? ` (part ${part} of ${parts})` : ''}`;
+      const ordinal = (num != null ? 100 + num * 10 : 50) + part;
+
+      const available = await availableModels(apiKey);
+      const genModel = body.gen_model || pickModel(available);
+      const checkModel = body.check_model || pickModel(available, genModel);
+      if (!genModel || !checkModel) throw new Error('No usable Gemini model found for this API key.');
+      const maxRetries = Math.max(0, Math.min(4, Number(body.max_retries ?? 2)));
+
+      const facts = mine.map((c) => `${c.question} — ${c.answer}`);
+      let script = '', lint: any = null, coverage: any[] = [], missing: string[] = [];
+      const attempts: any[] = [];
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const prompt = attempt === 0
+          ? dialoguePrompt(objLabel, objDesc, lectureLabel, mine, part, parts, prior)
+          : dialogueRepairPrompt(script, lint.issues, missing);
+        const out = parseJson(await gemini(apiKey, genModel, prompt,
+          { json: true, temperature: attempt === 0 ? 0.7 : 0.4, stage: attempt === 0 ? 'dialogue-write' : 'dialogue-repair', ledger }));
+        script = String(out.script || '').replace(/\r/g, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+        if (!script) throw new Error('Model returned an empty script.');
+        lint = lintDialogue(script, mine);
+        coverage = await checkCoverage(apiKey, checkModel, facts, script, ledger, 'dialogue-coverage');
+        missing = coverage.filter((c) => !c.covered).map((c) => c.fact);
+        attempts.push({ attempt: attempt + 1, words: wordCount(script), pauses: lint.pauses,
+          issues: lint.issues.length, answers_missed: missing.length });
+        if (!lint.issues.length && !missing.length) break;
+      }
+      const status = (lint.issues.length || missing.length) ? 'incomplete' : 'complete';
+      const est = Math.round(wordCount(script) / 150 * 60 + mine.length * 4.5);
+      const coverage_report = {
+        format: 'dialogue',
+        objective_id: objectiveId, lecture_id: lectureId, course, part, parts,
+        cards: lint.perCard.map((r: any, i: number) => ({ ...r, answer_covered: coverage[i] ? coverage[i].covered : null })),
+        cards_total: mine.length, pauses: lint.pauses,
+        structure_issues: lint.issues,
+        answers: { total: facts.length, covered: coverage.filter((c) => c.covered).length, missed: missing.length, missing_facts: missing, facts: coverage },
+        document_references: lint.docRefs, deck_references: lint.deckRefs,
+        words: wordCount(script), estimated_seconds: est,
+        summary: `cards ${mine.length}, questions asked ${lint.perCard.filter((r: any) => r.asked).length}/${mine.length}, `
+          + `answers covered ${coverage.filter((c) => c.covered).length}/${facts.length}, pauses ${lint.pauses}, structure issues ${lint.issues.length}`,
+        attempts, models: { generation: genModel, verification: checkModel },
+        usage: ledger.summary(), generated_at: new Date().toISOString(),
+      };
+
+      let episodeId: string | null = null;
+      if (!body.dry_run) {
+        const epRes = await fetch(`${gate.SUPABASE_URL}/rest/v1/podcast_episodes`, {
+          method: 'POST', headers: { ...hdr, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+          body: JSON.stringify({
+            guide_slug: guideSlug, section_heading: heading, ordinal, script, coverage_report, status,
+            usage: ledger.summary(), format: 'dialogue', objective_id: objectiveId,
+            card_ids: mine.map((c) => c.id), part, parts,
+          }),
+        });
+        const epRows = await epRes.json().catch(() => null);
+        if (!epRes.ok) throw new Error(`Saving episode failed (${epRes.status}): ${JSON.stringify(epRows).slice(0, 300)}`);
+        episodeId = epRows && epRows[0] && epRows[0].id;
+        /* no checkpoints: the pause is silence inside the audio, not a stop */
+      }
+      return new Response(JSON.stringify({
+        episode_id: episodeId, format: 'dialogue', guide_slug: guideSlug, section_heading: heading, ordinal,
+        objective_id: objectiveId, part, parts, cards: mine.map((c) => c.id), status, script,
+        coverage_report, usage: ledger.summary(),
       }), { headers: JSON_HDR });
     }
 

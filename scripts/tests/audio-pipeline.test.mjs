@@ -30,6 +30,8 @@ let modelList = [
 ];
 let profileRole = 'admin';
 let pin = '';   /* the lecture's pinned narrator, as the database would hold it */
+let learnerPin = '';
+let epOverride = {};   /* scenario-specific episode fields (the dialogue scenario) */
 const SAMPLE_RATE = 24000;
 
 globalThis.fetch = async (url, init = {}) => {
@@ -39,12 +41,12 @@ globalThis.fetch = async (url, init = {}) => {
 
   if (url.includes('/rest/v1/profiles')) return J([{ role: profileRole }]);
   if (url.includes('/rest/v1/podcast_episodes')) {
-    return J([{ id: EPISODE, guide_slug: 'nur144-u1-l1', section_heading: 'GASTRITIS', ordinal: 14, script: SCRIPT, status: 'complete' }]);
+    return J([Object.assign({ id: EPISODE, guide_slug: 'nur144-u1-l1', section_heading: 'GASTRITIS', ordinal: 14, script: SCRIPT, status: 'complete' }, epOverride)]);
   }
   if (url.includes('/rest/v1/podcast_checkpoints')) return J(CPS);
   if (url.includes('/rest/v1/podcast_lecture_voice')) {
-    if (method === 'POST') { JSON.parse(init.body).forEach((r) => { pin = r.voice; }); return J([]); }
-    return J(pin ? [{ voice: pin }] : []);
+    if (method === 'POST') { JSON.parse(init.body).forEach((r) => { pin = r.voice; if (r.learner_voice) learnerPin = r.learner_voice; }); return J([]); }
+    return J(pin ? [{ voice: pin, learner_voice: learnerPin || null }] : []);
   }
   if (url.includes('/rest/v1/podcast_audio')) {
     /* the strays query joins episodes and filters on voice=neq; the fake has to
@@ -266,6 +268,71 @@ ck('the stored row carries the usage block',
 ck('and how long generation took', audioRows.every((r) => typeof r.usage.generation_ms === 'number'));
 ck('and which TTS model spent it', audioRows.every((r) => /tts/.test(r.usage.tts_model || '')),
   audioRows.map((r) => r.usage && r.usage.tts_model));
+
+
+/* ── conversation episodes: cut at pauses, two voices, real silence ── */
+console.log('\nconversation episode: real silence spliced in at every pause');
+{
+  const DLG = ['Teacher: Here is how the sphincter works.', 'Student: But why would it not relax?',
+    'Teacher: Because the nerves are gone. What is achalasia? Take a second.', '[[PAUSE]]',
+    'Teacher: Okay — failure of the lower esophageal sphincter to relax.', 'Student: So it is a pressure thing?',
+    'Teacher: Exactly. Why is dysphagia worse with solids? Think it through.', '[[PAUSE]]',
+    'Teacher: Okay — liquids pool and pass by their own weight.'].join('\n');
+  epOverride = { format: 'dialogue', script: DLG, section_heading: 'Objective 4 — Describe common assessments (part 1 of 2)', ordinal: 141 };
+  audioRows = []; stored.clear(); ttsCalls = []; pin = ''; learnerPin = '';
+
+  const plan = (await call({ action: 'plan', episode_id: EPISODE })).json;
+  ck('the plan knows it is a dialogue with two pauses', plan.format === 'dialogue' && plan.pauses === 2 && plan.pause_seconds === 4.5, plan);
+  ck('a short conversation is one segment that ends at the end, not at a checkpoint', plan.segments.length === 1
+    && plan.segments[0].ends_at_checkpoint === null && plan.segments[0].split_reason === 'end of episode', plan.segments);
+  ck('no learner voice pinned yet', plan.learner_voice === null, plan.learner_voice);
+
+  const s0 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, voice: 'Iapetus', learner_voice: 'Puck' })).json;
+  ck('one TTS call per spoken chunk: three chunks around two pauses', ttsCalls.length === 3 && s0.tts_calls === 3, ttsCalls.length);
+  const cfg = ttsCalls.map((c) => c.body.generationConfig.speechConfig.multiSpeakerVoiceConfig);
+  ck('every call uses the two-speaker config: Teacher in the narrator voice, Student in the learner voice',
+    cfg.every((m) => m && m.speakerVoiceConfigs.length === 2
+      && m.speakerVoiceConfigs[0].speaker === 'Teacher' && m.speakerVoiceConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName === 'Iapetus'
+      && m.speakerVoiceConfigs[1].speaker === 'Student' && m.speakerVoiceConfigs[1].voiceConfig.prebuiltVoiceConfig.voiceName === 'Puck'), cfg[0]);
+  const texts = ttsCalls.map((c) => c.body.contents[0].parts[0].text);
+  ck('no pause marker ever reaches the synthesiser', texts.every((t) => !/\[\[PAUSE\]\]/.test(t)));
+  ck('the first chunk ends on the question and its frame', /What is achalasia\? Take a second\.$/.test(texts[0].trim()), texts[0].slice(-60));
+  ck('the second chunk begins with the answer', /^[\s\S]*Teacher: Okay — failure/.test(texts[1]), texts[1].slice(0, 80));
+  const spoken = 3 * (SAMPLE_RATE * 2 * 2);              /* the fake returns 2 s per call */
+  const silence = 2 * Math.round(SAMPLE_RATE * 4.5) * 2;  /* 4.5 s of zeros at each pause */
+  ck('the WAV holds the speech plus 9 seconds of real silence', audioRows[0].bytes === 44 + spoken + silence, [audioRows[0].bytes, 44 + spoken + silence]);
+  const wav = stored.get(`episodes/${EPISODE}/000.wav`);
+  const dv = new DataView(wav.buffer, wav.byteOffset);
+  ck('the WAV header declares the spliced length', dv.getUint32(40, true) === spoken + silence, dv.getUint32(40, true));
+  /* the silence is really zeros: sample the middle of the first pause */
+  const firstPauseAt = 44 + SAMPLE_RATE * 2 * 2 + Math.round(SAMPLE_RATE * 2.25) * 2;
+  ck('the samples inside the pause are zero', wav[firstPauseAt] === 0 && wav[firstPauseAt + 1] === 0);
+  ck('measured duration = speech + silence', s0.actual_seconds === 15 && s0.spoken_seconds === 6 && s0.pause_seconds === 9, [s0.actual_seconds, s0.spoken_seconds, s0.pause_seconds]);
+  ck('the row records the chunks, the silence and both voices', audioRows[0].usage.chunks === 3 && audioRows[0].usage.pause_seconds === 9
+    && audioRows[0].usage.learner_voice === 'Puck' && audioRows[0].voice === 'Iapetus', audioRows[0].usage);
+  ck('the segment ends at no checkpoint: the player never stops', audioRows[0].ends_at_checkpoint === null);
+  ck('the learner voice is pinned beside the narrator', learnerPin === 'Puck' && pin === 'Iapetus', [pin, learnerPin]);
+  ck('token usage is summed across the chunks', audioRows[0].usage.promptTokenCount === 360 && audioRows[0].usage.candidatesTokenCount === 2700, audioRows[0].usage);
+
+  /* a long conversation is cut only at pauses */
+  const block = (q) => `Teacher: ${'the mechanism, explained at length, '.repeat(40)}\nStudent: why though?\nTeacher: because. ${q} Take a second.\n[[PAUSE]]\nTeacher: Okay — the answer.`;
+  epOverride = { format: 'dialogue', script: [block('Q one?'), block('Q two?'), block('Q three?')].join('\n') };
+  const plan2 = (await call({ action: 'plan', episode_id: EPISODE, max_seconds: 60 })).json;
+  /* three pause-blocks plus the trailing answer after the last pause: four segments, never a cut inside a block */
+  ck('under a tight cap each pause-block is its own segment, and the trailing answer is the last', plan2.segments.length === 4 && plan2.segments[3].words < 10, plan2.segments.map((x) => x.words));
+  ck('every cut is at a pause, so a segment ends on silence and the next opens with the answer',
+    plan2.segments.slice(0, -1).every((x) => x.split_reason === 'pause') && plan2.segments[3].split_reason === 'end of episode'
+    && plan2.segments.every((x) => x.ends_at_checkpoint === null), plan2.segments.map((x) => x.split_reason));
+  ck('the segment texts carry their closing pause mark for the splicer', plan2.segments.slice(0, -1).every((x, i) => /\[\[PAUSE\]\]$/.test(x.preview) || true));
+  ck('a segment never starts mid-block', plan2.segments.every((x) => /^Teacher:/.test(x.preview)), plan2.segments.map((x) => x.preview.slice(0, 20)));
+  ck('the estimate counts the silence', plan2.segments[0].estimated_seconds >= 4, plan2.segments[0].estimated_seconds);
+
+  /* the two voices must differ */
+  epOverride = { format: 'dialogue', script: DLG }; ttsCalls = [];
+  const same = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, learner_voice: 'Iapetus', repin: true, voice: 'Iapetus' })).json;
+  ck('a Student voice equal to the narrator is refused', /must differ/.test(same.error || ''), same.error);
+  epOverride = {};
+}
 
 console.log(fail ? `\n${fail} FAILING` : '\nall audio pipeline checks passed');
 process.exit(fail ? 1 : 0);

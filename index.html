@@ -1236,6 +1236,17 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   padding:20px 22px;font-size:15px;line-height:1.75;color:var(--text)}
 .pod-script p{margin-bottom:14px;white-space:pre-wrap}
 .pod-script p:last-child{margin-bottom:0}
+/* the conversation format: turns, and the silence made visible */
+.pod-dlg .pod-turn{display:grid;grid-template-columns:62px 1fr;gap:8px;margin-bottom:8px;font-size:13.5px;line-height:1.55}
+.pod-dlg .pod-who{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);padding-top:3px}
+.pod-dlg .pod-turn.student .pod-who,.pod-dlg .pod-turn.student .pod-say{color:var(--cobalt)}
+.pod-pause{margin:6px 0 12px 70px;padding:6px 10px;border:1px dashed var(--border);border-radius:8px;font-size:11.5px;color:var(--text-muted)}
+.pod-dlg-cards{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.pod-dlg-cards td{padding:5px 6px;border-top:1px solid var(--border);vertical-align:top}
+.pod-dlg-cards tr.bad td{color:var(--missed)}
+.pod-pill.dialogue{background:var(--cobalt-bg);color:var(--cobalt)}
+.lsn-tag.conv{background:rgba(79,126,248,.15);color:var(--accent)}
+@media(max-width:767px){.pod-dlg .pod-turn{grid-template-columns:52px 1fr}.pod-pause{margin-left:60px}}
 .pod-cp{background:var(--plum-bg);border:1px solid var(--plum);border-left:4px solid var(--plum);
   border-radius:8px;padding:13px 15px;margin:18px 0}
 .pod-cp-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
@@ -9620,6 +9631,27 @@ function render(){
       + 'again continues from where it stopped.</div>'
     + '</div>'
 
+    + '<div class="pod-panel"><h3>Conversation from flashcards</h3>'
+      + '<div class="pod-note" style="margin-top:0">Two voices work out <b>why</b>, then the '
+      + 'card\'s question is asked aloud, followed by 4.5 seconds of real silence, then the answer '
+      + 'and the why. Built from the flashcards of one objective or a whole lecture, in deck order, '
+      + 'in parts of about 15 minutes. Script then audio, part by part; parts already generated are '
+      + 'skipped, so this is also the resume button. The narrator is the voice pinned for the lecture; '
+      + 'the Student voice is pinned beside it the first time.</div>'
+      + '<div class="pod-row" style="margin-top:10px">'
+        + '<div class="pod-field"><label for="pod-conv-target">Lecture or objective</label>'
+          + '<select id="pod-conv-target" onchange="podConvPlan()"><option value="">loading&hellip;</option></select></div>'
+        + '<div class="pod-field" style="min-width:170px"><label for="pod-conv-learner">Student voice</label>'
+          + '<select id="pod-conv-learner"><option value="Zephyr">Zephyr — bright</option></select></div>'
+      + '</div>'
+      + '<div class="pod-audio-row" style="margin-top:8px">'
+        + '<button class="pod-btn" id="pod-conv-go" onclick="podGenerateConversation()">Generate conversation</button>'
+        + '<label style="font-size:12px;align-self:center"><input type="checkbox" id="pod-conv-script-only"> Script only, no audio</label>'
+      + '</div>'
+      + '<div class="pod-lec" id="pod-conv-progress"></div>'
+      + '<div class="pod-note" id="pod-conv-plan"></div>'
+    + '</div>'
+
     + '<div class="pod-panel">'
       + '<h3>One section at a time</h3>'
       + '<div class="pod-row">'
@@ -9680,6 +9712,7 @@ function render(){
     + '<div id="pod-result"></div>'
     + '</div>';
   fillGuides();
+  fillConversationTargets();
   loadEpisodes();
   loadModels();
   loadVoiceCatalogue();
@@ -9949,6 +9982,15 @@ function placementBlock(pl,cps){
 }
 
 function renderResult(d){
+  if(isDialogue(d)){
+    var cv=d.coverage_report||{};
+    $('pod-result').innerHTML=audioPanel(d)+dialogueReportHtml(cv)
+      +'<div class="pod-panel" style="padding:0;background:transparent;box-shadow:none">'
+      +'<h3 style="padding:0 2px">Conversation — '+esc(d.section_heading)+'</h3></div>'
+      +'<div class="pod-script pod-dlg">'+dialogueHtml(d.script||'')+'</div>';
+    if(d.episode_id){ fillVoices(); podAudioStatus(); }
+    return;
+  }
   var cov=normalizeCov(d.coverage_report), cps=d.checkpoints||[];
   var me=cov.model_extracted, qd=cov.quiz_derived;
   var h='';
@@ -10045,7 +10087,7 @@ function cpHtml(c,i){
 /* ══ saved episodes ══ */
 function loadEpisodes(){
   var el=$('pod-eplist'); if(!el) return;
-  sbFetch('/rest/v1/podcast_episodes?select=id,guide_slug,section_heading,ordinal,status,created_at,coverage_report'
+  sbFetch('/rest/v1/podcast_episodes?select=id,guide_slug,section_heading,ordinal,status,created_at,coverage_report,format'
          +'&order=created_at.desc&limit=40')
     .then(function(r){ return r.json(); })
     .then(function(rows){
@@ -10054,6 +10096,15 @@ function loadEpisodes(){
       }
       el.innerHTML='<div class="pod-eplist">'+rows.map(function(e){
         var cov=normalizeCov(e.coverage_report);
+        if(e.format==='dialogue'){
+          var cr=e.coverage_report||{};
+          return '<button class="pod-ep" onclick="podOpen(\''+esc(e.id)+'\')">'
+            +'<span class="pod-pill '+esc(e.status)+'">'+esc(e.status)+'</span>'
+            +'<span class="pod-pill dialogue">conversation</span>'
+            +'<span class="pod-ep-name">'+esc(e.section_heading)+'</span>'
+            +'<span class="pod-ep-meta">'+esc(cr.summary||'')+' · '+(cr.words||0)+'w · '+new Date(e.created_at).toLocaleDateString()+'</span>'
+            +'</button>';
+        }
         return '<button class="pod-ep" onclick="podOpen(\''+esc(e.id)+'\')">'
           +'<span class="pod-pill '+esc(e.status)+'">'+esc(e.status)+'</span>'
           +'<span class="pod-ep-name">'+esc(e.section_heading)+'</span>'
@@ -10079,7 +10130,7 @@ function openEpisode(id){
     if(!ep) throw new Error('Episode not found.');
     var d={ episode_id:ep.id, guide_slug:ep.guide_slug, section_heading:ep.section_heading,
             status:ep.status, script:ep.script, coverage_report:ep.coverage_report||{},
-            checkpoints:res[1]||[] };
+            checkpoints:res[1]||[], format:ep.format||'lecture', objective_id:ep.objective_id, part:ep.part, parts:ep.parts };
     current=d;
     var cov=normalizeCov(d.coverage_report);
     var line=cov.summary||('model-extracted facts '+cov.model_extracted.covered+'/'+cov.model_extracted.total);
@@ -10457,6 +10508,150 @@ function podGenerateLecture(){
   });
 }
 window.podGenerateLecture=podGenerateLecture;
+window.podGenerateConversation=podGenerateConversation;
+window.podConvPlan=podConvPlan;
+
+/* ══ conversation from flashcards ══════════════════════════════════════
+   One objective or a whole lecture, in deck order, split into parts of about
+   twelve cards. Script first (generate-cards), then the audio segments, part
+   by part, strictly sequential. An existing part is reused, so a run that
+   stopped continues. */
+var convTargets={}, convRun=null;
+function fillConversationTargets(){
+  var sel=$('pod-conv-target'); if(!sel) return;
+  var course=window.currentCourse;
+  Promise.all([
+    sbFetch('/rest/v1/flashcards?select=id,objective_ids&course=eq.'+encodeURIComponent(course))
+      .then(function(r){ return r.json(); }),
+    (typeof loadObjectiveRows==='function'?loadObjectiveRows():Promise.resolve([]))
+  ]).then(function(res){
+    var cards=Array.isArray(res[0])?res[0]:[], rows=res[1]||[];
+    var ids={}; cards.forEach(function(c){ (c.objective_ids||[]).forEach(function(o){ ids[o]=1; }); });
+    var OT=window.ObjectiveTree;
+    var prefixes=(typeof QUIZ_COURSE_PREFIXES!=='undefined'?QUIZ_COURSE_PREFIXES[course]:null)||[];
+    var tree=OT.build(rows,{ids:Object.keys(ids),filter:function(id){
+      return prefixes.some(function(p){ return String(id).indexOf(p)===0; }); }});
+    var st=OT.stats(null,cards.map(function(c){ return {id:c.id,objectiveIds:c.objective_ids||[]}; }),{});
+    convTargets={};
+    var opts=[];
+    var per=12;
+    tree.lectures.forEach(function(l){
+      var n=(st[l.id]||{}).cards||0; if(!n) return;
+      convTargets[l.id]={cards:n,parts:Math.ceil(n/per),label:l.name};
+      opts.push('<option value="'+esc(l.id)+'">'+esc(l.name)+' — all '+n+' cards ('+convTargets[l.id].parts
+        +' part'+(convTargets[l.id].parts===1?'':'s')+')</option>');
+      l.objectives.forEach(function(k){
+        var m=(st[k.id]||{}).cards||0; if(!m) return;
+        convTargets[k.id]={cards:m,parts:Math.ceil(m/per),label:l.name+' · '+k.name};
+        opts.push('<option value="'+esc(k.id)+'">&nbsp;&nbsp;'+esc(k.name)+' — '+esc(k.sub||'')+' ('+m+' card'+(m===1?'':'s')
+          +', '+convTargets[k.id].parts+' part'+(convTargets[k.id].parts===1?'':'s')+')</option>');
+      });
+    });
+    sel.innerHTML=opts.length?opts.join(''):'<option value="">No flashcards in '+esc(course)+' yet</option>';
+    podConvPlan();
+  }).catch(function(e){ sel.innerHTML='<option value="">'+esc(e.message||String(e))+'</option>'; });
+}
+function podConvPlan(){
+  var sel=$('pod-conv-target'), box=$('pod-conv-plan'); if(!sel||!box) return;
+  var t=convTargets[sel.value]; if(!t){ box.textContent=''; return; }
+  /* ~180 spoken words a card at 150 wpm, plus the 4.5 s silence */
+  var mins=t.cards*(180/150+4.5/60);
+  box.innerHTML='<b>'+t.cards+' cards</b> in '+t.parts+' part'+(t.parts===1?'':'s')+' · about '
+    +Math.round(mins)+' minutes of audio in total, '+Math.round(mins/t.parts)+' per part.';
+}
+function paintConv(){ var box=$('pod-conv-progress'); if(box) box.innerHTML=lectureProgressHtml(convRun); }
+function podGenerateConversation(){
+  if(audioBusy) return;
+  var sel=$('pod-conv-target'); var id=sel&&sel.value, t=convTargets[id];
+  if(!id||!t){ setStatus('err','Pick a lecture or an objective first.'); return; }
+  var scriptOnly=!!($('pod-conv-script-only')&&$('pod-conv-script-only').checked);
+  var learner=($('pod-conv-learner')&&$('pod-conv-learner').value)||'Zephyr';
+  var narrator=($('pod-lec-voice')&&$('pod-lec-voice').value)||($('pod-voice')&&$('pod-voice').value)||'Charon';
+  stopPreview(); audioBusy=true;
+  var btn=$('pod-conv-go'); if(btn) btn.disabled=true;
+  convRun={total:t.parts,done:0,status:'Starting…',sections:[]};
+  for(var i=1;i<=t.parts;i++) convRun.sections.push({heading:t.label+' — part '+i+' of '+t.parts,state:'wait',note:''});
+  paintConv();
+
+  sbFetch('/rest/v1/podcast_episodes?select=id,part,status&format=eq.dialogue&objective_id=eq.'
+      +encodeURIComponent(id)+'&order=created_at.desc')
+    .then(function(r){ return r.json(); }).catch(function(){ return []; })
+  .then(function(existing){
+    var byPart={};
+    (Array.isArray(existing)?existing:[]).forEach(function(e){ if(!byPart[e.part]) byPart[e.part]=e; });
+    return convRun.sections.reduce(function(chain,row,i){
+      return chain.then(function(){
+        var part=i+1;
+        row.state='now'; convRun.status='Part '+part+' of '+t.parts+' — writing the conversation'; paintConv();
+        var ep=byPart[part];
+        var script=ep
+          ? Promise.resolve({episode_id:ep.id,reused:true,status:ep.status})
+          : fetch(SB_URL+FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+              body:JSON.stringify({action:'generate-cards',objective_id:id,course:window.currentCourse,part:part,cards_per_part:12})})
+            .then(function(r){ return r.json().then(function(j){
+              if(!r.ok||j.error) throw new Error(j.error||('script failed ('+r.status+')')); return j; }); });
+        return script.then(function(j){
+          row.note=(j.reused?'script reused':'script '+j.status)
+            +(j.coverage_report&&j.coverage_report.summary?' · '+j.coverage_report.summary:'');
+          if(scriptOnly||!j.episode_id){ row.state='done'; convRun.done++; paintConv(); return; }
+          convRun.status='Part '+part+' of '+t.parts+' — planning audio'; paintConv();
+          return afn({action:'plan',episode_id:j.episode_id}).then(function(plan){
+            var todo=plan.segments.map(function(s){ return s.ordinal; })
+              .filter(function(o){ return !(plan.generated||[]).some(function(g){ return g.ordinal===o; }); });
+            /* the lecture pin decides the narrator; only a lecture with no pin takes the dropdown.
+               The Student voice is pinned the first time a conversation is voiced. */
+            var send=plan.pinned_voice?{}:{voice:narrator};
+            if(!plan.learner_voice) send.learner_voice=learner;
+            return todo.reduce(function(c2,ord){
+              return c2.then(function(){
+                convRun.status='Part '+part+' of '+t.parts+' — audio segment '+(ord+1)+' of '+plan.segments.length; paintConv();
+                return afn(Object.assign({action:'synthesize',episode_id:j.episode_id,segment:ord},send));
+              });
+            },Promise.resolve()).then(function(){
+              row.state='done'; row.note+=' · audio: '+plan.segments.length+' segment'+(plan.segments.length===1?'':'s')
+                +(todo.length?'':' (already there)');
+              convRun.done++; paintConv();
+            });
+          });
+        }).catch(function(e){ row.state='fail'; row.note=e.message||String(e); paintConv(); });
+      });
+    },Promise.resolve());
+  }).then(function(){ convRun.status='Done — '+convRun.done+' of '+t.parts+' part'+(t.parts===1?'':'s')+' ready'; paintConv(); loadEpisodes(); })
+  .catch(function(e){ convRun.status=e.message||String(e); paintConv(); })
+  .then(function(){ audioBusy=false; if(btn) btn.disabled=false; });
+}
+
+/* the conversation on the page: turns, and the silence made visible */
+function isDialogue(d){ return !!(d&&(d.format==='dialogue'||(d.coverage_report&&d.coverage_report.format==='dialogue'))); }
+function dialogueHtml(script){
+  return String(script||'').split(/\r?\n/).map(function(l){
+    l=l.trim(); if(!l) return '';
+    if(l==='[[PAUSE]]') return '<div class="pod-pause">&#9208; 4.5 seconds of silence &mdash; answer in your head</div>';
+    var m=/^(Teacher|Student):\s*(.*)$/.exec(l);
+    if(m) return '<div class="pod-turn '+m[1].toLowerCase()+'"><span class="pod-who">'+m[1]+'</span><span class="pod-say">'+esc(m[2])+'</span></div>';
+    return '<div class="pod-turn other"><span class="pod-who"></span><span class="pod-say">'+esc(l)+'</span></div>';
+  }).join('');
+}
+function dialogueReportHtml(cov){
+  var cards=cov.cards||[];
+  var stat=function(n,l){ return '<div class="pod-stat"><b>'+n+'</b><span>'+l+'</span></div>'; };
+  return '<div class="pod-panel"><h3>Conversation check</h3>'
+    +'<div class="pod-summary">'+esc(cov.summary||'')+'</div>'
+    +'<div class="pod-cov-top" style="margin-top:8px">'+stat(cards.length,'Cards')+stat(cov.pauses||0,'Pauses')
+      +stat(cov.words||0,'Words')+stat(Math.round((cov.estimated_seconds||0)/60),'Minutes')+'</div>'
+    +'<table class="pod-dlg-cards">'+cards.map(function(c,i){
+        var ok=c.asked&&c.paused&&c.answered&&c.answer_covered!==false;
+        return '<tr class="'+(ok?'ok':'bad')+'"><td>'+(i+1)+'</td><td>'+esc(c.question)+'</td><td>'
+          +(c.asked?'asked':'NOT asked')+' · '+(c.paused?'pause':'NO pause')+' · '
+          +(c.answer_covered===false?'answer MISSED':'answer covered')+'</td></tr>';
+      }).join('')+'</table>'
+    +((cov.structure_issues||[]).length?'<div class="pod-note">Structure: '+cov.structure_issues.map(esc).join(' · ')+'</div>':'')
+    +((cov.attempts||[]).length>1?'<div class="pod-note">'+cov.attempts.map(function(a){
+        return '#'+a.attempt+' → '+a.issues+' structure issue'+(a.issues===1?'':'s')+', '+a.answers_missed+' answer'+(a.answers_missed===1?'':'s')+' missed'; }).join(' · ')+'</div>':'')
+    +(cov.models?'<div class="pod-note">Models — writing: <code>'+esc(cov.models.generation)
+      +'</code>, verification: <code>'+esc(cov.models.verification)+'</code></div>':'')
+    +'</div>';
+}
 
 function audioPanel(d){
   if(!d.episode_id){
@@ -10489,8 +10684,10 @@ function audioPanel(d){
     +'</div>'
     +'<div id="pod-audio-status" class="pod-note"></div>'
     +'<div id="pod-audio-segs"></div>'
-    +'<div class="pod-note">Segments are cut at the checkpoints, so each part ends '
-    +'on a question. Audio is uncompressed WAV: about 2.9 MB per minute. '
+    +'<div class="pod-note">'+(isDialogue(d)
+      ? 'Segments are cut at the pauses: each part ends on the 4.5-second silence after a question and the next opens with the answer. Two voices — the narrator pinned for this lecture reads Teacher; the Student voice was pinned the first time and changes only with Regenerate. '
+      : 'Segments are cut at the checkpoints, so each part ends on a question. ')
+    +'Audio is uncompressed WAV: about 2.9 MB per minute. '
     +'To compare voices, pick one and use <b>Regenerate in this voice</b> — that '
     +'replaces every part, where <b>Generate audio</b> only fills in what is missing.</div>'
     +'</div>';
@@ -10629,7 +10826,17 @@ window.podPreviewAll=podPreviewAll;
 
 /* the whole-lecture panel is on the page before any episode is opened, so its
    voice list is filled from the catalogue independently of the result view */
+function fillLearnerVoices(){
+  var sel=$('pod-conv-learner');
+  if(!sel||!voiceCache) return;
+  var keep=sel.value||'Zephyr';
+  sel.innerHTML=voiceCache.voices.map(function(x){
+    return '<option value="'+esc(x.name)+'"'+(x.name===keep?' selected':'')+'>'
+      +esc(x.name)+' — '+esc(x.character)+'</option>';
+  }).join('');
+}
 function fillLectureVoices(){
+  fillLearnerVoices();
   var sel=$('pod-lec-voice');
   if(!sel||!voiceCache) return;
   var keep=sel.value;
@@ -11044,7 +11251,7 @@ function signAll(paths){
 function loadLibrary(){
   return Promise.all([
     loadManifest(),
-    sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal&order=guide_slug.asc,ordinal.asc'),
+    sbGet('podcast_episodes?select=id,guide_slug,section_heading,ordinal,format&order=guide_slug.asc,ordinal.asc'),
     sbGet('podcast_audio?select=episode_id,ordinal,duration_seconds,ends_at_checkpoint,storage_path,voice&order=episode_id.asc,ordinal.asc'),
     sbGet('podcast_progress?select=episode_id,segment_ordinal,position_seconds,completed&user_id=eq.'
       +encodeURIComponent(currentUser.id)).catch(function(){ return []; }),
@@ -11164,7 +11371,7 @@ function sectionsHtml(l){
       +(ready?' onclick="lsnJump(\''+esc(e.id)+'\')"':' disabled')+'>'
       +'<span class="lsn-sec-mark">'+(st==='done'?ICON.tick:(i+1))+'</span>'
       +'<span class="lsn-sec-b">'
-      +'<span class="lsn-sec-name">'+esc(e.section_heading)+tag+'</span>'
+      +'<span class="lsn-sec-name">'+esc(e.section_heading)+(e.format==='dialogue'?'<span class="lsn-tag conv">conversation</span>':'')+tag+'</span>'
       +'<span class="lsn-sec-meta">'+(ready
           ? mmss(e._dur)+(st==='part'?' · '+pct+'% through':'')
           : 'not generated')+'</span>'
