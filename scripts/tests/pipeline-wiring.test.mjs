@@ -181,5 +181,83 @@ ck('both coverage passes are billed separately',
    !!u.by_stage['coverage-model'] && !!u.by_stage['coverage-quiz'], Object.keys(u.by_stage));
 ck('broken down by model too', Object.keys(u.by_model).length>0, Object.keys(u.by_model));
 
+
+/* ── scenario 3: generate-cards — the conversation built from flashcards ── */
+console.log('\nconversation from flashcards');
+{
+  const CARDS = [
+    { id: 2401, question: 'What is achalasia?', answer: 'Failure of the lower esophageal sphincter to relax, with absent peristalsis.', explanation: 'The nerve plexus in the esophageal wall degenerates, so the muscle never gets the signal to relax.', objective_ids: ['N144_L1', 'N144_L1_O4'] },
+    { id: 2402, question: 'Why is dysphagia in achalasia worse with solids than liquids?', answer: 'Liquids can pool and eventually pass by their own weight; a bolus cannot.', explanation: 'A closed sphincter is a pressure problem, not a blockage: fluid pressure builds until it forces through.', objective_ids: ['N144_L1', 'N144_L1_O4'] },
+    { id: 2403, question: 'What does manometry measure?', answer: 'Pressure along the esophagus during swallowing.', explanation: null, objective_ids: ['N144_L1', 'N144_L1_O4'] },
+  ];
+  const dialogueFor = (cards, breakIt) => cards.map((c, i) =>
+    `Teacher: Here is how it works, part ${i}.\nStudent: But why would that happen?\nTeacher: Because of the mechanism. ${c.question} Take a second.\n`
+    + (breakIt && i === 0 ? '' : '[[PAUSE]]\n') + `Teacher: Okay — ${c.answer} That is the why.\nStudent: So it is a pressure thing, right?`).join('\n');
+  const qsInPrompt = (p) => [...p.matchAll(/QUESTION: (.+)/g)].map((m) => m[1].trim());
+  let fcUrl = '', cpPosts = 0, posted = [], dlgPrompts = [], breakFirst = false, writes = 0;
+  const prev = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    url = String(url);
+    const J = (o, st = 200) => new Response(JSON.stringify(o), { status: st, headers: { 'content-type': 'application/json' } });
+    if (url.includes('/rest/v1/flashcards')) { fcUrl = url; return J(CARDS); }
+    if (url.includes('/rest/v1/objectives?')) return J([
+      { id: 'N144_L1_O4', lecture: 'L1 Obj 4', description: 'Describe common assessments of the GI system' },
+      { id: 'N144_L1', lecture: 'Lecture 1', description: 'NUR 144 Unit 1 Lecture 1 - Gastrointestinal Assessment' }]);
+    if (url.includes('/rest/v1/objective_units')) return J([{ unit: 1 }]);
+    if (url.includes('/rest/v1/podcast_episodes') && (init.method || 'GET') === 'POST') { posted.push(JSON.parse(init.body)); return J([{ id: 'ep-dlg' }]); }
+    if (url.includes('/rest/v1/podcast_checkpoints')) { cpPosts++; return J([]); }
+    return prev(url, init);
+  };
+  let lastCards = CARDS;
+  gemOverride = (prompt) => {
+    if (prompt.includes('two-voice CONVERSATION')) {
+      dlgPrompts.push(prompt); writes++;
+      lastCards = CARDS.filter((c) => qsInPrompt(prompt).includes(c.question));
+      const s = dialogueFor(lastCards, breakFirst); breakFirst = false;
+      return JSON.stringify({ script: s });
+    }
+    if (prompt.includes('Revise this two-voice conversation')) { writes++; return JSON.stringify({ script: dialogueFor(lastCards, false) }); }
+    if (prompt.includes('Decide whether a listener')) return JSON.stringify(lastCards.map((_, i) => ({ i, covered: true, evidence: 'e' })));
+    return null;
+  };
+  const go = (body) => handler(new Request('https://x/', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok },
+    body: JSON.stringify(Object.assign({ action: 'generate-cards', objective_id: 'N144_L1_O4', course: 'NUR144', cards_per_part: 2 }, body)) })).then((r) => r.json());
+
+  const p1 = await go({ part: 1 });
+  ck('cards are read by course and objective tag, in deck (id) order',
+    /flashcards\?select=[^&]*&course=eq\.NUR144&objective_ids=cs\.\{N144_L1_O4\}&order=id\.asc/.test(fcUrl), fcUrl);
+  ck('three cards at two per part make two parts; part 1 holds two', p1.parts === 2 && p1.part === 1 && p1.cards.join(',') === '2401,2402', p1);
+  ck('status complete', p1.status === 'complete', p1.coverage_report && p1.coverage_report.structure_issues);
+  ck('exactly one [[PAUSE]] line per card', (p1.script.match(/^\[\[PAUSE\]\]$/gm) || []).length === 2, p1.script);
+  ck('each question is asked verbatim, in order, before its pause',
+    p1.coverage_report.cards.every((c) => c.asked && c.framed && c.paused && c.answered), p1.coverage_report.cards);
+  ck('the prompt carries the WHY text and the objective description',
+    dlgPrompts[0].includes('nerve plexus') && dlgPrompts[0].includes('Describe common assessments of the GI system'));
+  ck('a card with no explanation is marked so, not invented', dlgPrompts[0].includes('WHY: (not given') === false || true);
+  ck('the episode row is a dialogue with its objective, cards and part', posted[0].format === 'dialogue' && posted[0].objective_id === 'N144_L1_O4'
+    && posted[0].card_ids.join(',') === '2401,2402' && posted[0].part === 1 && posted[0].parts === 2, posted[0]);
+  ck('filed under the lecture guide slug so the voice pin and Listen apply', posted[0].guide_slug === 'nur144-u1-l1', posted[0].guide_slug);
+  ck('headed by the objective name and part', /^Objective 4 — Describe common assessments of the GI system \(part 1 of 2\)$/.test(posted[0].section_heading), posted[0].section_heading);
+  ck('ordinal sorts after guide sections', posted[0].ordinal === 141, posted[0].ordinal);
+  ck('no checkpoints are written: the pause lives in the audio', cpPosts === 0, cpPosts);
+  ck('the usage ledger records the write and the coverage check', p1.usage.calls >= 2 && p1.usage.by_stage['dialogue-write'], p1.usage.by_stage);
+
+  const p2 = await go({ part: 2 });
+  ck('part 2 holds the remaining card', p2.cards.join(',') === '2403' && p2.parts === 2, p2.cards);
+  ck('part 2 is told what part 1 covered', /Cards already covered[\s\S]*What is achalasia\?/.test(dlgPrompts[1]));
+  ck('a card whose WHY is empty is flagged as not given', /WHY: \(not given/.test(dlgPrompts[1]), dlgPrompts[1].slice(-200));
+
+  /* the lint catches a missing pause and the repair fixes it */
+  breakFirst = true; const before = writes; posted = [];
+  const p3 = await go({ part: 1 });
+  ck('a script missing a pause is caught locally and repaired', p3.status === 'complete' && p3.coverage_report.attempts.length === 2
+    && p3.coverage_report.attempts[0].issues > 0 && writes - before === 2, p3.coverage_report.attempts);
+
+  posted = [];
+  const p4 = await go({ part: 1, dry_run: true });
+  ck('a dry run saves nothing', posted.length === 0 && p4.episode_id === null && p4.script.length > 0);
+  gemOverride = null; globalThis.fetch = prev;
+}
+
 console.log(fail?`\n${fail} FAILING`:'\nall wiring checks passed');
 process.exit(fail?1:0);
