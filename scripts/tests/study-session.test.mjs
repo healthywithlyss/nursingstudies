@@ -513,6 +513,22 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
   ck('the mastery loader fetches introduced_at', /card_mastery\?select=card_id,state,[\s\S]{0,200}?learning_step,introduced_at,last_result&user_id/.test(html));
   ck('toItem carries introduced_at as ms', /introduced_at: row && row\.introduced_at \? Date\.parse\(row\.introduced_at\) : null/.test(html));
   const qf = html.slice(html.indexOf('function queueFor('), html.indexOf('function nextDueMs('));
+  /* due means due TODAY, not due this hour: a review card's due_date keeps the
+     clock time of the review that scheduled it, and used to hide all morning */
+  {
+    const day = Date.parse('2026-09-13T04:00:00Z'), now = day + 14 * 3600000;   /* local midnight, 2 pm */
+    const laterToday = reviewCard({ id: 901, due_date: day + DAY - 60000, last_reviewed_at: now - 3 * DAY, repetitions: 3, objectiveIds: ['N144_L1'] });
+    const tomorrow = reviewCard({ id: 902, due_date: day + DAY + 60000, last_reviewed_at: now - 3 * DAY, repetitions: 3, objectiveIds: ['N144_L1'] });
+    const step = { id: 903, kind: 'card', state: 'learning', learning_step: 1, due_date: now + 5 * 60000, last_reviewed_at: now - 60000, repetitions: 1, introduced_at: now - 60000, objectiveIds: ['N144_L1'] };
+    const qd = SS.todayQueue([laterToday, tomorrow, step], { now, dayStart: day, newCardsPerDay: 30, all: [laterToday, tomorrow, step] });
+    ck('a card due later today is due now, from midnight', qd.due.some((i) => i.id === 901), qd.due.map((i) => i.id));
+    ck('a card due just after midnight tonight is not due today', !qd.due.some((i) => i.id === 902) && !qd.done.some((i) => i.id === 902));
+    ck('a learning step later today stays in learning with its exact time, not in due', qd.learning.some((i) => i.id === 903) && !qd.due.some((i) => i.id === 903));
+    const sd = SS.objectiveStats([laterToday, tomorrow], { now, dayStart: day });
+    ck('the sidebar counts the later-today card as due, the tomorrow card as neither', sd.N144_L1.due === 1 && sd.N144_L1.doneToday === 0, sd.N144_L1);
+    ck('an explicit dayEnd is honoured', SS.todayQueue([laterToday], { now, dayStart: day, dayEnd: now + 1, newCardsPerDay: 30, all: [laterToday] }).due.length === 0);
+  }
+
   ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\(items, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
   ck('the day starts at LOCAL midnight', /setHours\(0,0,0,0\)/.test(html.slice(html.indexOf('function dayStartMs('), html.indexOf('function dayStartMs(') + 200)));
   const pc = html.slice(html.indexOf('function persistCard('), html.indexOf('function rating2legacy('));
