@@ -13937,8 +13937,11 @@ function nextDueMs(items, now){
   var soonest = null;
   items.forEach(function(i){
     if(i.due_date == null) return;
-    if(i.due_date <= now) return;
-    if(soonest === null || i.due_date < soonest) soonest = i.due_date;
+    /* a review card is wanted from the midnight of its due date; a learning
+       step is minutes away and keeps its exact time */
+    var at = (i.state === 'learning' || i.state === 'relearning') ? i.due_date : dayStartMs(i.due_date);
+    if(at <= now) return;
+    if(soonest === null || at < soonest) soonest = at;
   });
   return soonest;
 }
