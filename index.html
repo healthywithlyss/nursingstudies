@@ -5719,6 +5719,36 @@ function getAuthHdr(){
   return {'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'};
 }
 
+/* A long generation run outlives the one-hour access token, and the client
+   library's refresh timer does not reliably fire in a backgrounded tab: part 2
+   of a lecture died on "exp claim timestamp check failed" and every part after
+   it got a 401 at the gateway. So anything that runs for minutes asks for a
+   fresh token before each call, and a keep-alive refreshes it in the
+   background whenever it is within five minutes of expiring. */
+var TOKEN_MARGIN_MS=5*60*1000;
+async function freshToken(){
+  try{
+    var sb=getSb();
+    var s=(await sb.auth.getSession()).data.session;
+    if(s){
+      var left=(Number(s.expires_at)||0)*1000-Date.now();
+      if(left<TOKEN_MARGIN_MS){
+        var r=await sb.auth.refreshSession();
+        if(r&&r.data&&r.data.session) s=r.data.session;
+      }
+      currentToken=s.access_token;
+    }
+  }catch(_){ /* keep whatever token we have; the request will say if it is stale */ }
+  return currentToken;
+}
+async function freshAuthHdr(){ await freshToken(); return getAuthHdr(); }
+var tokenKeepAlive=null;
+function startTokenKeepAlive(){
+  if(tokenKeepAlive) return;
+  tokenKeepAlive=setInterval(freshToken,60*1000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) freshToken(); });
+}
+
 /* ── auth screen ── */
 function setAuthMode(mode){
   authMode=mode;
@@ -5816,6 +5846,7 @@ async function initApp(){
     currentUser=sess.data.session.user;
     currentToken=sess.data.session.access_token;
     await fetchProfile(currentUser.id);
+    startTokenKeepAlive();
     showApp();
   } else {
     showAuthScreen();
@@ -5825,6 +5856,7 @@ async function initApp(){
       var prevUserId=currentUser?currentUser.id:null;
       currentUser=session.user;
       currentToken=session.access_token;
+      startTokenKeepAlive();
       /* Only reset practice state when the user actually changes.
          TOKEN_REFRESHED fires every ~hour for the same user — resetting
          reloading fcLoaded/sess there would silently break ongoing card sessions. */
@@ -10194,7 +10226,7 @@ var voiceCache=null;
 var audioBusy=false;
 
 function afn(body){
-  return fetch(SB_URL+AFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify(body)})
+  return freshAuthHdr().then(function(h){ return fetch(SB_URL+AFN,{method:'POST',headers:h,body:JSON.stringify(body)}); })
     .then(function(r){ return r.json().then(function(j){
       if(!r.ok) throw new Error(j.error||('Audio request failed ('+r.status+')'));
       return j;
@@ -10275,9 +10307,9 @@ function podCompare(){
           +'about two to four minutes each.';
         paintCompare();
         var t0=Date.now();
-        return fetch(SB_URL+FN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+        return freshAuthHdr().then(function(h){ return fetch(SB_URL+FN,{method:'POST',headers:h,body:JSON.stringify({
           guide_slug:slug, section_heading:heading, markdown:md,
-          dry_run:true, cross_check:true, gen_model:m })})
+          dry_run:true, cross_check:true, gen_model:m })}); })
         .then(function(r){ return r.json().then(function(j){
           if(!r.ok) throw new Error(j.error||('failed ('+r.status+')'));
           return j; }); })
@@ -10455,9 +10487,9 @@ function podGenerateLecture(){
             var epId=byHeading[sec.heading];
             var script = epId
               ? Promise.resolve({episode_id:epId, reused:true})
-              : fetch(SB_URL+FN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+              : freshAuthHdr().then(function(h){ return fetch(SB_URL+FN,{method:'POST',headers:h,body:JSON.stringify({
                   guide_slug:slug, section_heading:sec.heading, markdown:md,
-                  dry_run:false, cross_check:true })})
+                  dry_run:false, cross_check:true })}); })
                   .then(function(r){ return r.json().then(function(j){
                     if(!r.ok) throw new Error(j.error||('script failed ('+r.status+')'));
                     return j; }); });
@@ -10587,8 +10619,8 @@ function podGenerateConversation(){
         var ep=byPart[part];
         var script=ep
           ? Promise.resolve({episode_id:ep.id,reused:true,status:ep.status})
-          : fetch(SB_URL+FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
-              body:JSON.stringify({action:'generate-cards',objective_id:id,course:window.currentCourse,part:part,cards_per_part:12})})
+          : freshAuthHdr().then(function(h){ return fetch(SB_URL+FN,{method:'POST',headers:h,
+              body:JSON.stringify({action:'generate-cards',objective_id:id,course:window.currentCourse,part:part,cards_per_part:12})}); })
             .then(function(r){ return r.json().then(function(j){
               if(!r.ok||j.error) throw new Error(j.error||('script failed ('+r.status+')')); return j; }); });
         return script.then(function(j){
@@ -10600,8 +10632,8 @@ function podGenerateConversation(){
             /* a part written before Listen could talk back has no stops yet */
             if(plan.checkpoints) return plan;
             convRun.status='Part '+part+' of '+t.parts+' — writing the checkpoints'; paintConv();
-            return fetch(SB_URL+FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
-                body:JSON.stringify({action:'checkpoints-cards',episode_id:j.episode_id})})
+            return freshAuthHdr().then(function(h){ return fetch(SB_URL+FN,{method:'POST',headers:h,
+                body:JSON.stringify({action:'checkpoints-cards',episode_id:j.episode_id})}); })
               .then(function(r){ return r.json().then(function(c){
                 if(!r.ok||c.error) throw new Error(c.error||('checkpoints failed ('+r.status+')'));
                 row.note+=' · '+c.checkpoints.length+' stops'; return plan; }); });
@@ -11973,11 +12005,11 @@ function sendTurn(audioB64,why){
   /* a conversation has no guide section: the turn function reads its cards */
   var source=(ep.format==='dialogue')?Promise.resolve(''):sectionTextFor(ep,lec);
   source.then(function(sectionText){
-    return fetch(SB_URL+TFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+    return freshAuthHdr().then(function(h){ return fetch(SB_URL+TFN,{method:'POST',headers:h,body:JSON.stringify({
       action:'turn', episode_id:ep.id, checkpoint_ordinal:cp.ordinal,
       audio_b64:audioB64, mime_type:'audio/wav',
       section_text:sectionText, voice:episodeVoice()
-    })});
+    })}); });
   }).then(function(r){
     return r.json().then(function(j){
       if(!r.ok) throw new Error(j.error||('Turn failed ('+r.status+')'));
@@ -12033,10 +12065,10 @@ function feedForward(j){
   var slug=(current&&current.ep&&current.ep.guide_slug)||'';
   var m=String(slug).match(/^nur(\d+)/i);
   if(!m) return;
-  fetch(SB_URL+TFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
+  freshAuthHdr().then(function(h){ return fetch(SB_URL+TFN,{method:'POST',headers:h,body:JSON.stringify({
     action:'attribute', missed_concepts:j.missed_concepts,
     objective_prefix:'N'+m[1], course:'NUR'+m[1]
-  })}).then(function(r){ return r.json(); })
+  })}); }).then(function(r){ return r.json(); })
     .then(function(a){ if(a&&a.written) console.info('[listen] prioritised '+a.written+' study item(s) from that miss'); })
     .catch(function(){ /* prioritisation is a bonus, never a blocker */ });
 }
