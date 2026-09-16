@@ -27,6 +27,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
                       | 'generate-cards' (a two-voice CONVERSATION built from the
                         flashcards of one objective or lecture; see the
                         DIALOGUE block below — no markdown involved)
+                      | 'checkpoints-cards' (rewrite the per-card checkpoints of
+                        an existing conversation episode; episode_id)
      guide_slug       e.g. "nur144-u1-l1"          (generate, list-sections)
      section_heading  exact H2 text                 (generate)
      markdown         full guide markdown           (generate, list-sections)
@@ -909,8 +911,13 @@ function overlapScore(fact: string, bodyWords: Set<string>): number {
    the retries is saved as 'incomplete' with the misses listed.
    ═══════════════════════════════════════════════════════════════════════ */
 
-const CARDS_PER_PART_DEFAULT = 12;     /* ~180 words + 4.5 s each -> about 15 minutes */
+const CARDS_PER_PART_DEFAULT = 12;     /* ~180 words + a stop each -> about 15 minutes */
 const WORDS_PER_CARD = 180;
+/* Asked for 180 a card, the model wrote 220-270: the first lecture came back at
+   3,270 words for twelve cards, a 23-minute part. The ceiling goes in the
+   prompt and the lint enforces it, so a long part is repaired, not shipped. */
+const WORDS_CAP_PER_CARD = 210;
+const WORDS_LINT_PER_CARD = 230;
 const PAUSE_MARK = '[[PAUSE]]';
 
 type Card = { id: number; question: string; answer: string; explanation: string | null };
@@ -979,7 +986,10 @@ CONTENT RULES
       ? `Cards already covered in an earlier part of this conversation (build on them, do not re-teach them):\n  - ${priorQuestions.join('\n  - ')}`
       : 'This is the first part of the conversation for this objective.'}
 - Length: about ${target} words for these ${cards.length} cards, roughly
-  ${WORDS_PER_CARD} per card. Room to build the why, not a quota.
+  ${WORDS_PER_CARD} per card. Room to build the why, not a quota — and a HARD
+  CEILING of ${cards.length * WORDS_CAP_PER_CARD} words. Past that it stops being
+  a fifteen-minute listen. Cut mechanism talk to fit, never a question, a
+  frame, a pause or an answer.
 
 FORMAT
 Return ONLY JSON: {"script": "<the dialogue>"}. The dialogue is plain lines:
@@ -1032,6 +1042,9 @@ function lintDialogue(script: string, cards: Card[]) {
   if (bad.length) issues.push(`${bad.length} line(s) that are neither a Teacher/Student turn nor ${PAUSE_MARK}: "${bad[0].slice(0, 60)}"`);
   const pauses = lines.filter((l) => l === PAUSE_MARK).length;
   if (pauses !== cards.length) issues.push(`${pauses} ${PAUSE_MARK} lines for ${cards.length} cards — exactly one per card, after its question`);
+  const words = wordCount(script);
+  if (words > cards.length * WORDS_LINT_PER_CARD) issues.push(`too long: ${words} words for ${cards.length} cards — cut to about ${cards.length * WORDS_PER_CARD} `
+    + `(hard ceiling ${cards.length * WORDS_CAP_PER_CARD}). Trim the mechanism talk; keep every question, frame, pause and full answer`);
   for (let i = 1; i < lines.length; i++) if (lines[i] === PAUSE_MARK && lines[i - 1] === PAUSE_MARK) { issues.push('two pauses in a row'); break; }
 
   /* each card: its question, verbatim, in a Teacher turn, followed by a frame,
@@ -1065,7 +1078,48 @@ function lintDialogue(script: string, cards: Card[]) {
   if (deckRefs.length) issues.push(`refers to the deck she cannot see: "${deckRefs[0].slice(0, 80)}"`);
   const docRefs = findDocumentReferences(script);
   if (docRefs.length) issues.push(`describes a document: "${docRefs[0].context.slice(0, 80)}"`);
-  return { issues, perCard, pauses, deckRefs, docRefs };
+  return { issues, perCard, pauses, deckRefs, docRefs, words };
+}
+
+/* One checkpoint per pause, so Listen stops there, opens the microphone and
+   the turn function grades what she says against the card — the conversation
+   talks back. The k-th pause is checkpoint k, which is exactly how the audio
+   planner numbers the segment that ends on it. The question is the card's
+   own; the expected points are its answer, split into the pieces a complete
+   answer has to contain. */
+function answerPoints(answer: string): string[] {
+  const pieces = answer.split(/;\s+|(?<=[.!?])\s+(?=[A-Z0-9])/).map((x) => x.trim()).filter((x) => x.length > 2);
+  return (pieces.length ? pieces : [answer.trim()]).slice(0, 6);
+}
+function dialogueCheckpoints(script: string, cards: Card[]) {
+  const lines = script.split('\n');
+  const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const out: any[] = [];
+  let offset = 0, k = 0, cursor = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === PAUSE_MARK) {
+      /* the Teacher turn carrying the question is the nearest one above */
+      let q = '';
+      for (let j = i - 1; j >= 0; j--) {
+        if (lines[j].trim() === PAUSE_MARK) break;
+        if (/^Teacher:/.test(lines[j].trim())) { q = lines[j].trim(); break; }
+      }
+      const qn = norm(q);
+      let card: Card | undefined;
+      for (let c = cursor; c < cards.length; c++) if (qn.includes(norm(cards[c].question))) { card = cards[c]; cursor = c + 1; break; }
+      if (!card) card = cards.find((c) => qn.includes(norm(c.question)));
+      out.push({
+        ordinal: k++,
+        position_in_script: offset + line.length,
+        question: card ? card.question : q.replace(/^Teacher:\s*/, '').trim().slice(0, 300),
+        expected_points: card ? answerPoints(card.answer) : [],
+        card_id: card ? card.id : null,
+      });
+    }
+    offset += line.length + 1;
+  }
+  return out;
 }
 
 function splitParts(cards: Card[], perPart: number) {
@@ -1123,6 +1177,21 @@ Deno.serve(async (req: Request) => {
     const action = body.action || 'generate';
     /* one ledger per request; see the Ledger comment for why it is not global */
     const ledger = new Ledger();
+    /* reads through the caller's own token, so RLS applies */
+    const hdr = { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}` };
+    const get = async (path: string) => {
+      const r = await fetch(`${gate.SUPABASE_URL}/rest/v1/${path}`, { headers: hdr });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) throw new Error(`${path.split('?')[0]} read failed (${r.status})`);
+      return Array.isArray(j) ? j : [];
+    };
+    const writeCheckpoints = async (episodeId: string, cps: any[]) => {
+      const cpRes = await fetch(`${gate.SUPABASE_URL}/rest/v1/podcast_checkpoints`, {
+        method: 'POST', headers: { ...hdr, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(cps.map((c) => ({ ...c, episode_id: episodeId }))),
+      });
+      if (!cpRes.ok) throw new Error(`Saving checkpoints failed (${cpRes.status}): ${(await cpRes.text()).slice(0, 300)}`);
+    };
 
     if (action === 'list-models') {
       const available = await availableModels(apiKey);
@@ -1136,6 +1205,37 @@ Deno.serve(async (req: Request) => {
       }), { headers: JSON_HDR });
     }
 
+    /* ── checkpoints-cards: the stops of an existing conversation ──
+       A part written before Listen could talk back has no checkpoint rows.
+       This recomputes them from the stored script and its cards and replaces
+       whatever rows the episode had, without rewriting a word. */
+    if (action === 'checkpoints-cards') {
+      const episodeId = String(body.episode_id || '').trim();
+      if (!episodeId) throw new Error('episode_id is required');
+      const ep = (await get(`podcast_episodes?select=id,script,format,card_ids&id=eq.${encodeURIComponent(episodeId)}`))[0];
+      if (!ep) throw new Error('Episode not found.');
+      if (String(ep.format || '') !== 'dialogue') throw new Error('Only conversation episodes have per-card checkpoints.');
+      const ids: number[] = (Array.isArray(ep.card_ids) ? ep.card_ids : []).map(Number).filter((n: number) => Number.isFinite(n));
+      if (!ids.length) throw new Error('This episode records no card ids.');
+      const rows = await get(`flashcards?select=id,question,answer,explanation&id=in.(${ids.join(',')})`);
+      const byId = new Map<number, any>(rows.map((r: any) => [Number(r.id), r]));
+      const cards: Card[] = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => ({
+        id: Number(r.id), question: String(r.question || '').trim(), answer: String(r.answer || '').trim(),
+        explanation: r.explanation == null ? null : String(r.explanation),
+      }));
+      const cps = dialogueCheckpoints(String(ep.script || '').replace(/\r/g, ''), cards);
+      if (!body.dry_run) {
+        const del = await fetch(`${gate.SUPABASE_URL}/rest/v1/podcast_checkpoints?episode_id=eq.${encodeURIComponent(episodeId)}`,
+          { method: 'DELETE', headers: hdr });
+        if (!del.ok) throw new Error(`Clearing old checkpoints failed (${del.status})`);
+        if (cps.length) await writeCheckpoints(episodeId, cps);
+      }
+      return new Response(JSON.stringify({
+        episode_id: episodeId, cards: cards.length, checkpoints: cps,
+        unmatched: cps.filter((c) => c.card_id == null).length, dry_run: !!body.dry_run,
+      }), { headers: JSON_HDR });
+    }
+
     /* ── generate-cards: the conversation ── */
     if (action === 'generate-cards') {
       const objectiveId = String(body.objective_id || '').trim();
@@ -1143,13 +1243,6 @@ Deno.serve(async (req: Request) => {
       if (!objectiveId) throw new Error('objective_id is required (e.g. N144_L1_O4, or a lecture N144_L1)');
       if (!course) throw new Error('course is required (e.g. NUR144)');
       const perPart = Math.max(1, Math.min(30, Number(body.cards_per_part ?? CARDS_PER_PART_DEFAULT)));
-      const hdr = { apikey: gate.ANON!, Authorization: `Bearer ${gate.token}` };
-      const get = async (path: string) => {
-        const r = await fetch(`${gate.SUPABASE_URL}/rest/v1/${path}`, { headers: hdr });
-        const j = await r.json().catch(() => null);
-        if (!r.ok) throw new Error(`${path.split('?')[0]} read failed (${r.status})`);
-        return Array.isArray(j) ? j : [];
-      };
 
       /* names from the objectives table; the lecture is the objective's parent */
       const lectureId = parentOf(objectiveId) || objectiveId;
@@ -1231,6 +1324,8 @@ Deno.serve(async (req: Request) => {
         usage: ledger.summary(), generated_at: new Date().toISOString(),
       };
 
+      /* one stop per card: where the player pauses, listens, and answers back */
+      const cps = dialogueCheckpoints(script, mine);
       let episodeId: string | null = null;
       if (!body.dry_run) {
         const epRes = await fetch(`${gate.SUPABASE_URL}/rest/v1/podcast_episodes`, {
@@ -1244,12 +1339,12 @@ Deno.serve(async (req: Request) => {
         const epRows = await epRes.json().catch(() => null);
         if (!epRes.ok) throw new Error(`Saving episode failed (${epRes.status}): ${JSON.stringify(epRows).slice(0, 300)}`);
         episodeId = epRows && epRows[0] && epRows[0].id;
-        /* no checkpoints: the pause is silence inside the audio, not a stop */
+        if (episodeId && cps.length) await writeCheckpoints(episodeId, cps);
       }
       return new Response(JSON.stringify({
         episode_id: episodeId, format: 'dialogue', guide_slug: guideSlug, section_heading: heading, ordinal,
         objective_id: objectiveId, part, parts, cards: mine.map((c) => c.id), status, script,
-        coverage_report, usage: ledger.summary(),
+        checkpoints: cps, coverage_report, usage: ledger.summary(),
       }), { headers: JSON_HDR });
     }
 

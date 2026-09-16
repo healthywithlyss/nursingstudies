@@ -24,11 +24,13 @@ let QUESTIONS=[{id:11,fact_tested:'gastritis = disruption of the protective muco
                {id:12,fact_tested:'acute gastritis - self-limiting, recovery 1-3 days'}];
 let CARDS=[];
 let MASTERY_EXISTING=[];
+let EP=null;   /* what a GET of podcast_episodes returns */
 
 globalThis.fetch=async(url,init={})=>{
   url=String(url); const m=(init.method||'GET').toUpperCase();
   const J=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json'}});
   if(url.includes('/rest/v1/podcast_checkpoints')) return J(CP);
+  if(url.includes('/rest/v1/podcast_episodes')) return J(EP?[EP]:[]);
   if(url.includes('/rest/v1/quiz_questions')) return J(QUESTIONS);
   if(url.includes('/rest/v1/flashcards')) return J(CARDS);
   if(url.includes('/rest/v1/question_mastery')){
@@ -190,6 +192,21 @@ await call({action:'attribute',missed_concepts:['c'],objective_prefix:'N144',cou
 ck('total_attempts incremented from the existing row',masteryWrites[0].rows[0].total_attempts===10,masteryWrites[0].rows[0]);
 ck('total_correct preserved',masteryWrites[0].rows[0].total_correct===5);
 ck('streak reset by the miss',masteryWrites[0].rows[0].consecutive_correct===0);
+
+console.log('\nconversation episode: the cards are the source, read by the episode itself');
+{
+  EP={format:'dialogue',card_ids:[8,7]};
+  CARDS=[{id:7,question:'What does manometry measure?',answer:'Pressure along the esophagus.',explanation:null},
+         {id:8,question:'What is achalasia?',answer:'Failure of the LES to relax.',explanation:'The nerve plexus degenerates.'}];
+  const n0=reasonPrompts.length;
+  const r=(await turn({section_text:undefined})).json;
+  const rp=reasonPrompts[reasonPrompts.length-1]||'';
+  ck('a turn with no section_text still runs for a conversation',!r.error&&reasonPrompts.length===n0+1,r.error);
+  ck('the source is the cards, in the episode\'s order, with question, answer and why',
+    /Q: What is achalasia\?\nA: Failure of the LES to relax\.\nWhy: The nerve plexus degenerates\.\n\nQ: What does manometry measure\?\nA: Pressure along the esophagus\./.test(rp), rp.slice(rp.indexOf('SECTION TEXT'),rp.indexOf('SECTION TEXT')+260));
+  ck('a card with no why gets no Why line',!/Why: null/.test(rp));
+  EP=null; CARDS=[];
+}
 
 console.log('\nvalidation');
 ck('section_text is required',/section_text is required/.test((await call({action:'turn',episode_id:'e1',
