@@ -9633,7 +9633,7 @@ function render(){
 
     + '<div class="pod-panel"><h3>Conversation from flashcards</h3>'
       + '<div class="pod-note" style="margin-top:0">Two voices work out <b>why</b>, then the '
-      + 'card\'s question is asked aloud, followed by 4.5 seconds of real silence, then the answer '
+      + 'card\'s question is asked aloud, then it stops and listens for your answer and talks back, then the answer '
       + 'and the why. Built from the flashcards of one objective or a whole lecture, in deck order, '
       + 'in parts of about 15 minutes. Script then audio, part by part; parts already generated are '
       + 'skipped, so this is also the resume button. The narrator is the voice pinned for the lecture; '
@@ -10554,10 +10554,11 @@ function fillConversationTargets(){
 function podConvPlan(){
   var sel=$('pod-conv-target'), box=$('pod-conv-plan'); if(!sel||!box) return;
   var t=convTargets[sel.value]; if(!t){ box.textContent=''; return; }
-  /* ~180 spoken words a card at 150 wpm, plus the 4.5 s silence */
-  var mins=t.cards*(180/150+4.5/60);
+  /* ~200 spoken words a card at 150 wpm; the stops add whatever time she takes to answer */
+  var mins=t.cards*(200/150);
   box.innerHTML='<b>'+t.cards+' cards</b> in '+t.parts+' part'+(t.parts===1?'':'s')+' · about '
-    +Math.round(mins)+' minutes of audio in total, '+Math.round(mins/t.parts)+' per part.';
+    +Math.round(mins)+' minutes of audio in total, '+Math.round(mins/t.parts)+' per part, plus '
+    +t.cards+' stops where it listens for your answer and talks back.';
 }
 function paintConv(){ var box=$('pod-conv-progress'); if(box) box.innerHTML=lectureProgressHtml(convRun); }
 function podGenerateConversation(){
@@ -10596,8 +10597,21 @@ function podGenerateConversation(){
           if(scriptOnly||!j.episode_id){ row.state='done'; convRun.done++; paintConv(); return; }
           convRun.status='Part '+part+' of '+t.parts+' — planning audio'; paintConv();
           return afn({action:'plan',episode_id:j.episode_id}).then(function(plan){
-            var todo=plan.segments.map(function(s){ return s.ordinal; })
-              .filter(function(o){ return !(plan.generated||[]).some(function(g){ return g.ordinal===o; }); });
+            /* a part written before Listen could talk back has no stops yet */
+            if(plan.checkpoints) return plan;
+            convRun.status='Part '+part+' of '+t.parts+' — writing the checkpoints'; paintConv();
+            return fetch(SB_URL+FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHdr()),
+                body:JSON.stringify({action:'checkpoints-cards',episode_id:j.episode_id})})
+              .then(function(r){ return r.json().then(function(c){
+                if(!r.ok||c.error) throw new Error(c.error||('checkpoints failed ('+r.status+')'));
+                row.note+=' · '+c.checkpoints.length+' stops'; return plan; }); });
+          }).then(function(plan){
+            var byOrd={}; (plan.generated||[]).forEach(function(g){ byOrd[g.ordinal]=g; });
+            var todo=plan.segments.filter(function(s){
+                var g=byOrd[s.ordinal];
+                /* a segment stored under the old grouping ended nowhere; now every one ends at its card's stop */
+                return !g || (g.ends_at_checkpoint==null ? s.ends_at_checkpoint!=null : g.ends_at_checkpoint!==s.ends_at_checkpoint);
+              }).map(function(s){ return s.ordinal; });
             /* the lecture pin decides the narrator; only a lecture with no pin takes the dropdown.
                The Student voice is pinned the first time a conversation is voiced. */
             var send=plan.pinned_voice?{}:{voice:narrator};
@@ -10626,7 +10640,7 @@ function isDialogue(d){ return !!(d&&(d.format==='dialogue'||(d.coverage_report&
 function dialogueHtml(script){
   return String(script||'').split(/\r?\n/).map(function(l){
     l=l.trim(); if(!l) return '';
-    if(l==='[[PAUSE]]') return '<div class="pod-pause">&#9208; 4.5 seconds of silence &mdash; answer in your head</div>';
+    if(l==='[[PAUSE]]') return '<div class="pod-pause">&#9208; stop &mdash; it listens for your answer and talks back before going on</div>';
     var m=/^(Teacher|Student):\s*(.*)$/.exec(l);
     if(m) return '<div class="pod-turn '+m[1].toLowerCase()+'"><span class="pod-who">'+m[1]+'</span><span class="pod-say">'+esc(m[2])+'</span></div>';
     return '<div class="pod-turn other"><span class="pod-who"></span><span class="pod-say">'+esc(l)+'</span></div>';
@@ -10685,7 +10699,7 @@ function audioPanel(d){
     +'<div id="pod-audio-status" class="pod-note"></div>'
     +'<div id="pod-audio-segs"></div>'
     +'<div class="pod-note">'+(isDialogue(d)
-      ? 'Segments are cut at the pauses: each part ends on the 4.5-second silence after a question and the next opens with the answer. Two voices — the narrator pinned for this lecture reads Teacher; the Student voice was pinned the first time and changes only with Regenerate. '
+      ? 'One segment per card: each ends on the question, where Listen stops, hears your answer and talks back; the next opens with the answer. Two voices — the narrator pinned for this lecture reads Teacher; the Student voice was pinned the first time and changes only with Regenerate. '
       : 'Segments are cut at the checkpoints, so each part ends on a question. ')
     +'Audio is uncompressed WAV: about 2.9 MB per minute. '
     +'To compare voices, pick one and use <b>Regenerate in this voice</b> — that '
@@ -11956,7 +11970,9 @@ function sendTurn(audioB64,why){
   var ep=current&&current.ep, lec=current&&current.lec, cp=activeCp;
   if(!ep||!cp){ micState='idle'; renderCheckpoint(); return; }
   var t0=Date.now();
-  sectionTextFor(ep,lec).then(function(sectionText){
+  /* a conversation has no guide section: the turn function reads its cards */
+  var source=(ep.format==='dialogue')?Promise.resolve(''):sectionTextFor(ep,lec);
+  source.then(function(sectionText){
     return fetch(SB_URL+TFN,{method:'POST',headers:getAuthHdr(),body:JSON.stringify({
       action:'turn', episode_id:ep.id, checkpoint_ordinal:cp.ordinal,
       audio_b64:audioB64, mime_type:'audio/wav',

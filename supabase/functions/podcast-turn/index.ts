@@ -29,6 +29,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
      checkpoint_ordinal  integer
      audio_b64           16 kHz mono WAV from the browser
      section_text        the section markdown — the only permitted source
+                         (omitted for a conversation episode: its flashcards,
+                         read by the episode's card_ids, are the source)
      voice               the episode's voice, so the reply sounds like the narrator
      missed / question_text / expected  (attribute)
    ═══════════════════════════════════════════════════════════════════════ */
@@ -446,8 +448,24 @@ ${(cards || []).map((c: any) => `${c.id} — ${c.question}`).join('\n').slice(0,
     const t0 = Date.now();
     const audioB64 = String(body.audio_b64 || '');
     if (!audioB64) throw new Error('audio_b64 is required');
-    const sectionText = String(body.section_text || '');
-    if (!sectionText) throw new Error('section_text is required — it is the only permitted source');
+    let sectionText = String(body.section_text || '');
+    if (!sectionText) {
+      /* A conversation episode has no guide section behind it: its flashcards
+         are the only source, read here by the episode's own card list so the
+         page never has to reconstruct them. */
+      const epRes = await rest(`podcast_episodes?select=format,card_ids&id=eq.${encodeURIComponent(String(body.episode_id || ''))}`);
+      const ep = ((await epRes.json().catch(() => [])) || [])[0];
+      const ids: number[] = ep && ep.format === 'dialogue' && Array.isArray(ep.card_ids)
+        ? ep.card_ids.map(Number).filter((n: number) => Number.isFinite(n)) : [];
+      if (ids.length) {
+        const cr = await rest(`flashcards?select=id,question,answer,explanation&id=in.(${ids.join(',')})`);
+        const cards = cr.ok ? await cr.json() : [];
+        const byId = new Map<number, any>((cards || []).map((c: any) => [Number(c.id), c]));
+        sectionText = ids.map((id) => byId.get(id)).filter(Boolean)
+          .map((c: any) => `Q: ${c.question}\nA: ${c.answer}${c.explanation ? `\nWhy: ${c.explanation}` : ''}`).join('\n\n');
+      }
+      if (!sectionText) throw new Error('section_text is required — it is the only permitted source');
+    }
 
     const cpRes = await rest(`podcast_checkpoints?select=ordinal,question,expected_points&episode_id=eq.${encodeURIComponent(body.episode_id)}&ordinal=eq.${Number(body.checkpoint_ordinal)}`);
     const cps = await cpRes.json();

@@ -194,7 +194,8 @@ console.log('\nconversation from flashcards');
     `Teacher: Here is how it works, part ${i}.\nStudent: But why would that happen?\nTeacher: Because of the mechanism. ${c.question} Take a second.\n`
     + (breakIt && i === 0 ? '' : '[[PAUSE]]\n') + `Teacher: Okay — ${c.answer} That is the why.\nStudent: So it is a pressure thing, right?`).join('\n');
   const qsInPrompt = (p) => [...p.matchAll(/QUESTION: (.+)/g)].map((m) => m[1].trim());
-  let fcUrl = '', cpPosts = 0, posted = [], dlgPrompts = [], breakFirst = false, writes = 0;
+  let fcUrl = '', cpPosts = 0, cpBodies = [], cpDeletes = 0, posted = [], dlgPrompts = [], breakFirst = false, padFirst = false, writes = 0;
+  let epRow = null;   /* what a GET of podcast_episodes returns (checkpoints-cards) */
   const prev = globalThis.fetch;
   globalThis.fetch = async (url, init = {}) => {
     url = String(url);
@@ -205,7 +206,11 @@ console.log('\nconversation from flashcards');
       { id: 'N144_L1', lecture: 'Lecture 1', description: 'NUR 144 Unit 1 Lecture 1 - Gastrointestinal Assessment' }]);
     if (url.includes('/rest/v1/objective_units')) return J([{ unit: 1 }]);
     if (url.includes('/rest/v1/podcast_episodes') && (init.method || 'GET') === 'POST') { posted.push(JSON.parse(init.body)); return J([{ id: 'ep-dlg' }]); }
-    if (url.includes('/rest/v1/podcast_checkpoints')) { cpPosts++; return J([]); }
+    if (url.includes('/rest/v1/podcast_episodes')) return J(epRow ? [epRow] : []);
+    if (url.includes('/rest/v1/podcast_checkpoints')) {
+      if (init.method === 'DELETE') { cpDeletes++; return J([]); }
+      cpPosts++; cpBodies.push(JSON.parse(init.body)); return J([]);
+    }
     return prev(url, init);
   };
   let lastCards = CARDS;
@@ -213,7 +218,9 @@ console.log('\nconversation from flashcards');
     if (prompt.includes('two-voice CONVERSATION')) {
       dlgPrompts.push(prompt); writes++;
       lastCards = CARDS.filter((c) => qsInPrompt(prompt).includes(c.question));
-      const s = dialogueFor(lastCards, breakFirst); breakFirst = false;
+      let s = dialogueFor(lastCards, breakFirst); breakFirst = false;
+      /* a first draft that runs far past the ceiling */
+      if (padFirst) { s = `Teacher: ${'and another thing about the mechanism, '.repeat(200)}\n` + s; padFirst = false; }
       return JSON.stringify({ script: s });
     }
     if (prompt.includes('Revise this two-voice conversation')) { writes++; return JSON.stringify({ script: dialogueFor(lastCards, false) }); }
@@ -239,7 +246,19 @@ console.log('\nconversation from flashcards');
   ck('filed under the lecture guide slug so the voice pin and Listen apply', posted[0].guide_slug === 'nur144-u1-l1', posted[0].guide_slug);
   ck('headed by the objective name and part', /^Objective 4 — Describe common assessments of the GI system \(part 1 of 2\)$/.test(posted[0].section_heading), posted[0].section_heading);
   ck('ordinal sorts after guide sections', posted[0].ordinal === 141, posted[0].ordinal);
-  ck('no checkpoints are written: the pause lives in the audio', cpPosts === 0, cpPosts);
+  ck('one checkpoint per card is written, so Listen stops there and talks back', cpPosts === 1 && cpBodies[0].length === 2, cpBodies[0]);
+  const cp = cpBodies[0];
+  ck('checkpoints are numbered by pause and carry the card, its question verbatim and its answer as expected points',
+    cp[0].ordinal === 0 && cp[1].ordinal === 1 && cp[0].episode_id === 'ep-dlg'
+    && cp[0].card_id === 2401 && cp[1].card_id === 2402
+    && cp[0].question === CARDS[0].question && cp[1].question === CARDS[1].question
+    && cp[0].expected_points.length === 1 && cp[0].expected_points[0] === CARDS[0].answer
+    && cp[1].expected_points.length === 2 && /^Liquids can pool/.test(cp[1].expected_points[0]), cp);
+  ck('each checkpoint sits at the end of its pause line, in increasing order',
+    cp.every((c) => p1.script.slice(c.position_in_script - 9, c.position_in_script) === '[[PAUSE]]') && cp[1].position_in_script > cp[0].position_in_script,
+    cp.map((c) => p1.script.slice(c.position_in_script - 12, c.position_in_script + 3)));
+  ck('the response carries the checkpoints too', p1.checkpoints.length === 2 && p1.checkpoints[0].card_id === 2401);
+  ck('the prompt sets a hard ceiling on length', /HARD\s+CEILING of 420 words/.test(dlgPrompts[0]), dlgPrompts[0].match(/HARD[\s\S]{0,40}/));
   ck('the usage ledger records the write and the coverage check', p1.usage.calls >= 2 && p1.usage.by_stage['dialogue-write'], p1.usage.by_stage);
 
   const p2 = await go({ part: 2 });
@@ -253,9 +272,27 @@ console.log('\nconversation from flashcards');
   ck('a script missing a pause is caught locally and repaired', p3.status === 'complete' && p3.coverage_report.attempts.length === 2
     && p3.coverage_report.attempts[0].issues > 0 && writes - before === 2, p3.coverage_report.attempts);
 
-  posted = [];
+  posted = []; cpPosts = 0;
   const p4 = await go({ part: 1, dry_run: true });
-  ck('a dry run saves nothing', posted.length === 0 && p4.episode_id === null && p4.script.length > 0);
+  ck('a dry run saves nothing', posted.length === 0 && cpPosts === 0 && p4.episode_id === null && p4.script.length > 0);
+
+  /* a draft far past the word ceiling is caught locally and repaired */
+  padFirst = true; posted = [];
+  const p5 = await go({ part: 1 });
+  ck('a script past the ceiling is repaired rather than shipped', p5.status === 'complete' && p5.coverage_report.attempts.length === 2
+    && p5.coverage_report.attempts[0].issues > 0 && p5.coverage_report.attempts[0].words > 460, p5.coverage_report.attempts);
+
+  /* checkpoints-cards: the stops of a part written before Listen could talk back */
+  epRow = { id: 'ep-dlg', format: 'dialogue', card_ids: [2401, 2402], script: dialogueFor(CARDS.slice(0, 2), false) };
+  cpPosts = 0; cpBodies = []; cpDeletes = 0;
+  const c1 = await handler(new Request('https://x/', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok },
+    body: JSON.stringify({ action: 'checkpoints-cards', episode_id: 'ep-dlg' }) })).then((r) => r.json());
+  ck('an existing conversation gets its stops recomputed from its own cards: old rows cleared, two written',
+    c1.checkpoints.length === 2 && c1.unmatched === 0 && cpDeletes === 1 && cpPosts === 1 && cpBodies[0][1].card_id === 2402, c1);
+  epRow = { id: 'ep-lec', format: 'lecture', card_ids: null, script: 'x' };
+  const c2 = await handler(new Request('https://x/', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok },
+    body: JSON.stringify({ action: 'checkpoints-cards', episode_id: 'ep-lec' }) })).then((r) => r.json());
+  ck('a lecture episode is refused', /Only conversation episodes/.test(c2.error || ''), c2.error);
   gemOverride = null; globalThis.fetch = prev;
 }
 
