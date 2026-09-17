@@ -1531,6 +1531,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-wait #srs-wait-count{font-variant-numeric:tabular-nums}
 .srs-more-new{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--text-muted)}
 .srs-btn-sm{padding:6px 10px;font-size:12px;min-height:32px}
+.srs-per-session .srs-btn-sm.on{background:var(--accent);color:#fff}
+.srs-per-session em{flex-basis:100%;font-style:normal}
 .srs-wait .srs-btn{margin-top:10px}
 
 /* Four thumb-sized buttons with real space between them. Two lines each: the
@@ -13915,6 +13917,23 @@ function extraNewToday(st, now){
 function effectiveNewLimit(st, now){
   return (Number(st.newCardsPerDay) || 0) + extraNewToday(st, now);
 }
+/* How many NEW cards one sitting takes. Separate from the daily budget: the
+   budget says how many new cards today may introduce; this says how many of
+   them one session pulls in, so an objective's ten new cards are available
+   without having to sit through all ten at once. Remembered per course;
+   null means all of today's. */
+var NEW_PER_SESSION_KEY = 'nur_srs_new_per_session_';
+function newPerSession(){
+  try{
+    var v = localStorage.getItem(NEW_PER_SESSION_KEY + window.currentCourse);
+    return (v === null || v === 'all') ? null : Math.max(1, Math.round(Number(v)) || 1);
+  }catch(e){ return null; }
+}
+window.srsNewPerSession = function(n){
+  try{ localStorage.setItem(NEW_PER_SESSION_KEY + window.currentCourse, n == null ? 'all' : String(n)); }catch(e){}
+  renderDeckPanel();
+};
+function capNew(list){ var c = newPerSession(); return c == null ? list : list.slice(0, c); }
 window.srsMoreNew = function(n){
   var now = Date.now();
   var next = Object.assign({}, currentSettings());
@@ -14138,14 +14157,29 @@ function renderDeckPanel(){
       + 'onclick="srsStartSession('+(extra?'true':'false')+',\''+only+'\')" title="Study only these">'
       + '<b>'+n+'</b><span>'+label+'</span></button>';
   };
+  var newNow = capNew(q.newItems);
+  var cap = newPerSession();
   var counts = '<div class="srs-qc">'
-    + tile('new',   q.newItems.length, 'new',        false, 'new')
+    + tile('new',   newNow.length, 'new',        false, 'new')
     + tile('learn', q.learning.length, 'learning',   false, 'learning')
     + tile('due',   q.due.length,      'due',        false, 'due')
     + tile('done',  q.done.length,     'done today', true,  'done')
     + '</div>';
 
-  var total = q.newItems.length + q.learning.length + q.due.length;
+  var total = newNow.length + q.learning.length + q.due.length;
+  /* the per-sitting choice, shown whenever there is new material to choose from */
+  var perSession = q.newItems.length
+    ? '<div class="srs-more-new srs-per-session"><span>New cards this session:</span>'
+      + [5, 10, 20, null].map(function(n){
+          var on = n === null ? cap == null : cap === n;
+          return '<button class="srs-btn srs-btn-ghost srs-btn-sm'+(on ? ' on' : '')+'" onclick="srsNewPerSession('+(n === null ? 'null' : n)+')">'
+            + (n === null ? 'all' : n)+'</button>';
+        }).join('')
+      + (cap != null && q.newItems.length > cap
+          ? '<em>'+cap+' of the '+q.newItems.length+' new available today; the rest wait for your next session</em>'
+          : '')
+      + '</div>'
+    : '';
 
   /* Once a session is running the chips and the three big numbers are just
      taking the room the card and the buttons need — on a phone they were
@@ -14171,6 +14205,7 @@ function renderDeckPanel(){
         + (total===1?'':'s')+'</button>'
       + '<button class="srs-btn srs-btn-ghost" onclick="srsStartSession(true)">Extra study</button>'
       + '</div>'
+      + perSession
       + budgetNote(q)
       + (q.due.length ? '' : '<div class="srs-note">Nothing overdue — this is new material '
           + 'and anything still in learning.</div>');
@@ -14298,11 +14333,11 @@ window.srsStartSession = function(extra, only){
   } else {
     var q = queueFor(items, now);
     /* learning first, then what is due, then new material */
-    opts.items = only === 'new' ? q.newItems.slice()
+    opts.items = only === 'new' ? capNew(q.newItems)
       : only === 'learning' ? q.learning.slice()
       : only === 'due' ? q.due.slice()
       : only === 'done' ? q.done.slice()
-      : q.learning.concat(q.due, q.newItems);
+      : q.learning.concat(q.due, capNew(q.newItems));
   }
   if(!opts.items.length) return;
   SESS = window.StudySession.create(opts);
