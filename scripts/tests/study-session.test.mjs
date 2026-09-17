@@ -535,13 +535,18 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
   ck('the first real rating stamps introduced_at, and only the first', /var wasNew = window\.StudySession\.isNewItem\(item\);/.test(pc) && /if\(wasNew\)\{[^}]*row\.introduced_at = /.test(pc));
   const panel = html.slice(html.indexOf('function renderDeckPanel('), html.indexOf('function srsToggleDeck'));
   ck('a tile is a button that starts a session of only its kind', /var tile = function\(cls, n, label, extra, only\)/.test(panel) && /onclick="srsStartSession\('\+\(extra\?'true':'false'\)\+',\\''\+only\+'\\'\)"/.test(panel));
-  ck('new, learning and due tiles start SCHEDULED sessions', /tile\('new',\s+q\.newItems\.length,\s+'new',\s+false,\s+'new'\)/.test(panel)
+  ck('new, learning and due tiles start SCHEDULED sessions', /tile\('new',\s+newNow\.length,\s+'new',\s+false,\s+'new'\)/.test(panel)
     && /tile\('learn', q\.learning\.length, 'learning',\s+false, 'learning'\)/.test(panel) && /tile\('due',\s+q\.due\.length,\s+'due',\s+false, 'due'\)/.test(panel));
   ck('the done tile is EXTRA study: re-drilling today\'s cards never reschedules them', /tile\('done',\s+q\.done\.length,\s+'done today', true,\s+'done'\)/.test(panel) && /if\(only === 'done'\) extra = true;/.test(html));
   const note = html.slice(html.indexOf('function budgetNote('), html.indexOf('function renderDeckPanel('));
   ck('when the budget is spent the note says so instead of counting "held back"', /q\.newBudget === 0/.test(note) && /started today/.test(note) && /resume tomorrow/.test(note));
   const start = html.slice(html.indexOf('window.srsStartSession = function(extra, only)'), html.indexOf('window.srsResumeSession'));
-  ck('srsStartSession honours `only` for each kind', /only === 'new' \? q\.newItems/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+  ck('srsStartSession honours `only` for each kind', /only === 'new' \? capNew\(q\.newItems\)/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+  /* one sitting need not take every new card: the per-session cap (5/10/20/all,
+     remembered per course) bounds what a session pulls in, never the daily budget */
+  ck('a session pulls in at most the per-session cap of new cards', /q\.learning\.concat\(q\.due, capNew\(q\.newItems\)\)/.test(start));
+  ck('the new tile shows the capped count and the chips offer 5, 10, 20 and all', /var newNow = capNew\(q\.newItems\);/.test(panel) && /\[5, 10, 20, null\]\.map/.test(panel) && /srsNewPerSession\(/.test(panel));
+  ck('the cap is separate from the daily budget and remembered per course', /NEW_PER_SESSION_KEY \+ window\.currentCourse/.test(html) && /function capNew\(list\)\{ var c = newPerSession\(\); return c == null \? list : list\.slice\(0, c\); \}/.test(html));
 
   /* "+N new today": past the limit for one local date only, and it counts */
   ck('settings read the per-day extra and its date', /extraNew:\s+\(r && r\.extra_new\)/.test(html) && /extraNewDate: \(r && r\.extra_new_date\)/.test(html));
