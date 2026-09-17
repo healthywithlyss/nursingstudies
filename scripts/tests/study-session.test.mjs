@@ -590,6 +590,14 @@ console.log('\nindex.html: lecture names, new-left chips, the sidebar shows prog
   ck('chips show the lecture name and the new cards left, not the objective id', /objLabel\(o\.id\)/.test(panel) && /newLeft\+' new/.test(panel) && !/esc2\(o\.id\)\+' <span>'\+o\.count/.test(panel));
   ck('the deck panel renders the sidebar progress on every paint', /renderObjProgress\(now\)/.test(panel));
   const side = html.slice(html.indexOf('function renderObjProgress('), html.indexOf('function renderDeckPanel('));
+  /* the sidebar must be able to pick ONE objective, and a pick must rebuild a
+     running session — tapping "Lecture 2 · Objective 1" used to leave the
+     65-card whole-deck session running underneath a filtered-looking panel */
+  ck('sidebar objective rows are tappable and pick just that objective',
+    /srs-side-obj[\s\S]{0,400}?onclick="event\.stopPropagation\(\);srsOnlyDeck\(/.test(side), side.match(/srs-side-obj[\s\S]{0,400}?onclick[^\n]{0,60}/)?.[0]);
+  const onlyDeck = html.slice(html.indexOf('window.srsOnlyDeck = function'), html.indexOf('window.srsSelectAll'));
+  ck('a sidebar pick rebuilds the session, the same way a chip does', /afterDeckChange\(\)/.test(onlyDeck), onlyDeck);
+  ck('select-all from the sidebar rebuilds too', /window\.srsSelectAll = function\(\)\{ deckSel = null; afterDeckChange\(\); \}/.test(html));
   ck('the sidebar uses StudySession.objectiveStats with the scheduler\'s recall', /StudySession\.objectiveStats\(/.test(side) && /recall: recallNow/.test(side));
   ck('each lecture row shows started %, new left, recall, learned and learning', /pctStarted/.test(side) && /newLeft/.test(side) && /recall/.test(side) && /learned/.test(side) && /learning/.test(side));
   ck('the sidebar never shows "Loading" under FSRS: the legacy bar renderer is a no-op there', /window\.renderObjBars = function\(\)\{\s*if\(fsrsPractice\(\)\) return;/.test(html));

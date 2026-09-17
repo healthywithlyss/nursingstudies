@@ -1485,6 +1485,10 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-side-objs{margin:4px 0 0 14px;display:flex;flex-direction:column;gap:2px}
 .srs-side-obj{display:grid;grid-template-columns:auto 1fr auto;gap:6px;font-size:10.5px;color:var(--text-muted);line-height:1.35;align-items:baseline}
 .srs-side-obj.bad .srs-side-stat{color:var(--missed);font-weight:700}
+.srs-side-obj{cursor:pointer;border-radius:6px;padding:1px 4px;margin:0 -4px}
+.srs-side-obj:hover{background:var(--bg-alt,rgba(0,0,0,.04))}
+.srs-side-obj.active{background:var(--accent-soft,rgba(79,110,247,.12));color:var(--text)}
+.srs-side-obj.active .srs-side-num{color:var(--accent);font-weight:700}
 .srs-side-num{font-weight:800;color:var(--cobalt)}
 .srs-side-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .srs-side-stat{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -14001,7 +14005,11 @@ function renderObjProgress(now){
     if(kids.length){
       html += '<div class="srs-side-objs">' + kids.map(function(k){
         var x = ds[k.id] || {cards:0,seen:0,failing:0};
-        return '<div class="srs-side-obj'+(x.failing?' bad':'')+'" title="'+esc2(k.sub||k.full)+'">'
+        var kOn = deckSel && deckSel.length === 1 && deckSel[0] === k.id;
+        /* tapping an objective studies just that objective; the tap must not
+           bubble to the lecture row, which would select the whole lecture */
+        return '<div class="srs-side-obj'+(x.failing?' bad':'')+(kOn?' active':'')+'" role="button" title="'+esc2(k.sub||k.full)
+          + '" onclick="event.stopPropagation();srsOnlyDeck(\''+esc2(k.id)+'\')">'
           + '<span class="srs-side-num">'+k.num+'</span>'
           + '<span class="srs-side-txt">'+esc2(k.sub||k.full||k.id)+'</span>'
           + '<span class="srs-side-stat">'+x.seen+'/'+x.cards+(x.failing?' · '+x.failing+' failing':'')+'</span></div>';
@@ -14022,8 +14030,17 @@ function renderObjProgress(now){
     if(di) di.textContent = q.learning.length+' learning \u00b7 '+q.due.length+' due \u00b7 '+q.newItems.length+' new left today';
   }
 }
-window.srsOnlyDeck = function(id){ deckSel = [id]; renderDeckPanel(); };
-window.srsSelectAll = function(){ deckSel = null; renderDeckPanel(); };
+/* The sidebar picks ONE lecture or objective. It goes through the same
+   rebuild as the chips: picking "Lecture 2 · Objective 1" while a 65-card
+   session was running used to change the panel and leave the session
+   serving all 65, because the session was never rebuilt against it. */
+window.srsOnlyDeck = function(id){
+  deckSel = [id];
+  var par = window.ObjectiveTree.parentOf(id);
+  if(par) deckOpen[par] = true;
+  afterDeckChange();
+};
+window.srsSelectAll = function(){ deckSel = null; afterDeckChange(); };
 
 /* ── the deck panel ─────────────────────────────────────────────────── */
 /* The line under the buttons about new cards. When the day's budget is
