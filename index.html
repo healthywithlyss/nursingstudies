@@ -1533,6 +1533,35 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .srs-btn-sm{padding:6px 10px;font-size:12px;min-height:32px}
 .srs-per-session .srs-btn-sm.on{background:var(--accent);color:#fff}
 .srs-per-session em{flex-basis:100%;font-style:normal}
+/* ── voice tutor ── */
+.vt-panel{margin:6px 0 10px;display:flex;flex-direction:column;gap:8px}
+.vt-log{display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow:auto;-webkit-overflow-scrolling:touch}
+.vt-turn{font-size:13px;line-height:1.45;padding:8px 11px;border-radius:12px;max-width:92%}
+.vt-turn.you{align-self:flex-end;background:var(--g50,#f1f5f9);color:var(--text)}
+.vt-turn.tutor{align-self:flex-start;background:#eef2ff;color:var(--text)}
+.vt-turn b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.6;margin-bottom:2px}
+.vt-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.vt-side{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+.vt-side.r{justify-content:flex-end}
+.vt-show,.vt-replay{background:none;border:1px solid var(--border);border-radius:999px;padding:8px 12px;min-height:36px;
+  font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer}
+.vt-replay:disabled{opacity:.4;cursor:default}
+.vt-mic{width:68px;height:68px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(79,126,248,.35);transition:transform .12s,background .15s;justify-self:center}
+.vt-mic svg{width:30px;height:30px}
+.vt-mic:active{transform:scale(.94)}
+.vt-mic.rec{background:#ef4444;box-shadow:0 0 0 0 rgba(239,68,68,.55);animation:vt-pulse 1.2s ease-out infinite}
+.vt-mic.busy{background:#94a3b8;cursor:progress;animation:vt-spin 1s linear infinite}
+.vt-mic.busy svg{display:none}
+@keyframes vt-pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}100%{box-shadow:0 0 0 18px rgba(239,68,68,0)}}
+@keyframes vt-spin{to{transform:rotate(360deg)}}
+.vt-mic.busy::after{content:'';width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff}
+.vt-state{text-align:center;font-size:12px;color:var(--text-muted);min-height:16px}
+.vt-state.err{color:var(--missed)}
+.vt-text{display:flex;gap:6px}
+.vt-text input{flex:1;min-height:40px;border:1px solid var(--border);border-radius:10px;padding:0 12px;font-size:14px}
+.vt-text button{min-height:40px;padding:0 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+@media(max-width:767px){.vt-mic{width:76px;height:76px}.vt-row{gap:4px}.vt-show,.vt-replay{padding:8px 10px}}
 .srs-wait .srs-btn{margin-top:10px}
 
 /* Four thumb-sized buttons with real space between them. Two lines each: the
@@ -4828,6 +4857,9 @@ body.lsn-open #main-content{padding-bottom:80px}
               <div class="fc-flip-hint" id="fc-flip-hint">Tap card to reveal answer</div>
             </div>
             <div id="fc-summary" class="fc-summary-panel" style="display:none"></div>
+            <!-- voice tutor (admin only): say the answer, hear it graded; see the
+                 VOICE TUTOR block in the spaced-repetition script -->
+            <div id="vt-panel" class="vt-panel" style="display:none"></div>
             <!-- rating buttons -->
             <div class="rating-row" id="fc-rating-row">
               <button class="rating-btn got"    onclick="fcRate('got_it',3)" id="btn-got"    disabled>&#10003; Got it</button>
@@ -14388,17 +14420,195 @@ function restoreSession(){
   else { try{ localStorage.removeItem(sessionKey()); }catch(e){} }
 }
 
+/* ══ VOICE TUTOR (admin only) ═══════════════════════════════════════════
+   Say the answer instead of flipping the card. One tap on the mic records
+   (MediaRecorder, webm/opus), a second tap or a stretch of silence sends it
+   to the voice-tutor edge function, which transcribes, grades against the
+   card and speaks the reply; the mp3 plays at once and both sides appear as
+   text under the card. Tap again to argue back or ask a follow-up. The
+   written answer is one tap away ("show answer" = the ordinary flip) and
+   the rating buttons are untouched and usable at any moment.
+
+   The conversation lives here, per card, and is cleared when the card
+   changes. No mic, or permission refused: a text box with the same grading.
+   ══════════════════════════════════════════════════════════════════════ */
+var VT = { cardId:null, messages:[], state:'idle', rec:null, chunks:[], stream:null, ctx:null, raf:0,
+           lastAudio:null, player:null, textMode:false, err:'', mime:'', spokeAt:0, quietSince:0, startedAt:0 };
+var VT_FN = '/functions/v1/voice-tutor';
+var VT_SILENCE_MS = 1600, VT_MAX_MS = 60000, VT_LEVEL = 0.025;
+var VT_ICON_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="9" y1="21" x2="15" y2="21"/></svg>';
+var VT_ICON_STOP = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+
+function vtCanRecord(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
+function vtMount(card){
+  var el = $('vt-panel'); if(!el) return;
+  if(!isAdmin || !card){ vtHide(); return; }
+  if(VT.cardId !== card.id){
+    vtStopAll();
+    VT.cardId = card.id; VT.messages = []; VT.lastAudio = null; VT.state = 'idle'; VT.err = '';
+  }
+  el.style.display = '';
+  vtRender();
+}
+function vtHide(){ var el = $('vt-panel'); if(el) el.style.display = 'none'; vtStopAll(); }
+function vtStopAll(){
+  try{ if(VT.rec && VT.rec.state !== 'inactive'){ VT.rec.ondataavailable = null; VT.rec.onstop = null; VT.rec.stop(); } }catch(e){}
+  VT.rec = null; VT.chunks = [];
+  if(VT.stream){ try{ VT.stream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} VT.stream = null; }
+  if(VT.ctx){ try{ VT.ctx.close(); }catch(e){} VT.ctx = null; }
+  if(VT.raf){ cancelAnimationFrame(VT.raf); VT.raf = 0; }
+  if(VT.player){ try{ VT.player.pause(); }catch(e){} VT.player = null; }
+  if(VT.state === 'rec') VT.state = 'idle';
+}
+
+function vtRender(){
+  var el = $('vt-panel'); if(!el) return;
+  var log = VT.messages.map(function(m){
+    return '<div class="vt-turn '+(m.role === 'user' ? 'you' : 'tutor')+'"><b>'+(m.role === 'user' ? 'You' : 'Tutor')+'</b>'+esc2(m.content)+'</div>';
+  }).join('');
+  var state = VT.err ? VT.err
+    : VT.state === 'rec' ? 'Listening — say your answer, tap to stop'
+    : VT.state === 'busy' ? 'Thinking…'
+    : VT.messages.length ? 'Tap the mic to ask a follow-up or push back'
+    : 'Tap the mic and say your answer';
+  var micCls = 'vt-mic' + (VT.state === 'rec' ? ' rec' : VT.state === 'busy' ? ' busy' : '');
+  var input = VT.textMode
+    ? '<form class="vt-text" onsubmit="event.preventDefault();vtSendText()">'
+      + '<input id="vt-text" type="text" placeholder="Type your answer…" autocomplete="off"'+(VT.state === 'busy' ? ' disabled' : '')+'>'
+      + '<button type="submit"'+(VT.state === 'busy' ? ' disabled' : '')+'>Send</button></form>'
+    : '';
+  el.innerHTML = (log ? '<div class="vt-log" id="vt-log">'+log+'</div>' : '')
+    + '<div class="vt-row">'
+    + '<div class="vt-side"><button class="vt-show" onclick="vtShowAnswer()">Show answer</button></div>'
+    + '<button class="'+micCls+'" onclick="vtMic()" aria-label="'+(VT.state === 'rec' ? 'Stop and send' : 'Record your answer')+'">'
+      + (VT.state === 'rec' ? VT_ICON_STOP : VT_ICON_MIC)+'</button>'
+    + '<div class="vt-side r"><button class="vt-replay" onclick="vtReplay()" '+(VT.lastAudio ? '' : 'disabled ')+'title="Replay the last reply">&#128264; Replay</button></div>'
+    + '</div>'
+    + '<div class="vt-state'+(VT.err ? ' err' : '')+'">'+esc2(state)+'</div>'
+    + input;
+  var lg = $('vt-log'); if(lg) lg.scrollTop = lg.scrollHeight;
+}
+
+window.vtShowAnswer = function(){ if(typeof fcFlipped !== 'undefined' && !fcFlipped) fcFlip(); };
+window.vtReplay = function(){
+  if(!VT.lastAudio) return;
+  try{ if(VT.player) VT.player.pause(); VT.player = new Audio(VT.lastAudio); VT.player.play().catch(function(){}); }catch(e){}
+};
+window.vtMic = function(){
+  if(VT.state === 'rec'){ vtStopRecording('tap'); return; }
+  if(VT.state === 'busy') return;
+  vtStartRecording();
+};
+
+function vtStartRecording(){
+  VT.err = '';
+  if(!vtCanRecord()){ VT.textMode = true; VT.err = 'No microphone here — type your answer instead.'; vtRender(); return; }
+  if(VT.player){ try{ VT.player.pause(); }catch(e){} }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream){
+    VT.stream = stream;
+    var mime = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].filter(function(m){
+      return window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported(m); })[0] || '';
+    var rec;
+    try{ rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream); }
+    catch(e){ VT.textMode = true; VT.err = 'Recording is not supported here — type your answer instead.'; vtStopAll(); vtRender(); return; }
+    VT.rec = rec; VT.chunks = []; VT.mime = rec.mimeType || mime || 'audio/webm';
+    rec.ondataavailable = function(e){ if(e.data && e.data.size) VT.chunks.push(e.data); };
+    rec.onstop = function(){
+      var blob = new Blob(VT.chunks, { type: VT.mime });
+      var why = VT.stopWhy || 'tap';
+      vtStopAll();
+      if(blob.size < 800){ VT.state = 'idle'; VT.err = why === 'silence' ? "I didn't hear anything. Tap the mic and try again." : ''; vtRender(); return; }
+      vtSendBlob(blob);
+    };
+    rec.start(250);
+    VT.state = 'rec'; VT.startedAt = Date.now(); VT.spokeAt = 0; VT.quietSince = 0; VT.stopWhy = '';
+    vtWatchSilence(stream);
+    vtRender();
+  }).catch(function(e){
+    VT.textMode = true;
+    VT.err = (e && e.name === 'NotAllowedError') ? 'Microphone permission was refused — type your answer instead.'
+                                                 : 'Could not open the microphone — type your answer instead.';
+    vtRender();
+  });
+}
+/* stop by itself when she has spoken and then gone quiet */
+function vtWatchSilence(stream){
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+    VT.ctx = new AC();
+    var src = VT.ctx.createMediaStreamSource(stream), an = VT.ctx.createAnalyser();
+    an.fftSize = 1024; src.connect(an);
+    var buf = new Uint8Array(an.fftSize);
+    var tick = function(){
+      if(VT.state !== 'rec') return;
+      an.getByteTimeDomainData(buf);
+      var sum = 0; for(var i = 0; i < buf.length; i++){ var v = (buf[i]-128)/128; sum += v*v; }
+      var rms = Math.sqrt(sum/buf.length), now = Date.now();
+      if(rms > VT_LEVEL){ VT.spokeAt = now; VT.quietSince = 0; }
+      else if(VT.spokeAt && !VT.quietSince) VT.quietSince = now;
+      if(VT.spokeAt && VT.quietSince && now - VT.quietSince > VT_SILENCE_MS){ vtStopRecording('silence'); return; }
+      if(now - VT.startedAt > VT_MAX_MS){ vtStopRecording('max'); return; }
+      VT.raf = requestAnimationFrame(tick);
+    };
+    VT.raf = requestAnimationFrame(tick);
+  }catch(e){ /* no meter: she taps to stop */ }
+}
+function vtStopRecording(why){
+  if(VT.state !== 'rec' || !VT.rec) return;
+  VT.stopWhy = why; VT.state = 'busy'; vtRender();
+  try{ VT.rec.stop(); }catch(e){ vtStopAll(); VT.state = 'idle'; vtRender(); }
+}
+function vtSendBlob(blob){
+  var fr = new FileReader();
+  fr.onload = function(){
+    var b64 = String(fr.result || '').split(',')[1] || '';
+    vtSend({ audio_b64: b64, mime_type: VT.mime });
+  };
+  fr.onerror = function(){ VT.state = 'idle'; VT.err = 'Could not read the recording.'; vtRender(); };
+  fr.readAsDataURL(blob);
+}
+window.vtSendText = function(){
+  var i = $('vt-text'); var t = i ? i.value.trim() : '';
+  if(!t || VT.state === 'busy') return;
+  if(i) i.value = '';
+  vtSend({ text: t });
+};
+function vtSend(turn){
+  var cardId = VT.cardId; if(cardId == null) return;
+  VT.state = 'busy'; VT.err = ''; vtRender();
+  var body = Object.assign({ card_id: cardId, messages: VT.messages.slice(-10) }, turn);
+  freshAuthHdr().then(function(h){
+    return fetch(SB_URL + VT_FN, { method: 'POST', headers: h, body: JSON.stringify(body) });
+  }).then(function(r){ return r.json().then(function(j){
+    if(!r.ok || j.error) throw new Error(j.error || ('Tutor request failed ('+r.status+')'));
+    return j;
+  }); }).then(function(j){
+    if(VT.cardId !== cardId) return;                 /* she moved on; drop it */
+    if(j.transcript) VT.messages.push({ role: 'user', content: j.transcript });
+    if(j.replyText) VT.messages.push({ role: 'assistant', content: j.replyText });
+    if(j.replyAudio){
+      VT.lastAudio = 'data:audio/mpeg;base64,' + j.replyAudio;
+      try{ VT.player = new Audio(VT.lastAudio); VT.player.play().catch(function(){}); }catch(e){}
+    }
+    VT.state = 'idle'; vtRender();
+  }).catch(function(e){
+    if(VT.cardId !== cardId) return;
+    VT.state = 'idle'; VT.err = e.message || String(e); vtRender();
+  });
+}
+
 /* ── painting a card ────────────────────────────────────────────────── */
 function paintSession(opts){
-  if(!SESS) { renderDeckPanel(); return; }
+  if(!SESS) { vtHide(); renderDeckPanel(); return; }
   var now = Date.now();
   clearWait();
-  if(SESS.isComplete()){ finishSession(); return; }
+  if(SESS.isComplete()){ vtHide(); finishSession(); return; }
   /* serve(), not next(): the session remembers which card is on screen, and
      that is the card a rating is applied to. It also never hands back the
      card just rated while anything else is available. */
   var card = SESS.serve(now, opts);
   if(!card){
+    vtHide();
     /* the only card left is the one just rated, and its interval is not up:
        wait it out visibly rather than show the answer she was just reading */
     if(SESS.waitMs(now) > 0){ showWait(); return; }
@@ -14416,6 +14626,7 @@ function paintSession(opts){
   window.fcCycleQueue = [full];
   window.fcCyclePos = 0;
   window.showCurrentCard();
+  vtMount(full);
   var hint = $('fc-flip-hint'); if(hint) hint.style.display = '';
   ['btn-missed','btn-unsure','btn-got','btn-easy'].forEach(function(id){
     var b = $(id); if(b) b.disabled = false;
