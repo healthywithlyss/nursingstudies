@@ -14713,16 +14713,14 @@ function renderRunway(anyCompressed, now){
   var name = EXAM_LABEL[exam.key];
   host.className = 'srs-runway' + (anyCompressed ? ' on' : '');
   var why;
-  if(usable <= 0){
-    /* the sweep is running, so there is no runway left to compress into — the
-       intervals are fitted to the days that remain instead */
-    why = 'sweep week — every card is being covered anyway; intervals fit the '
-        + Math.max(0, days - 1) + ' day' + (days-1===1?'':'s') + ' left';
-  } else if(anyCompressed){
-    why = 'deadline schedule — intervals compressed into the ' + usable
-        + ' day' + (usable===1?'':'s') + ' before the sweep';
+  /* FSRS spaces by memory strength; the exam only caps where a review may
+     land. A pulled-in button shows the raw figure beside it. */
+  if(anyCompressed){
+    why = days <= 1
+      ? 'test day — anything that would land later is due tomorrow'
+      : 'a review that would land after the test is pulled to test day (' + days + ' day' + (days===1?'':'s') + ' out)';
   } else {
-    why = 'normal spacing — FSRS already fits inside the runway';
+    why = 'normal spacing — every review already lands before the test';
   }
   host.innerHTML = '<b>' + esc2(name) + ' in ' + days + ' day' + (days===1?'':'s')
     + '</b><span>' + esc2(why) + '</span>';
