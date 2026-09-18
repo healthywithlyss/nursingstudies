@@ -111,8 +111,8 @@ console.log('\nthe exam clamp moves the due date, not the memory state');
   ck('only the due date moves', held.due_date <= free.due_date, {
     free: new Date(free.due_date).toISOString(), held: new Date(held.due_date).toISOString() });
   ck('and it says when it moved it', held.clamped === true);
-  ck('nothing is scheduled past the exam',
-    held.due_date < ES.parseDate('2026-08-01'),
+  ck('nothing is scheduled past the exam day, and a review lands on a day boundary',
+    held.due_date <= ES.parseDate('2026-08-01') && new Date(held.due_date).getHours() === 0,
     new Date(held.due_date).toISOString());
 }
 

@@ -86,10 +86,16 @@ function drive(ratings, clamp) {
     const buttons = s.peek(1, now);
     const out = s.answer(1, rating, now);
     row = rowFor(out.card);
-    /* the number on the button must be the number that gets stored */
+    /* the number on the button must be the number that gets stored. A review
+       is stored on its DAY (local midnight of now + interval), so the
+       comparison is in whole days there, and exact for a learning step. */
     const shown = buttons[rating].ms;
-    const stored = Date.parse(row.due_date) - now;
-    if (shown !== stored) divergences.push({ ratings, rating, shown, stored });
+    const due = Date.parse(row.due_date);
+    const ok = shown >= DAY
+      ? (row.interval_days === Math.round(shown / DAY) && new Date(due).getHours() === 0
+         && due === new Date(now + shown).setHours(0, 0, 0, 0))
+      : due - now === shown;
+    if (!ok) divergences.push({ ratings, rating, shown, stored: due - now, interval_days: row.interval_days });
     item = toItem(row, 1);          /* THE RELOAD */
     now = Date.parse(row.due_date); /* answered exactly when due */
   }
@@ -231,8 +237,7 @@ console.log('\nthe four buttons stay in order however the card is doing');
     ck('Again <= Hard <= Good <= Easy after ' + path.join(''),
       ms[0] <= ms[1] && ms[1] <= ms[2] && ms[2] <= ms[3],
       ms.map(SS.formatInterval));
-    ck('  and Again is strictly shortest, Easy strictly longest, after '
-      + path.join(''), ms[0] < ms[1] && ms[2] < ms[3], ms.map(SS.formatInterval));
+    ck('  and Again is strictly shortest after ' + path.join(''), ms[0] < ms[1], ms.map(SS.formatInterval));
   });
 
   /* Where two buttons tie on the day, the memory state they store must not. */
@@ -268,14 +273,16 @@ console.log('\nthe number on the button is the number that gets stored');
 }
 
 /* ── BOTH orderings, under an active clamp ────────────────────────────
-   The regression that bit us. The first clamp fixed the ladder WITHIN a card
-   by scaling each card against its own Easy — and in doing so divided out the
-   card's strength, so every card landed on the same day. Fixing one ordering
-   broke the other. These fail if either goes. */
+   The clamp is min(fsrs, days to the exam). Within a card the ladder is
+   FSRS's own, so it stays in order; between cards a weaker card never comes
+   back later than a stronger one; and where several ratings would all pass
+   the exam they all land ON the exam day — that is the cap doing its one
+   job, not a collapse. What must never return is the squash that put a
+   stability-16 card and a stability-4.7 card on the same day 20 days out. */
 console.log('\nboth orderings hold together under an active exam clamp');
 {
-  const exam = { key: 'unit1', date: ES.parseDate('2026-10-08') };   /* her Unit 1 */
-  const runway = ES.runwayDays(exam, T0, { sweepDaysUnit: 15, sweepDaysFinal: 30 });
+  const exam = { key: 'unit1', date: ES.parseDate('2026-10-08') };   /* her Unit 1: 25 days from T0 */
+  const daysToExam = ES.daysBetween(exam.date, ES.startOfDay(T0));
   const clamp = (raw, max, t) => ES.compressToRunway(raw, max, exam, t,
     { sweepDaysUnit: 15, sweepDaysFinal: 30 });
   const review = (stab, diff) => ({ id: 1, kind: 'card', objectiveIds: ['N144_L1'],
@@ -284,72 +291,59 @@ console.log('\nboth orderings hold together under an active exam clamp');
     repetitions: 5, lapses: 0, learning_step: null, interval_days: 10 });
   const offer = (card) => SS.create({ now: T0, items: [card], settings: SETTINGS, clamp })
     .peek(1, T0);
-
-  ck('the runway is genuinely short, so the clamp is genuinely active',
-    runway > 0 && runway <= 12, runway);
+  ck('the exam is 25 days out', daysToExam === 25, daysToExam);
 
   /* WITHIN a card, weak and strong */
   const weak = offer(review(2, 7));
   const strong = offer(review(45, 3));
   const ladder = (p) => [1, 2, 3, 4].map((r) => p[r].ms);
-  ck('weak card: Again < Hard < Good < Easy, strictly, in time',
-    ladder(weak).every((v, i, a) => i === 0 || v > a[i - 1]),
+  const nonDecreasing = (a) => a.every((v, i) => i === 0 || v >= a[i - 1]);
+  ck('weak card: Again < Hard < Good < Easy, strictly, none of it clamped',
+    ladder(weak).every((v, i, a) => i === 0 || v > a[i - 1]) && [2, 3, 4].every((r) => !weak[r].compressed),
     ladder(weak).map(SS.formatInterval));
-  ck('strong card: Again < Hard < Good < Easy, strictly, in time',
-    ladder(strong).every((v, i, a) => i === 0 || v > a[i - 1]),
+  ck('strong card: Again first, then Hard, Good and Easy all capped at the exam day',
+    nonDecreasing(ladder(strong)) && [2, 3, 4].every((r) => strong[r].ms === daysToExam * DAY && strong[r].compressed),
     ladder(strong).map(SS.formatInterval));
-  ck('and both are compressed — the clamp is really doing something',
-    strong[3].compressed === true && strong[3].rawMs > strong[3].ms);
+  ck('the raw figure survives on the capped buttons', strong[3].rawMs > strong[3].ms);
 
-  /* BETWEEN cards, at the same rating */
+  /* BETWEEN cards, at the same rating: the thing the squash destroyed */
   const ranks = [[0.5, 9], [2, 7], [5, 6], [15, 5], [45, 3], [150, 2]];
   const goods = ranks.map(([st, d]) => offer(review(st, d))[3].ms);
   const hards = ranks.map(([st, d]) => offer(review(st, d))[2].ms);
   const easys = ranks.map(([st, d]) => offer(review(st, d))[4].ms);
-  const nonDecreasing = (a) => a.every((v, i) => i === 0 || v >= a[i - 1]);
-  const strictlyUp = (a) => a.every((v, i) => i === 0 || v > a[i - 1]);
   ck('at Good, a weaker card never comes back later than a stronger one',
     nonDecreasing(goods), goods.map(SS.formatInterval));
-  ck('and across this range it is strictly sooner, not merely not-later',
-    strictlyUp(goods), goods.map((v) => (v / DAY).toFixed(2)));
-  ck('same at Hard', strictlyUp(hards), hards.map((v) => (v / DAY).toFixed(2)));
-  ck('same at Easy', strictlyUp(easys), easys.map((v) => (v / DAY).toFixed(2)));
-  /* the specific collapse: six strengths must not share one day */
+  ck('same at Hard and Easy', nonDecreasing(hards) && nonDecreasing(easys));
   const days = goods.map((v) => Math.round(v / DAY));
-  ck('six strengths spread over at least five distinct DAYS, not one',
-    new Set(days).size >= 5, days);
-
-  /* BOTH AT ONCE — the strong card's Hard is still after the weak card's
-     Easy? Not required, and not true: a strong card pressed Hard can rightly
-     come back before a weak card pressed Easy. What must hold is that neither
-     ordering is broken by the other. */
+  ck('stability 0.5 / 2 / 5 / 15 land on four different days, not one',
+    new Set(days.slice(0, 4)).size === 4, days);
+  ck('a stability-15 card twenty-five days out keeps roughly its own interval, not five days',
+    days[3] >= 10 && days[3] <= 25, days[3]);
+  ck('nothing lands after the exam', goods.every((v) => v <= daysToExam * DAY));
   ck('the weak card at Easy still comes back before the strong card at Easy',
     weak[4].ms < strong[4].ms,
     { weakEasy: SS.formatInterval(weak[4].ms), strongEasy: SS.formatInterval(strong[4].ms) });
-  ck('the strong card at Hard still comes back after the weak card at Hard',
-    strong[2].ms > weak[2].ms);
 
-  /* the button equals the store, on a card with elevated difficulty */
+  /* the button equals the store, on a card with elevated difficulty: in DAYS */
   const hard = review(3, 8.5);
-  const s = SS.create({ now: T0, items: [hard], settings: SETTINGS, clamp });
-  const p = s.peek(1, T0);
+  const p = SS.create({ now: T0, items: [hard], settings: SETTINGS, clamp }).peek(1, T0);
   const stored = [1, 2, 3, 4].map((r) => {
     const s2 = SS.create({ now: T0, items: [review(3, 8.5)], settings: SETTINGS, clamp });
-    return s2.answer(1, r, T0).card.due - T0;
+    return s2.answer(1, r, T0).card;
   });
   ck('under the clamp, every button equals what pressing it stores',
-    [1, 2, 3, 4].every((r) => p[r].ms === stored[r - 1]),
-    { shown: ladder(p), stored });
+    [1, 2, 3, 4].every((r) => p[r].ms >= DAY
+      ? stored[r - 1].interval_days === Math.round(p[r].ms / DAY) && new Date(stored[r - 1].due).getHours() === 0
+      : stored[r - 1].due - T0 === p[r].ms),
+    { shown: ladder(p).map(SS.formatInterval), stored: stored.map((c) => c.interval_days) });
 }
 
-/* ── inside the sweep window, where the space is shortest ─────────────── */
-console.log('\ninside the sweep window the same two orderings hold');
+/* ── days before the exam, where the cap binds everything ─────────────── */
+console.log('\nclose to the exam the cap binds and the orderings still hold');
 {
   const exam = { key: 'unit1', date: ES.parseDate('2026-09-18') };    /* 5 days out */
   const clamp = (raw, max, t) => ES.compressToRunway(raw, max, exam, t,
     { sweepDaysUnit: 15, sweepDaysFinal: 30 });
-  ck('this is inside the sweep — no runway',
-    ES.runwayDays(exam, T0, { sweepDaysUnit: 15 }) <= 0);
   const review = (stab, diff) => ({ id: 1, kind: 'card', objectiveIds: ['N144_L1'],
     state: 'review', stability: stab, difficulty: diff, due_date: T0 - DAY,
     last_reviewed_at: T0 - Math.max(1, Math.round(stab)) * DAY,
@@ -360,18 +354,16 @@ console.log('\ninside the sweep window the same two orderings hold');
   ck('between cards: weaker still comes back no later than stronger',
     goods.every((v, i) => i === 0 || v >= goods[i - 1]),
     goods.map((v) => (v / DAY).toFixed(2)));
-  ck('and strictly sooner in time across the range',
-    goods.every((v, i) => i === 0 || v > goods[i - 1]),
-    goods.map((v) => (v / DAY).toFixed(3)));
-  ck('nothing lands on or after the exam',
-    goods.every((v) => v < 5 * DAY));
+  ck('nothing lands after the exam; exam day itself is allowed',
+    goods.every((v) => v <= 5 * DAY) && goods[5] === 5 * DAY);
   const strong = offer(review(45, 3));
-  ck('within a strong card the ladder is still strictly ordered in time',
-    strong[1].ms < strong[2].ms && strong[2].ms < strong[3].ms && strong[3].ms < strong[4].ms,
+  ck('within a strong card the ladder is non-decreasing, Again first',
+    strong[1].ms < strong[2].ms && strong[2].ms <= strong[3].ms && strong[3].ms <= strong[4].ms,
     [1, 2, 3, 4].map((r) => (strong[r].ms / DAY).toFixed(3)));
   ck('and the weakest card is not pushed to the same day as the strongest',
     Math.round(goods[0] / DAY) < Math.round(goods[5] / DAY),
     { weakest: goods[0] / DAY, strongest: goods[5] / DAY });
+  ck('a card rated Again still comes back this sitting', strong[1].ms < DAY);
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall feedback checks passed');

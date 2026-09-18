@@ -498,84 +498,56 @@ console.log('\nbuildPlan carries all of it');
   ck('the queue honours the caps', plan.queue.coverage.unit1.introduced.card === 7);
 }
 
-/* ── compressing the ladder into the runway ──────────────────────────── */
-console.log('\ncompressing intervals into the time that is left');
+/* ── the exam clamp: FSRS decides, the exam only caps ───────────────── */
+console.log('\nthe clamp: min(fsrs interval, days until the exam)');
 {
-  const exam = { key: 'unit1', date: ES.parseDate(inDays(35)) };
-  /* what FSRS actually asked for on a review card with stability 30, 31 days
-     elapsed — the case that shipped broken */
-  const raw = { 1: 10 * 60000, 2: 64 * DAY, 3: 86 * DAY, 4: 135 * DAY };
-  const maxRaw = raw[4];
+  const exam = { key: 'unit1', date: ES.parseDate(inDays(20)) };
+  /* THE BUG: stability 16 with the exam 20 days out came back as 5 days */
+  const s16 = ES.compressToRunway(16 * DAY, 16 * DAY, exam, NOW);
+  ck('stability 16, 20 days to the exam -> a 16-day interval, untouched',
+    s16.ms === 16 * DAY && s16.compressed === false, s16.ms / DAY);
+  ck('an interval past the exam is pulled to the exam day, not squashed',
+    ES.compressToRunway(40 * DAY, 40 * DAY, exam, NOW).ms === 20 * DAY
+    && ES.compressToRunway(40 * DAY, 40 * DAY, exam, NOW).compressed === true
+    && ES.compressToRunway(40 * DAY, 40 * DAY, exam, NOW).reason === 'exam');
+  ck('nothing ever lands after the exam',
+    [3, 9, 16, 19, 20, 21, 60, 400].every((d) => ES.compressToRunway(d * DAY, d * DAY, exam, NOW).ms <= 20 * DAY));
+  /* the ratings on one card differ, because FSRS's differ and nothing flattens them */
+  const raw = { 1: 10 * 60000, 2: 3 * DAY, 3: 5 * DAY, 4: 9 * DAY };
   const got = {};
-  [1, 2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], maxRaw, exam, NOW); });
-
-  ck('the runway is the days to the exam minus ITS sweep window',
-    ES.runwayDays(exam, NOW) === 35 - ES.SWEEP_DAYS_UNIT
-    && ES.runwayDays(exam, NOW) === 20, ES.runwayDays(exam, NOW));
-  ck('nothing lands past the exam',
-    [1, 2, 3, 4].every((r) => got[r].ms <= 35 * DAY), Object.keys(got).map((r) => got[r].ms / DAY));
-  ck('nothing lands inside the sweep window either',
-    [1, 2, 3, 4].every((r) => got[r].ms <= 20 * DAY),
-    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('the ordering survives: Again < Hard < Good < Easy',
-    got[1].ms < got[2].ms && got[2].ms < got[3].ms && got[3].ms < got[4].ms,
-    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('they land on FOUR different days, not all on exam minus one',
-    new Set([1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY))).size === 4,
-    [1, 2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  /* A strong card — this one wants two to four months — lands near the END
-     of the runway, because it is strong. The old squared shape put it on days
-     2/4/10 instead, which looked like a nicely spread ladder until you noticed
-     that a card at stability 2 got the same 2/4/10: the shape was per card and
-     divided out how well the card was known. Now the ladder is compressed
-     but the card's strength is not thrown away. */
-  ck('a strong card lands in the back half of the runway, not the front',
-    got[2].ms > 10 * DAY && got[4].ms <= 20 * DAY,
-    [2, 3, 4].map((r) => Math.round(got[r].ms / DAY)));
-  ck('and a WEAK card wanting six days lands well before it',
-    ES.compressToRunway(6 * DAY, 8 * DAY, exam, NOW).ms < got[2].ms,
-    { weak: ES.compressToRunway(6 * DAY, 8 * DAY, exam, NOW).ms / DAY,
-      strongHard: got[2].ms / DAY });
-  ck('each says whether it was compressed',
-    got[2].compressed && got[3].compressed && got[4].compressed && !got[1].compressed,
-    [1, 2, 3, 4].map((r) => got[r].compressed));
-  ck('and keeps the raw figure so the UI can show both',
-    got[4].rawMs === 135 * DAY, got[4].rawMs / DAY);
-
-  /* a learning step is not a schedule and must never be compressed */
-  ck('sub-day learning steps pass through untouched',
-    ES.compressToRunway(10 * 60000, maxRaw, exam, NOW).ms === 10 * 60000
-    && ES.compressToRunway(60000, maxRaw, exam, NOW).compressed === false);
+  [1, 2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], raw[4], exam, NOW); });
+  ck('a card the exam does not bind keeps four different intervals',
+    new Set([1, 2, 3, 4].map((r) => got[r].ms)).size === 4 && [2, 3, 4].every((r) => got[r].ms === raw[r]),
+    [1, 2, 3, 4].map((r) => got[r].ms / DAY));
+  ck('no extra reviews are forced: a strong card is not pulled in to make room',
+    ES.compressToRunway(19 * DAY, 19 * DAY, exam, NOW).ms === 19 * DAY);
+  ck('the raw figure is kept so the UI can show both',
+    ES.compressToRunway(40 * DAY, 40 * DAY, exam, NOW).rawMs === 40 * DAY);
+  ck('sub-day learning steps pass through untouched, so Again still comes back this sitting',
+    ES.compressToRunway(10 * 60000, raw[4], exam, NOW).ms === 10 * 60000
+    && ES.compressToRunway(60000, raw[4], exam, NOW).compressed === false);
 }
 
-console.log('\nnormal spacing when the runway is long enough');
+console.log('\nno exam, or a far one: plain FSRS');
 {
   const far = { key: 'unit1', date: ES.parseDate(inDays(400)) };
   const r = ES.compressToRunway(60 * DAY, 120 * DAY, far, NOW);
   ck('an interval that already fits is left exactly as FSRS wanted it',
     r.ms === 60 * DAY && r.compressed === false, r);
-  ck('no exam date means no compression at all',
+  ck('no exam date means no clamp at all',
     ES.compressToRunway(400 * DAY, 400 * DAY, null, NOW).compressed === false);
-
-  /* the boundary: compression starts when the top of the ladder exceeds half
-     the runway, not before */
-  const exam60 = { key: 'unit1', date: ES.parseDate(inDays(60)) };   /* usable 45, longest 22.5 */
-  ck('just inside the threshold is untouched',
-    ES.compressToRunway(22 * DAY, 22 * DAY, exam60, NOW).compressed === false);
-  ck('just past it compresses', ES.compressToRunway(23 * DAY, 23 * DAY, exam60, NOW).compressed === true);
 }
 
-console.log('\ninside the sweep week');
+console.log('\nthe exam is tomorrow, or today');
 {
-  const soon = { key: 'unit1', date: ES.parseDate(inDays(4)) };
-  const r = ES.compressToRunway(90 * DAY, 135 * DAY, soon, NOW);
-  ck('there is no runway left', ES.runwayDays(soon, NOW) <= 0, ES.runwayDays(soon, NOW));
-  ck('a long interval becomes a few days, not months', r.ms <= 3 * DAY, r.ms / DAY);
-  ck('and never lands on or after the exam itself', r.ms < 4 * DAY, r.ms / DAY);
-  ck('it is reported as compressed', r.compressed === true && r.reason === 'sweep', r);
-  ck('the exam tomorrow still yields at least a day',
-    ES.compressToRunway(90 * DAY, 90 * DAY, { key: 'unit1', date: ES.parseDate(inDays(1)) }, NOW).ms
-      >= DAY);
+  const tomorrow = { key: 'unit1', date: ES.parseDate(inDays(1)) };
+  ck('days until exam of 1 -> interval 1, still reviewed',
+    ES.compressToRunway(90 * DAY, 90 * DAY, tomorrow, NOW).ms === DAY);
+  const today = { key: 'unit1', date: ES.parseDate(inDays(0)) };
+  ck('exam today -> interval floors at 1, never 0',
+    ES.compressToRunway(90 * DAY, 90 * DAY, today, NOW).ms === DAY);
+  ck('a one-day interval on exam eve is not compressed',
+    ES.compressToRunway(DAY, DAY, tomorrow, NOW).compressed === false);
 }
 
 /* ── re-targeting across a passed exam ───────────────────────────────── */
@@ -597,14 +569,12 @@ console.log('\nwhen an exam passes, its material re-targets the next one');
   const u2 = ES.nextExamFor(2, exams, NOW);
   ck('unit 2 still targets its own test', u2.key === 'unit2', u2.key);
 
-  /* the intervals actually recompress against the new runway */
+  /* the cap moves with the deadline */
   const tight = ES.compressToRunway(135 * DAY, 135 * DAY,
     { key: 'unit1', date: ES.parseDate(inDays(35)) }, NOW);
   const relaxed = ES.compressToRunway(135 * DAY, 135 * DAY, u1, NOW);
-  ck('the same card gets a much longer interval once it answers to the final',
-    relaxed.ms > tight.ms * 2, { tight: tight.ms / DAY, relaxed: relaxed.ms / DAY });
-  ck('unit 1 material does not stay stuck on 3-day intervals for months',
-    relaxed.ms >= 14 * DAY, relaxed.ms / DAY);
+  ck('the same card is capped at 35 days for the unit test and 97 for the final',
+    tight.ms === 35 * DAY && relaxed.ms === 97 * DAY, { tight: tight.ms / DAY, relaxed: relaxed.ms / DAY });
 
   /* everything is covered until the final itself passes */
   ck('nothing is left without a deadline while the final is ahead',
@@ -617,26 +587,17 @@ console.log('\nwhen an exam passes, its material re-targets the next one');
     ES.compressToRunway(135 * DAY, 135 * DAY, null, NOW).ms === 135 * DAY);
 }
 
-console.log('\nthe ladder keeps its shape inside the sweep window too');
+console.log('\nclose to the exam every long interval lands on exam day');
 {
   const soon = { key: 'final', date: ES.parseDate(inDays(5)) };
   const raw = { 2: 64 * DAY, 3: 86 * DAY, 4: 135 * DAY };
   const got = {};
   [2, 3, 4].forEach((r) => { got[r] = ES.compressToRunway(raw[r], raw[4], soon, NOW); });
-  /* Four days of window and a card that wants months: the three buttons
-     cannot each own a whole day. They are still strictly ordered in time, and
-     none of them is pushed to the last day — that was the collapse. */
-  ck('Hard, Good and Easy do NOT collapse onto the last day',
-    [2, 3, 4].every((r) => got[r].ms < 4 * DAY),
-    [2, 3, 4].map((r) => got[r].ms / DAY));
-  ck('ordering holds, strictly, in time', got[2].ms < got[3].ms && got[3].ms < got[4].ms,
-    [2, 3, 4].map((r) => got[r].ms / DAY));
-  /* and the thing that matters inside a sweep: a weak card comes first */
-  const weakInSweep = ES.compressToRunway(2 * DAY, 3 * DAY, soon, NOW);
-  ck('a card wanting two days comes back before a card wanting months',
-    weakInSweep.ms < got[2].ms, { weak: weakInSweep.ms / DAY, strong: got[2].ms / DAY });
-  ck('and nothing lands on or after the exam',
-    [2, 3, 4].every((r) => got[r].ms < 5 * DAY), [2, 3, 4].map((r) => got[r].ms / DAY));
+  ck('Hard, Good and Easy all land on the exam day when all three overshoot it',
+    [2, 3, 4].every((r) => got[r].ms === 5 * DAY), [2, 3, 4].map((r) => got[r].ms / DAY));
+  const weak = ES.compressToRunway(2 * DAY, 3 * DAY, soon, NOW);
+  ck('a card wanting two days keeps its two days, and comes first',
+    weak.ms === 2 * DAY && weak.compressed === false);
 }
 
 /* ── sweeps ──────────────────────────────────────────────────────────── */

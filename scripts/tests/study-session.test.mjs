@@ -626,19 +626,36 @@ console.log('\nthe session schedules through the clamp, not around it');
   const p = s.peek(item.id, NOW);
 
   ck('nothing on the buttons lands past the exam',
-    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate),
+    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate + DAY),
     [1, 2, 3, 4].map((r) => p[r].label));
-  ck('nor inside the sweep week',
-    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate - 7 * DAY),
-    [1, 2, 3, 4].map((r) => p[r].label));
-  ck('Hard is days, not months', /d$/.test(p[HARD].label), p[HARD].label);
-  ck('ordering holds after compression',
-    p[AGAIN].ms < p[HARD].ms && p[HARD].ms < p[GOOD].ms && p[GOOD].ms < p[EASY].ms,
-    [1, 2, 3, 4].map((r) => p[r].label));
-  ck('each button reports whether it was compressed, and from what',
+  ck('a card whose every rating overshoots the exam lands on exam day for Hard, Good and Easy',
+    [2, 3, 4].every((r) => p[r].ms === 35 * DAY), [1, 2, 3, 4].map((r) => p[r].label));
+  ck('Again is still this sitting', p[AGAIN].ms < DAY, p[AGAIN].label);
+  ck('each button reports whether it was pulled in, and from what',
     p[HARD].compressed === true && /mo$/.test(p[HARD].rawLabel)
     && p[AGAIN].compressed === false,
     { hard: p[HARD].label + ' was ' + p[HARD].rawLabel, again: p[AGAIN].label });
+
+  /* THE BUG: with the exam twenty days out, every card read 3-5 days on every
+     button. Now FSRS's own intervals stand until they would pass the exam. */
+  const ex20 = { key: 'unit1', date: ES.startOfDay(NOW + 20 * DAY) };
+  const c20 = (raw, max, t) => ES.compressToRunway(raw, max, ex20, t);
+  const s16 = SS.create({ items: [reviewCard({ id: 77, stability: 16, last_reviewed_at: NOW - 16 * DAY })], now: NOW, clamp: c20 });
+  const p16 = s16.peek(77, NOW);
+  const days16 = [1, 2, 3, 4].map((r) => Math.round(p16[r].ms / DAY));
+  console.log('    stability 16, exam in 20 days -> Again/Hard/Good/Easy: ' + [1, 2, 3, 4].map((r) => p16[r].label).join(' / ')
+    + '  (raw ' + [2, 3, 4].map((r) => p16[r].rawLabel).join(' / ') + ')');
+  ck('stability 16: a successful rating grows the interval past 20 days, so it is capped AT the exam, not squashed to 5',
+    days16[2] === 20 && Math.round(p16[3].rawMs / DAY) > 20, days16);
+  /* a card the exam does not bind: four different numbers */
+  const s4 = SS.create({ items: [reviewCard({ id: 78, stability: 4.66, last_reviewed_at: NOW - 5 * DAY })], now: NOW, clamp: c20 });
+  const p4 = s4.peek(78, NOW);
+  const days4 = [1, 2, 3, 4].map((r) => Math.round(p4[r].ms / DAY));
+  console.log('    stability 4.66, exam in 20 days -> Again/Hard/Good/Easy: ' + [1, 2, 3, 4].map((r) => p4[r].label).join(' / '));
+  ck('the four buttons differ from each other', new Set([1, 2, 3, 4].map((r) => p4[r].ms)).size === 4, days4);
+  ck('Again < Hard < Good < Easy', p4[1].ms < p4[2].ms && p4[2].ms < p4[3].ms && p4[3].ms < p4[4].ms, days4);
+  ck('Hard and Good were not pulled in: FSRS decided; only an Easy past the exam is capped',
+    !p4[2].compressed && !p4[3].compressed && (p4[4].compressed ? p4[4].ms === 20 * DAY : true), [2, 3, 4].map((r) => p4[r].compressed));
 
   /* THE THING THAT WAS BROKEN: what the button says must be what gets stored */
   [1, 2, 3, 4].forEach((r) => {
@@ -652,12 +669,12 @@ console.log('\nthe session schedules through the clamp, not around it');
 
   const graded = SS.create({ items: [item], now: NOW, clamp });
   const out = graded.answer(item.id, HARD, NOW);
-  ck('the outcome line says it was compressed', /compressed to fit/.test(out.text), out.text);
+  ck('the outcome line says it was pulled in', /compressed to fit/.test(out.text), out.text);
   ck('the memory state itself is untouched — only the date moves',
     out.card.stability > 0 && out.card.difficulty > 0 && out.card.state === 'review',
     { s: out.card.stability, d: out.card.difficulty });
-  ck('interval_days matches the compressed date, not the raw one',
-    out.card.interval_days === Math.round(out.deltaMs / DAY), out.card.interval_days);
+  ck('interval_days matches the stored day, not the raw one',
+    out.card.interval_days === Math.round((out.card.due - ES.startOfDay(NOW)) / DAY), out.card.interval_days);
 
   /* with no exam the session behaves exactly as before */
   const plain = SS.create({ items: [item], now: NOW,
@@ -665,6 +682,33 @@ console.log('\nthe session schedules through the clamp, not around it');
   ck('no exam means raw FSRS intervals, unchanged',
     /mo$/.test(plain.peek(item.id, NOW)[GOOD].label),
     plain.peek(item.id, NOW)[GOOD].label);
+}
+
+/* ── a review is due by DAY; a learning step by the minute ─────────────── */
+console.log('\nreview due dates land on local midnight');
+{
+  const at = new Date(2026, 8, 18, 14, 45).getTime();          /* 2:45 pm local */
+  const midnight = (d) => new Date(2026, 8, 18 + d).getTime();
+  const noClamp = (raw) => ({ ms: raw, compressed: false, rawMs: raw });
+  const card = reviewCard({ id: 501, stability: 16, last_reviewed_at: at - 16 * DAY, due_date: at - 3600000 });
+  const s = SS.create({ items: [card], now: at, clamp: noClamp });
+  const out = s.answer(501, GOOD, at);
+  const wantDays = Math.round(out.deltaMs / DAY);
+  ck('the stored due is local midnight of (now + interval), not 2:45 pm',
+    out.card.due === midnight(wantDays) && new Date(out.card.due).getHours() === 0, new Date(out.card.due).toString());
+  ck('interval_days is the whole days to that midnight', out.card.interval_days === wantDays, out.card.interval_days);
+  ck('the button reads in days or longer, never minutes', /(d|mo|y)$/.test(out.label), out.label);
+  const again = SS.create({ items: [reviewCard({ id: 502, stability: 16, last_reviewed_at: at - 16 * DAY })], now: at, clamp: noClamp })
+    .answer(502, AGAIN, at);
+  ck('Again on a review card is minutes, at the exact time, not a day',
+    again.deltaMs < DAY && again.card.due === at + again.deltaMs && (again.card.state === 'relearning' || again.card.state === 'learning'),
+    { state: again.card.state, min: Math.round(again.deltaMs / 60000) });
+  const fresh = SS.create({ items: [newCard({ id: 503 })], now: at, clamp: noClamp }).answer(503, GOOD, at);
+  ck('a learning step keeps its minutes', fresh.deltaMs < DAY && fresh.card.due === at + fresh.deltaMs, fresh.label);
+  /* and the queue treats a card due at midnight today as due all day */
+  const q = SS.todayQueue([reviewCard({ id: 504, due_date: midnight(0), last_reviewed_at: at - 5 * DAY })],
+    { now: at, dayStart: midnight(0), newCardsPerDay: 30, all: [] });
+  ck('due at midnight this morning counts as due now', q.due.length === 1);
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall study session checks passed');
