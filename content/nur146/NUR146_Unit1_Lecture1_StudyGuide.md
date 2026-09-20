@@ -15,6 +15,17 @@
 
 ---
 
+## Objectives
+
+The four course objectives this lecture is written against, and where each is covered in this guide:
+
+1. **Describe the functions of each of the endocrine glands and their hormones** — sections 1.1 to 1.9 (concepts) and 1.10 to 1.17 (the glands, one at a time)
+2. **Differentiate diagnostic studies and clinical manifestations for endocrine disorders** — sections 2.1 to 2.5
+3. **Management strategies for endocrine disorders** — framework only in this lecture
+4. **Use the nursing process as a framework** — slide 16
+
+---
+
 ## Slide 3 — "Med Surg in a nutshell"
 
 The pattern every disorder in this course follows. Use it as the shape of your notes for every condition in Units 1 and 2.
@@ -26,17 +37,6 @@ Incidence → Etiology → Normal A&P → Pathophysiology → Clinical manifesta
 - *hypo-* = under, too little · *hyper-* = too much
 - *idiopathic* = cause unknown
 - *supra-* = above → **suprarenal** = adrenal
-
----
-
-## Objectives
-
-The four course objectives this lecture is written against, and where each is covered in this guide:
-
-1. **Describe the functions of each of the endocrine glands and their hormones** — sections 1.1 to 1.9 (concepts) and 1.10 to 1.17 (the glands, one at a time)
-2. **Differentiate diagnostic studies and clinical manifestations for endocrine disorders** — sections 2.1 to 2.5
-3. **Management strategies for endocrine disorders** — framework only in this lecture
-4. **Use the nursing process as a framework** — slide 16
 
 ---
 
