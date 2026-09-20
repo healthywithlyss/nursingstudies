@@ -381,9 +381,28 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .dash-cram[open] summary::before,.dash-details[open] summary::before{content:'\25BE'}
 .dash-details{margin-top:8px}
 /* by lecture */
-.dash-lectures{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.dash-lectures{display:flex;flex-direction:column;gap:8px}
 .dash-lec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
-  padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
+  padding:11px 14px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
+/* hero: the nearest exam */
+.dash-hero{display:grid;grid-template-columns:1fr minmax(200px,38%);gap:14px 24px;align-items:center;
+  background:var(--surface);border:1px solid var(--border);border-left:5px solid var(--accent);
+  border-radius:var(--r-card);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.dash-hero.good{border-left-color:var(--got)}
+.dash-hero.mid{border-left-color:var(--unsure)}
+.dash-hero.low{border-left-color:var(--missed)}
+.dash-hero-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted)}
+.dash-hero-pct{font-size:44px;font-weight:800;line-height:1.05;color:var(--text);margin:4px 0 6px;
+  font-variant-numeric:tabular-nums}
+.dash-hero-pct small{font-size:13px;font-weight:600;color:var(--text-muted);margin-left:8px}
+.dash-hero .srs-bar{margin:0 0 10px}
+.dash-hero-facts{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
+.dash-hero-facts b{color:var(--text);font-weight:800}
+.dash-hero-side{display:flex;flex-direction:column;gap:10px}
+.dash-hero-pace{font-size:13.5px;line-height:1.5;color:var(--text)}
+.dash-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin:0 0 12px}
+.dash-notice .dash-link{padding:0}
 .dash-lec:hover{border-color:var(--accent);box-shadow:0 2px 14px rgba(79,126,248,.18)}
 .dash-lec-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
 .dash-lec-name b{display:block;font-size:13.5px;font-weight:800;color:var(--text)}
@@ -408,9 +427,6 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .dash-obj-stat b{color:var(--missed)}
 /* exam cards carry their date */
 .srs-card.unset{border-style:dashed}
-.srs-card-date{width:100%;font:inherit;font-size:12.5px;color:var(--text);padding:6px 8px;margin:2px 0 8px;
-  border:1px solid var(--border);border-radius:8px;background:var(--bg);min-height:36px}
-.srs-card-date:focus{outline:none;border-color:var(--accent)}
 .dash-overview{display:flex;align-items:center;gap:24px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--r-card);padding:24px;margin-bottom:8px;
   box-shadow:var(--shadow)}
@@ -457,8 +473,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 @media(max-width:600px){
   .dash-overview{flex-direction:column;align-items:flex-start;gap:16px}
   .dash-sec-grid{grid-template-columns:1fr}
-  .dash-lectures{grid-template-columns:1fr}
   .dash-today{grid-template-columns:1fr}
+  .dash-hero{grid-template-columns:1fr}
   .dash-today-r{min-width:0}
   .dash-quiz-row{flex-direction:column;align-items:flex-start}
   .srs-exams{grid-template-columns:1fr}
@@ -4644,8 +4660,8 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
              course on screen; hidden on courses without scheduling. -->
         <section class="set-card" id="set-srs-card" style="display:none">
           <h2>Study scheduling <span class="set-h2-course" id="set-srs-course"></span></h2>
-          <p class="set-sub">How many new cards and questions a day, how the run-up to each
-            exam is shaped, and the learning steps. Exam dates live on the Dashboard.</p>
+          <p class="set-sub">Exam dates, how many new cards and questions a day, how the run-up
+            to each exam is shaped, and the learning steps. The Dashboard reads all of it.</p>
           <div id="set-srs"></div>
         </section>
 
@@ -8737,7 +8753,9 @@ function cardHtml(g){
 
 function renderSidebarIndex(){
   var ctx = $('sidebar-context');
-  if (!ctx) return;
+  /* the manifest loads after the page may already have moved on: never
+     write the guide list over another page's sidebar */
+  if (!ctx || !onGuidesView()) return;
   var h = '<div class="ctx-label">Guides</div>';
   currentCourseGuides().forEach(function(g){
     h += '<button class="section-link" onclick="sgOpen(\'' + esc(g.slug) + '\')">'
@@ -9102,7 +9120,7 @@ function stripMarkers(s){
 
 function renderToc(){
   var ctx = $('sidebar-context');
-  if (ctx && view === 'guide'){
+  if (ctx && view === 'guide' && onGuidesView()){
     ctx.innerHTML = '<div class="ctx-label">Contents</div>' + tocHtml();
     var f = $('session-counter'); if (f) f.textContent = '';
   }
@@ -9970,23 +9988,79 @@ function render(){
   /* Order is the order of use: what to do now, how ready she is, where the
      weak spots are, then what the weeks ahead look like. The scheduler's
      settings live on the Settings page, not here. */
+  /* Two questions, in order: how prepared am I, and how much do I have to
+     study. Everything that is a setting or a decision — exam dates, daily
+     limits, the term projection, card suggestions — lives on Settings. */
   host.innerHTML = ''
     + writeErrorHtml()
+    + heroHtml()
     + todayHtml()
-    + '<div class="dash-h">Exam readiness'
-    + '<span>predicted recall on exam day, at or above '+Math.round(ES.READY_THRESHOLD*100)+'%</span></div>'
-    + examCardsHtml()
     + sweepHtml()
-    + conflictHtml()
-    + sweepAdviceHtml()
-    + paceHtml()
+    + settingsNoticeHtml()
+    + '<div class="dash-h">Exams<span>predicted recall on exam day, at or above '
+    + Math.round(ES.READY_THRESHOLD*100)+'%</span></div>'
+    + examCardsHtml()
     + '<div class="dash-h">By lecture<span>tap one to study it</span></div>'
     + lecturesHtml()
-    + suggestionsHtml()
-    + '<div class="dash-h">Workload ahead</div>'
-    + forecastHtml()
-    + termHtml();
+    + '<div class="dash-h">Next 14 days<span>reviews already scheduled</span></div>'
+    + forecastHtml();
   renderSettingsPage();
+}
+
+/* How prepared am I: the nearest exam with a date, its readiness and the pace
+   it needs. Without a date, how far through the course she is. */
+function heroHtml(){
+  var live = (plan.projection || []).filter(function(p){ return p.applicable; })
+    .sort(function(a,b){ return a.daysLeft - b.daysLeft; });
+  var p = live[0];
+  var e = p && plan.exams.filter(function(x){ return x.key === p.key; })[0];
+  if(!p || !e){
+    var all = (plan._items || []).filter(function(i){ return i.kind === 'card'; });
+    var st = window.StudySession.objectiveStats(all, { now: Date.now(), dayStart: dayStartMs(Date.now()), recall: recallNow });
+    var tot = {total:0, started:0, learned:0}, rs = [];
+    Object.keys(st).filter(function(o){ return !window.ObjectiveTree.parentOf(o); }).forEach(function(o){
+      tot.total += st[o].total; tot.started += st[o].started; tot.learned += st[o].learned;
+      if(st[o].recall != null) rs.push(st[o].recall);
+    });
+    var pct = tot.total ? Math.round(100*tot.started/tot.total) : 0;
+    var recall = rs.length ? Math.round(100*rs.reduce(function(a,b){ return a+b; },0)/rs.length) : null;
+    return '<div class="dash-hero">'
+      + '<div class="dash-hero-main"><div class="dash-hero-pct">'+pct+'%<small>of the deck started</small></div>'
+      + '<div class="dash-hero-facts">'
+      + '<div><b>'+tot.started+'</b> of '+tot.total+' cards started</div>'
+      + '<div><b>'+tot.learned+'</b> learned</div>'
+      + (recall != null ? '<div><b>'+recall+'%</b> recall on what you have started</div>' : '')
+      + '</div></div>'
+      + '<div class="dash-hero-side"><div class="srs-sub">No exam date set, so there is no countdown yet.</div>'
+      + '<button class="srs-btn srs-btn-ghost" onclick="goTo(\'settings\')">Add exam dates</button></div>'
+      + '</div>';
+  }
+  var days = e.daysRemaining === 0 ? 'today' : e.daysRemaining+' day'+(e.daysRemaining===1?'':'s')+' away';
+  var tone = e.readyPct >= 80 ? 'good' : e.readyPct >= 50 ? 'mid' : 'low';
+  var paceLine;
+  if(p.totalWork === 0) paceLine = 'Nothing outstanding before the '+esc2(EXAM_LABEL[p.key])+'.';
+  else if(p.noPaceData) paceLine = '<b>'+p.needPerDay+' a day</b> gets through the '+p.totalWork.toLocaleString()+' items left in time.';
+  else if(p.behind) paceLine = '<b class="srs-fail">Behind.</b> You need <b>'+p.needPerDay+' a day</b> and have been doing about '+p.recentPace+'.';
+  else paceLine = '<b>On track:</b> '+p.needPerDay+' a day gets you there; you have been doing about '+p.recentPace+'.';
+  return '<div class="dash-hero '+tone+'">'
+    + '<div class="dash-hero-main">'
+    + '<div class="dash-hero-lbl">'+esc2(EXAM_LABEL[p.key])+' \u00b7 '+esc2(days)+'</div>'
+    + '<div class="dash-hero-pct">'+e.readyPct+'%<small>ready</small></div>'
+    + '<div class="srs-bar"><span style="width:'+e.readyPct+'%"></span></div>'
+    + '<div class="dash-hero-facts">'
+    + '<div><b>'+e.total+'</b> items on the exam</div>'
+    + '<div><b>'+e.neverSeen+'</b> never seen</div>'
+    + '<div><b>'+e.failing+'</b> failing</div>'
+    + '</div></div>'
+    + '<div class="dash-hero-side"><div class="dash-hero-pace">'+paceLine+'</div></div>'
+    + '</div>';
+}
+
+/* One line when a setting is holding readiness back; the fix is on Settings. */
+function settingsNoticeHtml(){
+  if(!conflictHtml() && !sweepAdviceHtml()) return '';
+  return '<div class="srs-warn dash-notice">At your current daily limits not everything gets seen before the exam. '
+    + '<button class="dash-link" onclick="goTo(\'settings\')">Adjust in Settings \u2192</button></div>';
 }
 
 /* ── the Settings page's scheduling section ─────────────────────────────
@@ -10002,9 +10076,25 @@ function renderSettingsPage(){
     host.innerHTML = '<div class="dash-loading">Loading\u2026</div>';
     return;
   }
-  host.innerHTML = settingsHtml() + sweepAdviceHtml() + unitsHtml();
+  host.innerHTML = examDatesHtml() + settingsHtml() + conflictHtml() + sweepAdviceHtml() + unitsHtml()
+    + (suggestionsHtml() ? '<div class="set-group"><div class="set-group-h">Cards from missed questions</div>'
+        + suggestionsHtml() + '</div>' : '')
+    + (termHtml() ? '<div class="set-group"><div class="set-group-h">What these settings add up to</div>'
+        + termHtml() + '</div>' : '');
 }
 window.renderSettingsPage = renderSettingsPage;
+
+/* The three exam dates, as settings fields. Saving one recomputes everything. */
+function examDatesHtml(){
+  return '<div class="set-group"><div class="set-group-h">Exam dates</div>'
+    + ES.EXAMS.map(function(k){
+        var v = examDates[k] || '';
+        return '<div class="set-field"><label for="srs-d-'+k+'"><b>'+esc2(EXAM_LABEL[k])+'</b>'
+          + '<small>'+(v ? 'scheduling works backwards from this day' : 'not set \u2014 add it to get a countdown and readiness')+'</small></label>'
+          + '<input type="date" id="srs-d-'+k+'" value="'+esc2(v)+'" onchange="srsSetExamDate(\''+k+'\',this.value)"></div>';
+      }).join('')
+    + '</div>';
+}
 
 /* A rating that did not reach the server is the one failure that must never be
    quiet: everything downstream — intervals, readiness, the projection — is
@@ -10171,6 +10261,9 @@ function forecastHtml(){
   if(!f.length) return '';
   var ceiling = currentSettings().dailyCeiling;
   var peak = f.reduce(function(m,d){ return Math.max(m, d.count); }, 0);
+  /* fourteen zeros is not a chart */
+  if(!peak) return '<div class="srs-q"><div class="srs-sub">No reviews scheduled yet \u2014 they appear here '
+    + 'once you have rated some cards.</div></div>';
   var scaleTop = Math.max(peak, ceiling, 1);
   var overDays = f.filter(function(d){ return d.over; }).length;
   var DOW = ['S','M','T','W','T','F','S'];
@@ -10228,16 +10321,15 @@ function examCardsHtml(){
       : e.isPast ? 'passed'
       : e.daysRemaining===0 ? 'today'
       : e.daysRemaining+' day'+(e.daysRemaining===1?'':'s')+' away';
-    var ready = e.daysRemaining==null && !e.isPast ? 'n/a' : e.readyPct+'%';
+    var when = v ? new Date(v+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
     return '<div class="srs-card'+cls+(v?'':' unset')+'">'
       + '<div class="srs-card-top"><div class="srs-card-name">'+esc2(e.label||EXAM_LABEL[k])+'</div>'
-      + '<div class="srs-card-days">'+esc2(days)+'</div></div>'
-      + '<input class="srs-card-date" type="date" id="srs-d-'+k+'" value="'+esc2(v)+'" '
-      + 'aria-label="'+esc2(EXAM_LABEL[k])+' date" onchange="srsSetExamDate(\''+k+'\',this.value)">'
+      + '<div class="srs-card-days">'+esc2(v ? when+' \u00b7 '+days : days)+'</div></div>'
       + (v
           ? '<div class="srs-pct">'+e.readyPct+'%<small>ready</small></div>'
             + '<div class="srs-bar"><span style="width:'+e.readyPct+'%"></span></div>'
-          : '<div class="srs-date-hint">Set the date and this card fills in.</div>')
+          : '<div class="srs-date-hint">No date \u2014 <button class="dash-link" style="padding:0" '
+            + 'onclick="goTo(\'settings\')">set it in Settings</button></div>')
       + '<div class="srs-facts">'
       + '<div><b>'+e.total+'</b> items</div>'
       + '<div><b>'+e.neverSeen+'</b> never seen</div>'
@@ -10308,7 +10400,6 @@ function todayHtml(){
       + 'Study '+cards+' card'+(cards===1?'':'s')+'</button>'
     + '<button class="srs-btn dash-go srs-btn-ghost" onclick="srsStudyDueQuiz()"'+(quiz?'':' disabled')+'>'
       + (quiz ? 'Quiz '+quiz+' question'+(quiz===1?'':'s') : 'No quiz questions due')+'</button>'
-    + '<button class="dash-link" onclick="goTo(\'quiz\')">Build a quiz \u2192</button>'
     + '</div>'
     + (cram
         ? '<details class="dash-cram"><summary>Cram a whole unit</summary>'
