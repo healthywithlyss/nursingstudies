@@ -8614,9 +8614,16 @@ function unitBanner(u){
   if (nums.length > 1) range = ' — Lectures ' + nums[0] + '–' + nums[nums.length - 1];
   else if (nums.length === 1) range = ' — Lecture ' + nums[0];
   el.innerHTML = esc(u.label) + range + ' <span class="lec-tag">'
-    + u.guides.map(function(g){ return esc(stripMarkers(g.subtitle || g.title)); }).join(' · ')
+    + u.guides.map(function(g){ return esc(shortTopic(g.subtitle || g.title)); }).join(' · ')
     + '</span>';
   return el;
+}
+/* the banner's topic list is short words, like NUR 118's "Infection · Wounds ·
+   Pharm": the lecture name up to its first comma, slash or dash, minus a
+   trailing "Disorders" / "Review" */
+function shortTopic(name){
+  var s = stripMarkers(name).split(/\s*[,\/—–]\s*|\s+-\s+/)[0];
+  return s.replace(/\s+(Disorders?|Review|Care)$/i, '').trim() || stripMarkers(name);
 }
 
 function lectureNode(g, md, color){

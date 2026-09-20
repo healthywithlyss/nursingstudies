@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20T12:05:00.197Z",
+  "generatedAt": "2026-09-20T12:36:22.970Z",
   "generatedBy": "scripts/build-guides-manifest.js",
   "courses": [
     {
@@ -31,6 +31,90 @@
               ],
               "sectionCount": 20,
               "mustKnowCount": 17
+            },
+            {
+              "slug": "nur144-u1-l2",
+              "file": "content/nur144/NUR144_Unit1_Lecture2_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 2,
+              "lectureLabel": "Lecture 2",
+              "title": "NUR 144 — UNIT 1, LECTURE 2",
+              "subtitle": "Hepatic Disorders",
+              "cardTitle": "Hepatic Disorders",
+              "description": "",
+              "topics": [
+                "THE ONE IDEA EVERYTHING HANGS ON",
+                "ANATOMY AND BLOOD SUPPLY",
+                "THE EIGHT FUNCTIONS — AND THEIR FAILURES",
+                "BILIRUBIN AND JAUNDICE"
+              ],
+              "sectionCount": 17,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l3",
+              "file": "content/nur144/NUR144_Unit1_Lecture3_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 3,
+              "lectureLabel": "Lecture 3",
+              "title": "NUR 144 — UNIT 1, LECTURE 3",
+              "subtitle": "Biliary System, Pancreas, and Alternate Nutrition",
+              "cardTitle": "Biliary System, Pancreas, and Alternate Nutrition",
+              "description": "",
+              "topics": [
+                "PART ONE — THE BILIARY SYSTEM",
+                "PART TWO — PANCREATITIS",
+                "PART THREE — ALTERNATE NUTRITION",
+                "CONFLICTS TO TAKE TO THE PROFESSOR"
+              ],
+              "sectionCount": 4,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l4",
+              "file": "content/nur144/NUR144_Unit1_Lecture4_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 4,
+              "lectureLabel": "Lecture 4",
+              "title": "NUR 144 — UNIT 1, LECTURE 4",
+              "subtitle": "Lower Gastrointestinal Disorders",
+              "cardTitle": "Lower Gastrointestinal Disorders",
+              "description": "",
+              "topics": [
+                "ANATOMY AND PHYSIOLOGY",
+                "LABS AND DIAGNOSTICS",
+                "CONSTIPATION",
+                "DIARRHEA"
+              ],
+              "sectionCount": 15,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l5",
+              "file": "content/nur144/NUR144_Unit1_Lecture5_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 5,
+              "lectureLabel": "Lecture 5",
+              "title": "NUR 144 — UNIT 1, LECTURE 5",
+              "subtitle": "Fecal Diversion / Ostomy Care",
+              "cardTitle": "Fecal Diversion / Ostomy Care",
+              "description": "",
+              "topics": [
+                "INDICATIONS AND TYPES",
+                "PRE-OPERATIVE CARE",
+                "POST-OPERATIVE CARE",
+                "STOMA ASSESSMENT"
+              ],
+              "sectionCount": 9,
+              "mustKnowCount": 0
             }
           ]
         }
