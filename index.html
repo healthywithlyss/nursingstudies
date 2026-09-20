@@ -968,6 +968,13 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
   border-radius:8px;box-shadow:var(--shadow)}
 .sg-md .ts table{min-width:440px}
 .sg-md .ts th{background:var(--cobalt)}
+/* wide comparison tables (4+ columns, flagged at render time): the first
+   column stays put while the rest scrolls under it */
+.sg-md .ts table.sg-wide th,.sg-md .ts table.sg-wide td{min-width:110px}
+.sg-md .ts table.sg-wide th:first-child,.sg-md .ts table.sg-wide td:first-child{
+  position:sticky;left:0;z-index:1;background:var(--surface);
+  box-shadow:1px 0 0 var(--border)}
+.sg-md .ts table.sg-wide th:first-child{background:var(--cobalt)}
 /* .sg-md strong is darkened for body copy — but not on coloured backgrounds,
    where the inherited white is what makes the text legible */
 .sg-md th strong,.sg-md th b,
@@ -8723,6 +8730,16 @@ function wrapTables(root, doc){
     wrap.className = 'ts';
     t.parentNode.insertBefore(wrap, t);
     wrap.appendChild(t);
+    /* a comparison table four or more columns wide gets room per column and
+       keeps its row labels in view while it is swiped, so a phone reads it as
+       a table rather than a ribbon of one-word cells; narrower tables keep
+       the default scroller exactly as before */
+    var cols = 0, firstRow = t.querySelector('tr');
+    if (firstRow) cols = firstRow.children.length;
+    if (cols >= 4){
+      t.classList.add('sg-wide');
+      t.style.minWidth = (cols * 130) + 'px';
+    }
     var hint = doc.createElement('div');
     hint.className = 'sg-scroll-hint';
     hint.setAttribute('data-hint','1');
@@ -9443,7 +9460,12 @@ var pendingSlug = null;
 function goToGuides(slug){
   pendingSlug = slug || null;
   window.goTo('study');
-  window.switchCourse('NUR144');
+  /* the guide's own course tab, when the manifest already says which that
+     is; otherwise the guide course already selected, or the first one, and
+     init() re-routes to the right tab once the manifest has loaded */
+  var g = slug ? findGuide(slug) : null;
+  window.switchCourse(g && GUIDE_COURSES.indexOf(g.course) > -1 ? g.course
+    : (GUIDE_COURSES.indexOf(window.currentCourse) > -1 ? window.currentCourse : GUIDE_COURSES[0]));
 }
 
 function init(){
@@ -9452,10 +9474,24 @@ function init(){
     host.innerHTML = '<div class="sg-wrap"><div class="sg-empty">Loading guides…</div></div>';
   }
   loadManifest().then(function(){
-    var slug = pendingSlug; pendingSlug = null;
+    var slug = pendingSlug, asked = !!pendingSlug; pendingSlug = null;
     if (!slug){
       var m = location.hash.match(/^#\/study-guides\/(.+)$/);
       if (m) slug = decodeURIComponent(m[1]);
+    }
+    var g = slug ? findGuide(slug) : null;
+    if (g && g.course !== window.currentCourse){
+      /* a deep link into another guide course: select that course first, and
+         its sync() lands back here with the tab, the lecture tabs and the
+         sidebar all belonging to the same course as the guide */
+      if (asked && GUIDE_COURSES.indexOf(g.course) > -1){
+        pendingSlug = slug;
+        window.switchCourse(g.course);
+        return;
+      }
+      /* otherwise the hash is left over from the course just switched away
+         from; this course opens on its own guides */
+      slug = null;
     }
     if (slug) { openGuide(slug); }
     else if (view === 'guide' && guide) { openGuide(guide.slug); }

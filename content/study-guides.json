@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T19:24:16.299Z",
+  "generatedAt": "2026-09-20T11:49:26.854Z",
   "generatedBy": "scripts/build-guides-manifest.js",
   "courses": [
     {
@@ -31,6 +31,61 @@
               ],
               "sectionCount": 20,
               "mustKnowCount": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "NUR146",
+      "label": "NUR 146",
+      "title": "Adult Health I",
+      "units": [
+        {
+          "unit": 1,
+          "label": "Unit 1",
+          "guides": [
+            {
+              "slug": "nur146-u1-l1",
+              "file": "content/nur146/NUR146_Unit1_Lecture1_StudyGuide.md",
+              "imageBase": "content/nur146/",
+              "course": "NUR146",
+              "unit": 1,
+              "lecture": 1,
+              "lectureLabel": "Lecture 1",
+              "title": "NUR 146 — UNIT 1, LECTURE 1",
+              "subtitle": "Endocrine Review",
+              "cardTitle": "Endocrine Review",
+              "description": "",
+              "topics": [
+                "Slide 3 — \"Med Surg in a nutshell\"",
+                "Objectives",
+                "1.1 Endocrine vs. exocrine",
+                "1.2 Tissues that make hormones but are not endocrine glands"
+              ],
+              "sectionCount": 27,
+              "mustKnowCount": 43
+            },
+            {
+              "slug": "nur146-u1-l2",
+              "file": "content/nur146/NUR146_Unit1_Lecture2_StudyGuide.md",
+              "imageBase": "content/nur146/",
+              "course": "NUR146",
+              "unit": 1,
+              "lecture": 2,
+              "lectureLabel": "Lecture 2",
+              "title": "NUR 146 — UNIT 1, LECTURE 2",
+              "subtitle": "Diabetes Part 1",
+              "cardTitle": "Diabetes Part 1",
+              "description": "",
+              "topics": [
+                "Learning objectives (slides 2–3)",
+                "Diabetes mellitus — definition and scale (slide 4)",
+                "The pancreas (slide 6)",
+                "Insulin (slides 7–8)"
+              ],
+              "sectionCount": 13,
+              "mustKnowCount": 60
             }
           ]
         }

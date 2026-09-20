@@ -50,7 +50,7 @@ content/
    then redeploy. The guide appears automatically — no code change needed.
 
 A guide is reachable directly at `#/study-guides/<slug>`, which selects the
-NUR 144 tab and the Study Guide page on load.
+guide's own course tab (NUR 144, NUR 146, …) and the Study Guide page on load.
 
 A new course folder also wants a display name; add it to `COURSE_META` at the
 top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).
