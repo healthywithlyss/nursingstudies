@@ -40,13 +40,15 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
    CONVERSATION EPISODES (podcast_episodes.format = 'dialogue')
    The script is Teacher:/Student: lines with a [[PAUSE]] line after each
-   question. Segments are cut only at pauses, so a segment ends on a silence
-   and the next begins with the answer. Each segment is synthesised chunk by
-   chunk — the text between pauses — with Gemini's two-speaker voice config,
-   and PAUSE_SECONDS of digital silence is spliced in at every marker before
-   the WAV is written. The silence is real samples in the file, not a pause
-   instruction the synthesiser could skip. No checkpoints: the player never
-   stops, she answers in her head during the silence.
+   question. One segment per card: each ends on its question's pause and is
+   one TTS call with Gemini's two-speaker voice config. That pause is a
+   CHECKPOINT (the k-th pause is checkpoint k, matching the rows the script
+   function writes), so Listen stops there, opens the microphone, and the
+   conversation talks back before the next segment opens with the answer.
+   Only CHECKPOINT_TAIL_SECONDS of silence is spliced at a closing pause; a
+   pause inside a segment (none under this planner) gets PAUSE_SECONDS. The
+   silence is real samples in the file, not an instruction the synthesiser
+   could skip.
    ═══════════════════════════════════════════════════════════════════════ */
 
 const CORS = {
@@ -69,6 +71,10 @@ const BUCKET = 'podcast-audio';
 /* the silence after a question in a conversation episode: long enough to
    answer in her head, short enough not to read as a stalled file */
 const PAUSE_SECONDS = 4.5;
+/* A pause that CLOSES a segment is a checkpoint: the player stops there and
+   opens the microphone, so she answers into the stop itself. Only a short
+   tail is spliced so the question does not clip. */
+const CHECKPOINT_TAIL_SECONDS = 1;
 const PAUSE_MARK = '[[PAUSE]]';
 const DEFAULT_LEARNER_VOICE = 'Zephyr';   /* bright, clearly a different person from Charon/Kore */
 
@@ -257,45 +263,41 @@ function planSegments(script: string, checkpoints: any[], maxSeconds: number) {
   return segments;
 }
 
-/* Conversation episodes: cut ONLY at pauses. A block is everything up to and
-   including a [[PAUSE]] line (the mechanism talk, the question, the frame);
-   the segment that holds it ends on that silence, and the next segment opens
-   with "Okay —" and the answer. Blocks are grouped up to the duration cap,
-   counting PAUSE_SECONDS per pause. Never inside a block. */
-function planDialogueSegments(script: string, maxSeconds: number) {
-  const blocks: { text: string; start: number; end: number; pause: boolean }[] = [];
-  let pos = 0;
+/* Conversation episodes: ONE SEGMENT PER CARD. A block is everything up to
+   and including a [[PAUSE]] line (the mechanism talk, the question, the
+   frame). Each block is its own segment and ENDS AT A CHECKPOINT: the k-th
+   pause is checkpoint k, numbered exactly as the script function numbers the
+   checkpoint rows, so Listen stops there, opens the microphone, and the turn
+   function grades what she says against the card. The next segment opens with
+   "Okay —" and the answer. The text after the last pause is the closing one.
+
+   One block is one TTS call, which is also what keeps a request inside the
+   edge runtime's wall-clock budget: grouping four cards into one segment meant
+   four sequential calls, two minutes, and a 546 on the segment after. The
+   duration cap is not applied — a block is a minute or two and is never cut
+   inside. */
+function planDialogueSegments(script: string, _maxSeconds: number) {
+  const segments: any[] = [];
+  const spoken = (t: string) => t.replace(/\[\[\s*PAUSE\s*\]\]/g, ' ');
+  let pos = 0, k = 0;
+  const push = (start: number, end: number, checkpoint: number | null) => {
+    const text = script.slice(start, end);
+    if (!text.trim()) return;
+    segments.push({
+      ordinal: segments.length, char_start: start, char_end: end,
+      text: text.trim(), words: wordCount(spoken(text)),
+      estimated_seconds: Math.round(estSeconds(spoken(text)) + (checkpoint === null ? 0 : CHECKPOINT_TAIL_SECONDS)),
+      pauses: checkpoint === null ? 0 : 1, ends_at_checkpoint: checkpoint,
+      split_reason: checkpoint === null ? 'end of episode' : 'pause',
+    });
+  };
   while (pos < script.length) {
     const at = script.indexOf(PAUSE_MARK, pos);
-    if (at < 0) { blocks.push({ text: script.slice(pos), start: pos, end: script.length, pause: false }); break; }
+    if (at < 0) { push(pos, script.length, null); break; }
     const end = at + PAUSE_MARK.length;
-    blocks.push({ text: script.slice(pos, end), start: pos, end, pause: true });
+    push(pos, end, k++);
     pos = end;
   }
-  const spoken = (t: string) => t.replace(/\[\[\s*PAUSE\s*\]\]/g, ' ');
-  const blockSeconds = (b: { text: string; pause: boolean }) => estSeconds(spoken(b.text)) + (b.pause ? PAUSE_SECONDS : 0);
-  const segments: any[] = [];
-  let buf: typeof blocks = [];
-  const flush = () => {
-    if (!buf.length) return;
-    const text = script.slice(buf[0].start, buf[buf.length - 1].end);
-    const pauses = buf.filter((b) => b.pause).length;
-    segments.push({
-      ordinal: segments.length, char_start: buf[0].start, char_end: buf[buf.length - 1].end,
-      text: text.trim(), words: wordCount(spoken(text)),
-      estimated_seconds: Math.round(buf.reduce((a, b) => a + blockSeconds(b), 0)),
-      pauses, ends_at_checkpoint: null,
-      split_reason: buf[buf.length - 1].pause ? 'pause' : 'end of episode',
-    });
-    buf = [];
-  };
-  for (const b of blocks) {
-    if (!b.text.trim()) continue;
-    const secs = buf.reduce((a, x) => a + blockSeconds(x), 0);
-    if (buf.length && secs + blockSeconds(b) > maxSeconds) flush();
-    buf.push(b);
-  }
-  flush();
   return segments;
 }
 
@@ -418,6 +420,8 @@ async function synthesizeDialogueChunk(apiKey: string, model: string, teacherVoi
 async function synthesizeDialogue(apiKey: string, model: string, teacherVoice: string, learnerVoice: string,
                                   segText: string, style: string) {
   const chunks = segText.split(/\[\[\s*PAUSE\s*\]\]/);
+  /* a mark that closes the segment is a checkpoint, not a timed pause */
+  const closing = /\[\[\s*PAUSE\s*\]\]\s*$/.test(segText);
   const parts: Uint8Array[] = [];
   let rate = 0, spokenSeconds = 0, pauseSeconds = 0, calls = 0, sourceMime = '';
   const usage: any = { promptTokenCount: 0, candidatesTokenCount: 0, totalTokenCount: 0 };
@@ -434,8 +438,9 @@ async function synthesizeDialogue(apiKey: string, model: string, teacherVoice: s
     /* a mark follows every chunk but the last */
     if (i < chunks.length - 1) {
       if (!rate) rate = 24000;
-      parts.push(silencePcm(rate));
-      pauseSeconds += PAUSE_SECONDS;
+      const secs = (closing && i === chunks.length - 2) ? CHECKPOINT_TAIL_SECONDS : PAUSE_SECONDS;
+      parts.push(silencePcm(rate, secs));
+      pauseSeconds += secs;
     }
   }
   if (!calls) throw new Error('Segment has no spoken text.');
@@ -732,6 +737,7 @@ Deno.serve(async (req: Request) => {
         learner_voice: isDialogue ? ((await lectureLearnerVoice(rest, episode.guide_slug)) || null) : undefined,
         pauses: isDialogue ? segments.reduce((a, s) => a + (s.pauses || 0), 0) : undefined,
         pause_seconds: isDialogue ? PAUSE_SECONDS : undefined,
+        checkpoint_tail_seconds: isDialogue ? CHECKPOINT_TAIL_SECONDS : undefined,
         /* so the page can show the narrator this lecture is committed to
            instead of whatever its dropdown happens to say */
         pinned_voice: planPin || null,

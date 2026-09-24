@@ -54,11 +54,10 @@ replaces rather than duplicates it.
 
 ## Browser test
 
-`listen.mjs` in the session scratchpad drives the listener page in Chromium at
-320/375/1440 with the backend faked and a real generated WAV, asserting the
-checkpoint pause, Continue, cross-device resume, progress writes, and zero
-horizontal overflow. It is a scratch harness rather than a committed test
-because it needs Playwright, which this repo deliberately does not depend on.
+The Listen and Podcast pages have been removed from the app, so there is no
+listener page to drive. The edge functions under `supabase/functions/` and the
+pipeline tests above are kept as they are: they test the functions, not the
+page.
 
 ## fsrs
 

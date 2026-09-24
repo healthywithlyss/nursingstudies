@@ -94,6 +94,11 @@ export function planFor(sched, attempts, opts) {
       clamped = true;
     }
   }
+  /* a review is due by DAY: local midnight of (last review + interval), the
+     same rule the session applies when a card is rated live */
+  if (card.state === 'review' && due - card.last_review >= DAY) {
+    due = ES.startOfDay(due);
+  }
 
   return {
     state: card.state,
@@ -101,7 +106,7 @@ export function planFor(sched, attempts, opts) {
     stability: card.stability == null ? null : round4(card.stability),
     difficulty: card.difficulty == null ? null : round4(card.difficulty),
     interval_days: due - card.last_review >= DAY
-      ? Math.round((due - card.last_review) / DAY) : 0,
+      ? Math.max(1, Math.round((due - ES.startOfDay(card.last_review)) / DAY)) : 0,
     repetitions: card.reps,
     lapses: card.lapses,
     last_reviewed_at: card.last_review,

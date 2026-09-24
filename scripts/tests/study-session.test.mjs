@@ -513,19 +513,46 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
   ck('the mastery loader fetches introduced_at', /card_mastery\?select=card_id,state,[\s\S]{0,200}?learning_step,introduced_at,last_result&user_id/.test(html));
   ck('toItem carries introduced_at as ms', /introduced_at: row && row\.introduced_at \? Date\.parse\(row\.introduced_at\) : null/.test(html));
   const qf = html.slice(html.indexOf('function queueFor('), html.indexOf('function nextDueMs('));
-  ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\(items, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
+  /* due means due TODAY, not due this hour: a review card's due_date keeps the
+     clock time of the review that scheduled it, and used to hide all morning */
+  {
+    const day = Date.parse('2026-09-13T04:00:00Z'), now = day + 14 * 3600000;   /* local midnight, 2 pm */
+    const laterToday = reviewCard({ id: 901, due_date: day + DAY - 60000, last_reviewed_at: now - 3 * DAY, repetitions: 3, objectiveIds: ['N144_L1'] });
+    const tomorrow = reviewCard({ id: 902, due_date: day + DAY + 60000, last_reviewed_at: now - 3 * DAY, repetitions: 3, objectiveIds: ['N144_L1'] });
+    const step = { id: 903, kind: 'card', state: 'learning', learning_step: 1, due_date: now + 5 * 60000, last_reviewed_at: now - 60000, repetitions: 1, introduced_at: now - 60000, objectiveIds: ['N144_L1'] };
+    const qd = SS.todayQueue([laterToday, tomorrow, step], { now, dayStart: day, newCardsPerDay: 30, all: [laterToday, tomorrow, step] });
+    ck('a card due later today is due now, from midnight', qd.due.some((i) => i.id === 901), qd.due.map((i) => i.id));
+    ck('a card due just after midnight tonight is not due today', !qd.due.some((i) => i.id === 902) && !qd.done.some((i) => i.id === 902));
+    ck('a learning step later today stays in learning with its exact time, not in due', qd.learning.some((i) => i.id === 903) && !qd.due.some((i) => i.id === 903));
+    const sd = SS.objectiveStats([laterToday, tomorrow], { now, dayStart: day });
+    ck('the sidebar counts the later-today card as due, the tomorrow card as neither', sd.N144_L1.due === 1 && sd.N144_L1.doneToday === 0, sd.N144_L1);
+    ck('an explicit dayEnd is honoured', SS.todayQueue([laterToday], { now, dayStart: day, dayEnd: now + 1, newCardsPerDay: 30, all: [laterToday] }).due.length === 0);
+  }
+
+  ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\((?:newestFirst\()?items\)?, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
+  /* newest material first: the lecture just taught is the one that wants
+     studying, so new cards are handed over highest id first */
+  ck('new cards are ordered newest first before the budget is applied', /todayQueue\(newestFirst\(items\)/.test(qf)
+    && /function newestFirst\(items\)\{[\s\S]{0,200}?\(Number\(b\.id\) \|\| 0\) - \(Number\(a\.id\) \|\| 0\)/.test(html));
+  ck('extra study uses the same order', /opts\.items = newestFirst\(items\);/.test(html));
+  ck('the legacy deck loads newest first too', /flashcards\?select=id,question,answer,objective_ids,explanation&order=id\.desc&course=eq\./.test(html));
   ck('the day starts at LOCAL midnight', /setHours\(0,0,0,0\)/.test(html.slice(html.indexOf('function dayStartMs('), html.indexOf('function dayStartMs(') + 200)));
   const pc = html.slice(html.indexOf('function persistCard('), html.indexOf('function rating2legacy('));
   ck('the first real rating stamps introduced_at, and only the first', /var wasNew = window\.StudySession\.isNewItem\(item\);/.test(pc) && /if\(wasNew\)\{[^}]*row\.introduced_at = /.test(pc));
   const panel = html.slice(html.indexOf('function renderDeckPanel('), html.indexOf('function srsToggleDeck'));
   ck('a tile is a button that starts a session of only its kind', /var tile = function\(cls, n, label, extra, only\)/.test(panel) && /onclick="srsStartSession\('\+\(extra\?'true':'false'\)\+',\\''\+only\+'\\'\)"/.test(panel));
-  ck('new, learning and due tiles start SCHEDULED sessions', /tile\('new',\s+q\.newItems\.length,\s+'new',\s+false,\s+'new'\)/.test(panel)
+  ck('new, learning and due tiles start SCHEDULED sessions', /tile\('new',\s+newNow\.length,\s+'new',\s+false,\s+'new'\)/.test(panel)
     && /tile\('learn', q\.learning\.length, 'learning',\s+false, 'learning'\)/.test(panel) && /tile\('due',\s+q\.due\.length,\s+'due',\s+false, 'due'\)/.test(panel));
   ck('the done tile is EXTRA study: re-drilling today\'s cards never reschedules them', /tile\('done',\s+q\.done\.length,\s+'done today', true,\s+'done'\)/.test(panel) && /if\(only === 'done'\) extra = true;/.test(html));
   const note = html.slice(html.indexOf('function budgetNote('), html.indexOf('function renderDeckPanel('));
   ck('when the budget is spent the note says so instead of counting "held back"', /q\.newBudget === 0/.test(note) && /started today/.test(note) && /resume tomorrow/.test(note));
   const start = html.slice(html.indexOf('window.srsStartSession = function(extra, only)'), html.indexOf('window.srsResumeSession'));
-  ck('srsStartSession honours `only` for each kind', /only === 'new' \? q\.newItems/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+  ck('srsStartSession honours `only` for each kind', /only === 'new' \? capNew\(q\.newItems\)/.test(start) && /only === 'learning' \? q\.learning/.test(start) && /only === 'due' \? q\.due/.test(start) && /only === 'done' \? q\.done/.test(start));
+  /* one sitting need not take every new card: the per-session cap (5/10/20/all,
+     remembered per course) bounds what a session pulls in, never the daily budget */
+  ck('a session pulls in at most the per-session cap of new cards', /q\.learning\.concat\(q\.due, capNew\(q\.newItems\)\)/.test(start));
+  ck('the new tile shows the capped count and the chips offer 5, 10, 20 and all', /var newNow = capNew\(q\.newItems\);/.test(panel) && /\[5, 10, 20, null\]\.map/.test(panel) && /srsNewPerSession\(/.test(panel));
+  ck('the cap is separate from the daily budget and remembered per course', /NEW_PER_SESSION_KEY \+ window\.currentCourse/.test(html) && /function capNew\(list\)\{ var c = newPerSession\(\); return c == null \? list : list\.slice\(0, c\); \}/.test(html));
 
   /* "+N new today": past the limit for one local date only, and it counts */
   ck('settings read the per-day extra and its date', /extraNew:\s+\(r && r\.extra_new\)/.test(html) && /extraNewDate: \(r && r\.extra_new_date\)/.test(html));
@@ -574,6 +601,14 @@ console.log('\nindex.html: lecture names, new-left chips, the sidebar shows prog
   ck('chips show the lecture name and the new cards left, not the objective id', /objLabel\(o\.id\)/.test(panel) && /newLeft\+' new/.test(panel) && !/esc2\(o\.id\)\+' <span>'\+o\.count/.test(panel));
   ck('the deck panel renders the sidebar progress on every paint', /renderObjProgress\(now\)/.test(panel));
   const side = html.slice(html.indexOf('function renderObjProgress('), html.indexOf('function renderDeckPanel('));
+  /* the sidebar must be able to pick ONE objective, and a pick must rebuild a
+     running session — tapping "Lecture 2 · Objective 1" used to leave the
+     65-card whole-deck session running underneath a filtered-looking panel */
+  ck('sidebar objective rows are tappable and pick just that objective',
+    /srs-side-obj[\s\S]{0,400}?onclick="event\.stopPropagation\(\);srsOnlyDeck\(/.test(side), side.match(/srs-side-obj[\s\S]{0,400}?onclick[^\n]{0,60}/)?.[0]);
+  const onlyDeck = html.slice(html.indexOf('window.srsOnlyDeck = function'), html.indexOf('window.srsSelectAll'));
+  ck('a sidebar pick rebuilds the session, the same way a chip does', /afterDeckChange\(\)/.test(onlyDeck), onlyDeck);
+  ck('select-all from the sidebar rebuilds too', /window\.srsSelectAll = function\(\)\{ deckSel = null; afterDeckChange\(\); \}/.test(html));
   ck('the sidebar uses StudySession.objectiveStats with the scheduler\'s recall', /StudySession\.objectiveStats\(/.test(side) && /recall: recallNow/.test(side));
   ck('each lecture row shows started %, new left, recall, learned and learning', /pctStarted/.test(side) && /newLeft/.test(side) && /recall/.test(side) && /learned/.test(side) && /learning/.test(side));
   ck('the sidebar never shows "Loading" under FSRS: the legacy bar renderer is a no-op there', /window\.renderObjBars = function\(\)\{\s*if\(fsrsPractice\(\)\) return;/.test(html));
@@ -597,19 +632,36 @@ console.log('\nthe session schedules through the clamp, not around it');
   const p = s.peek(item.id, NOW);
 
   ck('nothing on the buttons lands past the exam',
-    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate),
+    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate + DAY),
     [1, 2, 3, 4].map((r) => p[r].label));
-  ck('nor inside the sweep week',
-    [1, 2, 3, 4].every((r) => NOW + p[r].ms <= examDate - 7 * DAY),
-    [1, 2, 3, 4].map((r) => p[r].label));
-  ck('Hard is days, not months', /d$/.test(p[HARD].label), p[HARD].label);
-  ck('ordering holds after compression',
-    p[AGAIN].ms < p[HARD].ms && p[HARD].ms < p[GOOD].ms && p[GOOD].ms < p[EASY].ms,
-    [1, 2, 3, 4].map((r) => p[r].label));
-  ck('each button reports whether it was compressed, and from what',
+  ck('a card whose every rating overshoots the exam lands on exam day for Hard, Good and Easy',
+    [2, 3, 4].every((r) => p[r].ms === 35 * DAY), [1, 2, 3, 4].map((r) => p[r].label));
+  ck('Again is still this sitting', p[AGAIN].ms < DAY, p[AGAIN].label);
+  ck('each button reports whether it was pulled in, and from what',
     p[HARD].compressed === true && /mo$/.test(p[HARD].rawLabel)
     && p[AGAIN].compressed === false,
     { hard: p[HARD].label + ' was ' + p[HARD].rawLabel, again: p[AGAIN].label });
+
+  /* THE BUG: with the exam twenty days out, every card read 3-5 days on every
+     button. Now FSRS's own intervals stand until they would pass the exam. */
+  const ex20 = { key: 'unit1', date: ES.startOfDay(NOW + 20 * DAY) };
+  const c20 = (raw, max, t) => ES.compressToRunway(raw, max, ex20, t);
+  const s16 = SS.create({ items: [reviewCard({ id: 77, stability: 16, last_reviewed_at: NOW - 16 * DAY })], now: NOW, clamp: c20 });
+  const p16 = s16.peek(77, NOW);
+  const days16 = [1, 2, 3, 4].map((r) => Math.round(p16[r].ms / DAY));
+  console.log('    stability 16, exam in 20 days -> Again/Hard/Good/Easy: ' + [1, 2, 3, 4].map((r) => p16[r].label).join(' / ')
+    + '  (raw ' + [2, 3, 4].map((r) => p16[r].rawLabel).join(' / ') + ')');
+  ck('stability 16: a successful rating grows the interval past 20 days, so it is capped AT the exam, not squashed to 5',
+    days16[2] === 20 && Math.round(p16[3].rawMs / DAY) > 20, days16);
+  /* a card the exam does not bind: four different numbers */
+  const s4 = SS.create({ items: [reviewCard({ id: 78, stability: 4.66, last_reviewed_at: NOW - 5 * DAY })], now: NOW, clamp: c20 });
+  const p4 = s4.peek(78, NOW);
+  const days4 = [1, 2, 3, 4].map((r) => Math.round(p4[r].ms / DAY));
+  console.log('    stability 4.66, exam in 20 days -> Again/Hard/Good/Easy: ' + [1, 2, 3, 4].map((r) => p4[r].label).join(' / '));
+  ck('the four buttons differ from each other', new Set([1, 2, 3, 4].map((r) => p4[r].ms)).size === 4, days4);
+  ck('Again < Hard < Good < Easy', p4[1].ms < p4[2].ms && p4[2].ms < p4[3].ms && p4[3].ms < p4[4].ms, days4);
+  ck('Hard and Good were not pulled in: FSRS decided; only an Easy past the exam is capped',
+    !p4[2].compressed && !p4[3].compressed && (p4[4].compressed ? p4[4].ms === 20 * DAY : true), [2, 3, 4].map((r) => p4[r].compressed));
 
   /* THE THING THAT WAS BROKEN: what the button says must be what gets stored */
   [1, 2, 3, 4].forEach((r) => {
@@ -623,12 +675,12 @@ console.log('\nthe session schedules through the clamp, not around it');
 
   const graded = SS.create({ items: [item], now: NOW, clamp });
   const out = graded.answer(item.id, HARD, NOW);
-  ck('the outcome line says it was compressed', /compressed to fit/.test(out.text), out.text);
+  ck('the outcome line says it was pulled in', /compressed to fit/.test(out.text), out.text);
   ck('the memory state itself is untouched — only the date moves',
     out.card.stability > 0 && out.card.difficulty > 0 && out.card.state === 'review',
     { s: out.card.stability, d: out.card.difficulty });
-  ck('interval_days matches the compressed date, not the raw one',
-    out.card.interval_days === Math.round(out.deltaMs / DAY), out.card.interval_days);
+  ck('interval_days matches the stored day, not the raw one',
+    out.card.interval_days === Math.round((out.card.due - ES.startOfDay(NOW)) / DAY), out.card.interval_days);
 
   /* with no exam the session behaves exactly as before */
   const plain = SS.create({ items: [item], now: NOW,
@@ -636,6 +688,33 @@ console.log('\nthe session schedules through the clamp, not around it');
   ck('no exam means raw FSRS intervals, unchanged',
     /mo$/.test(plain.peek(item.id, NOW)[GOOD].label),
     plain.peek(item.id, NOW)[GOOD].label);
+}
+
+/* ── a review is due by DAY; a learning step by the minute ─────────────── */
+console.log('\nreview due dates land on local midnight');
+{
+  const at = new Date(2026, 8, 18, 14, 45).getTime();          /* 2:45 pm local */
+  const midnight = (d) => new Date(2026, 8, 18 + d).getTime();
+  const noClamp = (raw) => ({ ms: raw, compressed: false, rawMs: raw });
+  const card = reviewCard({ id: 501, stability: 16, last_reviewed_at: at - 16 * DAY, due_date: at - 3600000 });
+  const s = SS.create({ items: [card], now: at, clamp: noClamp });
+  const out = s.answer(501, GOOD, at);
+  const wantDays = Math.round(out.deltaMs / DAY);
+  ck('the stored due is local midnight of (now + interval), not 2:45 pm',
+    out.card.due === midnight(wantDays) && new Date(out.card.due).getHours() === 0, new Date(out.card.due).toString());
+  ck('interval_days is the whole days to that midnight', out.card.interval_days === wantDays, out.card.interval_days);
+  ck('the button reads in days or longer, never minutes', /(d|mo|y)$/.test(out.label), out.label);
+  const again = SS.create({ items: [reviewCard({ id: 502, stability: 16, last_reviewed_at: at - 16 * DAY })], now: at, clamp: noClamp })
+    .answer(502, AGAIN, at);
+  ck('Again on a review card is minutes, at the exact time, not a day',
+    again.deltaMs < DAY && again.card.due === at + again.deltaMs && (again.card.state === 'relearning' || again.card.state === 'learning'),
+    { state: again.card.state, min: Math.round(again.deltaMs / 60000) });
+  const fresh = SS.create({ items: [newCard({ id: 503 })], now: at, clamp: noClamp }).answer(503, GOOD, at);
+  ck('a learning step keeps its minutes', fresh.deltaMs < DAY && fresh.card.due === at + fresh.deltaMs, fresh.label);
+  /* and the queue treats a card due at midnight today as due all day */
+  const q = SS.todayQueue([reviewCard({ id: 504, due_date: midnight(0), last_reviewed_at: at - 5 * DAY })],
+    { now: at, dayStart: midnight(0), newCardsPerDay: 30, all: [] });
+  ck('due at midnight this morning counts as due now', q.due.length === 1);
 }
 
 console.log(fail ? `\n${fail} FAILING` : '\nall study session checks passed');

@@ -270,8 +270,8 @@ ck('and which TTS model spent it', audioRows.every((r) => /tts/.test(r.usage.tts
   audioRows.map((r) => r.usage && r.usage.tts_model));
 
 
-/* ── conversation episodes: cut at pauses, two voices, real silence ── */
-console.log('\nconversation episode: real silence spliced in at every pause');
+/* ── conversation episodes: one segment per card, ending at its checkpoint ── */
+console.log('\nconversation episode: one segment per card, stopping at a checkpoint so it can talk back');
 {
   const DLG = ['Teacher: Here is how the sphincter works.', 'Student: But why would it not relax?',
     'Teacher: Because the nerves are gone. What is achalasia? Take a second.', '[[PAUSE]]',
@@ -282,50 +282,59 @@ console.log('\nconversation episode: real silence spliced in at every pause');
   audioRows = []; stored.clear(); ttsCalls = []; pin = ''; learnerPin = '';
 
   const plan = (await call({ action: 'plan', episode_id: EPISODE })).json;
-  ck('the plan knows it is a dialogue with two pauses', plan.format === 'dialogue' && plan.pauses === 2 && plan.pause_seconds === 4.5, plan);
-  ck('a short conversation is one segment that ends at the end, not at a checkpoint', plan.segments.length === 1
-    && plan.segments[0].ends_at_checkpoint === null && plan.segments[0].split_reason === 'end of episode', plan.segments);
+  ck('the plan knows it is a dialogue with two pauses and a short tail at each stop',
+    plan.format === 'dialogue' && plan.pauses === 2 && plan.checkpoint_tail_seconds === 1, plan);
+  ck('two cards make three segments: one per card plus the closing answer', plan.segments.length === 3, plan.segments.map((x) => x.preview));
+  ck('each card segment ends at its own checkpoint, numbered by pause; the closing one ends nowhere',
+    plan.segments.map((x) => x.ends_at_checkpoint).join(',') === '0,1,'
+    && plan.segments.map((x) => x.split_reason).join('|') === 'pause|pause|end of episode', plan.segments.map((x) => [x.ends_at_checkpoint, x.split_reason]));
+  ck('the cap does not regroup cards: the same three segments under a huge cap',
+    (await call({ action: 'plan', episode_id: EPISODE, max_seconds: 640 })).json.segments.length === 3);
   ck('no learner voice pinned yet', plan.learner_voice === null, plan.learner_voice);
 
   const s0 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 0, voice: 'Iapetus', learner_voice: 'Puck' })).json;
-  ck('one TTS call per spoken chunk: three chunks around two pauses', ttsCalls.length === 3 && s0.tts_calls === 3, ttsCalls.length);
-  const cfg = ttsCalls.map((c) => c.body.generationConfig.speechConfig.multiSpeakerVoiceConfig);
-  ck('every call uses the two-speaker config: Teacher in the narrator voice, Student in the learner voice',
-    cfg.every((m) => m && m.speakerVoiceConfigs.length === 2
-      && m.speakerVoiceConfigs[0].speaker === 'Teacher' && m.speakerVoiceConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName === 'Iapetus'
-      && m.speakerVoiceConfigs[1].speaker === 'Student' && m.speakerVoiceConfigs[1].voiceConfig.prebuiltVoiceConfig.voiceName === 'Puck'), cfg[0]);
-  const texts = ttsCalls.map((c) => c.body.contents[0].parts[0].text);
-  ck('no pause marker ever reaches the synthesiser', texts.every((t) => !/\[\[PAUSE\]\]/.test(t)));
-  ck('the first chunk ends on the question and its frame', /What is achalasia\? Take a second\.$/.test(texts[0].trim()), texts[0].slice(-60));
-  ck('the second chunk begins with the answer', /^[\s\S]*Teacher: Okay — failure/.test(texts[1]), texts[1].slice(0, 80));
-  const spoken = 3 * (SAMPLE_RATE * 2 * 2);              /* the fake returns 2 s per call */
-  const silence = 2 * Math.round(SAMPLE_RATE * 4.5) * 2;  /* 4.5 s of zeros at each pause */
-  ck('the WAV holds the speech plus 9 seconds of real silence', audioRows[0].bytes === 44 + spoken + silence, [audioRows[0].bytes, 44 + spoken + silence]);
+  ck('one card is one TTS call, so a request never queues calls against the wall clock', ttsCalls.length === 1 && s0.tts_calls === 1, ttsCalls.length);
+  const cfg = ttsCalls[0].body.generationConfig.speechConfig.multiSpeakerVoiceConfig;
+  ck('the call uses the two-speaker config: Teacher in the narrator voice, Student in the learner voice',
+    cfg && cfg.speakerVoiceConfigs.length === 2
+      && cfg.speakerVoiceConfigs[0].speaker === 'Teacher' && cfg.speakerVoiceConfigs[0].voiceConfig.prebuiltVoiceConfig.voiceName === 'Iapetus'
+      && cfg.speakerVoiceConfigs[1].speaker === 'Student' && cfg.speakerVoiceConfigs[1].voiceConfig.prebuiltVoiceConfig.voiceName === 'Puck', cfg);
+  const text0 = ttsCalls[0].body.contents[0].parts[0].text;
+  ck('no pause marker ever reaches the synthesiser', !/\[\[PAUSE\]\]/.test(text0));
+  ck('the segment ends on the question and its frame', /What is achalasia\? Take a second\.$/.test(text0.trim()), text0.slice(-60));
+  ck('the answer is NOT in this segment: it comes after she has answered', !/Okay —/.test(text0));
+  const speech = SAMPLE_RATE * 2 * 2;                 /* the fake returns 2 s per call */
+  const tail = Math.round(SAMPLE_RATE * 1) * 2;       /* 1 s of zeros at the stop */
+  ck('the WAV holds the speech plus a one-second tail, not a 4.5 s pause', audioRows[0].bytes === 44 + speech + tail, [audioRows[0].bytes, 44 + speech + tail]);
   const wav = stored.get(`episodes/${EPISODE}/000.wav`);
   const dv = new DataView(wav.buffer, wav.byteOffset);
-  ck('the WAV header declares the spliced length', dv.getUint32(40, true) === spoken + silence, dv.getUint32(40, true));
-  /* the silence is really zeros: sample the middle of the first pause */
-  const firstPauseAt = 44 + SAMPLE_RATE * 2 * 2 + Math.round(SAMPLE_RATE * 2.25) * 2;
-  ck('the samples inside the pause are zero', wav[firstPauseAt] === 0 && wav[firstPauseAt + 1] === 0);
-  ck('measured duration = speech + silence', s0.actual_seconds === 15 && s0.spoken_seconds === 6 && s0.pause_seconds === 9, [s0.actual_seconds, s0.spoken_seconds, s0.pause_seconds]);
-  ck('the row records the chunks, the silence and both voices', audioRows[0].usage.chunks === 3 && audioRows[0].usage.pause_seconds === 9
+  ck('the WAV header declares the spliced length', dv.getUint32(40, true) === speech + tail, dv.getUint32(40, true));
+  const inTail = 44 + speech + Math.round(SAMPLE_RATE * 0.5) * 2;
+  ck('the samples inside the tail are zero', wav[inTail] === 0 && wav[inTail + 1] === 0);
+  ck('measured duration = speech + tail', s0.actual_seconds === 3 && s0.spoken_seconds === 2 && s0.pause_seconds === 1, [s0.actual_seconds, s0.spoken_seconds, s0.pause_seconds]);
+  ck('the row records the stop it ends on, so Listen opens the mic there', audioRows[0].ends_at_checkpoint === 0 && s0.ends_at_checkpoint === 0, audioRows[0].ends_at_checkpoint);
+  ck('the row records the chunk, the tail and both voices', audioRows[0].usage.chunks === 1 && audioRows[0].usage.pause_seconds === 1
     && audioRows[0].usage.learner_voice === 'Puck' && audioRows[0].voice === 'Iapetus', audioRows[0].usage);
-  ck('the segment ends at no checkpoint: the player never stops', audioRows[0].ends_at_checkpoint === null);
   ck('the learner voice is pinned beside the narrator', learnerPin === 'Puck' && pin === 'Iapetus', [pin, learnerPin]);
-  ck('token usage is summed across the chunks', audioRows[0].usage.promptTokenCount === 360 && audioRows[0].usage.candidatesTokenCount === 2700, audioRows[0].usage);
+  ck('token usage is recorded from the call', audioRows[0].usage.promptTokenCount === 120 && audioRows[0].usage.candidatesTokenCount === 900, audioRows[0].usage);
 
-  /* a long conversation is cut only at pauses */
+  ttsCalls = [];
+  const s1 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 1 })).json;
+  const text1 = ttsCalls[0].body.contents[0].parts[0].text;
+  ck('the next segment opens with the answer and ends at the next stop', /^[\s\S]*?Teacher: Okay — failure/.test(text1) && s1.ends_at_checkpoint === 1, text1.slice(0, 80));
+  ttsCalls = [];
+  const s2 = (await call({ action: 'synthesize', episode_id: EPISODE, segment: 2 })).json;
+  ck('the closing segment is the last answer, with no tail and no stop',
+    s2.ends_at_checkpoint === null && s2.pause_seconds === 0 && audioRows[2].bytes === 44 + speech && s2.done === true, [s2.ends_at_checkpoint, s2.pause_seconds, audioRows[2].bytes]);
+
+  /* a long conversation is still one segment per card, never a cut inside a block */
   const block = (q) => `Teacher: ${'the mechanism, explained at length, '.repeat(40)}\nStudent: why though?\nTeacher: because. ${q} Take a second.\n[[PAUSE]]\nTeacher: Okay — the answer.`;
   epOverride = { format: 'dialogue', script: [block('Q one?'), block('Q two?'), block('Q three?')].join('\n') };
   const plan2 = (await call({ action: 'plan', episode_id: EPISODE, max_seconds: 60 })).json;
-  /* three pause-blocks plus the trailing answer after the last pause: four segments, never a cut inside a block */
-  ck('under a tight cap each pause-block is its own segment, and the trailing answer is the last', plan2.segments.length === 4 && plan2.segments[3].words < 10, plan2.segments.map((x) => x.words));
-  ck('every cut is at a pause, so a segment ends on silence and the next opens with the answer',
-    plan2.segments.slice(0, -1).every((x) => x.split_reason === 'pause') && plan2.segments[3].split_reason === 'end of episode'
-    && plan2.segments.every((x) => x.ends_at_checkpoint === null), plan2.segments.map((x) => x.split_reason));
-  ck('the segment texts carry their closing pause mark for the splicer', plan2.segments.slice(0, -1).every((x, i) => /\[\[PAUSE\]\]$/.test(x.preview) || true));
+  ck('three cards plus the trailing answer: four segments, whatever the cap', plan2.segments.length === 4 && plan2.segments[3].words < 10, plan2.segments.map((x) => x.words));
+  ck('checkpoints are numbered by pause, in order', plan2.segments.map((x) => x.ends_at_checkpoint).join(',') === '0,1,2,', plan2.segments.map((x) => x.ends_at_checkpoint));
   ck('a segment never starts mid-block', plan2.segments.every((x) => /^Teacher:/.test(x.preview)), plan2.segments.map((x) => x.preview.slice(0, 20)));
-  ck('the estimate counts the silence', plan2.segments[0].estimated_seconds >= 4, plan2.segments[0].estimated_seconds);
+  ck('the estimate counts the tail', plan2.segments[0].estimated_seconds >= Math.round(40 * 5 / 150 * 60) + 1, plan2.segments[0].estimated_seconds);
 
   /* the two voices must differ */
   epOverride = { format: 'dialogue', script: DLG }; ttsCalls = [];

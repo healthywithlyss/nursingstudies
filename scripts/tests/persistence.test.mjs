@@ -57,7 +57,9 @@ console.log('\nevery merge-duplicates write names its conflict target');
   let m;
   while ((m = re.exec(html))) urls.push(m[1]);
 
-  ck('the audit actually found the writes', urls.length >= 6, urls.length);
+  /* four writes since the podcast pages (and their three progress/settings
+     upserts) were removed: srsUpsert's own prefix, exam dates, settings, units */
+  ck('the audit actually found the writes', urls.length >= 4, urls.length);
 
   /* '/rest/v1/' alone is srsUpsert's own prefix — its callers pass the rest. */
   const missing = urls.filter((u) => u !== '/rest/v1/' && !/on_conflict=/.test(u));
