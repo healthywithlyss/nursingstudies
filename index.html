@@ -5720,7 +5720,8 @@ function initPractice(){
   if(fcLoaded) return;
   fcSetLoading();
   var token=courseLoadToken;
-  var cardUrl='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.asc&course=eq.'+currentCourse;
+  /* newest cards first: the lecture just taught is at the top of the deck */
+  var cardUrl='/rest/v1/flashcards?select=id,question,answer,objective_ids,explanation&order=id.desc&course=eq.'+currentCourse;
   var fetches=[sbFetch(cardUrl).then(function(r){return r.json();})];
   /* For NUR116: also fetch objectives (lecture names) and wrap-up card IDs */
   if(currentCourse==='NUR116'){
@@ -10422,7 +10423,7 @@ function newestFirst(items){
 function queueFor(items, now){
   var st = currentSettings();
   var all = (plan && plan._items ? plan._items : []).filter(function(i){ return i.kind === 'card'; });
-  return window.StudySession.todayQueue(items, {
+  return window.StudySession.todayQueue(newestFirst(items), {
     now: now, dayStart: dayStartMs(now), newCardsPerDay: effectiveNewLimit(st, now), all: all
   });
 }
@@ -10801,7 +10802,7 @@ window.srsStartSession = function(extra, only){
   if(only === 'done') extra = true;
   var opts = sessionOpts(now, st, extra);
   if(extra && only !== 'done'){
-    opts.items = items.slice();
+    opts.items = newestFirst(items);
   } else {
     var q = queueFor(items, now);
     /* learning first, then what is due, then new material */

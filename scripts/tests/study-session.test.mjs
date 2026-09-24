@@ -529,7 +529,13 @@ console.log('\nindex.html: daily budget wired through, tiles start a session of 
     ck('an explicit dayEnd is honoured', SS.todayQueue([laterToday], { now, dayStart: day, dayEnd: now + 1, newCardsPerDay: 30, all: [laterToday] }).due.length === 0);
   }
 
-  ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\(items, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
+  ck('queueFor delegates to StudySession.todayQueue with the whole course as `all`', /StudySession\.todayQueue\((?:newestFirst\()?items\)?, \{[^}]*all: all/.test(qf) && /kind === 'card'/.test(qf));
+  /* newest material first: the lecture just taught is the one that wants
+     studying, so new cards are handed over highest id first */
+  ck('new cards are ordered newest first before the budget is applied', /todayQueue\(newestFirst\(items\)/.test(qf)
+    && /function newestFirst\(items\)\{[\s\S]{0,200}?\(Number\(b\.id\) \|\| 0\) - \(Number\(a\.id\) \|\| 0\)/.test(html));
+  ck('extra study uses the same order', /opts\.items = newestFirst\(items\);/.test(html));
+  ck('the legacy deck loads newest first too', /flashcards\?select=id,question,answer,objective_ids,explanation&order=id\.desc&course=eq\./.test(html));
   ck('the day starts at LOCAL midnight', /setHours\(0,0,0,0\)/.test(html.slice(html.indexOf('function dayStartMs('), html.indexOf('function dayStartMs(') + 200)));
   const pc = html.slice(html.indexOf('function persistCard('), html.indexOf('function rating2legacy('));
   ck('the first real rating stamps introduced_at, and only the first', /var wasNew = window\.StudySession\.isNewItem\(item\);/.test(pc) && /if\(wasNew\)\{[^}]*row\.introduced_at = /.test(pc));
