@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T19:24:16.299Z",
+  "generatedAt": "2026-09-20T12:36:22.970Z",
   "generatedBy": "scripts/build-guides-manifest.js",
   "courses": [
     {
@@ -31,6 +31,145 @@
               ],
               "sectionCount": 20,
               "mustKnowCount": 17
+            },
+            {
+              "slug": "nur144-u1-l2",
+              "file": "content/nur144/NUR144_Unit1_Lecture2_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 2,
+              "lectureLabel": "Lecture 2",
+              "title": "NUR 144 — UNIT 1, LECTURE 2",
+              "subtitle": "Hepatic Disorders",
+              "cardTitle": "Hepatic Disorders",
+              "description": "",
+              "topics": [
+                "THE ONE IDEA EVERYTHING HANGS ON",
+                "ANATOMY AND BLOOD SUPPLY",
+                "THE EIGHT FUNCTIONS — AND THEIR FAILURES",
+                "BILIRUBIN AND JAUNDICE"
+              ],
+              "sectionCount": 17,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l3",
+              "file": "content/nur144/NUR144_Unit1_Lecture3_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 3,
+              "lectureLabel": "Lecture 3",
+              "title": "NUR 144 — UNIT 1, LECTURE 3",
+              "subtitle": "Biliary System, Pancreas, and Alternate Nutrition",
+              "cardTitle": "Biliary System, Pancreas, and Alternate Nutrition",
+              "description": "",
+              "topics": [
+                "PART ONE — THE BILIARY SYSTEM",
+                "PART TWO — PANCREATITIS",
+                "PART THREE — ALTERNATE NUTRITION",
+                "CONFLICTS TO TAKE TO THE PROFESSOR"
+              ],
+              "sectionCount": 4,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l4",
+              "file": "content/nur144/NUR144_Unit1_Lecture4_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 4,
+              "lectureLabel": "Lecture 4",
+              "title": "NUR 144 — UNIT 1, LECTURE 4",
+              "subtitle": "Lower Gastrointestinal Disorders",
+              "cardTitle": "Lower Gastrointestinal Disorders",
+              "description": "",
+              "topics": [
+                "ANATOMY AND PHYSIOLOGY",
+                "LABS AND DIAGNOSTICS",
+                "CONSTIPATION",
+                "DIARRHEA"
+              ],
+              "sectionCount": 15,
+              "mustKnowCount": 0
+            },
+            {
+              "slug": "nur144-u1-l5",
+              "file": "content/nur144/NUR144_Unit1_Lecture5_StudyGuide.md",
+              "imageBase": "content/nur144/",
+              "course": "NUR144",
+              "unit": 1,
+              "lecture": 5,
+              "lectureLabel": "Lecture 5",
+              "title": "NUR 144 — UNIT 1, LECTURE 5",
+              "subtitle": "Fecal Diversion / Ostomy Care",
+              "cardTitle": "Fecal Diversion / Ostomy Care",
+              "description": "",
+              "topics": [
+                "INDICATIONS AND TYPES",
+                "PRE-OPERATIVE CARE",
+                "POST-OPERATIVE CARE",
+                "STOMA ASSESSMENT"
+              ],
+              "sectionCount": 9,
+              "mustKnowCount": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "NUR146",
+      "label": "NUR 146",
+      "title": "Adult Health I",
+      "units": [
+        {
+          "unit": 1,
+          "label": "Unit 1",
+          "guides": [
+            {
+              "slug": "nur146-u1-l1",
+              "file": "content/nur146/NUR146_Unit1_Lecture1_StudyGuide.md",
+              "imageBase": "content/nur146/",
+              "course": "NUR146",
+              "unit": 1,
+              "lecture": 1,
+              "lectureLabel": "Lecture 1",
+              "title": "NUR 146 — UNIT 1, LECTURE 1",
+              "subtitle": "Endocrine Review",
+              "cardTitle": "Endocrine Review",
+              "description": "",
+              "topics": [
+                "Objectives",
+                "Slide 3 — \"Med Surg in a nutshell\"",
+                "1.1 Endocrine vs. exocrine",
+                "1.2 Tissues that make hormones but are not endocrine glands"
+              ],
+              "sectionCount": 27,
+              "mustKnowCount": 43
+            },
+            {
+              "slug": "nur146-u1-l2",
+              "file": "content/nur146/NUR146_Unit1_Lecture2_StudyGuide.md",
+              "imageBase": "content/nur146/",
+              "course": "NUR146",
+              "unit": 1,
+              "lecture": 2,
+              "lectureLabel": "Lecture 2",
+              "title": "NUR 146 — UNIT 1, LECTURE 2",
+              "subtitle": "Diabetes Part 1",
+              "cardTitle": "Diabetes Part 1",
+              "description": "",
+              "topics": [
+                "Learning objectives (slides 2–3)",
+                "Diabetes mellitus — definition and scale (slide 4)",
+                "The pancreas (slide 6)",
+                "Insulin (slides 7–8)"
+              ],
+              "sectionCount": 13,
+              "mustKnowCount": 60
             }
           ]
         }

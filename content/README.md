@@ -50,44 +50,36 @@ content/
    then redeploy. The guide appears automatically — no code change needed.
 
 A guide is reachable directly at `#/study-guides/<slug>`, which selects the
-NUR 144 tab and the Study Guide page on load.
+guide's own course tab (NUR 144, NUR 146, …) and the Study Guide page on load.
 
 A new course folder also wants a display name; add it to `COURSE_META` at the
 top of `scripts/build-guides-manifest.js` (otherwise the folder name is used).
 
 ## What the page does with the markdown
 
-One `.md` file is one lecture, and the lecture is what expands and collapses:
-its header bar is a toggle that folds the whole lecture away, legend and all.
-Its H2s are subsections *of* that lecture, nested under it (unit label →
-lecture bar → numbered subsections), matching how the NUR 118 guide nests
-unit → lecture → `.sub` labels. Subsections still open and close individually
-inside an open lecture, and **Expand all / Collapse all** works at the lecture
-level.
+The guides render in the same layout as the NUR 118 guide: every lecture of
+the course stacked on one page under a blue unit banner, a coloured lecture
+bar per lecture (colours cycle teal, plum, rust, forest, cobalt, slate, gold),
+one white panel per H2 section headed by an uppercase sub-bar, and the H3
+blocks inside a section as band cards two across. The sidebar lists the
+lectures. Nothing collapses and there are no checkboxes.
 
 | In the markdown          | On the page |
 |--------------------------|-------------|
 | `# Heading`              | Not shown directly; the file's identity comes from the manifest |
-| `## Heading` (first one, directly under the H1) | The lecture name — on the lecture header bar and the index card |
-| `## Heading` (all others)| A numbered, independently collapsible subsection of the lecture, plus a contents entry |
-| `### Heading`            | Sub-header inside a subsection |
-| GFM table                | Styled table that scrolls sideways on a phone |
+| `## Heading` (first one, directly under the H1) | The lecture name — on the lecture bar, the unit banner and the sidebar |
+| Text between the H1 and the first section | Small muted "sources" block at the top of the lecture |
+| `## Objectives` / `## Learning objectives …` as the first section | The ☑ Objectives box |
+| `## Heading` (all others)| A white panel with an uppercase sub-bar |
+| `### Heading`            | A band card; cards sit two across, and a card holding a table, a diagram or a lot of text takes the full row |
+| GFM table                | Styled table that scrolls sideways on a phone; four or more columns keep the first column pinned while swiping |
 | `> quote`                | Orange warning callout |
 | `**Why:** …` / `**Why that matters:** …` (any bold lead starting with "Why" and ending in a colon) | Blue mechanism callout |
-| `★`                      | Accent badge — "Professor flagged this as must-know" |
-| `⊕`                      | Badge — "Added from textbook — slide listed the topic only" |
-| `⊙`                      | Badge — "Textbook detail — slide named it without explaining" |
-| `⚠`                      | Warning badge |
-| `**Description:** …`     | Optional; overrides the auto-generated index-card blurb |
-
-A subsection counts as "must-know" (and survives the **★ Must-know only**
-filter) if a `★` appears anywhere in its heading or body.
+| `★ ⊕ ⊙ ⚠`               | Left in the text exactly as written |
+| `**Description:** …`     | Optional; kept in the manifest for tooling, not shown |
 
 ## Notes
 
-- "Reviewed" checkboxes are stored in `localStorage` under
-  `nur_sg_progress_<guide-slug>`, keyed by a slug derived from the subsection
-  heading. Renaming a heading resets that one subsection's checkbox.
 - A referenced image that isn't in `images/` renders as a labelled placeholder
   naming the missing file, so it's visible what still needs adding.
 - The markdown renderer is vendored at `vendor/marked.min.js` (marked v12.0.2,
