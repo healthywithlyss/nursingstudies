@@ -1,0 +1,1086 @@
+﻿course,id,objectives,question,answer,explanation
+NUR118,1353,L78_01,"What are the structures, boundary, and sterility of the upper vs lower airway?","Upper (above larynx): nasal passages, mouth, pharynx — NOT sterile
+Lower (below larynx): trachea, bronchi, bronchioles — STERILE
+Suctioning below the larynx = sterile technique required",
+NUR118,1354,L78_01,Where does gas exchange occur?,At the alveoli,
+NUR118,1355,L78_02,"What is the difference between ventilation, respiration, and oxygenation?","Ventilation: moving air in and out of the lungs
+Respiration: exchange of O2 and CO2
+Oxygenation: O2 actually reaching cells, tissues, and organs",
+NUR118,1356,L78_02,What is the difference between external and internal respiration?,"External: at the alveoli — O2 enters blood, CO2 exits to be exhaled
+Internal: at the tissues — O2 leaves blood into cells, CO2 from cells enters blood",
+NUR118,1357,L78_02,Can you assess gas exchange by counting respiratory rate?,"No — RR tells you about ventilation only, not whether gas exchange is occurring",
+NUR118,1358,L78_03,What are the 6 characteristics assessed on respiratory inspection?,"1. Skin/mucous membrane color
+2. Cough and sputum (COCAF)
+3. RR, rhythm, depth, pattern, effort
+4. Symmetry of chest movement
+5. AP diameter/chest shape
+6. Spinal deformities and edema",
+NUR118,1359,L78_03,COCAF — what does each letter stand for?,"Color, Odor, Consistency, Amount, Frequency",
+NUR118,1360,L78_03,"What does each sputum color indicate: white/clear, yellow-green, pink frothy, rust, black?","White/clear = viral
+Yellow-green = bacterial
+Pink frothy = pulmonary edema
+Rust = TB
+Black = smoke inhalation",
+NUR118,1361,L78_03,"What is the normal AP:Lateral chest ratio, and what ratio indicates barrel chest?","Normal = 1:2
+Barrel chest = 1:1 — chronic air trapping in ""COPD"" (chronic obstructive pulmonary disease)/emphysema",
+NUR118,1362,L78_03,What does asymmetric chest movement on inspection indicate?,"Problem on one side — pneumothorax, effusion, obstruction, or splinting from pain",
+NUR118,1363,L78_04,What is eupnea?,"Normal breathing — 12–20 bpm, regular rhythm and depth",
+NUR118,1364,L78_04,What is tachypnea and what causes it?,">24 bpm, fast and shallow
+Causes: pneumonia, pain, fever, metabolic acidosis, sepsis",Tachypnea is the body's first attempt to get more O2 in or blow off CO2 — any condition causing hypoxia or acidosis triggers it
+NUR118,1365,L78_04,What is bradypnea and what causes it?,"<10 bpm, slow
+Causes: head injury, opioid OD, PaCO2 >45, neurological damage",
+NUR118,1366,L78_04,What is apnea and what causes it?,"Complete absence of breathing
+Causes: respiratory arrest, ""OSA"" (obstructive sleep apnea) episodes",Apnea means zero gas exchange — the body is getting no O2 and retaining all CO2 until breathing resumes
+NUR118,1367,L78_04,What do Kussmaul's respirations look like and what causes them?,"Fast AND deep breathing
+Cause: metabolic acidosis (""DKA"" (diabetic ketoacidosis))",Kussmaul's is compensation — the lungs try to blow off CO2 to raise pH when the blood is too acidic
+NUR118,1368,L78_04,What is the difference between Cheyne-Stokes and Biot's respirations?,"Cheyne-Stokes: regular cycle of increasing → decreasing depth → apnea → repeats. Cause: damage to the respiratory center
+Biot's: completely irregular bursts, no cycle. Cause: increased ""ICP"" (intracranial pressure), brain injury",Cheyne-Stokes has a CYCLE — Biot's has NO cycle. Both cause apnea but for different brain reasons
+NUR118,1369,L78_04,What is orthopnea and what causes it?,"""SOB"" (shortness of breath) when lying flat — patient must sit upright
+Cause: left heart failure — fluid shifts to lungs when supine","When lying flat, fluid redistributes from the legs to the chest — extra pressure on the lungs causes SOB in HF patients"
+NUR118,1370,L78_04 | L78_05,"What is stridor, when is it heard, what causes it, and why is it an emergency?","Harsh crowing sound on INSPIRATION — audible without stethoscope
+Causes: anaphylaxis, croup, epiglottitis, foreign body
+EMERGENCY — partial upper airway obstruction can progress to complete blockage","Stridor means something is partially blocking the upper airway — if it closes completely, the patient cannot breathe at all"
+NUR118,1371,L78_05,What are the 8 signs of respiratory distress?,"1. Nasal flaring
+2. Retractions
+3. Accessory muscle use
+4. Grunting
+5. Orthopnea
+6. Conversational dyspnea
+7. Wheezing (expiratory)
+8. Stridor (inspiratory — EMERGENCY)",
+NUR118,1372,L78_05,What is the difference between wheezing and stridor?,"Wheezing: expiratory — narrowed lower airways
+Stridor: inspiratory — upper airway obstruction — EMERGENCY",
+NUR118,1373,L78_05,What is grunting in respiratory distress?,Forced exhalation against a partially closed glottis — keeps positive pressure in the airway to prevent alveoli from collapsing,Grunting creates positive end-expiratory pressure (PEEP) — keeps alveoli from collapsing between breaths
+NUR118,1374,L78_05,What are retractions?,Skin visibly pulling inward between or below the ribs on inhalation — patient working hard to pull air in,Retractions mean the respiratory muscles are working against increased resistance to pull air in
+NUR118,1375,L78_06,How do you assess respiratory excursion and what is a normal finding? What would cause an abnormal finding?,"Thumbs at T10, patient takes deep breath — both sides should expand equally
+Asymmetry = pleurisy, fractured ribs, or splinting",
+NUR118,1376,L78_06,"What does each percussion sound indicate: resonance, dullness, hyperresonance, flatness?","Resonance = normal lung
+Dullness = fluid or consolidation (pneumonia, effusion)
+Hyperresonance = trapped air (emphysema, pneumothorax)
+Flatness = solid tissue or bone",
+NUR118,1377,L78_07,What is the correct technique for auscultating lung sounds?,"Instruct: slow deep breaths through open mouth
+Diaphragm of stethoscope, between ribs (never over bone), compare side to side",
+NUR118,1378,L78_07,What are the 3 normal lung sounds and where is each heard?,"Bronchial → over trachea
+Broncho-vesicular → over sternum anteriorly, between scapulae posteriorly
+Vesicular → over lower lung fields",
+NUR118,1379,L78_07,"Crackles (rales) — phase, mechanism, causes, can they clear?","Phase: inspiration
+Mechanism: air bubbling through fluid in alveoli
+Causes: CHF (congestive heart failure), pneumonia, pulmonary edema, atelectasis
+Cannot be cleared by coughing",
+NUR118,1380,L78_07,"Rhonchi — phase, mechanism, causes, can they clear?","Phase: expiration
+Mechanism: air through secretions in bronchi
+Causes: ""COPD"" (chronic obstructive pulmonary disease), bronchitis
+May clear with coughing",
+NUR118,1381,L78_07,"What are wheezes, when are they heard, and what causes them?","Phase: expiration
+Mechanism: air through narrowed airways
+Causes: asthma, bronchospasm",
+NUR118,1382,L78_07,"What is a pleural friction rub, when is it heard, and what causes it?","Phase: both inspiration and expiration
+Mechanism: inflamed pleural layers rubbing
+Cause: pleuritis — grating/leathery sound",Inflamed pleural layers rub against each other — like rubbing two pieces of sandpaper together
+NUR118,1383,L78_08,"What is the difference between hypoxemia and hypoxia, and which comes first?","Hypoxemia: low O2 in the BLOOD (PaO2 <80 mmHg)
+Hypoxia: low O2 in the TISSUES (SpO2 <90%)
+Hypoxemia comes first → leads to hypoxia if untreated",
+NUR118,1384,L78_08,What is the FIRST sign of hypoxia?,Restlessness,
+NUR118,1385,L78_08,What are the early signs of hypoxia?,"Restlessness (FIRST!), anxiety, confusion, tachycardia, tachypnea, hypertension, pale skin",The brain is the most sensitive organ to O2 deprivation — behavioral changes (restlessness) come before any vital sign changes
+NUR118,1386,L78_08,What are the late signs of hypoxia?,"Bradycardia, hypotension, bradypnea, decreased ""LOC"" (level of consciousness)/coma, cyanosis of tongue and oral mucosa","Late signs mean the body's compensatory mechanisms have failed — the heart slows because it is starved of O2, not because it is compensating"
+NUR118,1387,L78_08,Best physical indicator of hypoxia?,Cyanosis of the tongue and oral mucosa — central cyanosis is more reliable than peripheral,Central cyanosis (tongue/oral mucosa) reflects arterial O2 saturation directly — peripheral cyanosis (fingertips) can occur from cold or poor circulation even without hypoxia
+NUR118,1388,L78_08,Why does tachycardia progress to bradycardia in late hypoxia?,"Tachycardia = early compensation
+Bradycardia = heart failing from prolonged O2 deprivation — dangerous late sign",Early hypoxia triggers sympathetic response (↑HR). Late hypoxia means the myocardium itself is O2-deprived — it slows and fails
+NUR118,1389,L78_09,What do Blue Bloater and Pink Puffer mean and what is the core problem in each?,"Blue Bloater (chronic bronchitis): cyanotic, overweight — O2 can't get IN (mucus blocks airways)
+Pink Puffer (emphysema): pink skin, thin — CO2 can't get OUT (destroyed alveoli trap air)","Alveolar walls are destroyed — they can't recoil to push air out, so CO2 gets trapped and the chest barrel-shapes outward"
+NUR118,1390,L78_09,What are the key signs and symptoms of chronic bronchitis?,"Chronic productive cough, thick sputum, rhonchi, wheezing, cyanosis, orthopnea, peripheral edema","Mucus blocks O2 from getting IN — cyanosis and fluid backup (edema, orthopnea) result from chronic hypoxemia and right heart strain"
+NUR118,1391,L78_09,What are the key signs and symptoms of emphysema?,"Barrel chest, pursed-lip breathing, difficulty exhaling, tripod positioning, clubbing","CO2 cannot get OUT — barrel chest forms from chronic air trapping, pursed-lip breathing creates back-pressure to keep airways open during exhalation"
+NUR118,1392,L78_09,What is the #1 cause of COPD and what diagnostic tests are used?,"#1 cause: smoking (90%)
+Diagnostics: PFTs, CXR, ABGs",
+NUR118,1393,L78_09,What is the treatment for COPD?,"Bronchodilators, corticosteroids, controlled O2, smoking cessation
+Emphysema: pursed-lip breathing (critical)
+Target SpO2 88–92%",O2 must be controlled in COPD — too much removes the hypoxic drive (the only stimulus left to breathe in chronic CO2 retainers)
+NUR118,1394,L78_09,What does emphysema show on PFTs and why?,Increased residual volume — air cannot be fully exhaled,
+NUR118,1395,L78_10,What are the signs and symptoms of obstructive sleep apnea?,"Snoring/gasping during sleep, apnea episodes 10–120 sec, morning headache, daytime sleepiness, unrefreshing sleep",Morning headache occurs because CO2 accumulates overnight during apnea episodes — the brain wakes up acidic
+NUR118,1396,L78_10,What are the risk factors for obstructive sleep apnea?,"Overweight, male, age >40, neck >17"" (M) />16"" (F), alcohol before sleep, sleep-inducing medications",Excess tissue around the throat collapses the airway during sleep — alcohol and sedatives worsen this by further relaxing the muscles
+NUR118,1397,L78_10,What is the treatment for obstructive sleep apnea?,"First-line: CPAP
+Also: BiPAP, side-lying sleep, weight loss ≥10%, no alcohol, dental appliances",CPAP keeps the airway open with continuous positive pressure — preventing the throat from collapsing during sleep
+NUR118,1398,L78_10,"Why are opioids and sedatives dangerous in ""OSA"" (obstructive sleep apnea)?","Suppress respiratory drive — already compromised in ""OSA"" (obstructive sleep apnea) — risk of fatal respiratory depression",
+NUR118,1399,L78_11,What is the difference between the normal stimulus to breathe and the hypoxic drive?,"Normal: HIGH CO2 (elevated PaCO2) is the primary stimulus
+""COPD"" (chronic obstructive pulmonary disease)/hypoxic drive: chronically elevated CO2 desensitizes the body — LOW O2 becomes the ONLY stimulus",Chronic CO2 retention desensitizes the central chemoreceptors — they stop responding to high CO2. The peripheral chemoreceptors detecting LOW O2 become the backup system
+NUR118,1400,L78_11,Why is too much O2 dangerous for a COPD patient with hypoxic drive?,Removes their only stimulus to breathe → patient stops breathing → can be fatal,
+NUR118,1401,L78_11,What SpO2 should you target in a COPD patient and why?,88–92% — enough to oxygenate without eliminating the hypoxic drive,
+NUR118,1402,L78_12,When should supplemental O2 be applied?,"SpO2 <90% with symptoms — restlessness, confusion, cyanosis, ""MI"" (myocardial infarction)
+O2 = medication, requires order
+Exception: RN may give 2L NC in emergency, get order after",
+NUR118,1403,L78_12,"What are the flow rate, FiO2, and key points for a nasal cannula?","Flow: 1–6 L/min | FiO2: 20–40%
+Prongs curve downward
+Humidify if >3 L/min
+RN can give 2L in emergency without order",
+NUR118,1404,L78_12,"What are the flow rate, FiO2, and minimum flow rate for a simple face mask?","Flow: 6–10 L/min | FiO2: 40–60%
+Minimum 6 L/min — below this CO2 rebreathes in dead space",
+NUR118,1405,L78_12,"What are the flow rate, FiO2, and key monitoring point for a partial non-rebreather mask?","Flow: 8–11 L/min | FiO2: 60–75%
+Reservoir bag must stay PARTIALLY inflated at all times",
+NUR118,1406,L78_12,"What are the flow rate, FiO2, and time limit for a non-rebreather mask?","Flow: 10–15 L/min | FiO2: 80–100%
+Max 1–1.5 hours — if fails → intubation",
+NUR118,1407,L78_12,Why is the Venturi mask preferred for COPD and what are its FiO2 values?,"Most precise delivery — preferred for ""COPD"" (chronic obstructive pulmonary disease)
+2L=24%, 4L=28%, 6L=31%, 8L=35%, 10L=40%, 15L=60%
+Target SpO2 88–92%",
+NUR118,1408,L78_12,Face tent — when is it used?,Claustrophobic patients who need humidified O2 and cannot tolerate a mask,"The face tent has no tight seal — it's open at the bottom, allowing patients who are claustrophobic to tolerate O2 therapy"
+NUR118,1409,L78_13,What is the difference between a Yankauer and a suction catheter?,"Yankauer: mouth/upper pharynx, NOT sterile, for visible/gurgling upper airway secretions
+Suction catheter: lower airway, STERILE, requires sterile technique",
+NUR118,1410,L78_13,What are the procedure rules for deep (lower airway) suctioning?,"Pre-oxygenate with 100% O2
+Suction on withdrawal ONLY
+Max 10 seconds per pass
+Max 3 passes, allow recovery between each",Pre-oxygenating with 100% O2 before suctioning prevents hypoxia caused by the suction removing O2 along with secretions
+NUR118,1411,L78_13,What are the complications of deep suctioning?,"Mucosal trauma, hypoxia, bronchospasm, atelectasis, dysrhythmias",
+NUR118,1412,L78_14,Why is High Fowler's used for respiratory patients?,Gravity allows the lungs to expand more fully — maximizes lung expansion,"In High Fowler's, gravity pulls the diaphragm and abdominal organs downward — the diaphragm can descend further, allowing the lungs to expand more fully"
+NUR118,1413,L78_14,"What is the purpose, technique, and frequency of use for an incentive spirometer?","Purpose: prevent/reverse atelectasis
+Technique: slow deep inhale → hold 3–5 sec → exhale
+Frequency: 10–20 times per hour",
+NUR118,1414,L78_14,What is the purpose of pursed-lip breathing and which patients need it?,"Slows exhalation, keeps airways open, releases trapped CO2
+Critical for emphysema patients",
+NUR118,1415,L78_14,What do the 3 peak flow meter zones mean?,"Green (80–100%): all clear
+Yellow (50–80%): take bronchodilator
+Red (<50%): go to ED",
+NUR118,1416,L78_14,How does hydration help respiratory patients?,Thins secretions — easier to mobilize and expectorate,
+NUR118,1417,L78_15 | MED_04,What is the difference between codeine and guaifenesin?,"Codeine: antitussive opioid — SUPPRESSES cough reflex in medulla
+Guaifenesin: expectorant — thins mucus, PROMOTES productive cough",
+NUR118,1418,L78_15 | MED_04,What do you monitor when a patient is taking codeine?,Monitor RR and sedation level,
+NUR118,1419,L78_15 | MED_04,"What are the side effects of codeine and why is it used with caution in COPD/""OSA"" (obstructive sleep apnea)?","Side effects: sedation, constipation, hypotension
+Caution in ""COPD"" (chronic obstructive pulmonary disease)/""OSA"" (obstructive sleep apnea) — further suppresses respiratory drive",
+NUR118,1420,L78_15 | MED_04,Guaifenesin — what is essential for it to work?,Adequate fluid intake — water thins and liquefies secretions,
+NUR118,1421,L78_16 | LAB_01,"What is the normal SpO2 range, the COPD target, and what makes it inaccurate?","Normal: 95–100% | ""COPD"" (chronic obstructive pulmonary disease) target: 88–92%
+Inaccurate with: nail polish, poor perfusion, CO poisoning, severe anemia",
+NUR118,1422,L78_16 | L11A_02 | LAB_01,What are the normal values for each ABG component?,"pH: 7.35–7.45
+PaCO2: 35–45 mmHg
+HCO3−: 22–26 mEq/L
+PaO2: 80–100 mmHg","ABG values reflect the exact balance of acids and bases in the blood — pH is the summary, CO2 and HCO3 tell you WHY it's off"
+NUR118,1423,L78_16,When do you read a PPD and what makes it positive?,"Read at 48–72 hours
+Positive = redness AND induration — redness alone is NOT positive",Induration (hardening) occurs because of an immune cell reaction — redness alone is just skin irritation. The actual immune response creates the firm raised area
+NUR118,1424,L78_16,What do PFTs measure and what is the key finding in emphysema?,"Measure lung volumes and capacities
+Emphysema: increased residual volume — air cannot be fully exhaled",
+NUR118,1425,L78_16,When and how should you collect a sputum C&S?,"Morning before breakfast
+Deep cough into a sterile container",
+NUR118,1426,L78_16,CXR — what respiratory conditions does it detect?,"Pneumonia, atelectasis, pleural effusion, pneumothorax, ""COPD"" (chronic obstructive pulmonary disease) changes",
+NUR118,1427,L910_01,What is the difference between circulation and perfusion?,"Circulation: blood flowing through heart and vessels
+Perfusion: O2 reaching the capillary beds and tissues",
+NUR118,1428,L910_01,What is the difference between ischemia and infarction?,"Ischemia: tissue alive but O2-deprived — REVERSIBLE if treated
+Infarction: tissue DEAD — IRREVERSIBLE (prolonged ischemia leads to ""MI"" (myocardial infarction))",
+NUR118,1429,L910_01,What is the cardiac conduction pathway in order?,"SA Node → AV Node → Bundle of His → L&R Bundle Branches → Purkinje Fibers → ventricles contract
+SA Node = primary pacemaker (60–100 bpm)
+If SA fails → AV takes over
+If both fail → Purkinje fires at <40 bpm",
+NUR118,1430,L910_01,"What is the effect of the sympathetic vs parasympathetic nervous system on HR, contractility, and vessels?","Sympathetic: ↑ HR, ↑ contractility, controls ALL blood vessels (fight or flight)
+Parasympathetic: ↓ HR only via vagus nerve, NO effect on contractility, NO vessel control (rest and digest)",
+NUR118,1431,L910_01,What neurotransmitters does the sympathetic system use?,"Epinephrine and norepinephrine — act on beta receptors
+Atenolol (beta blocker) blocks these receptors → ↓ HR and ↓ BP",
+NUR118,1432,L910_01,What is the order of blood flow through the heart?,"Body → Vena Cava → R. Atrium → Tricuspid → R. Ventricle → Pulmonic → Lungs → Pulm. Vein → L. Atrium → Mitral → L. Ventricle → Aortic → Body
+Atria RECEIVE, Ventricles PUMP, Valves prevent backflow",
+NUR118,1433,L910_02,CV inspection — what do you assess?,"Skin color (pallor, cyanosis), ""JVD"" (jugular vein distension) (assessed at 15–45°), peripheral edema, clubbing",JVD indicates fluid is backing up into the venous system — a key sign of right HF or severe fluid overload
+NUR118,1434,L910_02,What are the pulse quality grades and what does each mean?,"0 = absent
+1+ = weak/thready
+2+ = normal
+3+ = bounding","Pulse quality reflects stroke volume — a bounding pulse means high stroke volume (fluid overload), thready means low stroke volume (hypovolemia)"
+NUR118,1435,L910_02,What are the pitting edema grades and what does each mean?,"1+ = 2 mm
+2+ = 4 mm
+3+ = 6 mm
+4+ = 8 mm",
+NUR118,1436,L910_02,What is the difference between S1 and S2 heart sounds?,"S1 (LUB): AV valves CLOSE = start of systole (mitral + tricuspid)
+S2 (DUB): semilunar valves CLOSE = end of systole (aortic + pulmonic)",LUB (S1) = AV valves closing at START of systole. DUB (S2) = semilunar valves closing at END of systole
+NUR118,1438,L910_01 | L910_02,"What does each EKG wave represent — P, QRS, and T?","P wave: atrial depolarization → atria contract
+QRS: ventricular depolarization → ventricles contract
+T wave: ventricular repolarization → ventricles relax
+Flat T = hypokalemia | Tall T = hyperkalemia | Absent P = A-fib","Each wave represents electrical activity — P fires atria, QRS fires ventricles, T is the recovery period. Disruptions in these waves indicate arrhythmias"
+NUR118,1439,L910_04,What is the etiology of left HF vs right HF?,"Left heart failure: LV can't pump → backs up into LUNGS → pulmonary congestion
+Right heart failure: RV can't pump → backs up into PERIPHERAL VEINS → systemic congestion (often caused by left heart failure)",Left HF backs up into LUNGS (pulmonary symptoms — crackles). Right HF backs up into BODY (peripheral symptoms — edema)
+NUR118,1440,L910_04,What are the signs and symptoms of left heart failure?,"Crackles (KEY sign), ""SOB"" (shortness of breath)/dyspnea, orthopnea, pink frothy sputum, tachycardia, tachypnea",Left HF = fluid backs up INTO THE LUNGS — crackles are air bubbling through fluid in the alveoli. Pink frothy sputum = severe pulmonary edema
+NUR118,1441,L910_04,What are the signs and symptoms of right heart failure?,"Peripheral edema, ""JVD"" (jugular vein distension), ascites, weight gain, enlarged liver/spleen","Right HF = fluid backs up INTO THE BODY — the venous system is congested, so fluid pools in the legs, abdomen, and organs"
+NUR118,1442,L910_04,Left HF vs right HF — which causes crackles and which causes peripheral edema?,"Left heart failure: CRACKLES (fluid backs into lungs)
+Right heart failure: PERIPHERAL EDEMA and ""JVD"" (jugular vein distension) (fluid backs into body)",Left = Lungs (pulmonary). Right = Rest of body (peripheral). The backup goes in the direction opposite to the pump that failed
+NUR118,1443,L910_05,What are the 5 P's and a T used in peripheral vascular assessment?,"Pain, Pallor, Pulse, Paresthesia, Paralysis, Temperature",
+NUR118,1444,L910_05,What is the core problem and key signs of PAD vs PVD?,"PAD (arterial): pale/cool skin, weak/absent pulses, no leg hair, toe wounds, intermittent claudication
+PVD (venous): brownish-red skin, varicose veins, stasis ulcers on lower leg, pitting edema","PAD = not enough blood getting TO the feet (ischemia). PVD = blood not getting BACK from the legs (stasis). Opposite problem, opposite treatments (legs down vs legs up)"
+NUR118,1445,L910_05,"Should legs be up or down for PAD vs PVD, and why?","PAD: legs DOWN — gravity assists arterial flow to feet
+PVD: legs UP — gravity drains venous blood back to heart","PAD needs gravity to assist arterial flow DOWN to the feet. PVD needs gravity to drain venous blood UP from the legs. Opposite conditions, opposite positions"
+NUR118,1446,L910_05,What is intermittent claudication?,Leg pain that occurs with walking and is relieved by rest — caused by arterial insufficiency (PAD),
+NUR118,1447,L910_06,What are the nursing interventions for cardiovascular conditions?,"Monitor VS, I&O, daily weights, edema
+O2 as ordered, HOB elevated
+DASH diet (↓ sodium, ↓ fat)
+Cluster care to minimize exertion",Daily weights catch fluid retention before edema becomes visible — 1 liter of fluid = 2.2 lbs of weight gain
+NUR118,1448,L910_06,What should you teach a patient with a cardiovascular condition?,"Report weight gain >2 lb/day or >5 lb/week
+Low-sodium diet, no smoking, medication compliance
+PAD: daily foot care, no restrictive clothing
+PVD: compression stockings, no crossing legs","Sodium causes water retention — every gram of Na holds ~100mL of water, worsening fluid overload in HF patients"
+NUR118,1452,MED_01,What is enalapril's key side effect and what do you monitor?,"Key SE: DRY COUGH
+Nursing: monitor BP, BUN, creatinine, electrolytes","ACE inhibitors block the breakdown of bradykinin — bradykinin accumulates and irritates the airways, causing a persistent dry cough in ~10–15% of patients"
+NUR118,1459,MED_01,What do you monitor for a patient taking atorvastatin?,Monitor lipids and cholesterol levels,Statins can cause myopathy (muscle breakdown) — muscle pain is the warning sign. CK (creatine kinase) rises when muscle is breaking down. Caught early it's reversible
+NUR118,1460,L11A_01,What are the 3 ways the body maintains acid-base balance and how fast does each work?,"1. Buffers — fastest, act instantly, no organ required
+2. Lungs — control CO2, respond in minutes
+3. Kidneys — control HCO3−, respond in days (slowest)",
+NUR118,1463,L11A_02,What does the ROME mnemonic stand for in ABG interpretation?,"Respiratory = Opposite (CO2 moves opposite to pH)
+Metabolic = Equal (HCO3− moves same direction as pH)",
+NUR118,1468,L11A_03 | L11A_04,"For all 4 ABG disorders, what is the pH direction and which value is abnormal?","Resp. Acidosis: pH ↓, PaCO2 ↑
+Resp. Alkalosis: pH ↑, PaCO2 ↓
+Met. Acidosis: pH ↓, HCO3− ↓
+Met. Alkalosis: pH ↑, HCO3− ↑",The tic-tac-toe method works because the acid-base system is a seesaw — whichever component moves in the same direction as pH = the cause
+NUR118,1469,L11F_01,What is the difference between ICF and ECF in terms of location and main ions?,"ICF (intracellular): inside cells — largest compartment — main ions: K+, Mg2+, phosphate
+ECF (extracellular): outside cells — subtypes: interstitial, intravascular, transcellular
+Main ECF ion: Na+",
+NUR118,1470,L11F_01,What are the 3 ECF subtypes and what is each one?,"Interstitial: between cells and blood vessels — where EDEMA forms
+Intravascular: plasma inside blood vessels (Na+, albumin)
+Transcellular: CSF, pleural fluid, peritoneal, synovial fluids","Osmosis moves WATER to dilute — water chases sodium. The higher the concentration, the more water moves toward it"
+NUR118,1471,L11F_01,What is third spacing?,"Fluid trapped in a space the body cannot access or use
+Examples: ascites, pericardial effusion, burn blisters, pleural effusion
+Danger: circulating volume drops even though fluid hasn't left the body",
+NUR118,1472,L11F_02,"What is the difference between osmosis, diffusion, and active transport?","Osmosis: WATER moves low → high concentration (passive, no ATP)
+Diffusion: SOLUTES move high → low concentration (passive, no ATP)
+Active transport: electrolytes move low → high concentration (requires ATP — only energy-requiring mechanism)",Thirst is the EARLIEST sign because the brain detects even tiny drops in blood volume or rises in osmolality
+NUR118,1473,L11F_02,What is filtration in terms of fluid movement?,Water and particles move from high pressure → low pressure (passive),ADH tells the kidneys to hold onto water — it's released when blood volume drops or osmolality rises
+NUR118,1475,L11F_04,What triggers ADH and what does it do?,"Triggered by: low fluid volume or ↓ BP
+Released by posterior pituitary → kidneys RETAIN water → ↑ blood volume → ↑ BP
+ADH released = urine concentrated (dark, SG >1.030)
+ADH suppressed = urine dilute (pale, SG <1.002)",
+NUR118,1476,L11F_04,What is the ADH problem and result in SIADH vs diabetes insipidus?,"""SIADH"" (syndrome of inappropriate antidiuretic hormone): too MUCH ADH → excess water retained → dilutional hyponatremia → confusion, seizures
+Diabetes insipidus: too LITTLE ADH → massive water loss → dehydration → hypernatremia",
+NUR118,1516,L11F_08 | MED_01,Which 2 electrolytes increase digoxin toxicity when LOW?,"Potassium (K+) and Magnesium (Mg2+)
+Both low K+ and low Mg2+ sensitize the heart to digoxin → toxicity","Both K+ and Mg2+ compete with digoxin at the Na+/K+ ATPase receptor — when they're low, digoxin binds more strongly, causing toxicity even at normal levels"
+NUR118,1517,L12I_01,What is the gauge rule for IV size and how often should a peripheral IV be replaced?,"Lower gauge number = larger lumen (18g > 22g)
+Replace every 72 hours",
+NUR118,1518,L12I_01,What causes IV infiltration and what are the signs?,"Cause: NON-vesicant fluid leaks into tissue — catheter dislodged
+S&S: swelling, pale/cool/hard skin at site, slow or stopped IV, burning",
+NUR118,1519,L12I_01,How do you treat IV infiltration?,"STOP IV
+Restart above the site or in the other arm
+Elevate the limb",
+NUR118,1520,L12I_01,What causes IV extravasation and what are the signs?,"Cause: VESICANT drug leaks into tissue → causes tissue necrosis
+Early S&S: same as infiltration (swelling, pale/cool skin)
+Late S&S: blistering, tissue necrosis",
+NUR118,1521,L12I_01,How do you treat IV extravasation?,"STOP immediately
+Call MD
+Give antidote as ordered
+Cold compress
+Elevate the limb
+Document",
+NUR118,1522,L12I_01,What is the key difference between IV infiltration and extravasation?,"Infiltration: non-vesicant — no tissue destruction
+Extravasation: vesicant — causes tissue necrosis
+Both: STOP IV immediately",
+NUR118,1523,L12I_01,What are the signs of IV phlebitis and how do you treat it?,"S&S: redness, pain, warmth, palpable cord at site
+TX: STOP IV → COLD compress",
+NUR118,1524,L12I_01,What are the signs of IV thrombophlebitis and how do you treat it?,"S&S: same as phlebitis + hard cord, slow flow (clot present)
+TX: STOP IV, restart on OPPOSITE side, all NEW equipment → WARM compress",Only NS is isotonic and compatible with blood — dextrose is hypotonic and causes RBCs to swell and burst
+NUR118,1525,L12I_02,"What is a PICC line, where is it inserted, and what is the nurse's responsibility?","Inserted in antecubital fossa → advanced to superior vena cava
+Use: long-term, prolonged antibiotics, home care
+RN: assess site AND catheter length every shift — length change = migration",The 30-minute rule prevents bacterial growth — blood stored outside the blood bank (room temp) degrades quickly
+NUR118,1526,L12I_02,How is an implanted port accessed and what needle is required?,"Surgically implanted under skin — long-term use
+Access: HUBER NEEDLE ONLY — sterile procedure
+Concealed under skin when not in use",Stay for 15 minutes because transfusion reactions are most severe and most likely to occur at the start
+NUR118,1527,L12I_02,How is a non-tunneled CVC inserted and what must be done before first use?,"Inserted into subclavian or jugular vein by MD
+X-ray MUST confirm placement BEFORE first use",
+NUR118,1528,L12I_03,"What are the indications for transfusing PRBCs, platelets, and plasma?","""PRBCs"" (packed red blood cells): significant blood loss or anemia → raises Hgb/Hct → increases O2 carrying capacity
+Platelets: low platelet count or abnormal platelet function → helps clotting by sticking to vessel walls
+Plasma: clotting factor deficiency → contains albumin, clotting factors, immune globulins → also increases blood volume",Hemolytic = wrong blood type — antibodies attack donor RBCs → massive reaction → shock → can be fatal
+NUR118,1529,L12I_04,What are the 4 time rules for a blood transfusion?,"Initiate within 30 MINUTES of release from blood bank
+Infuse in NOT LESS than 2 hours, NOT MORE than 4 hours
+If not done in 4 hours → STOP and WASTE
+Stay with patient for FIRST 15 MINUTES and retake vitals",
+NUR118,1530,L12I_04,"What IV fluid, gauge, and tubing are required for a blood transfusion?","0.9% NS ONLY — dextrose causes RBC lysis
+18–20 gauge IV
+Y-tubing
+2-nurse check before hanging",Dextrose is hypotonic — it causes RBCs to swell and burst (lyse) when in contact. Only isotonic NS is compatible with blood products
+NUR118,1531,L12I_05,What is the universal first step for ANY transfusion reaction?,"STOP the transfusion IMMEDIATELY
+Replace tubing and hang 0.9% NS
+Notify MD — then identify and treat the specific reaction",
+NUR118,1533,L12I_05,What are the signs and symptoms of a febrile transfusion reaction?,"Fever, chills, warm flushed skin, aches
+Cause: sensitivity to WBCs or plasma proteins",
+NUR118,1534,L12I_05,How do you treat a febrile transfusion reaction?,"STOP transfusion
+Hang 0.9% NS
+Notify MD
+Acetaminophen as ordered",
+NUR118,1535,L12I_05,What are the signs and symptoms of an allergic transfusion reaction?,"Flushing, itching, hives (urticaria), wheezing
+Severe: anaphylaxis
+Cause: allergy to blood components",
+NUR118,1536,L12I_05,How do you treat an allergic transfusion reaction?,"STOP transfusion
+Hang 0.9% NS
+Mild: antihistamine
+Anaphylaxis: epinephrine
+Notify MD",
+NUR118,1537,L12I_05,What are the signs and symptoms of a hemolytic transfusion reaction?,"Fever, chills, chest pain, dyspnea, tachycardia, hypotension → FATAL
+Cause: INCOMPATIBLE BLOOD — wrong blood to wrong patient
+Most serious AND most preventable",
+NUR118,1538,L12I_05,What is the protocol for a hemolytic transfusion reaction?,"STOP immediately
+New NS via NEW tubing (not blood tubing)
+Notify MD STAT
+Send: blood bag + tubing + venous sample + FIRST VOIDED URINE to lab
+Treat shock
+Preventable with 2-nurse check",
+NUR118,1539,L12I_05,What are the signs of circulatory overload from a transfusion?,"Persistent cough, crackles, hypertension, ""JVD"" (jugular vein distension)
+Cause: too much volume or infused too fast",
+NUR118,1540,L12I_05,How do you treat circulatory overload from a transfusion?,"Slow or STOP transfusion
+Sit patient upright
+Monitor VS
+Notify MD
+Anticipate furosemide (Lasix) — to remove excess fluid",
+NUR118,1541,L12I_05,Which transfusion reaction is most serious and most preventable?,"Hemolytic — caused by incompatible blood (wrong blood to wrong patient)
+Prevented by 2-nurse verification check before hanging",
+NUR118,1542,L12M_01,What are the causes of escalating healthcare costs?,"Aging population → more chronic conditions
+Administrative waste from insurance complexity
+Overuse of services (unnecessary tests, longer stays)
+Rising drug and technology costs",
+NUR118,1543,L12M_02,What does the ANA Resource Stewardship Standard state?,"The registered nurse utilizes appropriate resources to plan, provide, and sustain evidence-based nursing services that are safe, effective, financially responsible, and used judiciously.",
+NUR118,1544,L12M_02,What is the nurse's role in cost containment?,"Bring only needed supplies into patient room
+Early assessment → prevent complications
+Infection control (CAUTI, VAP prevention)
+Delegate appropriately
+Document for continuity",
+NUR118,1545,L12M_02,How has healthcare shifted from past to future in terms of focus and accountability?,"Past: sick care, provider-centric, task-focused, no quality accountability
+Future: prevention and care coordination, patient as partner, value-based payment, nursing advocacy",
+NUR118,1552,MED_03 | L11F_08,What is furosemide's classification and what is it used for?,"Classification: loop diuretic — K+-LOSING
+Use: edema from CHF (congestive heart failure), excess fluid volume
+Monitor: K+, BP, daily weights, I&O
+Teach: eat K+-rich foods (bananas, oranges)
+Give in AM","Furosemide is K+-wasting — every time you lose sodium in the loop of Henle, potassium goes with it"
+NUR118,1557,MED_03,What is spironolactone's classification and key side effect?,"Classification: K+-SPARING diuretic
+Key SE: HYPERKALEMIA
+Monitor: K+ levels, BP, I&O, daily weights | Give in AM
+Teach: avoid salt substitutes and K+-rich foods",
+NUR118,1571,MED_05,What are the key nursing points for insulin (Humulin R and N)?,"Check blood sugar before giving
+Humulin R (CLEAR): food must be available at peak | can be given IV
+Humulin N (CLOUDY): CANNOT be given IV
+SQ injection: 2 inches from umbilicus","Loperamide slows gut motility — in infection, the body NEEDS diarrhea to expel the pathogen. Stopping it traps bacteria inside"
+NUR118,1619,L11A_02,CO2 and HCO3− — which is an acid and which is a base?,"CO2 is an ACID — moves OPPOSITE to pH (↑CO2 = ↓pH)
+HCO3− is a BASE — moves SAME direction as pH (↓HCO3− = ↓pH)",
+NUR118,1620,L910_02,"What does ""JVD"" (jugular vein distension) indicate and at what position is it assessed?","""JVD"" (jugular vein distension) = jugular vein distension
+Assessed at 15–45 degrees (semi-Fowler's)
+Indicates: right heart failure or fluid overload",
+NUR118,1622,L910_05,PAD — where do wounds/ulcers appear?,On the TOES and foot — from arterial insufficiency (distal ischemia),
+NUR118,1623,L910_05,PVD — where do ulcers appear?,On the LOWER LEG (above ankle) — from venous stasis and pooling,
+NUR118,1624,L910_02,What is a thrill vs a bruit?,"Thrill: abnormal vibration FELT on palpation — turbulent blood flow
+Bruit: abnormal sound HEARD on auscultation — turbulent blood flow",
+NUR118,1627,L910_05,What are the nursing interventions for peripheral arterial disease?,"Keep legs DOWN (gravity assists flow)
+Daily foot care — inspect for wounds
+Smoking cessation
+No restrictive clothing or crossing legs",
+NUR118,1628,L910_05,What are the nursing interventions for peripheral venous disease?,"Keep legs UP — gravity drains pooled blood back to heart
+Compression stockings
+Ambulation — calf muscle pump assists venous return
+No crossing legs",The calf muscle acts as a pump — every step squeezes the veins and pushes blood upward against gravity
+NUR118,1630,L11F_05 | L11F_06,What is the daily weight rule for fluid monitoring and when should changes be reported?,"Same time, same scale, same clothing every day
+Report: gain >2 lb in 1 day OR >5 lb in 1 week",
+NUR118,1631,L11F_05,What is the minimum urine output that indicates adequate perfusion?,30–50 mL/hour,
+NUR118,1632,L11F_04 | L910_07,How do ACE inhibitors relate to the RAAS system?,"ACE inhibitors block angiotensin II → kidneys excrete Na+ and water → ↓ BP
+Example: enalapril",
+NUR118,1634,L12I_05,What are the signs and symptoms of a bacterial transfusion reaction?,"High fever, severe chills, severe hypotension, vomiting, diarrhea
+Cause: contaminated blood product",
+NUR118,1635,L12I_05,How do you treat a bacterial transfusion reaction?,"STOP transfusion
+Hang 0.9% NS
+Notify MD
+Blood cultures
+Antibiotics as ordered",
+NUR118,1636,L12I_01,What are the signs of an IV site infection and how is it treated?,"S&S: redness, swelling, warmth, EXUDATE (pus) at site, fever
+TX: remove IV, sterile dressing, notify MD, culture site, antibiotics if ordered",
+NUR118,1637,L12I_01,What are vesicant drugs and why must IV patency be verified before giving them?,"Vesicants cause tissue necrosis if they leak (extravasation)
+Examples: chemo, dopamine, dextrose >10%, TPN, IV nitroglycerin, acyclovir
+Always verify IV patency before giving — extravasation cannot be undone",
+NUR118,1638,L12I_04,What is verified during the 2-nurse check before a blood transfusion?,"Right patient (2 identifiers)
+Right blood type (ABO and Rh match)
+Expiration date on blood bag
+Blood bag ID number matches the paperwork",
+NUR118,1663,MED_01,Which CV medications are used for angina and how do they differ?,"Nitroglycerin: fast-acting vasodilator — dilates coronary arteries → immediate relief of chest pain
+Atenolol: beta-blocker — reduces cardiac workload by ↓ HR → prevents angina episodes
+Key difference: nitroglycerin = acute attack, atenolol = prevention",
+NUR118,1664,MED_01,Which CV medications lower blood pressure and by what mechanism?,"Enalapril (ACE inhibitor): blocks angiotensin II → vasodilation → ↓ BP. SE: dry cough
+Atenolol (beta-blocker): ↓ HR and cardiac workload → ↓ BP. SE: bradycardia
+Nitroglycerin (nitrate): dilates vessels → ↓ BP. SE: headache, orthostatic hypotension",
+NUR118,1665,MED_01,Atenolol vs digoxin — both slow heart rate. What is the difference?,"Atenolol: beta-blocker — blocks sympathetic stimulation → ↓ HR. Used for ""HTN"" (hypertension)/angina
+Digoxin: cardiac glycoside — ↑ force of contraction AND ↓ HR. Used for heart failure and A-fib
+Key: digoxin also STRENGTHENS the heartbeat, atenolol does not",
+NUR118,1667,MED_02,Heparin vs enoxaparin vs warfarin — what is each used for and when?,"Heparin: immediate anticoagulation — hospital only, IV or SQ
+Enoxaparin: subacute — bridge therapy, home use, SQ abdomen only
+Warfarin: long-term — oral, takes 2–3 days to work, needs INR monitoring
+Remember: heparin bridges to warfarin — they overlap until INR is therapeutic",
+NUR118,1669,MED_03,Furosemide vs spironolactone vs KCl — what role does each play?,"Furosemide: removes excess fluid AND K+ → causes hypokalemia
+Spironolactone: removes fluid but SAVES K+ → causes hyperkalemia  
+KCl: replaces the K+ lost from furosemide
+Often given together: furosemide + KCl replacement, or furosemide + spironolactone",
+NUR118,1672,MED_01,What are the nursing priorities for digoxin?,"Check apical pulse for 1 FULL MINUTE — hold if <60 bpm
+Monitor digoxin level
+Monitor K+ — low K+ increases toxicity risk",
+NUR118,1673,MED_01,Which CV drug needs the patient to sit down before you give it and why?,"Nitroglycerin — it dilates blood vessels rapidly → BP drops → patient can faint
+Always check BP before AND after giving
+Headache is expected — caused by vasodilation, decreases with continued use",
+NUR118,1676,MED_04,Albuterol vs prednisone — what is each used for in respiratory patients?,"Albuterol: bronchodilator — relaxes airway smooth muscle → opens airways → FAST relief
+Prednisone: corticosteroid — reduces airway inflammation → SLOW, sustained relief
+Albuterol = rescue. Prednisone = maintenance/flare control",
+NUR118,1677,MED_04,A patient is on prednisone. What is the key nursing concern?,"RAISES blood sugar — monitor glucose especially in diabetic patients
+Classification: corticosteroid — suppresses inflammation and immune system",
+NUR118,1679,MED_02,"Heparin vs warfarin — monitoring, antidote, route, and key nursing for each","Heparin:
+Monitor: PTT/aPTT (therapeutic = 1.5–2× normal)
+Antidote: protamine sulfate
+Route: IV or SQ abdomen | Short-term/hospital use
+
+Warfarin:
+Monitor: PT/INR (therapeutic INR = 2–3)
+Antidote: vitamin K
+Route: PO | Long-term use
+Teach: consistent green leafy vegetable intake, no ASA/NSAIDs
+
+Both: bleeding precautions — electric razor, soft toothbrush, report unusual bleeding",
+NUR118,1680,MED_01,A patient is prescribed atenolol. What are your nursing priorities?,"Check BP and pulse before giving — hold if HR <60 or BP too low
+Teach: rise slowly (orthostatic hypotension), do NOT stop suddenly
+Monitor for bradycardia",
+NUR118,1682,MED_05,What is loperamide (Imodium) and when is it used?,"Classification: anti-diarrheal
+Use: treatment of prolonged diarrhea
+Caution: do NOT give for acute infectious diarrhea — body needs to expel the organism
+Monitor: stool frequency and signs of dehydration",
+NUR118,1709,LAB_01,What is the WBC and what is the normal range?,"White blood cell count — measures the body's ability to fight infection
+Normal: 5,000–10,000/mm³",
+NUR118,1710,LAB_02,WBC — what does HIGH vs LOW indicate?,"HIGH (>10,000): infection or inflammation
+LOW (<5,000): leukopenia — immunocompromised, unable to fight infection",
+NUR118,1711,LAB_01,What is the RBC count and what is the normal range?,"Red blood cell count — measures O2-carrying capacity of the blood
+Normal: Male 4.7–6.1 | Female 4.2–5.4",
+NUR118,1713,LAB_01,What is hemoglobin (Hgb) and what is the normal range?,"Measures the amount of hemoglobin in blood — reflects O2-carrying capacity
+Normal: Female 12–16 g/dL | Male 14–18 g/dL",
+NUR118,1715,LAB_01,What is hematocrit (Hct) and what is the normal range?,"Percentage of red blood cells in total blood volume
+Normal: Female 37–47% | Male 42–52%",
+NUR118,1717,LAB_01,What are platelets and what is the normal range?,"Platelets control clotting — measured as part of the CBC
+Normal: 150,000–400,000/mm³",
+NUR118,1718,LAB_02,Platelets — what does HIGH vs LOW indicate?,"HIGH: thrombocytosis → increased clot risk
+LOW: thrombocytopenia → increased bleeding risk → indication for platelet transfusion",
+NUR118,1719,LAB_01,What is blood glucose and what is the normal range?,"Measures blood sugar level
+Normal: 70–110 mg/dL",
+NUR118,1720,LAB_02,Glucose — what does HIGH vs LOW indicate?,"HIGH (hyperglycemia >110): seen in ""DKA"" (diabetic ketoacidosis), corticosteroid use, stress response
+LOW (hypoglycemia <70): shakiness, diaphoresis, confusion, tachycardia",
+NUR118,1721,LAB_01,What is albumin and what is the normal range?,"Protein made by the liver — reflects nutritional status and affects drug binding
+Normal: 3.5–5.0 g/dL",
+NUR118,1722,LAB_02,Albumin — what does LOW indicate?,"LOW (<3.5): malnutrition → impairs wound healing, affects drug binding (warfarin, digoxin)",
+NUR118,1723,LAB_01,What is urine specific gravity and what is the normal range?,"Measures the concentration of urine — reflects hydration status
+Normal: 1.002–1.030",
+NUR118,1724,LAB_02,Urine specific gravity — what does HIGH vs LOW indicate?,"HIGH (>1.030): concentrated urine = hypovolemia/dehydration
+LOW (<1.002): dilute urine = hypervolemia/fluid volume excess",
+NUR118,1725,LAB_01,What is a routine urinalysis and what are normal values?,"Screens urine for kidney issues, infection, diabetes, and liver disease
+Normal: color light amber, clear, aromatic, pH 5–9, no protein/glucose/ketones/bacteria",
+NUR118,1726,LAB_02,Routine urinalysis — what do abnormal findings indicate?,"Protein → kidney disease
+Glucose → diabetes
+WBC → infection (""UTI"" — urinary tract infection)
+RBC → bleeding",
+NUR118,1727,LAB_01,What are the normal cholesterol values?,"Total cholesterol: <200 mg/dL
+LDL (""bad""): <100 mg/dL
+HDL (""good""): >60 mg/dL (higher is better)",
+NUR118,1728,LAB_02,Cholesterol — what does HIGH total cholesterol and LDL vs HDL mean?,"HIGH total cholesterol (>200): increased cardiovascular disease risk
+HIGH LDL: deposits plaque → atherosclerosis
+LOW HDL (<60): less removal of LDL → higher cardiac risk",
+NUR118,1729,LAB_01,"Na, K, Ca, Mg — what are the normal ranges for each?","Sodium (Na+): 135–145 mEq/L
+Potassium (K+): 3.5–5.0 mEq/L
+Calcium (Ca2+): 8.5–10.5 mg/dL
+Magnesium (Mg2+): 1.3–2.1 mEq/L
+(Signs and symptoms covered in Fluids & Electrolytes section)",
+NUR118,1730,LAB_01 | LAB_02,What is BUN and what do results indicate?,"Measures kidney function and hydration status
+HIGH BUN alone = dehydration (kidneys working fine)
+HIGH BUN + HIGH creatinine = suspect renal failure",
+NUR118,1731,LAB_01 | LAB_02,What is creatinine and what does HIGH indicate?,"Better indicator of kidney function than BUN alone
+HIGH: kidney disease → restrict K+ foods (kidneys cannot excrete K+)",
+NUR118,1732,LAB_01,What is Hgb A1C and what does it measure?,"Measures average blood glucose over 2–3 months
+Used to diagnose and monitor diabetes — not affected by recent eating",
+NUR118,1733,LAB_01,What does the WBC differential measure?,"Percentage of each type of white blood cell
+Types: neutrophils, lymphocytes, monocytes, eosinophils, basophils",
+NUR118,1734,LAB_01,What is troponin and what does it indicate?,"Most specific marker for ""MI"" (myocardial infarction)
+Rises 2–3 hours after MI, stays elevated 1–2 weeks",
+NUR118,1735,LAB_01,What is CK-MB and what does it indicate?,"Cardiac enzyme — rises 3–6 hours after ""MI"" (myocardial infarction)
+Best for detecting re-infarction — clears quickly (1–2 days)",
+NUR118,1736,LAB_01,What is BNP and what does it indicate?,"Released when the ventricle is overstretched from fluid buildup
+Elevated BNP = left heart failure — higher level = more severe",
+NUR118,1737,LAB_01,What does PT/INR measure and when is it used?,"Measures clotting — used to monitor warfarin therapy
+Therapeutic INR = 2–3",
+NUR118,1738,LAB_01,What does PTT/aPTT measure and when is it used?,"Measures clotting time — used to monitor heparin therapy
+Therapeutic = 1.5–2× normal",
+NUR118,1739,LAB_01,What is CRP and what does elevation indicate?,"C-reactive protein — measures inflammation
+Elevated CRP can indicate inflammatory illness and may predict coronary events",
+NUR118,1740,LAB_01,What does an EKG/ECG record?,"Records electrical impulses that stimulate the heart to contract
+P wave = atrial contraction | QRS = ventricular contraction | T wave = repolarization",
+NUR118,1741,LAB_01,What does an echocardiogram evaluate?,"Ultrasound of the heart — evaluates structure, function, valves, and blood flow
+Normal ejection fraction: 50–75% | EF <40% = systolic heart failure",
+NUR118,1742,LAB_02,RBC — what does LOW indicate?,"Anemia — fewer red blood cells means less hemoglobin to carry O2 → fatigue, dyspnea",
+NUR118,1743,LAB_02,Hemoglobin (Hgb) — what does LOW indicate?,"Anemia → decreased O2 delivery → fatigue, dyspnea → indication for ""PRBC"" (packed red blood cells) transfusion",
+NUR118,1744,LAB_02,Hematocrit (Hct) — what does LOW indicate?,"Anemia, hemodilution (fluid overload), or bleeding",
+NUR118,1745,L11F_08,What is the role of sodium and what is normal?,"Sodium controls fluid balance and blood pressure — the main ECF electrolyte
+Normal: 135–145 mEq/L
+Think: sodium attracts and holds water wherever it goes",
+NUR118,1756,L11F_08,Trousseau's sign vs Chvostek's sign — what are they and what do they indicate?,"Both indicate HYPOCALCEMIA (low calcium)
+
+Trousseau's sign: inflate BP cuff for 3 minutes → carpopedal spasm (hand/wrist contracts) = POSITIVE
+Chvostek's sign: tap the facial nerve in front of the ear → facial twitch = POSITIVE
+
+Think: calcium calms nerves — without it, the slightest stimulus causes spasm",
+NUR118,1762,L11F_05,Hypovolemia vs hypervolemia — signs and symptoms,"HYPOVOLEMIA (not enough fluid):
+• Tachycardia, weak/thready pulse
+• Hypotension
+• Tachypnea, elevated temp
+• Dry mucous membranes, poor skin turgor
+• Cap refill >3 sec
+• Acute weight LOSS
+• Decreased LOC, oliguria (<30 mL/hr)
+
+HYPERVOLEMIA (too much fluid):
+• Bounding pulse
+• Hypertension
+• Increased respiratory rate
+• JVD, pitting edema
+• Crackles, dyspnea
+• Acute weight GAIN
+• Pale cool skin, mental status changes",
+NUR118,1763,L11F_05,Hypovolemia vs hypervolemia — labs,"HYPOVOLEMIA (hemoconcentration — everything UP):
+• BUN ↑ (>20)
+• Hematocrit ↑
+• Sodium ↑ (hypernatremia)
+• Urine specific gravity ↑ (>1.030)
+
+HYPERVOLEMIA (hemodilution — everything DOWN):
+• BUN ↓
+• Hematocrit ↓
+• Sodium ↓ (hyponatremia)
+• Urine specific gravity ↓ (<1.002)
+
+Memory hook: less fluid = more concentrated blood = higher numbers",
+NUR118,1764,L11F_05,Hypovolemia vs hypervolemia — nursing interventions,"HYPOVOLEMIA (give fluid back):
+• Isotonic IV fluids (0.9% NS or LR)
+• Encourage oral fluids
+• Monitor VS, I&O, daily weights
+• Monitor electrolytes
+
+HYPERVOLEMIA (take fluid off):
+• Diuretics (as ordered)
+• Restrict fluids and Na+
+• Monitor VS, I&O, daily weights
+• Monitor lung sounds and mental status
+
+BOTH: monitor VS, I&O, daily weights — same time, same scale, same gown",
+NUR118,1765,L11F_08,A patient has Trousseau's sign or Chvostek's sign. What imbalance and why?,"HYPOCALCEMIA (Ca2+ < 8.5)
+
+Without enough calcium, nerves lose their stability and fire randomly → muscles spasm without a real signal.
+
+Trousseau's: inflate BP cuff → carpopedal spasm
+Chvostek's: tap facial nerve → facial twitching
+
+These are the #1 giveaway signs for LOW calcium on any exam.",
+NUR118,1766,L11F_08,A patient has peaked (tall) T waves on ECG. What imbalance and why?,"HYPERKALEMIA (K+ > 5.0)
+
+Potassium controls the electrical signal in the heart. Too much K+ overstimulates the heart's electrical system → T wave gets tall and peaked on ECG → risk of deadly dysrhythmia.
+
+Memory: Hi K = Hi T",
+NUR118,1767,L11F_08,A patient has a flat T wave on ECG. What imbalance and why?,"HYPOKALEMIA (K+ < 3.5)
+
+Too little K+ means the heart's electrical signal is too weak → T wave flattens on ECG → risk of dysrhythmia.
+
+Memory: Lo K = Lo T
+
+Also causes: muscle weakness, paresthesias (tingling)",
+NUR118,1768,L11F_08,A patient has flaccid paralysis. What imbalance and why?,"HYPERKALEMIA (K+ > 5.0)
+
+Too much K+ scrambles the electrical signal so badly that muscles can't fire at all → they go completely limp (flaccid).
+
+Also look for: peaked T waves, intestinal colic, muscle weakness
+Cause to know: renal failure (kidneys can't excrete K+)",
+NUR118,1769,L11F_08,A patient has hyperactive (overactive) deep tendon reflexes. What imbalance and why?,"HYPOMAGNESEMIA (Mg2+ < 1.3)
+
+Magnesium calms nerve activity. Without enough Mg2+, nerves fire too easily → reflexes become exaggerated/hyperactive.
+
+Memory: Hypo Mg = Hyper reflexes
+Also causes: neuromuscular irritability, dysrhythmias, disorientation",
+NUR118,1770,L11F_08,A patient has hypoactive (absent) deep tendon reflexes. What imbalance and why?,"HYPERMAGNESEMIA (Mg2+ > 2.1)
+
+Too much Mg2+ over-suppresses the nervous system → reflexes slow down or disappear entirely.
+
+Memory: Hyper Mg = Hypo reflexes
+Also causes: bradycardia, hypotension, flushing, drowsiness
+Cause to know: renal failure",
+NUR118,1771,L11F_08,A patient has kidney stones. What electrolyte imbalance and why?,"HYPERCALCEMIA (Ca2+ > 10.5)
+
+Excess calcium in the blood gets filtered through the kidneys → calcium deposits form → kidney stones (renal calculi).
+
+Also causes: polyuria, polydipsia, constipation, bradycardia, muscle weakness
+This is the #1 giveaway sign for HIGH calcium.",
+NUR118,1772,L11F_08,A patient has polyuria and excessive thirst but blood glucose is normal. What imbalance and why?,"HYPERCALCEMIA (Ca2+ > 10.5)
+
+Excess calcium damages the kidney's ability to concentrate urine → kidneys dump water → polyuria → dehydration → extreme thirst.
+
+Key: always rule out diabetes first (normal glucose = not DM). Then think high calcium.",
+NUR118,1773,L11F_08,A patient has intestinal colic (cramping). What imbalance and why?,"HYPERKALEMIA (K+ > 5.0)
+
+Too much K+ overstimulates smooth muscle in the GI tract → intestinal spasms/cramping.
+
+Paired with: peaked T waves, muscle weakness, flaccid paralysis",
+NUR118,1774,L11F_08,A patient has increased sensitivity to digoxin. What imbalances cause this and why?,"LOW POTASSIUM (K+ < 3.5) AND LOW MAGNESIUM (Mg2+ < 1.3)
+
+Both K+ and Mg2+ normally compete with digoxin for the same binding site in the heart. When either is low → digoxin takes over → toxic levels build up even at normal doses.
+
+Nursing action: monitor digoxin levels AND pulse closely if either is low.",
+NUR118,1775,L11F_08,A patient has chronic alcoholism. What electrolyte imbalance should you expect and why?,"HYPOMAGNESEMIA (Mg2+ < 1.3)
+
+Alcohol causes poor nutrition and GI malabsorption → Mg2+ can't be absorbed properly → levels drop.
+
+Chronic alcoholism = #1 cause of low magnesium per your lecture.
+Watch for: neuromuscular irritability, dysrhythmias, hyperactive reflexes, digoxin sensitivity",
+NUR118,1776,L11F_08,A patient has renal (kidney) failure. What electrolyte imbalances should you expect and why?,"HYPERKALEMIA (K+ > 5.0) — kidneys can't excrete K+ → it builds up in the blood
+HYPERMAGNESEMIA (Mg2+ > 2.1) — kidneys can't excrete Mg2+ → it builds up
+HYPOCALCEMIA (Ca2+ < 8.5) — damaged kidneys can't activate Vitamin D → gut can't absorb Ca2+
+
+Memory: K UP, Mg UP, Ca DOWN with renal failure",
+NUR118,1777,L11F_08,A patient had prolonged NG suctioning. What electrolyte imbalances should you expect and why?,"HYPOKALEMIA (K+ < 3.5) — GI fluids lost through suction contain K+
+HYPOMAGNESEMIA (Mg2+ < 1.3) — GI fluids lost through suction contain Mg2+
+
+Both are listed in your lecture as causes of their respective imbalances.
+Also causes metabolic alkalosis — losing stomach acid (H+) shifts pH up.",
+NUR118,1778,L11F_08,A patient is post-thyroid or parathyroid surgery. What electrolyte imbalance is the priority concern and why?,"HYPOCALCEMIA (Ca2+ < 8.5)
+
+The parathyroid glands sit on the thyroid. They can be accidentally removed or damaged during surgery → parathyroid hormone drops → calcium drops rapidly.
+
+Watch for: Trousseau's sign, Chvostek's sign, muscle cramps, tetany, seizures
+Priority intervention: seizure precautions + IV calcium if severe",
+NUR118,1779,L11F_08,A patient takes furosemide (Lasix). What electrolyte imbalance is most likely and why?,"HYPOKALEMIA (K+ < 3.5)
+
+Furosemide is a loop diuretic — it forces the kidneys to excrete large amounts of fluid AND potassium → K+ drops.
+
+Furosemide = #1 cause of hypokalemia per your lecture.
+Also causes hypomagnesemia (Mg2+ lost in urine too).
+If patient is also on digoxin → HIGH toxicity risk → monitor levels and pulse.",
+NUR118,1780,L11F_08,A patient takes thiazide diuretics (hydrochlorothiazide). What electrolyte imbalance should you expect and why?,"HYPERCALCEMIA (Ca2+ > 10.5)
+
+Unlike furosemide, thiazide diuretics cause the kidneys to RETAIN calcium instead of excreting it → calcium builds up in the blood.
+
+This is the opposite of what most people expect from a diuretic!
+Watch for: kidney stones, constipation, bradycardia, polyuria, muscle weakness",
+NUR118,1781,L11F_08,A patient has been immobile for a prolonged period. What electrolyte imbalance should you expect and why?,"HYPERCALCEMIA (Ca2+ > 10.5)
+
+When you stop bearing weight, bones break down → calcium leaches OUT of bones INTO the bloodstream → blood calcium rises.
+
+Your lecture notes: immobility leads to hypercalcemia, osteoporosis, and renal calculi (kidney stones).
+Encourage weight bearing exercise to prevent bone calcium loss.",
+NUR118,1782,L11F_08,A patient has DKA (diabetic ketoacidosis). What electrolyte imbalance is associated and why?,"HYPERKALEMIA (K+ > 5.0)
+
+In acidosis, the body shifts H+ (acid) INTO cells to buffer the blood. To balance this, K+ shifts OUT of cells into the blood → serum K+ rises even if total body K+ is normal.
+
+Also: DKA causes hypomagnesemia (listed in your lecture as a cause of low Mg2+).
+DKA = metabolic acidosis + hyperkalemia on your exam.",
+NUR118,1788,L11A_03,Why does anxiety or pain cause respiratory ALKALOSIS?,"Anxiety/pain → hyperventilation → breathing too fast → blowing off too much CO2 → less acid in blood → pH rises → ALKALOSIS.
+
+It's respiratory: PaCO2 drops (< 35), pH > 7.45, HCO3 normal.
+Any cause of HYPERVENTILATION = respiratory alkalosis.
+Treatment: slow breathing, rebreather bag.",
+NUR118,1789,L11F_08,Why does acidosis cause HYPERKALEMIA?,"In acidosis the blood has too much H+ (acid).
+The body tries to buffer this by shifting H+ INTO cells.
+To balance the charge, K+ shifts OUT of cells into the blood → serum K+ rises → hyperkalemia.
+
+This is why acidosis and hyperkalemia almost always appear together on your exam.",
+NUR118,1790,L11F_08,Why does alkalosis cause HYPOKALEMIA?,"In alkalosis the blood has too little H+ (acid).
+The body compensates by shifting H+ OUT of cells into the blood.
+To balance the charge, K+ shifts INTO cells → serum K+ drops → hypokalemia.
+
+This is why vomiting and furosemide cause BOTH metabolic alkalosis AND hypokalemia.",
+NUR118,1791,L11A_03,A patient has COPD. What ABG disorder and why?,"RESPIRATORY ACIDOSIS
+
+COPD damages the lungs → can't exhale CO2 properly → CO2 builds up in blood → CO2 + water = carbonic acid → pH drops.
+
+Any cause of HYPOVENTILATION = respiratory acidosis.
+Values: pH < 7.35, PaCO2 > 45, HCO3 normal",
+NUR118,1792,L11A_03,A patient has a CHF exacerbation. What ABG disorder and why?,"RESPIRATORY ACIDOSIS
+
+CHF causes fluid to back up into the lungs → impairs gas exchange → CO2 can't be exhaled → builds up → pH drops.
+
+Any cause of HYPOVENTILATION or impaired gas exchange = respiratory acidosis.
+Values: pH < 7.35, PaCO2 > 45, HCO3 normal",
+NUR118,1793,L11A_03,A patient had an opioid overdose. What ABG disorder and why?,"RESPIRATORY ACIDOSIS
+
+Opioids suppress the respiratory center in the brain → breathing slows or stops → CO2 builds up → pH drops.
+
+Treatment: naloxone (reverses opioid effect) + O2 + ventilatory support.
+Values: pH < 7.35, PaCO2 > 45, HCO3 normal",
+NUR118,1794,L11A_03,A patient is having a panic attack and hyperventilating. What ABG disorder and why?,"RESPIRATORY ALKALOSIS
+
+Anxiety/panic → breathing too fast → blowing off too much CO2 → less acid in blood → pH rises.
+
+Any cause of HYPERVENTILATION = respiratory alkalosis.
+Treatment: slow breathing, rebreather bag, treat anxiety.
+Values: pH > 7.45, PaCO2 < 35, HCO3 normal",
+NUR118,1795,L11A_03,A patient is in severe pain. What ABG disorder and why?,"RESPIRATORY ALKALOSIS
+
+Pain → hyperventilation → blowing off too much CO2 → pH rises.
+
+Treatment: treat the pain → breathing normalizes → CO2 returns to normal.
+Values: pH > 7.45, PaCO2 < 35, HCO3 normal",
+NUR118,1796,L11A_03,A patient has sepsis. What ABG disorder(s) and why?,"RESPIRATORY ALKALOSIS first — fever/sepsis → hyperventilation → CO2 blown off → pH rises.
+
+THEN metabolic acidosis — sepsis causes tissue hypoxia → lactic acid builds up → pH drops.
+
+Sepsis can cause BOTH depending on the stage. On your exam, the KEY clue is lactic acid = metabolic acidosis, hyperventilation = respiratory alkalosis.",
+NUR118,1797,L11A_03,A patient has DKA (diabetic ketoacidosis). What ABG disorder and why?,"METABOLIC ACIDOSIS
+
+Uncontrolled diabetes → body burns fat → ketones (acidic) build up → H+ rises → pH drops → HCO3 drops.
+
+Key sign: Kussmaul's breathing — lungs compensating by blowing off CO2.
+Also causes: hyperkalemia (K+ shifts out of cells in acidosis).
+Values: pH < 7.35, HCO3 < 22, PaCO2 normal",
+NUR118,1798,L11A_03,A patient has renal (kidney) failure. What ABG disorder and why?,"METABOLIC ACIDOSIS
+
+Kidneys normally excrete H+ (acid). Damaged kidneys can't excrete acid → H+ builds up → pH drops → HCO3 drops.
+
+Also causes: hyperkalemia (kidneys can't excrete K+ either).
+Values: pH < 7.35, HCO3 < 22, PaCO2 normal",
+NUR118,1799,L11A_03,A patient has diarrhea. What ABG disorder and why?,"METABOLIC ACIDOSIS
+
+The lower GI tract contains bicarbonate (HCO3 = base). Diarrhea = losing base → less HCO3 in blood → pH drops.
+
+Memory: ""pooping out the bicarb""
+Values: pH < 7.35, HCO3 < 22, PaCO2 normal",
+NUR118,1800,L11A_03,A patient has been vomiting for several days. What ABG disorder and why?,"METABOLIC ALKALOSIS
+
+Stomach acid (HCl) contains H+ (acid). Vomiting → losing H+ → less acid in blood → pH rises → HCO3 rises.
+
+Also causes: hypokalemia (K+ lost with GI fluids).
+Values: pH > 7.45, HCO3 > 26, PaCO2 normal",
+NUR118,1801,L11A_03,A patient has prolonged NG suctioning. What ABG disorder and why?,"METABOLIC ALKALOSIS
+
+NG suction removes stomach acid (H+) → losing acid → pH rises → HCO3 rises.
+
+Same mechanism as vomiting — both remove gastric acid.
+Also causes: hypokalemia AND hypomagnesemia (both lost with GI fluids).
+Values: pH > 7.45, HCO3 > 26, PaCO2 normal",
+NUR118,1802,L11A_03,A patient takes furosemide without potassium replacement. What ABG disorder and why?,"METABOLIC ALKALOSIS
+
+Furosemide forces kidneys to excrete H+ (acid) AND K+ in urine → losing acid from body → pH rises → HCO3 rises.
+
+Also causes: hypokalemia (K+ lost in urine).
+Values: pH > 7.45, HCO3 > 26, PaCO2 normal",
+NUR118,1803,L11A_03,"A patient has Kussmaul's breathing (rapid, deep). What ABG disorder and why?","METABOLIC ACIDOSIS (compensation)
+
+The body is trying to fix low pH by blowing off CO2 through fast deep breathing → raises pH back toward normal.
+
+Kussmaul's = the LUNGS compensating for a METABOLIC problem.
+Classic cause: DKA. Also: renal failure, sepsis.",
+NUR118,1804,L11A_03,A patient has confusion and decreased LOC. What ABG disorder?,"RESPIRATORY ACIDOSIS
+
+CO2 building up in the blood acts like a sedative on the brain → confusion, restlessness, decreased LOC.
+
+Also watch for: tachycardia, headache, dizziness.
+Cause: anything causing hypoventilation (COPD, OD, apnea).",
+NUR118,1805,L11A_03,A patient is hyperventilating with tingling and numbness. What ABG disorder?,"RESPIRATORY ALKALOSIS
+
+Blowing off too much CO2 → pH rises → low CO2 causes tingling/numbness in extremities and around the mouth.
+
+Also causes: headache, dizziness, hypokalemia.
+Treatment: slow breathing, rebreather bag.",
+NUR118,1806,L11A_03,"A patient has hypoventilation (slow, shallow breathing). What ABG disorder is this compensating for?","METABOLIC ALKALOSIS (compensation)
+
+When pH is too high, the lungs slow breathing down to RETAIN CO2 (acid) → brings pH back down toward normal.
+
+Hypoventilation = lungs compensating for metabolic alkalosis.
+Also causes: hypokalemia, dizziness, tingling, hypertonic muscles.",
+NUR118,1807,L11A_03,A patient has hyperkalemia. What ABG disorder is likely present and why?,"METABOLIC ACIDOSIS
+
+In acidosis, H+ (acid) shifts INTO cells to buffer the blood. K+ shifts OUT of cells to balance the charge → serum K+ rises → hyperkalemia.
+
+Acidosis and hyperkalemia almost always go together on your exam.",
+NUR118,1808,L11A_03,A patient has hypokalemia. What ABG disorder(s) could be present and why?,"METABOLIC ALKALOSIS or RESPIRATORY ALKALOSIS
+
+In ANY alkalosis, H+ shifts OUT of cells → K+ shifts INTO cells to balance → serum K+ drops → hypokalemia.
+
+Metabolic alkalosis: caused by vomiting, NG suction, furosemide.
+Respiratory alkalosis: caused by hyperventilation, anxiety, pain, sepsis.
+
+Both cause hypokalemia through the same K+ shift mechanism.",
+NUR118,1809,L11A_03,A nurse prepares a rebreather bag for a patient. What ABG disorder is being treated and why?,"RESPIRATORY ALKALOSIS
+
+Patient is hyperventilating → blowing off too much CO2 → rebreather bag makes them rebreathe their own exhaled CO2 → CO2 rises back to normal → pH drops back to normal.
+
+Caused by: anxiety, panic, pain.",
+NUR118,1810,L11A_03,A nurse administers naloxone (Narcan). What ABG disorder is being treated and why?,"RESPIRATORY ACIDOSIS caused by opioid overdose
+
+Opioids suppress breathing → CO2 builds up → pH drops. Naloxone reverses the opioid → breathing resumes → CO2 is exhaled → pH normalizes.
+
+Always give O2 and ventilatory support too.",
+NUR118,1811,L11A_03,A nurse prepares O2 and ventilatory support. What ABG disorder is being treated?,"RESPIRATORY ACIDOSIS
+
+Patient can't ventilate adequately → CO2 builds up → need help breathing out.
+
+Causes: COPD, opioid OD, apnea, CHF, airway obstruction.
+Mechanical ventilation may be needed in severe cases.",
+NUR118,1812,L11A_03,A nurse gives K+ replacement and antiemetics. What ABG disorder is being treated and why?,"METABOLIC ALKALOSIS
+
+Vomiting or NG suction → lost stomach acid AND K+ → pH rises AND K+ drops.
+Antiemetics stop the vomiting (fix the cause).
+K+ replacement fixes the hypokalemia AND helps bring pH back down.
+
+Always treat the underlying cause first.",
+NUR118,1813,L11A_03,A nurse prepares to administer bicarbonate (bicarb). What ABG disorder is being treated and why?,"METABOLIC ACIDOSIS (severe)
+
+When pH is dangerously low and the body can't compensate fast enough → give bicarb (base) directly to neutralize the excess acid → pH rises.
+
+Only used in severe cases. Always treat the underlying cause too.",
+NUR118,1814,L11F_07,A patient has hypovolemia from dehydration or GI losses. What IV fluid and why?,"0.9% NORMAL SALINE (isotonic)
+
+Isotonic fluid stays in the ECF (bloodstream) — no shift into or out of cells → replaces lost volume without causing fluid shifts.
+
+Also used for: blood transfusions (only fluid compatible with blood), hyponatremia correction.
+Caution: risk of fluid overload — monitor closely in CHF patients.",
+NUR118,1815,L11F_07,A patient has blood loss from trauma or surgery. What IV fluid and why?,"LACTATED RINGER'S (LR) — isotonic
+
+LR contains electrolytes that closely match plasma → better for blood loss and trauma than NS.
+Both LR and 0.9% NS are isotonic and stay in the ECF.
+
+Key difference: LR = blood loss/trauma/surgery. NS = dehydration/GI losses/blood transfusions.",
+NUR118,1816,L11F_07,A patient has DKA (diabetic ketoacidosis). What IV fluid is used and why?,"HYPOTONIC fluid (0.45% NS or D5W)
+
+DKA causes intracellular dehydration — cells are shriveled and need water.
+Hypotonic fluid has lower osmolarity than blood → water moves OUT of the vein INTO cells → rehydrates cells.
+
+NEVER give hypotonic fluid to a patient with increased ICP, stroke, or head injury — it causes cerebral edema.",
+NUR118,1817,L11F_07,A nurse must NEVER give this IV fluid to a patient with increased ICP or head injury. What is it and why?,"HYPOTONIC fluids (0.45% NS, D5W)
+
+Hypotonic fluid moves water INTO cells. In a patient with increased ICP → water floods brain cells → brain swells even more → dangerous.
+
+Examples: 0.45% NS, D5W
+NEVER use with: increased ICP, stroke, head injury, cerebral edema.",
+NUR118,1818,L11F_07,A patient has cerebral edema. What IV fluid is used and why?,"HYPERTONIC fluid (D5NS, 3% NS, D10W)
+
+Hypertonic fluid has higher osmolarity than blood → pulls water OUT of cells and tissue INTO the bloodstream → shrinks swollen brain cells → reduces cerebral edema.
+
+Caution: must run SLOW — risk of hypervolemia and fluid overload.
+Monitor: blood glucose (dextrose-containing solutions raise blood sugar).",
+NUR118,1819,L11F_07,A patient has severe hyponatremia. What IV fluid is used and why?,"HYPERTONIC saline (3% NS)
+
+Hypertonic saline pulls water out of cells back into the bloodstream and raises serum sodium.
+Must run VERY slowly — correcting sodium too fast causes osmotic demyelination syndrome (brain damage).
+
+Monitor: sodium levels closely, neurological status.",
+NUR118,1820,L11F_06,A hypervolemic patient keeps asking for water. What do you offer instead and why?,"ICE CHIPS
+
+Ice chips satisfy thirst and the sensation of drinking without adding significant fluid volume.
+
+Other fluid restriction interventions:
+• Measure ALL intake carefully
+• Do NOT leave fluids at the bedside
+• Give diuretics as ordered
+• Monitor daily weights and lung sounds",
+NUR118,1821,L11F_03,What is the FIRST sign of hypovolemia (fluid deficit)?,"THIRST
+
+Thirst is always the earliest warning sign — the body's first attempt to signal it needs more fluid.
+
+After thirst: headache → fatigue → concentrated urine → ↑ HR → dry mouth → weakness → oliguria
+Priority nursing: encourage oral fluids, monitor VS and urine output.",
+NUR118,1822,L12I_05,A patient develops fever and chills during a blood transfusion. What reaction and treatment?,"FEBRILE TRANSFUSION REACTION
+
+Cause: sensitivity to donor WBCs or plasma proteins.
+S&S: fever, chills, warm flushed skin, body aches.
+
+Treatment:
+1. STOP transfusion immediately
+2. Hang 0.9% NS with NEW tubing
+3. Notify MD
+4. Acetaminophen as ordered",
+NUR118,1823,L12I_05,"A patient develops hives, flushing, and wheezing during a blood transfusion. What reaction and treatment?","ALLERGIC TRANSFUSION REACTION
+
+Cause: allergy to blood components.
+S&S: flushing, itching, hives (urticaria), wheezing. Severe: anaphylaxis.
+
+Treatment:
+1. STOP transfusion immediately
+2. Hang 0.9% NS
+3. Mild: antihistamine
+4. Anaphylaxis: epinephrine
+5. Notify MD",
+NUR118,1824,L12I_05,"A patient develops high fever, severe hypotension, and vomiting during a transfusion. What reaction and treatment?","BACTERIAL TRANSFUSION REACTION
+
+Cause: contaminated blood product.
+S&S: HIGH fever, SEVERE chills, severe hypotension, vomiting, diarrhea — more dramatic than febrile reaction.
+
+Treatment:
+1. STOP transfusion immediately
+2. Hang 0.9% NS
+3. Notify MD
+4. Blood cultures
+5. Antibiotics as ordered",
+NUR118,1825,L12I_05,"A patient develops chest pain, tachycardia, hypotension, and fever during a transfusion. What reaction and treatment?","HEMOLYTIC TRANSFUSION REACTION — most serious, most preventable
+
+Cause: INCOMPATIBLE BLOOD — wrong blood given to wrong patient.
+S&S: fever, chills, chest pain, dyspnea, tachycardia, hypotension → can be FATAL.
+
+Treatment:
+1. STOP immediately
+2. NEW NS via NEW tubing (not blood tubing)
+3. Notify MD STAT
+4. Send: blood bag + tubing + venous sample + FIRST VOIDED URINE to lab
+5. Treat shock
+Prevented by: 2-nurse verification check before hanging.",
+NUR118,1826,L12I_05,"A patient develops persistent cough, crackles, and hypertension during a transfusion. What reaction and treatment?","CIRCULATORY OVERLOAD
+
+Cause: too much volume or infused too fast.
+S&S: persistent cough, crackles, hypertension, JVD, dyspnea.
+
+Treatment:
+1. Slow or STOP transfusion
+2. Sit patient upright
+3. Monitor VS
+4. Notify MD
+5. Anticipate furosemide (Lasix) to remove excess fluid",
+NUR118,1827,L11F_08,"What is the role of K+, Ca2+, and Mg2+ — and how are they different?","POTASSIUM (K+) — normal 3.5–5.0 mEq/L
+→ Sends the ELECTRICAL SIGNAL to contract (the messenger)
+→ Lives inside cells (ICF)
+→ Problems show on ECG first (flat T = low, peaked T = high)
+
+CALCIUM (Ca2+) — normal 8.5–10.5 mg/dL
+→ Actually DOES the contraction + calms nerves (the doer)
+→ Lives in bones mostly
+→ Low = nerves go wild (Trousseau's, Chvostek's, tetany)
+→ High = everything slows (constipation, bradycardia, kidney stones)
+
+MAGNESIUM (Mg2+) — normal 1.3–2.1 mEq/L
+→ The BODYGUARD — keeps K+ and Ca2+ stable
+→ Low = hyperactive reflexes, irritability, dysrhythmias
+→ High = hypoactive reflexes, bradycardia, flushing
+
+MEMORY:
+K = messenger (ECG changes)
+Ca = doer (nerve excitability)
+Mg = bodyguard (reflexes)",
+NUR118,2106,L1_01 | L1_02,What is a Healthcare-Associated Infection (HAI)?,"An infection contracted in ANY healthcare setting — nursing home, rehab, dialysis center, urgent care, detox, home care, doctor's office.","HAI is broader than nosocomial. ANY healthcare setting counts, not just hospitals."
+NUR118,2107,L1_02,What is a Nosocomial infection?,A HOSPITAL-acquired infection ONLY. Nosocomial = hospital setting exclusively.,Nosocomial is a subset of HAI — only hospital-acquired infections qualify.
+NUR118,2108,L1_02,Name 6 primary examples of nosocomial infections.,"CLABSI (central line bloodstream), SSI (surgical site), CAUTI (catheter UTI), VAP (ventilator pneumonia), MDROs, C-Diff.",These are the most common hospital-acquired infections. Remember them as the main ones tracked.
+NUR118,2109,L1_02,Who is at greatest risk for a HAI?,"Chronically ill, elderly, pts on steroids, diabetics, immunocompromised.",These patients have weakened defenses and are exposed to more healthcare interventions.
+NUR118,2110,L1_02,What is special about C. difficile (C-Diff) in terms of HAI?,Most common & most serious HAI. Elderly patients on antibiotics are at highest risk. Requires BLEACH for surfaces and SOAP & WATER hand hygiene (NOT alcohol foam).,Alcohol-based hand rub does not kill C-Diff spores — only soap and water. Bleach is required for environmental surfaces.
+NUR118,2111,L1_01,What is the difference between endogenous and exogenous infection?,"Endogenous = infection from INSIDE the patient (normal flora altered, e.g. by antibiotics). Exogenous = infection from a source OUTSIDE the patient (e.g. staph from environment).",Endogenous means the patient's own flora caused the problem; exogenous means an external source.
+NUR118,2112,L1_03,What are the 6 links in the chain of infection?,"1. Infectious Agent, 2. Reservoir, 3. Portal of Exit, 4. Mode of Transmission, 5. Portal of Entry, 6. Susceptible Host. ALL 6 must be present for infection to spread.",Breaking any single link stops the spread of infection. This is the foundation of infection control.
+NUR118,2113,L1_03,What is a reservoir in the chain of infection?,"Where pathogens live and multiply. Living: humans, animals, insects (warm, dark, moist environments). Nonliving: food, soil, water, environmental surfaces (sinks, bed rails, stethoscope, wound dressings).","The human body is the most common reservoir for pathogens — think bladder, lungs, intestines, under the skin."
+NUR118,2114,L1_03,What are the modes of transmission?,"Contact (direct: touching/kissing/sexual; indirect: fomite), Droplet (cough/sneeze/talk/suctioning), Airborne (aerosolized particles), Vector (ticks, fleas, mosquito, mites).","A fomite is a contaminated object that transfers a pathogen — e.g., stethoscope, thermometer, keyboard, overbed table."
+NUR118,2115,L1_03,What is a fomite?,"A contaminated object that transfers a pathogen. Examples: stethoscope, thermometer, keyboard, pen, paper, overbed table.",Fomites are responsible for indirect contact transmission.
+NUR118,2116,L1_03,What are normal portals of entry?,"Eye, nares, mouth, urethra, vagina, anus. Also: wounds, cuts, scrapes, surgical incisions, IV/drainage tube sites, urinary catheters, bite from a vector.","In healthcare, common portals include urine catheters, IV lines, and gastrostomy tubes."
+NUR118,2117,L1_03,What are the 4 factors that determine if a susceptible host gets infected?,"1. Virulence of the organism, 2. Organism's ability to survive in host's environment, 3. Number of organisms, 4. Host's defenses.",Greater virulence + more organisms + weaker host defenses = higher chance of infection.
+NUR118,2118,L1_04,What are the 5 stages of infection in order?,"1. Incubation, 2. Prodromal, 3. Illness, 4. Decline, 5. Convalescence.",Think: I Picked It Definitely Correctly.
+NUR118,2119,L1_04,Describe the incubation stage of infection.,From time of entry to first signs/symptoms. Person can spread infection with NO symptoms. May last a day (flu) to months/years (TB).,COVID is a classic example — people spread it before they know they are sick.
+NUR118,2120,L1_04,Describe the prodromal stage of infection.,"Vague/general symptoms appear (e.g., mild sore throat). Not all diseases have this stage.",Prodromal = first appearance of vague symptoms. Some infections skip this stage entirely.
+NUR118,2121,L1_04,"Describe the illness, decline, and convalescence stages of infection.","Illness: obvious s/s present; can end in death if untreated. Decline: pathogens decrease, s/s fade. Convalescence: tissue repair, return to health, microorganisms reach zero.",Convalescence is the recovery phase — the patient returns to their pre-illness state.
+NUR118,2122,L1_05,What are the local vs systemic signs of infection?,"Local: redness, edema, warm to touch, pain, drainage. Systemic: temp >100.4°F, tachycardia >100, WBC >10,000, fatigue.",Local infections CAN become systemic if untreated. Always monitor for systemic signs.
+NUR118,2123,L1_05,What is a latent infection?,"Infection that is present but has no symptoms for long periods. Examples: HIV/AIDS, TB, shingles.",Latent infections can reactivate — this is why TB screening is important.
+NUR118,2124,L1_05,Differentiate acute vs chronic infection.,"Acute: rapid onset, short duration (common cold). Chronic: slow development, long duration (osteomyelitis, abscess); may recur.",Chronic infections are harder to treat and may require prolonged antibiotic therapy.
+NUR118,2125,L1_06,What is the Primary Line of Defense against infection?,"Physical barriers and anatomical features: intact skin, normal flora, respiratory tree (nares, cilia, coughing/sneezing), eyes (lysozymes in tears), mouth (lysozymes in saliva), GI (acidity, bile), GU (mucus membranes, vaginal acidity, lysozymes in urine).",The primary defense prevents pathogens from entering the body. Intact skin is the #1 barrier.
+NUR118,2126,L1_06,What is the Secondary Line of Defense?,"Chemical activation when pathogens get past primary: Phagocytosis (WBCs attack pathogens — WBC >10,000), Complement Cascade (attacks pathogen cell membranes, releases histamine → inflammation), Inflammation (redness, warmth, edema, pain), Fever (>100.4°F inhibits pathogen growth).",Secondary defense is the body's internal chemical army — it activates when barriers are breached.
+NUR118,2127,L1_06,What are the types of tertiary (3rd line) defense?,"Active: Natural (got ill → antibodies) or Artificial (vaccine → antibodies). Passive: Natural (placenta/breast milk) or Artificial (serum from another person/animal — rabies, hepatitis A immune globulin).",Tertiary defense = immune MEMORY. Active = body makes antibodies. Passive = antibodies given from outside.
+NUR118,2128,L1_06,What is humoral vs cellular immunity?,"Humoral: antibody response; body circulates antibodies to kill pathogens; specific to WBC leukocytes. Cellular: cell-mediated response without antibodies; specific to phagocytes and T & B cells (cancer, viruses, fungi, protozoans).",Humoral = antibodies in blood. Cellular = direct cell attack. Both are types of specific immunity.
+NUR118,2129,L1_07,List the 12 risk factors for infection.,"1. Age, 2. Immunosuppressant drugs (chemo, steroids), 3. Immune deficiency (HIV), 4. Substance abuse, 5. Lifestyle, 6. Stress, 7. Invasive surgical procedures, 8. Improper antibiotic use, 9. Living/work environment, 10. Skin breakdown, 11. Inadequate nutrition (low albumin), 12. Travel outside country.",Low albumin = no cell repair. Skin breakdown = portal of entry. Both directly increase infection risk.
+NUR118,2130,L1_08,What 5 activities promote immune function?,"1. Adequate nutrition (protein, vitamins, minerals, water), 2. Balanced hygiene (not overzealous — causes skin cracking), 3. Rest/exercise (6-9 hrs sleep), 4. Reducing stress (stress decreases immune defenses), 5. Immunization (≥85% of population must be immunized to protect everyone).",Laughing increases oxygenation and immune responses. Overzealous hygiene can actually HARM by cracking skin.
+NUR118,2131,L1_09,What is the difference between medical and surgical asepsis?,Medical asepsis (clean technique): REDUCES number of microorganisms. Surgical asepsis (sterile technique): DESTROYS & ELIMINATES all microorganisms and spores.,Medical asepsis = clean. Surgical asepsis = sterile. Sterile is required for invasive procedures.
+NUR118,2132,L1_09,List the 7 principles of surgical asepsis.,1. Sterile + sterile = sterile. 2. Only sterile on sterile field. 3. Out of vision or below waist = contaminated. 4. Prolonged air exposure = contaminated. 5. Wet contact with contaminated surface = contaminated. 6. Fluid flows by gravity. 7. Edges of sterile field = contaminated (1-inch border).,"Remember: when in doubt, it is contaminated. Never assume sterility if you lost sight of it."
+NUR118,2133,L1_09,What are the other sterile technique rules?,"Don't talk, laugh, sneeze, cough over sterile field. Hold hands above elbows during surgical scrub. Don't touch edge of container. Never turn back on sterile field. Never leave unattended.",All of these rules prevent airborne or contact contamination of the sterile field.
+NUR118,2134,L1_10,What are Standard Precautions?,"Used for EVERY patient in ALL settings. Assume ALL blood, body fluids, secretions, open skin, mucous membranes may contain pathogens. Use appropriate PPE, hand hygiene, safe injection practices.",Standard precautions are the FIRST tier of protection — applied universally regardless of diagnosis.
+NUR118,2135,L1_10,What is the correct order for DONNING PPE?,"GOWN → MASK → GOGGLES/Eye Shield → GLOVES. Memory trick: ""Bottoms Up"" — start from the bottom of the picture.",Gown first because it protects the most surface area. Gloves last because they are the final barrier.
+NUR118,2136,L1_10,What is the correct order for DOFFING (removing) PPE?,"GLOVES → GOGGLES → GOWN → MASK. Memory trick: Alphabetical order — G, G, G, M.",Gloves first because they are the most contaminated. Mask last because it protects your face/airway.
+NUR118,2137,L1_11,What PPE and room type are required for Contact Precautions?,"PPE: gloves & gown (eye protection if splashing). Room: private OR cohort with like infections. Double-bag linens, specimens. Disinfect equipment on removal.","Contact precautions prevent direct and indirect spread — the organism travels by touch, not air."
+NUR118,2138,L1_11,Name 3 examples of infections requiring Contact Precautions.,"MRSA (methicillin-resistant staph aureus), VRE (vancomycin-resistant enterococcus), ESBL, C-Diff.",These are all MDROs — multidrug-resistant organisms. C-Diff also requires bleach for surfaces.
+NUR118,2139,L1_11,What PPE and room type are required for Droplet Precautions?,PPE: surgical mask. Room: private OR cohort. Transport: patient wears surgical mask. Particles >5 microns travel within 3-6 feet.,Droplet particles are large and heavy — they fall within 3-6 feet. A surgical mask is sufficient.
+NUR118,2140,L1_11,Name 3 examples of infections requiring Droplet Precautions.,"Influenza, Pertussis (whooping cough), Meningitis, Mumps, Measles (Rubella/German measles), Strep throat.","All spread by large respiratory droplets during coughing, sneezing, talking, suctioning."
+NUR118,2141,L1_11,What PPE and room type are required for Airborne Precautions?,PPE: N95 respirator (must be FIT TESTED; PAPR if not). Room: private NEGATIVE PRESSURE room ALONE; 6-12 air exchanges/hr; doors closed. Transport: patient wears surgical mask.,Airborne particles are tiny — they travel >6 feet. Negative pressure keeps them from escaping the room.
+NUR118,2142,L1_11,Name 3 examples of infections requiring Airborne Precautions.,"Measles (Rubeola), TB (Tuberculosis), Varicella (chickenpox)/open shingles, COVID, SARS. Memory: MTV + C SARS.","MTV + C SARS: Measles, TB, Varicella, COVID, SARS. These spread via tiny aerosolized particles."
+NUR118,2143,L1_12,What is Protective Environment and who is it for?,"Reverse isolation / Neutropenic Precautions. For IMMUNOCOMPROMISED patients to PROTECT THEM from organisms. NO fresh fruits/veggies/plants/flowers/standing water. No invasive procedures. Restrict sick visitors. Staff wear gloves, gown, mask.",Protective Environment is the OPPOSITE of other precautions — we protect the patient FROM us.
+NUR118,2144,L1_13 | L1_14,List nursing interventions that promote wellness and support host defenses.,"Hand hygiene before/after patient contact; soap & water at shift start/end, C-Diff, visibly soiled hands; medical & surgical asepsis; appropriate PPE; administer ordered meds; monitor V/S q4h; monitor labs daily; maintain skin integrity (T&P q2h); reduce stress/anxiety; promote immune function (diet, activity, sleep, lifestyle); encourage immunizations.",These are the nurse's tools for breaking the chain of infection and supporting the patient's own defenses.
+NUR118,2145,L2_01,What are the 12 factors that affect skin integrity?,"1. Age, 2. Impaired Mobility, 3. Nutrition, 4. Hydration, 5. Diminished Sensation, 6. Diminished Cognition, 7. Impaired Circulation, 8. Medication, 9. Moisture, 10. Fever, 11. Infection, 12. Lifestyle. Plus: existing medical conditions.",These are the risk factors assessed for every wound patient. Know all 12.
+NUR118,2146,L2_01,How does age affect skin integrity in older adults?,"Decreased sebaceous/sweat glands (dry skin), thinning subcutaneous layer, weakened bond between epidermis & dermis, slower healing, chronic disease interferes with healing.",The weakened epidermal-dermal bond makes older adults prone to skin tears even from minor friction.
+NUR118,2147,L2_01,How does nutrition affect skin integrity?,"Protein maintains/repairs/preserves intravascular volume. ALBUMIN level is key. Need adequate calories, ascorbic acid (Vitamin C), zinc, and copper for wound healing.",Low albumin = poor healing. Vitamin C and zinc are specifically needed for collagen synthesis and wound repair.
+NUR118,2148,L2_01,How does hydration affect skin integrity?,"BOTH over AND under hydration are harmful. Edema (poor microcirculation, ↓ O2/nutrients) AND dehydration (no elasticity, low blood flow) both increase risk of breakdown.","Think of skin like clay — too dry it cracks, too wet it softens and falls apart (maceration)."
+NUR118,2149,L2_01,How do medications affect skin integrity?,"Can cause itching (pruritus), rashes, photosensitivity, pigmentation changes. NSAIDs and steroids inhibit healing. Anticoagulants (heparin, warfarin) increase bleeding. Chemotherapy delays healing.",Corticosteroids suppress immune response and delay collagen synthesis — both impair wound healing.
+NUR118,2150,L2_01,What is maceration and what causes it?,Softening/breakdown of skin from prolonged moisture exposure. Most common causes: incontinence and fever (sweating).,Maceration makes skin fragile and prone to breakdown. Keep skin clean and dry to prevent it.
+NUR118,2151,L2_02,What are the 4 ways wounds are classified?,"1. By skin integrity (open/closed), 2. By length of time for healing (acute/chronic), 3. By level of contamination (clean/clean-contaminated/contaminated/infected), 4. By depth (superficial/partial/full/penetrating).",You need to know all 4 classification systems and what falls under each.
+NUR118,2152,L2_02,What defines a contaminated wound vs an infected wound?,"Contaminated: open wounds, pressure ulcers, trauma, surgeries with break in asepsis. Infected: bacteria >100,000 per gram of tissue; s/s = REEDA, COCAF + pain.",Contaminated has organisms present but not yet causing infection. Infected = organism count exceeded threshold with clinical signs.
+NUR118,2153,L2_02,What are the 4 depths of wounds?,"Superficial (epidermis only), Partial thickness (epidermis + dermis), Full thickness (through dermis into subQ), Penetrating (through to underlying organs/cavity).",Depth determines healing method and risk. Full thickness wounds cannot heal by regeneration alone.
+NUR118,2154,L2_03,What does COCAF stand for and what are the 5 drainage types?,"COCAF = Color, Odor, Consistency, Amount, Frequency. Types: Serous (clear/watery = clean), Sanguineous (bright red = fresh blood), Serosanguineous (combo = new wound), Purulent (thick, odorous, white/yellow/grey = INFECTION), Purosanguineous (red-tinged pus = infection + new wound).",Purulent drainage = infection. Always document drainage using COCAF.
+NUR118,2155,L2_04,What are the 4 types of wound healing?,"1. Regenerative/Epithelial (partial thickness), 2. Primary Intention (clean, approximated edges, surgical wound — least infection risk), 3. Secondary Intention (greatest tissue loss, fills from base with granulation tissue — e.g. pressure ulcer), 4. Tertiary Intention (delayed closure — heals by secondary first, then sutured once no infection).","Primary = edges close together. Secondary = fills in from bottom. Tertiary = left open, then closed later."
+NUR118,2156,L2_05,What are the 3 phases of wound healing and their timeframes?,"1. Inflammatory/Cleansing: 1-5 days (hemostasis, scab, WBCs, macrophages). 2. Proliferative/Granulation: 5-21 days (HIGHEST infection risk, granulation tissue, epithelialization). 3. Maturation/Remodeling: 14-21 days to 3-6 months (collagen reorganized, scar tissue, ↑ tensile strength).",Highest infection risk is proliferative phase. Maturation can take months — scars continue to remodel.
+NUR118,2157,L2_05,What happens during the inflammatory phase of wound healing?,"Hemostasis: vessels constrict, platelets aggregate, clotting activates. Inflammation: edema, erythema, pain, ↑ temp, WBCs arrive, macrophages do phagocytosis, scab forms.",Inflammation is normal and necessary — it is the body cleaning the wound. Do not suppress it unnecessarily.
+NUR118,2158,L2_06,What are the 5 complications of wound healing?,"1. Hemorrhage (rapid blood loss), 2. Infection (organisms present, wound not healing), 3. Dehiscence (rupture/separation of wound layers), 4. Evisceration (total separation with protrusion of viscera — EMERGENCY), 5. Fistula Formation (abnormal passage connecting two body cavities).",Evisceration is always a surgical emergency. Cover with sterile saline-soaked towels immediately.
+NUR118,2159,L2_06 | L2_02,What does REEDA stand for?,"R = Redness, E = Edema, E = Ecchymosis, D = Drainage, A = Approximation. Used to assess surgical wounds.",REEDA gives a systematic framework for wound assessment. Approximation = are the edges coming together?
+NUR118,2160,L2_07,Define a pressure injury and reactive hyperemia.,"Localized injury to skin and underlying tissue, usually over a bony prominence. Pressure → tissue ischemia → cell death. Can occur in as little as 2 hours. Reactive hyperemia: pressure causes pale/cool skin; when relieved → red. If redness does not disappear quickly = NONBLANCHABLE = tissue damage.",Nonblanchable redness = Stage I pressure injury. The tissue is already damaged even though skin is intact.
+NUR118,2161,L2_08,What are the intrinsic factors for pressure injury development?,"Chronic illness (diabetes, corticosteroids), impaired circulation (atherosclerosis, low BP), reduced O2 in blood (anemia, tobacco), limited mobility/sensation (stroke, SCI, nerve damage, contractures), impaired cognition (Alzheimer's, dementia), immobility, poor nutrition, edema, age, fever/sepsis.",Intrinsic = internal to the patient. These are patient health status factors you cannot always control.
+NUR118,2162,L2_08,What are the extrinsic factors for pressure injury development?,"Friction, Shearing (patient sliding down — epidermis and dermis separate), Moisture, Compression over bony prominences or under medical devices (ET tubes, casts, catheters).",Extrinsic = external/environmental factors. These ARE controllable through nursing interventions.
+NUR118,2163,L2_09,Describe the 4 stages of pressure injuries.,"Stage I: skin INTACT, nonblanchable, epidermis only. Stage II: skin OPEN, partial thickness (epidermis + dermis), red-pink, may be blister. Stage III: full thickness (epidermis + dermis + subQ), may see fascia. Stage IV: full thickness + muscle/bone/tendon/joint capsule, slough/eschar, undermining/sinus tracts.","Healing ulcers are NEVER reverse-staged. A Stage IV healing = ""Stage IV: healing,"" not Stage III."
+NUR118,2164,L2_10,What is the Braden Scale and what are its 6 categories?,"Tool to assess skin impairment and pressure injury risk. 6 categories: Sensory Perception, Moisture, Activity, Mobility, Nutrition, Friction & Shear. LOWER score = MORE risk. ≤18 = at risk. <12 = high risk. Performed every shift/q8h.",Memory trick for categories: S-M-A-M-N-F (Some Moist Areas May Need Friction).
+NUR118,2165,L2_11,What are the key nursing interventions to prevent pressure injuries?,"Inspect skin daily/q1-2h. T&P q2h. Manage moisture (incontinence care, barrier cream). Lotion & massage — DO NOT massage over bony prominences. Monitor labs/nutrition/hydration. Pressure limiting devices. Keep HOB at lowest degree consistent with condition. Totally relieve heel pressure (raise heels off bed). Use lifting devices (Hoyer lift).",Massaging over bony prominences can increase tissue damage. Always lift — never drag — patients.
+NUR118,2166,L2_12,What are the effects and indications for heat therapy?,"Effects: vasodilation, ↑ capillary permeability, ↑ cellular metabolism, ↑ inflammation. Indications: joint stiffness, contractures, low back pain. Increases blood flow → brings O2 and WBCs → aids healing. Promotes relaxation, ↓ stiffness/muscle tension.",Heat increases circulation to the area — beneficial for healing but can worsen acute bleeding/swelling.
+NUR118,2167,L2_12,What are the effects and indications for cold therapy?,"Effects: vasoconstriction, ↓ capillary permeability, ↓ cellular metabolism, slowed bacterial growth, ↓ inflammation/edema, local anesthetic effect. Indications: fractures, post-injury swelling, bleeding, sprains, strains.","Cold reduces swelling and acts as a natural analgesic. Use for ACUTE injuries, not chronic stiffness."
+NUR118,2168,L2_12,What are the nursing interventions for heat/cold therapy?,"PCP prescription required (site, type, frequency, duration). Assess site and pt's perception of temp. VS pre & post. Inspect skin every 15 min. Receptors adapt in ~15 min — warn pt NOT to change temp. Monitor carefully: extremes of age, sensory impairment, highly vascular areas, large body area, injured skin.","If patient says it ""doesn't feel as hot/cold anymore"" — that is receptor adaptation, NOT a sign to increase temp."
+NUR118,2169,L3_01,What are reliable sources of drug information?,"US Pharmacopeia (USP/NF), Physician's Desk Reference (PDR), package inserts, nursing drug handbooks, Medline, DailyMed, clinical pharmacist, facility policies. Google/Facebook/Instagram/TikTok are NOT reliable.","As an RN you are ethically, legally, and personally responsible for knowing what you are giving. Always use reliable sources."
+NUR118,2170,L3_01,What information is found in a drug reference?,"Description, Action, Indication for use, Interactions, Contraindications, Precautions, Side effects, Adverse reactions, Dosage and routes of administration, How to store.","Know this list — if you don't know one of these things about a drug, look it up before giving it."
+NUR118,2171,L3_02,What are the 3 ways drugs are named?,"Chemical: exact composition, rarely used in nursing (isobutylphenyl propionic acid). Generic: official/common name, NOT capitalized (ibuprofen), listed in US Pharmacopeia. Trade: brand name, CAPITALIZED, trademark symbol (Motrin, Advil).",Generic = lowercase (ibuprofen). Trade = Capitalized (Advil). RNs use generic names most often.
+NUR118,2172,L3_03,What are the 4 ways drugs are classified?,"1. Body system (where it works — cardiovascular, GI), 2. Clinical indication/therapeutic use (why it's used — antihypertensive, laxative), 3. Physiologic/chemical action (what it does — beta blocker, stool softener), 4. Prescription/non-prescription/illegal.","One drug can appear in multiple categories — e.g., Tylenol is both analgesic and antipyretic."
+NUR118,2173,L3_04,What are all routes of administration?,"Oral, Enteral (NG/G-tube), Transmucosal (sublingual/buccal), Topical (skin/instillation/inhalation), Parenteral (IV/IM/SQ/ID), Parenteral other (intraspinal/intrathecal/epidural/rectal).",Parenteral = any route that bypasses the digestive system. IV is fastest onset.
+NUR118,2174,L3_04,What is the sublingual route and what drug uses it?,"Drug held UNDER THE TONGUE. Do NOT swallow — allow to dissolve and absorb. Rapid absorption into circulation, bypasses stomach. Example: NITROGLYCERIN.",Sublingual gives the fastest oral route absorption because it goes directly into blood vessels under the tongue.
+NUR118,2175,L3_04,What is the buccal route and what drug uses it?,"Drug held against mucous membrane IN THE CHEEK. Must dissolve. Rapid absorption, bypasses stomach. Examples: liquid Roxinol (end-of-life), Methyltestosterone.",Both sublingual and buccal bypass the GI tract for rapid absorption. Do not let patient swallow either.
+NUR118,2176,L3_04,What are the drug absorption sites from Table 2.1?,"Sublingual → under tongue (Nitroglycerin). Buccal → cheek (Methyltestosterone). Oral → stomach/intestine (Ibuprofen). IM → muscle (Prochlorperazine). SubQ → under skin (Epinephrine, Insulin). IV → bloodstream (Antibiotics, antineoplastics). Topical → through skin (Nitrodisc, hydrocortisone). Rectal → rectum (Bisacodyl).",Know each drug-to-route example from this table — it is directly tested.
+NUR118,2177,L3_04,"Compare IV, IM, SQ, and ID routes.","IV: directly in vein, fastest, one stick multiple doses, risk infection/vein problems. IM: into muscle, larger volume, risk nerve damage, no damaged tissue. SQ: under skin, slower than IM, small amounts only (insulin, heparin). ID: into dermis, very small amounts, slowly absorbed (PPD, allergy testing).",Speed of absorption: IV > IM > SQ > ID. IV is nearly instant. ID is the slowest.
+NUR118,2178,L3_05,What are the 4 concepts of pharmacokinetics (ADME)?,Absorption: drug moves from route of admin into bloodstream. Distribution: drug delivered via bloodstream to desired site. Metabolism: drug breaks down at site — PRIMARY SITE = LIVER. Excretion: drug eliminated — PRIMARY SITE = KIDNEYS.,"ADME: Absorption, Distribution, Metabolism, Excretion. Liver metabolizes, Kidneys excrete."
+NUR118,2179,L3_05,What factors affect drug absorption?,"Route (IV fastest), Drug solubility (water soluble = faster GI absorption; lipid soluble = penetrates cells; enteric coated = delayed; time release = slow), Blood flow to area (poor supply = poor absorption), Age (older adults have ↓ stomach acid, ↓ motility, ↓ muscle/subQ tissue), Patient condition.",Older adults absorb drugs more slowly and unpredictably — monitor carefully for toxicity.
+NUR118,2180,L3_06,"Define onset of action, peak, trough, and half-life.",Onset: TIME for drug to reach effective blood level. Peak: HIGHEST concentration — draw blood 2 HOURS after dose. Trough: LOWEST concentration (next dose due) — draw 30 MINUTES BEFORE next dose. Half-life: TIME for HALF the drug to be eliminated. Therapeutic range: concentration that causes desired effect without toxicity.,Peak draw = 2 hrs after dose. Trough draw = 30 min BEFORE next dose. These timing rules are critical for accuracy.
+NUR118,2181,L3_07,What are primary vs secondary drug effects?,"Primary effects: PREDICTED, DESIRED, INTENDED (therapeutic effect). Secondary effects: ALL UNINTENDED/non-therapeutic effects — everything other than what was intended.",Any effect beyond the desired therapeutic one is a secondary effect — may be harmless or dangerous.
+NUR118,2182,L3_07,What are the 6 types of secondary drug effects?,"1. Side effects (predictable, tolerable, can continue drug), 2. Adverse reactions (harmful, unpredicted, STOP drug), 3. Toxic reactions (damages organs, can be fatal), 4. Allergic reactions (immune response — hives to anaphylaxis), 5. Idiosyncratic (unexpected/paradoxical — opposite of expected), 6. Cumulative effect (↑ response from repeated doses when metabolism < administration rate — seen in liver/kidney failure).",Idiosyncratic example: Benadryl causing hyperactivity in a child instead of drowsiness. Paradoxical = opposite of expected.
+NUR118,2183,L3_07,What are the signs of anaphylactic allergic reaction?,"Life-threatening: laryngeal/pharyngeal edema, bronchoconstriction, hypotension. May start with hives (urticaria), itching (pruritus), swelling (edema), rhinitis.",Anaphylaxis is a medical emergency requiring epinephrine immediately. Progresses from mild to life-threatening rapidly.
+NUR118,2184,L3_08,What are the 5 types of drug interactions?,"1. Agonist: 1+1=2 (desired combined effects), 2. Antagonistic: 1+1=1 (one blocks the other), 3. Synergistic: 1+1=3 (additive — greater than either alone), 4. Potentiating: A+B=AAAAAA (one greatly enhances other TO TOXICITY), 5. Incompatibilities: 1+1=0 (mixed drugs cause chemical deterioration — clear IV turns cloudy = DO NOT give).",Incompatible drugs that are mixed and administered = MEDICATION ERROR. Always check compatibility before mixing.
+NUR118,2185,L4_01,What are the 4 components of body mechanics?,"Body alignment, Balance, Coordination, Joint mobility.",All 4 work together. Proper alignment = neutral spine. Wide base of support = balance.
+NUR118,2186,L4_01,What does the ANA (2013) say about patient lifting?,"Use mechanical equipment (transfer board, lift) OR get assistance for lifting/transferring whenever possible. Do NOT rely on body mechanics alone to prevent injury.","This is a safety standard to protect both nurses and patients. ""Get help"" is always the right answer."
+NUR118,2187,L4_01,What are the body mechanics rules for avoiding injury?,"Proper alignment (neutral spine). Wide base of support. Avoid bending/twisting (face object, squat). Keep objects close. Raise bed to waist height. Push/slide/pull rather than lift. Smooth even movements. Use mechanical equipment. Get help!",Squat to lift — lowers center of gravity. Keep elbows bent when carrying. Never jerk or twist.
+NUR118,2188,L4_02,What is the purpose of Range of Motion (ROM)?,"Exercise and keep body in best possible physical condition when bed rest or immobility is present. Improves joint mobility, increases circulation, maintains function, prevents contractures.","ROM = maximum movement possible at a joint. Without ROM exercises, joints stiffen and muscles waste."
+NUR118,2189,L4_03,What is the difference between AROM and PROM?,"AROM (Active ROM): done BY THE PATIENT without assistance — patient independently moves joints. PROM (Passive ROM): done BY THE NURSE FOR the patient because they CANNOT do it themselves — prevents complications of disuse, promotes joint mobility, prevents contractures/atrophy.",Active = patient does it. Passive = nurse does it FOR the patient. Both are valuable.
+NUR118,2190,L4_04,What are the 8 factors affecting activity and mobility?,"1. Developmental stage (age), 2. Cognitive status, 3. Nutrition (low albumin = muscle loss), 4. Lifestyle (sedentary), 5. Stress (cortisol/adrenaline = muscle tension, fatigue), 6. Environmental factors, 7. Diseases/abnormalities, 8. Respiratory/circulatory disorders, fatigue, bed rest.",Older adults should get 30 min/day including resistance and balance training to prevent falls.
+NUR118,2191,L4_05,What are the musculoskeletal complications of immobility?,"Balance problems, loss of endurance, muscle atrophy (10% strength loss PER WEEK), wasting of leg muscles, joint stiffness, ↓ stability, joint contractures (flexors pull joints → ankylosis), disuse osteoporosis (bone releases calcium), hypercalcemia.",Muscle atrophy begins within days. 10% per week is the key number for muscle strength loss.
+NUR118,2192,L4_05,What are the respiratory complications of immobility and interventions?,"Complications: ↓ lung expansion, respiratory muscle weakness, pooling of secretions, atelectasis, pneumonia. Interventions: orthopneic position, T&P q2h, cough & deep breathe, incentive spirometer, increase fluids to liquefy secretions.",Pooled secretions block airways → atelectasis → pneumonia. This is why we get immobile patients breathing deeply.
+NUR118,2193,L4_05,What are the cardiovascular complications of immobility and interventions?,"Complications: edema, venous stasis, DVT, orthostatic hypotension, blood pooling, ↑ HR, ↓ cardiac reserve. Interventions: DVT prophylaxis, ROM, monitor HR. Why: muscle contraction pumps blood back to heart — immobility stops this.",Stasis of blood = edema = thrombus. Prevent DVT before it becomes a PE.
+NUR118,2194,L4_05,What are the metabolic complications of immobility?,"Decreased serum albumin → edema. Decreased protein stores → muscle loss. Calcium leaves bones → hypercalcemia, osteoporosis, renal calculi, calcium deposits in joints. Decreased BMR. ↓ Protein/glycogen synthesis, ↑ fat stores.",Hypercalcemia from immobility can lead to kidney stones. Weight-bearing exercise is key for bone density.
+NUR118,2195,L4_05,What are the GI complications of immobility and interventions?,"Complications: anorexia (↓ appetite/digestion from ↓ metabolic rate), constipation (↓ peristalsis, gas), PARALYTIC ILEUS (cessation of peristalsis). Interventions: small frequent meals, high calorie/protein diet, monitor weight, ↑ fluids, ↑ fiber, monitor BMs, stool softeners.",Paralytic ileus = peristalsis stops completely. Listen for bowel sounds — their absence is a red flag.
+NUR118,2196,L4_05,What are the GU complications of immobility and interventions?,"Complications: renal calculi, ↓ urinary output, urinary stasis, UTIs, urinary retention (↓ bladder tone). Why: supine position inhibits drainage, urine stagnates, ↑ calcium → stone formation. Interventions: monitor I&O, encourage/increase fluids, sit upright or OOB to urinate.",Stagnant urine = perfect environment for bacteria + calcium stone formation.
+NUR118,2197,L4_05,What are the integumentary complications of immobility and interventions?,"Complication: Pressure injuries (pressure over bony prominences → ↓ circulation → tissue hypoxia → tissue damage). Interventions: T&P q2h, pressure-reducing devices, trapeze, turn sheets, friction-reducing devices, keep incontinent skin clean and dry.",Pressure injuries can develop in as little as 2 hours — this is why T&P q2h is the standard.
+NUR118,2198,L4_05,What are the psychosocial complications of immobility and interventions?,"Complications: depression, behavioral changes, sleep disturbances, isolation, sensory deprivation, ↑ dependence, moodiness/anxiety/hostility, ↓ concentration/recall, reduced self-care ability. Interventions: provide socialization, place with others, social worker consult, activities.",Immobility affects the whole person — not just the body. Emotional and cognitive decline are real complications.
+NUR118,2199,L5_01,What are the 3 phases of perioperative nursing and when does each begin/end?,"Preoperative: client's decision to have surgery → enters OR. Intraoperative: enters operating suite → admitted to PACU. Postoperative: enters PACU → healed from procedure (2 parts: recovery from anesthesia in PACU, then recovery from surgery on surgical unit).",Know the exact start and end points for each phase — these are commonly tested.
+NUR118,2200,L5_02,What are the 4 ways surgeries are classified?,"1. By body system, 2. By purpose, 3. By degree of urgency, 4. By degree of risk.",Each classification system has its own categories. Know examples for each.
+NUR118,2201,L5_02,What are the 7 surgical purposes?,"Ablative (removal — appendectomy), Diagnostic (confirm dx — biopsy), Palliative (relieves symptoms, not curative — nerve root destruction), Reconstructive (restores function — rotator cuff), Cosmetic (appearance — facelift), Transplant (replaces organ), Procurement (organ harvested for another patient).",Palliative does NOT cure — it only relieves suffering. Procurement = organ donation surgery.
+NUR118,2202,L5_02,What are the 3 degrees of urgency in surgery?,"Elective: recommended, NOT time-sensitive, pt may delay (rotator cuff, liposuction). Urgent: within 24-48 hours to alleviate/restore (cancerous breast removal, internal fracture fixation). Emergency: ASAP to preserve life/function (trauma, organ rupture, hemorrhage, bowel perforation).",Urgency determines how quickly prep must happen. Emergency = no time for full pre-op workup.
+NUR118,2203,L5_02,What is major vs minor surgery?,"Major: high risk, significant blood loss, prolonged/complicated, vital organs, high postop complications (CABG, colon resection, nephrectomy). Minor: low risk, often outpatient, few complications (arthroscopy, breast biopsy, endoscopy, inguinal hernia repair).","Risk depends on: client condition, type of surgery, anesthesia used, pre-existing conditions."
+NUR118,2204,L5_03,What are the key factors contributing to surgical risk?,"Age (very young/very old), type of wound, pre-existing conditions (infections, cardiac, COPD, diabetes, liver/kidney disease), mental status, medications, personal habits (smoking, alcohol), allergies (antibiotics, analgesics, latex, anesthesia, shellfish).",Allergies to shellfish/iodine are relevant because many contrast dyes used in surgery contain iodine.
+NUR118,2205,L5_03,How do medications increase surgical risk? Give examples.,"Anticoagulants (↑ bleeding), Antihypertensives (↑ hypotension, bradycardia with anesthesia), Aspirin (↑ bleeding), Corticosteroids (delay healing, ↑ infection), Opioids (↑ resp depression), Antibiotics (mask infections, potentiate anesthetics), Antidysrhythmics (impair cardiac during anesthesia), Diuretics (alter F/E — especially K+), NSAIDs (↑ bleeding), Tranquilizers (↑ resp depression).",Always review ALL medications — including OTC and herbals — before surgery.
+NUR118,2206,L5_03,What is the most common surgical complication in older adults?,"DELIRIUM. Predisposing factors: older age, functional disabilities, many coexisting conditions, poor vision/hearing, cognitive impairment, alcohol abuse.",Delirium in older surgical patients is NOT normal confusion — it is a complication that must be identified and treated.
+NUR118,2207,L5_04,What are the preoperative nursing responsibilities?,"History & physical, Lab & diagnostic tests, Pre-op teaching, Informed consent, Prepare client physically & mentally.",All 5 must be completed before surgery. The nurse coordinates — the surgeon explains the procedure.
+NUR118,2208,L5_04,What does the pre-op history & physical include?,"History: health history, allergies, medications, mental status, understanding of surgery. Physical: head-to-toe assessment, respiratory status, VS, risk for thrombophlebitis (immobility, dehydration, long surgeries, heart failure, varicose veins, pregnant/recent childbirth, smoker).",ALL patients must be assessed for thrombophlebitis risk pre-op.
+NUR118,2209,L5_04,What pre-op lab/diagnostic tests are ordered and why?,"CBC (anemia, WBC, clotting), Urinalysis (UTI, diabetes, pregnancy), CMP (electrolytes, liver, albumin, BUN/creatinine), Fasting Blood Sugar (DM), Blood type & crossmatch (transfusion), Serum Electrolytes (CV/renal/F&E), ECG (cardiac dysrhythmias), CXR (pulmonary disease, heart size), Serum Albumin (nutrition).",Each test has a specific purpose tied to surgical risk. Know what each test detects.
+NUR118,2210,L5_04,What are the physical preparation steps before surgery?,"Maintain normothermia, NPO status (after midnight/6-8 hrs preop), skin prep (chlorhexidine), bowel prep, last void or catheterization, pre-op meds, status of routine meds. REMOVE: dentures, artificial limbs, contacts, wigs, jewelry, nail polish, eyeglasses, hearing aids. Apply anti-embolism stockings/SCDs.","Label any kept items (eyeglasses, hearing aids). Nail polish is removed to allow pulse ox monitoring."
+NUR118,2211,L5_04,What does pre-op teaching include?,"Pain management (priority), Coughing & deep breathing (prevents atelectasis/pneumonia), Incentive spirometer (INSPIRATION — opens alveoli), Splinting (folded blanket/pillow — ↓ pain, ↓ dehiscence risk), Leg exercises (ankle circles, knee bends — prevent DVT), Anti-embolism stockings, Sequential compression devices, Post-op dressings/equipment.",Pre-op teaching is done before surgery so the patient knows what to expect and can practice.
+NUR118,2212,L5_04,What are the pre-op medications and their purposes?,"Opioids (morphine, meperidine, fentanyl — pain/sedation), Antibiotics (ampicillin, vancomycin, cefazolin — reduce microbial burden), Midazolam/VERSED (anxiolytic, amnesiac, benzodiazepine), Propofol/DIPRIVAN (moderate sedation), Atropine (anticholinergic — reduces secretions, prevents aspiration), Ondansetron (antiemetic — prevents vomiting → aspiration pneumonia).",Atropine dries up secretions to reduce aspiration risk. Ondansetron prevents N&V that could cause aspiration.
+NUR118,2213,L5_05,What are the roles of the surgeon and nurse in informed consent?,"SURGEON: explains procedure/risks/benefits, obtains signature, determines competence. NURSE: verifies consent signed & witnessed, witnesses signing, verifies it is in medical record. RN does NOT explain the procedure. If pt doesn't understand → STOP, notify surgeon, DO NOT send to OR.",The RN's role is verification and witnessing — NOT explanation. Never send a patient to the OR who does not understand their surgery.
+NUR118,2214,L5_06,What is the Universal Protocol and Time Out?,"Universal Protocol includes site marking and Time Out. Site marking: practitioner marks, nurse VERIFIES, involve patient. Time Out: occurs INTRAOPERATIVELY, all team members pause IMMEDIATELY before procedure, each member identifies: PATIENT, SITE, PROCEDURE.","Time Out prevents wrong-patient, wrong-site, wrong-procedure errors. Every team member must participate."
+NUR118,2215,L5_07,What is the role of the circulating nurse vs the scrub nurse?,"Circulating nurse: CLEAN team, does NOT enter sterile field, client advocate, coordinator, monitors pt and sterile field, documents, handles specimens. Scrub nurse: STERILE team, sets up sterile field, prepares instruments, passes to surgeon, maintains sterile field integrity — BOSS of sterile field.","Circulating = clean, moves around room. Scrub = sterile, stays at the sterile field."
+NUR118,2216,L5_08,What are the 4 types of anesthesia?,"Local: loss of pain at site only, minor procedures, injected or topical (lidocaine, benzocaine). Moderate/Conscious Sedation: sedation + analgesia, pt aware but sleepy, rapid recovery (endoscopies). Regional: interrupts nerve impulses to area, pt awake (nerve blocks, spinal, epidural). General: rapid unconsciousness via inhaled/IV meds, requires INTUBATION, risk of stroke/death/MI.",Regional = awake but numb. General = completely unconscious and requires airway management.
+NUR118,2217,L5_08,What is the PACU priority assessment (ABCs)?,"1. Airway (patent? chest rising? if unconscious → side-lying), 2. Breathing (RR, lung sounds, skin color, pulse ox >90%), 3. Circulation (BP, pulse, drainage on dressing, peripheral pulses, hematoma), 4. Nausea/Pain (vomiting can obstruct airway).",Phase 1 PACU = highest risk for respiratory and cardiac compromise. ABC assessment is the priority.
+NUR118,2218,L5_08,What are the criteria for evidence of recovery from anesthesia in the PACU?,"Airway: maintains patent airway, can cough/expectorate. LOC: conscious, easily reoriented. VS: stable. Mobility/sensation: moves all extremities, spinal/epidural worn off. Fluid balance: urinating ≥30 mL/hr. Dressings: dry and intact or drainage appropriate for procedure.",Urinating ≥30 mL/hr is the key indicator of adequate renal perfusion and fluid balance after anesthesia.
+NUR118,2219,L6_01,What are the VS assessment intervals when a patient arrives from PACU to the surgical floor?,"On arrival: IMMEDIATELY. Then: q15 min x 1 hour, q30 min x 2 hours, q1 hour x 4 hours, then q4 hours. Assessment = full physical head-to-toe including all lines, tubes, dressings, I&O.","These intervals reflect the highest monitoring intensity immediately post-op, tapering as the patient stabilizes."
+NUR118,2220,L6_01,What is progressive ambulation and what is the sequence?,"Post-op ambulation sequence: 1. Sit and dangle feet at bedside (assess for orthostatic hypotension/dizziness/pain), 2. Sit in chair (OOB), 3. Walk in room, 4. Walk in hallway. Must be assisted. Check VS stable before getting up.",Low BP on standing = orthostatic hypotension → patient will faint. Always check VS and have patient dangle first.
+NUR118,2221,L6_02,What is the post-op diet progression order?,NPO → Clear Liquids → Full Liquids → Soft Diet → Prescribed/Regular diet.,Progress only when each stage is tolerated. Must verify 6 things before starting any diet.
+NUR118,2222,L6_02,What foods are included in Clear Liquids?,"Black coffee, plain tea, carbonated drinks, bouillon/broth, clear fruit juice, popsicle, gelatin, hard candy.","Clear liquids = no solids, no dairy, nothing you cannot see through. Think: see-through and non-dairy."
+NUR118,2223,L6_02,What foods are included in Full Liquids?,"All clear liquids PLUS: milk/dairy, vegetable juices, cream, butter, yogurt, puddings, custard, cream of wheat, ice cream, sherbet.",Full liquids = everything liquid or that melts at room temperature. Dairy is now allowed.
+NUR118,2224,L6_02,What 6 things must be assessed before starting a post-op diet?,"1. HCP orders, 2. LOC (never feed unconscious pt), 3. Can they swallow? (if can't swallow saliva, can't swallow food), 4. Do they have a gag reflex? (without gag → aspirate), 5. Is GI tract functioning? (bowel sounds, belching, passing flatus), 6. Nausea? Vomiting?",All 6 must be checked EVERY time before advancing diet. Missing any one of these risks aspiration.
+NUR118,2225,L6_03,What are the 3 surgical drains and how does each work?,"Penrose: flat flexible latex tube, not sutured, placed in wound bed, measure exposed length each assessment. Jackson-Pratt (JP): suction drain, must COMPRESS to activate suction, empty at ½ full. Hemovac: suction drain, must compress for suction, empty at intervals.","JP and Hemovac both use suction — if full, suction fails. Never wait until completely full. ALWAYS maintain drains BELOW incision site."
+NUR118,2226,L6_03,What does ongoing drain assessment include?,"Is it draining? COCAF — color/amount changed? Stopped? Why? What does the drain site look like? REEDA? Pain? Report any significant change to provider. If no drainage → may be occluded, remove kinks. MAINTAIN drains BELOW incision site.",A drain that suddenly stops draining may be kinked or occluded — investigate before assuming the wound stopped draining.
+NUR118,2227,L6_04,What does REEDA stand for and what is it used for?,"R = Redness, E = Edema, E = Ecchymosis, D = Drainage, A = Approximation. Used to assess surgical wounds post-op. Surgeon changes the FIRST dressing.",Approximation = are wound edges coming together? If not → dehiscence risk. Count sutures/staples/steri-strips.
+NUR118,2228,L6_05,What is dehiscence and what are the nursing interventions?,"Separation of ONE OR MORE layers of wound (not total). Causes: poor nutrition, obesity, strain on suture line, infection. Interventions: dry sterile dressing, HOB 20 degrees + knees flexed, apply BINDER (to prevent evisceration), notify provider, monitor.",Dehiscence = partial separation. Binder prevents it from progressing to evisceration. HOB and knees flexed reduce tension on incision.
+NUR118,2229,L6_05,What is evisceration and what are the nursing interventions?,"TOTAL separation of wound layers with internal viscera PROTRUDING through. Surgical EMERGENCY. Interventions: cover with STERILE TOWELS soaked in STERILE SALINE, bedrest with KNEES BENT, HOB 20 degrees, DO NOT put a binder on, notify surgeon, PREP FOR SURGERY.","NO binder with evisceration — organs are already out, binder would compress them. Moist sterile towels prevent drying and contamination."
+NUR118,2230,L6_06,What are the signs and interventions for post-op hemorrhage?,"Risk greatest: first 24-48 hours. External: dressing saturated bright red blood, ↑ blood in drains, dependent drainage (check UNDER pt). Internal: ↑ pain, edema/swelling around incision, hematoma, ecchymosis. VS both: TACHYCARDIA + FALLING BP (hypotension). Interventions: monitor VS, assess dressing/drainage/wound/drains.",If dressing has blood — ALWAYS check under the patient for pooled dependent drainage. Internal bleed is harder to detect.
+NUR118,2231,L6_06,What are the signs of post-op infection and when do they appear?,"S/S: swelling, redness, heat, pain, fever >100.4°F, ↑ HR, foul/purulent drainage. Clean wound: s/s NOT until 4th-5th post-op day. Contaminated/traumatic wound: s/s within 2-3 days. Interventions: monitor s/s, VS, sterile technique for dressing changes, hand hygiene, culture if ordered.",The 4th-5th day rule for clean wounds is high-yield. Earlier signs = think contaminated wound.
+NUR118,2232,L6_06,What are the signs and treatment of thrombophlebitis vs pulmonary embolism?,"Thrombophlebitis: blood clot + inflammation in leg vein; caused by blood stasis; s/s: leg red, hot, edematous, cramping. Treatment: immobilize limb, may have heparin. PE: clot breaks off, travels to lungs; s/s: SUDDEN dyspnea, SOB, chest pain, hypotension, tachycardia, ↓ SaO2, cyanosis. Prevention: PREVENT DVT.",PE is life-threatening. Sudden dyspnea after surgery = think PE until proven otherwise.
+NUR118,2233,L6_06,What is post-op pneumonia and its signs?,"Inflammation of alveoli from hypoventilation secondary to anesthesia and opioids, poor cough effort. Airways fill with solid material. S/S: productive cough (blood-tinged or purulent), fever, chills, ↑ WBC, ↓/absent lung sounds, low SaO2, dyspnea, pleural pain, tachycardia/tachypnea, malaise.","Prevent with incentive spirometer, C&DB, early ambulation, and adequate pain control so pt can breathe deeply."
+NUR118,2234,L6_06,What is aspiration pneumonia and why does it occur post-op?,"Airway inflammation from inhaling gastric secretions (HCl) due to absent gag reflex from anesthesia. S/S: cough, fever, ↑ WBC, ↓ breath sounds, ↓ SaO2, tachypnea, blood-tinged sputum. Prevention: NPO ≥8 hrs preop, NPO postop until GI motility returns, side-lying if sedated, check gag reflex before diet.","This is WHY we check LOC, swallow ability, gag reflex, and bowel sounds before starting any diet."
+NUR118,2235,L6_06,What is post-op nausea and vomiting (N&V) and how is it managed?,"Related to pain, anxiety, anesthesia, or oral intake before peristalsis returns. Risks: aspiration pneumonia, dehiscence (strain on suture line). Interventions: keep NPO, assess for return of bowel sounds, administer antiemetic as ordered (ondansetron).",Vomiting strains the incision and risks aspiration. Ondansetron (anti-emetic) is on the Unit 1 drug list.
+NUR118,2236,L6_07,What are the 3 ways pain is classified?,"1. By ORIGIN: cutaneous (skin/subQ), deep somatic (ligaments/bone/tendons), visceral (organs), radiating/referred, phantom (missing limb), psychogenic (no physical cause). 2. By CAUSE: nociceptive (tissue damage), neuropathic (nerve injury — burning/numbness/pins & needles). 3. By DURATION: acute (rapid onset, up to 6 months), chronic (3-6+ months, interferes with ADLs), intractable (chronic, highly resistant to relief, needs multiple methods).",All 3 classification systems can be tested independently. Phantom pain is real — the brain perceives it.
+NUR118,2237,L6_08,What are the 4 pain assessment scales and when to use each?,"NRS (0-10): adults who can count — 0=no pain, 10=worst. VAS: 10-cm line, simple/quick but may be abstract. Wong-Baker FACES: children >3 yrs, adults with communication/cognitive impairments — face illustrations, no numbers needed. FLACC (<4 yrs or nonverbal): Face/Legs/Activity/Cry/Consolability, each 0-2, for 2 months-7 years OR anyone unable to communicate.","Key ages: FLACC <4 yrs, Wong-Baker >3 yrs. Absence of cues does NOT mean no pain — especially in cognitively impaired."
+NUR118,2238,L6_09,Name the 16 non-pharmacologic pain interventions.,"1. Positioning/posture, 2. Education/anticipatory guidance, 3. Touch/massage (back rub), 4. Relaxation/distraction/music/pet therapy, 5. Meditation/guided imagery, 6. Aromatherapy, 7. Acupuncture/acupressure, 8. TENS, 9. PENS, 10. Heat/cold treatment, 11. Contralateral stimulation, 12. Progressive muscle relaxation, 13. Hypnosis, 14. Journaling, 15. Humor, 16. Oral sucrose. Use IN CONJUNCTION with medications.","These do NOT replace medications — they supplement them. Used together, pain management is most effective."
+NUR118,2239,L6_10,What are the side effects of opioids and the reversal agent?,"Side effects: respiratory depression, sedation, nausea, vomiting, constipation, urinary retention, facial flushing, itching. If RR <10: STOP opioids, give NALOXONE (NARCAN). Always assess RR, O2 sat, and LOC before AND after administering opioids.",Respiratory depression is the most dangerous opioid side effect. Narcan reverses all opioid effects including pain relief.
+NUR118,2240,L6_10,What are the 2 PCA modes and the nursing responsibilities?,"Mode 1: patient pushes button for dose. Mode 2: patient pushes button PLUS continuous basal dose. Nursing: verify order/allergies/settings with 2 RNs, continuous pulse oximetry, NEVER push button for pt, never allow family to push button, educate pt (call before OOB, use before activity).","NEVER push the PCA button for the patient — the safety mechanism is that ONLY the patient presses it, preventing overdose."
+NUR118,2241,L6_10,What is the drug classification of acetaminophen?,"Analgesic, Antipyretic",Acetaminophen relieves pain and reduces fever. It is NOT an anti-inflammatory (not an NSAID).
+NUR118,2242,L6_10,"What is the drug classification of acetylsalicylic acid (aspirin), ibuprofen, and ketorolac?","NSAID — Non-Steroidal Anti-Inflammatory Drug: Analgesic, Antipyretic, Anti-inflammatory","NSAIDs have 3 effects: pain relief, fever reduction, AND anti-inflammation. Differ from acetaminophen which lacks the anti-inflammatory effect."
+NUR118,2243,L6_10,"What is the drug classification of codeine, oxycodone/acetaminophen, morphine sulfate, and hydromorphone?",Opiate Analgesic,"Opiates bind to opioid receptors to relieve pain. All carry risk of respiratory depression, constipation, and dependence."
+NUR118,2244,L6_10,What is the drug classification of naloxone?,Opiate Antagonist,Naloxone (Narcan) reverses opioid effects. Give when RR <10 after opioid administration.
+NUR118,2245,L6_10,What is the drug classification of lidoderm (lidocaine)?,Local Anesthetic,Lidocaine blocks nerve conduction locally. Used for local pain relief without affecting consciousness.
+NUR118,2246,L3_04 | L5_04,"What is the drug classification of penicillin (ampicillin), gentamycin sulfate, and azithromycin?",Anti-infective,Anti-infectives fight bacterial infections. Used pre-op to reduce microbial burden and post-op to treat infections.
+NUR118,2247,L5_04,What is the drug classification of midazolam and propofol?,"Anesthetic Sedation. Midazolam (Versed) = anxiolytic, benzodiazepine, amnesiac. Propofol (Diprivan) = used for moderate sedation.",Midazolam causes amnesia — patients may not remember events during the procedure. Propofol has very rapid onset and offset.
+NUR118,2248,L5_04,What is the drug classification of atropine sulfate?,"Anticholinergic, Cardiac Agent","Atropine reduces oral and pulmonary secretions pre-op, decreasing the risk of aspiration pneumonia. Also used for bradycardia."
+NUR118,2249,L4_05,What is the drug classification of docusate sodium?,Stool Softener,Docusate sodium (Colace) softens stool by drawing water into it. Used to prevent constipation in immobile or post-op patients.
+NUR118,2250,L4_05,What is the drug classification of senna?,Laxative / Antacid,Senna stimulates intestinal motility. Often combined with docusate for opioid-induced constipation.
+NUR118,2251,L4_05,What is the drug classification of polyethylene glycol?,Bulk-forming Fiber Laxative,Polyethylene glycol (MiraLax) draws water into the colon to soften and increase stool bulk. Often used for constipation from immobility.
+NUR118,2252,L6_06,What is the drug classification of ondansetron?,Anti-emetic,Ondansetron (Zofran) prevents and treats nausea and vomiting. Used post-op to prevent aspiration pneumonia from vomiting.
+NUR118,2253,L2_01,What is the drug classification of ascorbic acid and zinc?,Vitamins. Ascorbic acid = Vitamin C. Zinc = trace mineral/vitamin supplement.,Both ascorbic acid (Vitamin C) and zinc are essential for wound healing — collagen synthesis and immune function.
