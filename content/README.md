@@ -1,9 +1,9 @@
 # Study guide content
 
-NUR 144 is a course tab in the top switcher, alongside NUR 116 and NUR 118.
-Selecting it points the **Study Guide** nav item at the markdown guides below;
-Practice, Quiz and Dashboard show an empty state, because the course has no
-flashcard or quiz data and is not meant to.
+NUR 144 and NUR 146 are course tabs in the top switcher, alongside NUR 116 and
+NUR 118. Selecting one points the **Study Guide** page at the markdown guides
+below. The site is static: the guides here, and the flashcard and quiz CSV
+files under `downloads/`, are everything it serves.
 
 The guides are plain markdown files served as static assets. Nothing here is in
 the database — to change a guide, edit the `.md` file and redeploy.

@@ -1,0 +1,1149 @@
+﻿objective,id,type,question,options,correct,explanation
+N144_L1_O1,3417,Multiple choice,A patient with a new ascending colostomy asks why their output is watery when their roommate's descending colostomy produces formed stool. Which explanation is correct?,"A) The roommate has had the colostomy longer
+B) Water is reabsorbed as contents pass through the colon
+C) The roommate eats more fiber
+D) An ascending colostomy drains the small intestine",B,"The colon reabsorbs water along its length. An ascending stoma is early in that process; a descending stoma is late. Time since surgery, diet, and small-intestine anatomy do not explain the difference."
+N144_L1_O1,3418,Multiple choice,A patient in septic shock has absent bowel sounds and no stool output for two days. Which physiologic explanation is most likely?,"A) Sympathetic activation has suppressed gut motility
+B) Parasympathetic activation has caused paralytic ileus
+C) The colon has reabsorbed all available fluid
+D) Antibiotics have eliminated the gut microbiome",A,Sympathetic tone shunts blood away from digestion and inhibits motility and secretions — the fight-or-flight state. Parasympathetic activation would increase motility. Fluid reabsorption and microbiome loss do not produce absent bowel sounds.
+N144_L1_O2,3419,Multiple choice,A patient with celiac disease follows a strict diet but still has low iron and low vitamin D. Which explanation should the nurse offer?,"A) Gluten exposure is still occurring somewhere
+B) The intestinal villi have not yet recovered
+C) Celiac disease also impairs gastric acid production
+D) The liver is not storing vitamins properly",B,"Celiac damages the villi and microvilli, which provide the surface area for absorption. Recovery takes months after gluten removal, so deficiencies persist. Ongoing exposure is possible but not the first explanation. Gastric acid and liver storage are not the mechanism."
+N144_L1_O2,3420,Multiple choice,A patient has had a total gastrectomy. Which supplement should the nurse anticipate for the rest of their life?,"A) Oral iron
+B) Vitamin B12 injections
+C) Calcium carbonate
+D) Pancreatic enzyme replacement",B,"Parietal cells in the stomach make intrinsic factor, without which B12 cannot be absorbed. No stomach, no intrinsic factor, so B12 must bypass the gut. Iron and calcium absorption are affected but not eliminated. Pancreatic enzymes are unaffected."
+N144_L1_O2,3421,Multiple choice,A patient asks why their bile-related problem causes pale stool. Which response is correct?,"A) Bile carries iron, which darkens stool
+B) Bile pigment is what makes stool brown
+C) Undigested fat lightens the stool
+D) Bile stimulates bacteria that color the stool",B,"Bilirubin in bile, broken down by gut bacteria, gives stool its brown color. Block the bile and the color goes with it. Fat malabsorption makes stool greasy and bulky, not pale-gray. Iron darkens stool but is not why bile matters."
+N144_L1_O2,3422,Multiple choice,A patient with an esophageal perforation is deteriorating. The nurse understands the contamination is spreading into which space?,"A) The peritoneal cavity
+B) The mediastinum
+C) The retroperitoneum
+D) The pleural space only",B,"The esophagus lies outside the peritoneum, in the mediastinum among the heart and great vessels. A leak contaminates the chest, which is why the pain is retrosternal and subcutaneous emphysema appears in the neck. Stomach or bowel perforation would spill into the peritoneum."
+N144_L1_O3,3423,Multiple choice,"A chart states the patient has ""odynophagia."" A student assumes this means the patient cannot swallow at all. Which correction is accurate?","A) It means swallowing is difficult, not impossible
+B) It means swallowing is painful
+C) It means food comes back up after swallowing
+D) It means the patient has bad breath",B,ODYNO- relates to pain. Dysphagia is difficulty; regurgitation is return of food; halitosis is bad breath. She noted students lose points for not knowing alternate terms.
+N144_L1_O3,3424,Multiple choice,"A patient is scheduled for a ""gastrostomy."" Their family asks if this is the same as the ""gastroscopy"" the patient had last month. Which response is correct?","A) Yes, they are two spellings of the same procedure
+B) No — one creates an opening, the other looks inside
+C) No — one is surgical, the other is imaging
+D) Yes, but this time it will be under anesthesia",B,"-OSTOMY is an opening (os = mouth/opening, as in NPO). -OSCOPY is scoping to look inside. One letter apart, completely different procedures."
+N144_L1_O3,3425,Multiple choice,"A nursing note reads ""patient reports anorexia."" Which action is appropriate?","A) Initiate an eating disorder screening
+B) Assess for causes of decreased appetite
+C) Request a psychiatric consult
+D) Document as a medication side effect",B,"Anorexia means lack of appetite from any cause — disease, medication, illness. Anorexia nervosa is the separate psychiatric diagnosis. The nurse assesses the cause rather than assuming one."
+N144_L1_O4,3426,Multiple choice,"A nurse palpates a patient's abdomen and then auscultates bowel sounds, documenting them as hyperactive. What is the problem with this assessment?","A) Bowel sounds should be documented as a rate, not a description
+B) Palpation before auscultation alters motility and invalidates the finding
+C) Hyperactive sounds must be confirmed by a second nurse
+D) The patient should have been NPO for the assessment",B,"Abdominal assessment runs inspection, auscultation, percussion, palpation — auscultation early because manipulating the abdomen changes motility. The hyperactive finding may be an artifact of the palpation."
+N144_L1_O4,3427,Multiple choice,A patient is supine with legs extended for an abdominal exam and is guarding when the nurse tries to palpate. Which action is most appropriate?,"A) Palpate more lightly
+B) Have the patient flex their knees with feet flat
+C) Sit the patient upright
+D) Defer palpation and document guarding",B,"Dorsal recumbent — knees flexed, feet flat — relaxes the abdominal wall. Supine with legs extended keeps the muscles taut. Guarding in that position may be positional, not pathological."
+N144_L1_O4,3428,Multiple choice,"On percussion the nurse notes dullness in the left lower quadrant of a patient who reports feeling ""backed up."" Which interpretation is most likely?","A) Ascites
+B) Splenic enlargement
+C) Stool in the sigmoid colon
+D) A pelvic mass",C,"Hollow is normal on percussion. Dullness in the LLQ specifically suggests stool in the sigmoid, which sits there. Ascites would be dull in dependent areas generally; the spleen is in the left upper quadrant."
+N144_L1_O4,3429,Multiple choice,"An 82-year-old has lost 12 pounds in four months. During the history the patient mentions their dentures ""don't fit right anymore."" Which nursing action addresses the most likely cause?","A) Order a calorie count
+B) Refer for a dental evaluation
+C) Screen for depression
+D) Request an oncology workup",B,"Older adults lose weight when they cannot chew. Ill-fitting dentures are a mechanical cause of reduced intake and the history handed it to you. The other options may follow, but the dental issue is the direct finding."
+N144_L1_O4,3430,Multiple choice,Which statement by a patient should the nurse document as constipation?,"A) I go every other day, always have
+B) I usually go three times a day but haven't in two days
+C) I go once a day but the stool is soft
+D) I go twice a week and it's normal for me",B,"Constipation is defined relative to the patient's own baseline. A change from three times daily to none in two days is constipation for that person, even though two days is within many people's normal range. Twice a week with no change is not."
+N144_L1_O4,3431,Select all,A patient with a history of GI bleeding reports black stool. Which questions should the nurse ask before assuming the bleeding has recurred? Select all that apply.,"A) Have you taken any iron supplements?
+B) Have you eaten beets recently?
+C) Have you used Pepto-Bismol?
+D) Have you eaten black licorice?
+E) Have you had a barium study?","A, C, D","Iron, bismuth, and black licorice all produce black stool. Beets produce red. Barium produces milky white. The nurse rules out benign causes but never assumes benign — melena looks identical."
+N144_L1_O4,3432,Multiple choice,A patient with dentures is admitted with a mouth lesion. What must the nurse do before inspecting the oral cavity?,"A) Have the patient rinse with chlorhexidine
+B) Remove the dentures
+C) Apply a topical anesthetic
+D) Obtain a culture of the lesion",B,"You cannot see the underlying mucosa with dentures in — and that is where lesions, infections, and cancers occur. The other steps may follow but do not enable the inspection."
+N144_L1_O4,3433,Multiple choice,"A patient soaks their dentures in hot water each night ""to kill germs."" Which teaching is needed?","A) Hot water is fine if a denture cleanser is added
+B) Hot water warps dentures; use cool water or a denture product
+C) Dentures should be soaked in mouthwash instead
+D) Dentures should never be soaked, only brushed",B,"Hot water warps dentures. They are removed at night and soaked in cool water or a denture product. Warm salt water is for rinsing the mouth, not the dentures — a common confusion."
+N144_L1_O4,3434,Multiple choice,"A patient who received chemotherapy last week begins vomiting as the oncology nurse walks into the room, before any medication is given. Which type of vomiting is this?","A) Medication-induced
+B) Anticipatory
+C) Visceral
+D) Vestibular",B,"Anticipatory vomiting is a conditioned response that begins before the trigger. Chemotherapy is highly emetogenic, and patients associate the setting or the person with it. Medication-induced requires the drug to be given."
+N144_L1_O5,3435,Multiple choice,A patient scheduled for a gFOBT reports eating a steak last night and taking their daily aspirin this morning. Which action is correct?,"A) Proceed — neither affects the test
+B) Reschedule after the required restriction period
+C) Proceed but note a possible false negative
+D) Switch to a stool DNA test instead",B,"Red meat and NSAIDs cause false POSITIVES on gFOBT, because the reagent reacts to any blood. Red meat is held 3 days, NSAIDs 7. Vitamin C causes false negatives. A FIT would need no restrictions, but the ordered test is gFOBT."
+N144_L1_O5,3436,Multiple choice,A patient on omeprazole for six months has a urea breath test scheduled for tomorrow. Which action is correct?,"A) Proceed as scheduled
+B) Hold tonight's dose only
+C) Contact the provider — the PPI needed to be held for two weeks
+D) Give an extra dose to ensure H. pylori is suppressed",C,"PPIs suppress H. pylori without killing it, so the organism stops splitting urea and the test reads falsely negative on an infected patient. PPIs are held 2 weeks; antibiotics and bismuth 1 month. One missed dose is not enough."
+N144_L1_O5,3437,Multiple choice,A patient returning from an EGD asks for water. The nurse checks and finds the gag reflex has not returned. Which action is correct?,"A) Give small sips with the head elevated
+B) Give ice chips only
+C) Withhold all oral intake and recheck
+D) Give water through a straw",C,Without a gag reflex the patient cannot protect their airway. Anything by mouth — including ice chips — risks aspiration. The reflex must return first regardless of position or method.
+N144_L1_O5,3438,Multiple choice,A patient with suspected reflux had a normal endoscopy. The provider orders 24-hour pH monitoring. The patient asks why another test is needed if the first was normal. Which response is correct?,"A) The endoscopy may have been performed incorrectly
+B) Reflux is diagnosed by acid exposure over time, not appearance
+C) pH monitoring checks for H. pylori
+D) The second test is required by insurance",B,"The esophagus can look completely normal in significant GERD. pH monitoring is the gold standard because the diagnosis is about acid exposure over time. Endoscopy evaluates complications, not the diagnosis itself."
+N144_L1_O5,3439,Multiple choice,A patient with acute severe diverticulitis has a colonoscopy ordered. Which action is correct?,"A) Begin bowel prep as ordered
+B) Question the order
+C) Proceed without bowel prep
+D) Request a sigmoidoscopy instead",B,"Colonoscopy is contraindicated in acute severe diverticulitis, suspected perforation, and acute colitis — insufflating air into inflamed bowel risks perforation. Modifying the prep or scope does not remove the risk."
+N144_L1_O5,3440,Multiple choice,A provider needs to know whether a patient's esophagus is contracting in the correct sequence. Which test answers that question?,"A) Barium swallow
+B) CT of the chest
+C) Manometry
+D) Upper endoscopy",C,Sequence and timing of contraction is a motility question. Manometry records pressure at multiple levels over time. Imaging shows shape at an instant; a spasming esophagus can look normal on any single picture.
+N144_L1_O5,3441,Multiple choice,A patient asks why they must avoid gum before their upper GI series when they are already NPO. Which response is correct?,"A) Gum could be aspirated during the procedure
+B) Chewing stimulates gastric secretions that interfere with imaging
+C) Gum contains dye that shows up on x-ray
+D) It is a general hospital policy for NPO patients",B,"Chewing and smoking both increase gastric secretions and salivation, which interfere with the barium study. It is a specific reason, not a general policy."
+N144_L1_O5,3442,Multiple choice,"After a barium swallow, a patient calls the next day worried that their stool is white. Which response is correct?","A) Come to the emergency department
+B) This is expected from the barium
+C) This suggests a bile duct obstruction
+D) Stop all oral intake until it resolves",B,"Barium produces milky white stool. Clay-colored stool from biliary obstruction is gray, not milky white, and would not appear suddenly after a barium study. Teach fluids to prevent constipation from the barium."
+N144_L1_O5,3467,Select all,A client is being scheduled for a gastric analysis test. The nurse knows that which conditions can be diagnosed from this type of test? Select all that apply.,"A) Gastric ulcer
+B) Gastric cancer
+C) Duodenal ulcer
+D) Pernicious anemia
+E) Esophageal strictures","A, B, C, D","Gastric analysis measures the mucosa's ability to secrete HCl — so it diagnoses anything that changes acid output. Pernicious anemia secretes NO acid (parietal cells gone). Gastric cancer and severe atrophic gastritis secrete little or none. Gastric ulcer secretes some. Duodenal ulcer secretes EXCESS. Esophageal strictures are a structural problem — barium swallow or endoscopy, not an acid measurement."
+N144_L1_O6,3443,Multiple choice,A 45-year-old smoker with blood type O takes ibuprofen daily. Which of these factors is NOT associated with peptic ulcer risk?,"A) Age 45
+B) Blood type O
+C) Daily ibuprofen
+D) All are risk factors",D,"Peak onset is 30-60, blood type O is a recognized risk factor, and chronic NSAID use is a major cause. Blood type O is the one most often forgotten."
+N144_L1_O6,3444,Multiple choice,A patient on a ventilator after severe burns develops coffee-ground NG drainage. Which mechanism is most likely?,"A) H. pylori infection
+B) Tissue ischemia from reduced perfusion
+C) Bile reflux from the duodenum
+D) Ventilator-induced acid hypersecretion",B,"Stress ulcers in burns, shock, sepsis, TBI, and ventilation arise from tissue ischemia — when perfusion falls, the mucosal barrier cannot be maintained. Not infection, not bile, not hypersecretion."
+N144_L1_O6,3445,Multiple choice,A patient with COPD and asthma is being evaluated for reflux. Which statement about this history is accurate?,"A) Airway disease is unrelated to GERD
+B) GERD is associated with obstructive airway disorders
+C) Inhaled steroids cause GERD directly
+D) GERD is less likely in patients with COPD",B,"GERD is associated with asthma, COPD, and cystic fibrosis. Reflux can be aspirated and worsen airway disease, and coughing worsens reflux. The association runs both directions."
+N144_L1_O6,3446,Multiple choice,Two patients present with gastritis. One drank heavily two nights ago; the other has had vague symptoms for a year and is anemic. Which cause pairing is most likely?,"A) Both H. pylori
+B) Dietary indiscretion; H. pylori or ulcers
+C) Stress-related; autoimmune
+D) Erosive; stress-related",B,"Acute gastritis is most often dietary indiscretion, rapid onset and self-limiting. Chronic is most often gastric ulcers or H. pylori, with atrophy explaining the anemia through lost intrinsic factor."
+N144_L1_O7,3447,Multiple choice,A patient reports heartburn and epigastric pain after meals. Which additional finding would most strongly point to GERD rather than gastritis or an ulcer?,"A) Nausea
+B) Regurgitation
+C) Bloating
+D) Early satiety",B,Pyrosis plus regurgitation together is the GERD hallmark. Nausea and bloating are shared across all the acid disorders. Early satiety points to chronic gastritis.
+N144_L1_O7,3448,Multiple choice,A patient with epigastric discomfort reports frequent hiccups since symptoms began two days ago. Which condition is most consistent with this?,"A) Chronic gastritis
+B) Acute gastritis
+C) Duodenal ulcer
+D) GERD",B,Hiccups are listed with the acute gastritis manifestations specifically — essentially unique among the acid disorders. Chronic gastritis is marked by early satiety and pernicious anemia.
+N144_L1_O7,3449,Multiple choice,"A patient reports their epigastric pain improves when they eat. Which two conditions must the nurse consider, and what separates them?","A) GERD and hiatal hernia; body position
+B) Duodenal ulcer and chronic gastritis; timing and night waking
+C) Gastric ulcer and acute gastritis; hiccups
+D) Achalasia and spasm; chest pain",B,Both duodenal ulcer and chronic gastritis are relieved by eating. The duodenal ulcer adds a 2-3 hour delay and wakes the patient at night. A gastric ulcer hurts immediately after eating.
+N144_L1_O7,3450,Multiple choice,"A patient's stool is bulky, greasy, foamy, and foul-smelling. Which process does this indicate?","A) Upper GI bleeding
+B) Bile duct obstruction
+C) Fat malabsorption
+D) Bacterial infection",C,Steatorrhea. Bile obstruction gives clay-colored stool; bleeding gives melena; infection gives mucus or pus. She named cystic fibrosis as the classic association.
+N144_L1_O7,3451,Multiple choice,"Two patients have rectal bleeding. One has bright red blood on the toilet paper; the other has black tarry stool. Which patient is the greater concern, and why?","A) Bright red — it indicates active arterial bleeding
+B) Black tarry — the blood was digested, so the source is higher
+C) Both equally — any bleeding is an emergency
+D) Bright red — it is closer to the anus and easier to lose volume",B,"Hemoglobin breaks down in transit; the darker the blood, the further it travelled, the higher the source. Bright red on paper is usually a hemorrhoid or fissure. Black tarry implies an erosive process — ulcer or varices."
+N144_L1_O7,3452,Multiple choice,A patient vomits material that looks like coffee grounds. Which interpretation is correct?,"A) Blood has been in the stomach long enough to be altered by acid
+B) The bleeding is brisk and current
+C) The source is the lower GI tract
+D) The patient has been drinking coffee",A,Hemoglobin oxidized to methemoglobin by gastric acid. Bright red vomited blood would mean brisk or recent bleeding. Lower GI blood does not come up.
+N144_L1_O7,3453,Select all,A patient with a peptic ulcer becomes hypotensive and tachycardic. Which findings would point to PERFORATION rather than hemorrhage? Select all that apply.,"A) Rigid boardlike abdomen
+B) Pain radiating to the right shoulder
+C) Melena
+D) Sudden onset without warning
+E) Coffee-ground emesis","A, B, D","Perforation: sudden, rigid abdomen from acid on the peritoneum, shoulder pain from phrenic nerve irritation. Hemorrhage: blood in emesis or stool. Both cause shock — the abdomen and the blood are what separate them."
+N144_L1_O7,3454,Multiple choice,"A patient reports epigastric pain, nausea, and sweating. Before treating for a GI cause, which source must the nurse rule out?","A) Pancreatitis
+B) Cardiac ischemia
+C) Cholecystitis
+D) Appendicitis",B,"The heart refers pain to the epigastrium, and diaphoresis with epigastric pain is a classic MI presentation mistaken for indigestion. Never dismiss epigastric pain without considering a cardiac source."
+N144_L1_O8,3397,Multiple choice,"A 58-year-old reports that for the past year swallowing has become progressively harder. Solids are worse than liquids, and lately food seems to lodge low in the chest and come back up undigested hours later. They have lost 8 pounds. Which order should the nurse anticipate first?","A) pH monitoring
+B) Barium swallow
+C) Endoscopy with biopsy
+D) Manometry",B,"Progressive dysphagia to solids with late regurgitation of undigested food points toward achalasia — but the FIRST step is a structural look. Barium swallow shows the classic bird-beak and rules out a mass or stricture doing the same thing. Manometry is definitive for motility but comes after imaging. pH monitoring is for GERD. Biopsy is for suspected Barrett or cancer, which the barium study would raise if a mass were seen."
+N144_L1_O8,3398,Multiple choice,A patient newly diagnosed with achalasia asks what they can do at mealtimes. Which instruction is most useful?,"A) Lie down for 30 minutes after eating
+B) Take small sips of water with each bite
+C) Choose a soft, liquid-heavy diet only
+D) Eat one large meal in the evening",B,"With no peristalsis and a sphincter that will not relax, liquid is what carries solids through — the weight of the column pushes the sphincter open. Lying down removes gravity, which is the only thing still working. A liquid-only diet is unnecessary restriction. One large meal maximizes retention."
+N144_L1_O8,3399,Multiple choice,"A patient with esophageal spasm is prescribed a calcium channel blocker. They ask why they are taking a ""heart pill"" for a swallowing problem. Which response is accurate?","A) It relaxes the muscle that is clamping instead of moving in a wave
+B) It reduces the acid that is triggering the spasms
+C) It strengthens the sphincter so food stays down
+D) It slows the heart to reduce chest pain from reflux",A,"Spasm is disorganized, simultaneous contraction — a clamp instead of a wave. Muscle relaxants, including calcium channel blockers, address exactly that. Acid is not the driver, which is why antacids do not fix it. Strengthening a sphincter would make things worse. The chest pain is muscle cramp, not reflux."
+N144_L1_O8,3400,Multiple choice,"An older adult reports coughing and regurgitating small amounts of food several hours after eating, and their spouse mentions a gurgling sound in the neck. A provider orders an NG tube for decompression before an upcoming procedure. Which action is correct?","A) Insert the tube using the naris with better airflow
+B) Insert slowly and stop if resistance is felt
+C) Question the order before proceeding
+D) Insert with the patient in high Fowler position",C,"Neck gurgling with late regurgitation suggests a Zenker diverticulum — a pouch the tube can follow and perforate. Stopping at resistance is too late; the tube may already be in the pouch. The order needs to be questioned, not modified with technique."
+N144_L1_O8,3401,Multiple choice,"Ten minutes after returning from an upper endoscopy, a patient reports sudden severe pain behind the sternum and the nurse notes crackling under the skin of the neck on palpation. What is the priority action?","A) Administer the ordered PRN analgesic
+B) Reposition and reassess in 15 minutes
+C) Notify the provider immediately
+D) Offer sips of water to soothe the throat",C,Subcutaneous emphysema after instrumentation means air is leaking from a perforated esophagus into the tissues. This is a surgical emergency. Analgesia and repositioning delay care; anything by mouth goes through the hole.
+N144_L1_O8,3402,Multiple choice,"A patient with a 15-year history of poorly controlled reflux asks why their provider wants a biopsy when the endoscopy ""looked fine."" Which explanation is correct?","A) Biopsy confirms the reflux is severe enough to treat
+B) The lining may have changed cell type, which cannot be seen
+C) Biopsy is routine before starting a proton pump inhibitor
+D) It checks for H. pylori, which causes reflux",B,"Barrett esophagus is columnar cells replacing squamous — a tissue change invisible to the scope. It is the only known precursor to esophageal adenocarcinoma, so long-standing GERD gets sampled. Biopsy is not needed to justify treatment or start a PPI. H. pylori is a risk factor, not the reason for biopsy."
+N144_L1_O8,3403,Multiple choice,A patient with a hiatal hernia says symptoms are worst when they garden. Which activity is most likely responsible?,"A) Kneeling on the ground
+B) Bending forward at the waist
+C) Lifting bags of soil
+D) Walking in the heat",B,"Bending at the waist pushes stomach contents upward through an opening that no longer holds them — it is the discriminating trigger for hiatal hernia. Lifting raises intra-abdominal pressure too, but bending is the position that most directly displaces the stomach. Kneeling and heat are not mechanisms."
+N144_L1_O8,3404,Multiple choice,A patient asks why they were diagnosed with a hiatal hernia when they have never had heartburn. Which response is accurate?,"A) The heartburn will develop as the hernia enlarges
+B) Reflux is not typical with hernias, and many people have no symptoms
+C) The diagnosis is probably incorrect without reflux
+D) Heartburn only occurs after eating fatty foods",B,"Reflux does not usually accompany hiatal hernias, and many are found incidentally. Treatment is only indicated if symptomatic. Predicting future heartburn is not supported. The diagnosis stands on imaging, not symptoms."
+N144_L1_O8,3405,Multiple choice,"A patient with GERD reports they have switched to drinking a glass of warm milk at bedtime to ""coat the stomach."" Which response is appropriate?","A) Encourage it — milk neutralizes acid
+B) Suggest switching to cold milk instead
+C) Explain that milk is on the list of foods to avoid
+D) Recommend adding crackers to the milk",C,"Milk is on the GERD avoid list alongside caffeine, tobacco, beer, peppermint and carbonated drinks. It briefly buffers and then stimulates acid. Anything at bedtime also breaks the two-hour rule. This is a common patient belief that needs correcting."
+N144_L1_O8,3406,Multiple choice,A patient with GERD is prescribed sucralfate. Their medication administration record schedules it with breakfast. Which action is correct?,"A) Give it as scheduled with the meal
+B) Hold it and clarify the timing with the pharmacist
+C) Give it 30 minutes before the meal
+D) Give it two hours after the meal",C,"Sucralfate coats the stomach lining, so it must reach the lining before food and acid arrive — before meals. Giving it with food leaves nothing to coat. The nurse can correct the timing directly; this is a known drug property, not an ambiguous order. Two hours after loses the protective window."
+N144_L1_O8,3407,Multiple choice,A patient asks why their reflux medication has changed from famotidine to omeprazole. Which explanation is correct?,"A) Omeprazole coats the esophagus; famotidine does not
+B) Both block histamine but omeprazole is stronger
+C) Omeprazole shuts down the acid pump itself rather than one signal to it
+D) Famotidine is only for ulcers, not reflux",C,"H2 blockers like famotidine block one stimulus for acid production. PPIs like omeprazole disable the proton pump that actually secretes acid, so suppression is more complete. Neither coats — that is sucralfate. Famotidine is used for GERD too."
+N144_L1_O8,3408,Multiple choice,A patient is admitted after two days of vomiting and epigastric pain following a weekend of heavy drinking. They ask how long they will be in the hospital. Which response is most accurate?,"A) Usually several weeks while the lining regrows
+B) Recovery is typically within a few days
+C) Until the H. pylori test comes back
+D) It depends whether surgery is needed",B,"Acute gastritis from dietary indiscretion is self-limiting — the mucosa repairs in about a day and appetite returns over 2-3 days. It does not require weeks, H. pylori testing is not the driver of this presentation, and surgery is only for perforation or hemorrhage."
+N144_L1_O8,3409,Multiple choice,A patient with chronic gastritis has a hemoglobin of 9.2 and reports fatigue. Which laboratory value would best explain the anemia?,"A) Low serum iron
+B) Low vitamin B12
+C) Elevated bilirubin
+D) Low serum albumin",B,"Chronic gastritis atrophies the parietal cells that make intrinsic factor. No intrinsic factor, no B12 absorption, pernicious anemia. Iron deficiency would suggest bleeding, which is the erosive acute picture. Bilirubin and albumin point elsewhere."
+N144_L1_O8,3410,Multiple choice,A patient describes epigastric pain that begins 2 to 3 hours after meals and wakes them around 2 a.m. Eating crackers relieves it. Which statement about this pattern is correct?,"A) Food is landing directly on the lesion
+B) Acid emptying into the duodenum reaches the lesion
+C) The pain is unrelated to meal timing
+D) This pattern is typical of gastric ulcer",B,"Food buffers acid in the stomach first, so a duodenal ulcer feels better with eating. Pain returns when acid empties down onto the lesion 2-3 hours later, and at night when the stomach is empty. A gastric ulcer hurts immediately because food lands on it directly."
+N144_L1_O8,3411,Multiple choice,A patient with a peptic ulcer asks why they need two antibiotics plus bismuth on top of their acid reducer. Which explanation is correct?,"A) The antibiotics prevent infection of the ulcer crater
+B) Without eradicating the bacterium, the ulcer will recur
+C) Bismuth coats the ulcer while the antibiotics heal it
+D) Combination therapy shortens healing from 8 weeks to 2",B,"H. pylori is the most common cause of PUD, and acid suppression alone treats the symptom while the cause persists. Eradication is why the regimen is 10-14 days of multiple agents. The antibiotics are not for wound infection, and healing still takes weeks."
+N144_L1_O8,3412,Multiple choice,A patient who takes daily ibuprofen for arthritis is diagnosed with a peptic ulcer but cannot stop the NSAID. Which medication should the nurse anticipate being added?,"A) An antacid with each dose
+B) A proton pump inhibitor or misoprostol
+C) An H2 blocker at bedtime only
+D) Sucralfate with meals",B,"NSAID prophylaxis is a PPI or misoprostol. Misoprostol replaces the protective prostaglandins NSAIDs strip away. An antacid or bedtime H2 blocker is insufficient coverage for continuous NSAID exposure. Sucralfate is given before meals, not with, and is not the prophylaxis agent."
+N144_L1_O8,3413,Multiple choice,A 32-year-old woman with a peptic ulcer is prescribed misoprostol. Which assessment finding would require the nurse to hold the drug and notify the provider?,"A) Reports of mild diarrhea
+B) A positive pregnancy test
+C) Blood pressure of 108/70
+D) A history of asthma",B,Misoprostol is pregnancy category X — it softens the cervix and causes uterine contractions. Diarrhea is a common expected side effect. The blood pressure and asthma history are not contraindications.
+N144_L1_O8,3414,Multiple choice,A patient with a long-standing duodenal ulcer says their pain has changed — it now goes through to the back and the omeprazole that used to work no longer helps. What should the nurse suspect?,"A) The ulcer has healed and the pain is musculoskeletal
+B) The ulcer has eroded into the pancreas
+C) The patient has developed tolerance to the PPI
+D) A second ulcer has formed in the stomach",B,"Penetration erodes backward into the pancreas. Back pain because the pancreas is retroperitoneal; loss of drug response because the problem is no longer acid on mucosa but an inflamed organ. PPI tolerance is not a recognized phenomenon. A gastric ulcer would hurt with eating, not through to the back."
+N144_L1_O8,3415,Multiple choice,A patient with a peptic ulcer becomes suddenly diaphoretic and reports severe abdominal pain. Assessment reveals a rigid abdomen and HR 128. Which action is the priority?,"A) Insert an NG tube to decompress the stomach
+B) Administer the ordered PRN opioid
+C) Prepare the patient for emergency surgery
+D) Obtain a 12-lead ECG to rule out cardiac cause",C,A rigid abdomen with shock signs after sudden pain is perforation — chemical peritonitis is developing and surgery is the treatment. An NG tube may be placed but is not the priority over surgical preparation. Analgesia alone delays definitive care. An ECG does not address a surgical abdomen.
+N144_L1_O8,3416,Multiple choice,"Four days after repair of a perforated ulcer, a patient's temperature rises to 38.9, the abdomen is distended, and bowel sounds are absent. Which interpretation is correct?","A) Expected postoperative ileus
+B) Possible peritonitis or abscess
+C) Normal response to opioid analgesia
+D) Early sign of dumping syndrome",B,"Fever, distention, and absent bowel sounds together at day four suggest infection — chemical peritonitis giving way to bacterial. Postoperative ileus is expected but does not explain the fever. Opioids slow the gut but do not cause fever. Dumping syndrome causes diarrhea and vasomotor symptoms, not this picture."
+N144_L1_O9,3455,Select all,A patient with a peptic ulcer is being discharged. Which findings should the nurse teach them to report immediately? Select all that apply.,"A) Black tarry stool
+B) Confusion or lightheadedness
+C) Sudden severe abdominal pain
+D) Mild heartburn after a large meal
+E) Vomiting with abdominal fullness
+F) Pain in the back that medication no longer relieves","A, B, C, E, F",Melena and confusion signal hemorrhage. Sudden severe pain signals perforation. Vomiting with fullness signals outlet obstruction. Back pain unrelieved by medication signals penetration. Mild heartburn after a large meal is expected and managed with diet.
+N144_L1_O9,3456,Multiple choice,Four patients are on the unit. Which one should the nurse assess first?,"A) A patient with GERD reporting heartburn after lunch
+B) A patient with an ulcer whose heart rate rose from 76 to 104
+C) A patient with a hiatal hernia asking about diet
+D) A patient with chronic gastritis reporting fatigue",B,"A rising heart rate is the earliest sign of hemorrhage — before blood pressure falls. The other three describe expected findings for their conditions. The number is still within ""normal range,"" which is exactly why baseline matters."
+N144_L1_O9,3457,Multiple choice,A patient with an active upper GI bleed has an NG tube to low intermittent suction. Returns have changed from bright red to coffee-ground over two hours. Which interpretation is correct?,"A) Bleeding is worsening
+B) Bleeding is slowing
+C) The tube has migrated
+D) The suction is too high",B,Bright red means fresh blood; coffee grounds mean blood that has sat in acid. The shift toward older blood indicates the active bleeding has slowed. This is the monitoring function of the NG tube.
+N144_L1_O9,3458,Multiple choice,A patient with a GI bleed has stable blood pressure but urine output has fallen to 20 mL/hr. Which interpretation is correct?,"A) Reassuring — blood pressure is maintained
+B) Early sign of decreased perfusion despite compensated pressure
+C) Likely a urinary obstruction
+D) Expected with NPO status",B,"About 20-25% of cardiac output goes to the kidneys, so urine output drops before blood pressure does. Hourly urine output is ordered in a bleed precisely because pressure is a late indicator."
+N144_L1_O9,3459,Multiple choice,"A patient with gastritis is told to avoid alcohol and stop smoking. The patient says they will ""try to cut back."" Which nursing action is most appropriate?","A) Document the patient's plan
+B) Refer to alcohol counseling and smoking cessation programs
+C) Explain that cutting back is sufficient
+D) Defer the discussion until discharge",B,"Referral is written into gastritis nursing management — alcohol and smoking are causes, so removing them is treatment. Documenting an intention or deferring does not provide the intervention."
+N144_L1_O9,3460,Multiple choice,A patient with a peptic ulcer asks whether they should eat small frequent meals like their spouse does for reflux. Which response is correct?,"A) Yes — the same diet works for both
+B) No — regular meals at consistent times in a relaxed setting
+C) Yes, but avoid eating after 6 p.m.
+D) No — one large meal daily reduces acid exposure",B,Small frequent meals are for GERD and hiatal hernia. PUD teaching is regular meals at regularly paced intervals in a relaxed setting. The difference is tested. One large meal is not recommended for any of these.
+N144_L1_O9,3461,Multiple choice,"A patient on continuous tube feeding becomes diaphoretic, dizzy, and has three loose stools within 20 minutes of a rate increase. Which action is correct?","A) Stop the feeding and check for aspiration
+B) Slow the rate and advance more gradually
+C) Increase free water flushes
+D) Check blood glucose and give insulin",B,Dumping syndrome — a hyperosmolar load pulling water into the gut and out of circulation. The fix is rate. Aspiration would present with respiratory signs. Free water and insulin do not address the osmotic shift.
+N144_L1_O9,3462,Multiple choice,"A patient receiving tube feeding develops wheezing, a drop in oxygen saturation, and restlessness. Which action is the priority?","A) Slow the feeding rate
+B) Stop the feeding
+C) Elevate the head of bed further
+D) Check gastric residual volume",B,"These are aspiration signs. Every option that continues the feeding is wrong regardless of what else it adds. Stop, then notify the provider."
+N144_L1_O9,3463,Multiple choice,"A patient on enteral feeding is meeting calorie goals but has rising sodium, dry mucous membranes, and a BUN that has climbed. Which conclusion is correct?","A) The formula has too much protein
+B) The patient is dehydrated — formula is not fully water
+C) The patient has developed diabetes insipidus
+D) The kidney function is deteriorating",B,"Formula is only 70-85% free water and does not meet total fluid needs. Rising sodium and BUN with dry membranes is concentration, not organ failure. Flushes are a fluid source and must be counted as intake."
+N144_L1_O9,3464,Multiple choice,"Three medications are due for a patient on continuous tube feeding. The nurse plans to crush them, mix them together in 30 mL of water, and give them through the tube. Which correction is needed?","A) Medications should be diluted in formula, not water
+B) Each medication must be given separately with flushes between
+C) The feeding must be held for one hour before medications
+D) Only one medication can be given per shift via tube",B,"Medications are given separately with 15 mL flushes before, between, and after. Mixing risks interactions and tube clogging. Never mix with formula. Feeding is paused, not held for an hour."
+N144_L1_O9,3465,Multiple choice,A patient needs enteral feeding but has a documented history of aspiration. Which tube placement should the nurse anticipate?,"A) Nasogastric
+B) Orogastric
+C) Nasoduodenal or nasojejunal
+D) Gastrostomy",C,"Feeding beyond the stomach reduces the volume available to reflux upward. NG and OG both deliver to the stomach. Gastrostomy is for long-term access, not aspiration risk specifically."
+N144_L1_O9,3466,Multiple choice,A patient with mouth sores from chemotherapy has stopped eating. The nurse's oral care plan should:,"A) Decrease frequency to avoid irritating the sores
+B) Increase frequency because reduced intake reduces saliva
+C) Remain unchanged from the standard schedule
+D) Be deferred until the patient can eat again",B,"Poor oral intake reduces saliva production, which increases infection and breakdown risk. Oral care must increase, using a soft brush or gauze pad. The instinct to do less when the patient is not eating is wrong."
+N144_L2_O1,3784,Multiple choice,A patient with cirrhosis is started on a medication that is normally cleared by the liver. Which adjustment should the nurse anticipate?,"A) A higher dose to overcome poor absorption
+B) A lower dose than usual
+C) The same dose given more frequently
+D) No adjustment unless bilirubin is elevated",B,"The liver sets a drug's half-life. When it fails, the drug is not cleared and a normal dose accumulates into a toxic one. Absorption is not the problem, and giving it more often compounds the accumulation. Bilirubin is an excretory marker and does not govern drug metabolism."
+N144_L2_O1,3785,Multiple choice,A nursing student asks why a patient with cirrhosis developed crackles in the lungs. Which response by the nurse is accurate?,"A) Portal pressure backs up through the liver into the heart and then the lungs
+B) The crackles are not from portal hypertension and need a separate explanation
+C) Ascitic fluid is absorbed into the pulmonary circulation
+D) The hepatic artery redirects blood to the lungs",B,"Portal hypertension backs up into the veins draining the gut — spleen, esophagus, abdominal wall. The heart is downstream of the liver and receives less return, not more. Crackles point to left heart failure or pneumonia, a separate problem. Ascites can compress the diaphragm and cause dyspnea, but that is restriction, not fluid in the alveoli."
+N144_L2_O1,3786,Multiple choice,A cirrhotic patient develops spontaneous bacterial peritonitis with no perforation. Which explanation accounts for this?,"A) Ascitic fluid is inherently contaminated at formation
+B) Shunted blood bypasses the sinusoids, so Kupffer cells never filter gut bacteria
+C) The diaphragm allows bacteria to descend from the chest
+D) Antibiotics have destroyed the protective gut flora",B,"Kupffer cells sit in the sinusoids and eat bacteria arriving from the gut through the portal vein. In cirrhosis, blood detours around the sinusoids, so those bacteria reach the circulation unfiltered — and ascitic fluid then serves as a culture medium. Ascites is sterile when it forms."
+N144_L2_O1,3787,Multiple choice,"A cirrhotic patient has a significant upper GI bleed. Beyond the volume loss, why does the nurse anticipate a decline in mental status?","A) Blood loss reduces cerebral oxygen delivery only
+B) Blood in the GI tract is protein, which generates ammonia
+C) Hemoglobin breakdown releases bilirubin into the brain
+D) Iron from the blood is neurotoxic",B,"Ammonia comes from protein breakdown, and blood is protein. A GI bleed delivers a large protein load into the gut, where bacteria convert it to ammonia that a failing liver cannot clear. Reduced oxygen delivery matters too, but it is not what makes a GI bleed specifically precipitate encephalopathy."
+N144_L2_O1,3788,Multiple choice,A patient with obstructive jaundice has a prolonged prothrombin time. Which explanation is most complete?,"A) The liver is not synthesizing albumin
+B) No bile reaches the gut, so vitamin K is not absorbed, and the liver needs it to build clotting factors
+C) Bilirubin interferes with platelet aggregation
+D) The spleen is destroying clotting factors",B,"Vitamin K is fat-soluble, so its absorption depends on bile. Block the bile and the liver loses the ingredient it needs for prothrombin and factors II, VII, IX and X. Albumin is a separate liver product with nothing to do with clotting. The spleen traps platelets, not clotting factors."
+N144_L2_O1,3841,Multiple choice,A patient with end-stage liver disease has a fasting blood glucose of 54. Which explanation is correct?,"A) The pancreas is overproducing insulin
+B) Depleted glycogen stores leave nothing to release between meals
+C) Ammonia interferes with glucose metabolism
+D) Ascites is diluting the serum glucose",B,"The liver stores glucose as glycogen and releases it between meals. A cirrhotic liver has minimal storage capacity and impaired gluconeogenesis, so fasting produces hypoglycemia. The same patient may spike after a meal because the liver cannot buffer the load — failure in both directions. This is why NPO status is a hypoglycemia risk in these patients."
+N144_L2_O1,3851,Multiple choice,Which statement correctly describes hepatic blood supply?,"A) The hepatic artery supplies 80% and carries nutrient-rich blood
+B) The portal vein supplies 80%, carrying oxygen-poor nutrient-rich blood from the gut
+C) The portal vein supplies 20% and drains directly into the vena cava
+D) Both vessels carry equal volumes of oxygenated blood",B,"The portal vein delivers 80% — nutrient-rich because it just drained the gut, oxygen-poor because the gut already used it. The hepatic artery delivers the remaining 20%, the liver's own oxygen supply. This split is what explains portal hypertension: block flow through the liver and 80% of its blood has nowhere to go."
+N144_L2_O2,3789,Multiple choice,A patient has an AST of 180 and an ALT of 35. Which conclusion is best supported?,"A) This confirms acute hepatitis
+B) The elevation may not be hepatic in origin
+C) The liver has stopped synthesizing proteins
+D) Bile flow is obstructed",B,"AST is found in heart, skeletal muscle and kidney as well as liver, so an isolated AST elevation does not localize. ALT is liver-specific and is nearly normal here. Synthetic function is measured by albumin and PT; bile flow by alkaline phosphatase."
+N144_L2_O2,3790,Multiple choice,Which laboratory result best indicates that the liver has lost SYNTHETIC function rather than simply being damaged?,"A) ALT of 240
+B) Alkaline phosphatase of 310
+C) INR of 2.1
+D) Total bilirubin of 4.2",C,"A prolonged INR means the liver has stopped building clotting factors — it measures what the liver is making. ALT measures enzymes leaking from damaged cells. Alkaline phosphatase indicates obstruction. Bilirubin reflects excretory failure. Damage, obstruction and excretion are different questions from synthesis."
+N144_L2_O2,3791,Multiple choice,A patient is scheduled for a liver biopsy. Which finding would most concern the nurse?,"A) Ammonia 78 mcg/dL
+B) Platelet count 42,000
+C) Albumin 2.6 g/dL
+D) ALT 190 U/L",B,"You are about to puncture a highly vascular organ. A platelet count of 42,000 means the patient may not be able to stop bleeding, and platelets may need to be given first. The other three describe the liver disease that prompted the biopsy but do not create the same procedural risk."
+N144_L2_O2,3792,Multiple choice,"Immediately after a liver biopsy, the nurse should position the patient in which way?","A) Left lateral, to keep pressure off the liver
+B) Right lateral, to compress the puncture site
+C) High Fowler, to ease breathing
+D) Supine with knees flexed, to relax the abdomen",B,"The liver sits on the right, so lying on that side presses it against the rib cage and seals the puncture. Left lateral is the position used during the procedure to bring the liver forward for the needle. Students commonly reverse these two."
+N144_L2_O2,3793,Multiple choice,A patient's urine is dark and tests positive for bilirubin. What does this indicate?,"A) Red blood cells are being destroyed faster than the liver can keep up
+B) The bilirubin has already been processed by the liver
+C) The kidneys are failing
+D) Unconjugated bilirubin is spilling into the urine",B,"Only conjugated bilirubin is water-soluble and free of albumin, so only conjugated bilirubin can pass the kidney filter. Its presence in urine therefore proves it went through the liver — pointing to obstruction after the liver, not hemolysis before it. Unconjugated bilirubin is albumin-bound and cannot be filtered."
+N144_L2_O2,3824,Multiple choice,"A patient has these results: albumin 2.1, INR 1.9, ALT 38, alkaline phosphatase 82, total bilirubin 3.4. Which interpretation fits best?","A) Acute hepatocellular injury
+B) Biliary obstruction
+C) Chronic synthetic failure without much ongoing cell death
+D) Hemolysis with a normal liver",C,"Albumin and INR are both markedly abnormal, and both are synthetic markers — the liver has stopped building. ALT is nearly normal, so cells are not actively dying in large numbers right now. Alkaline phosphatase is normal, ruling out obstruction. This is the pattern of established cirrhosis rather than acute hepatitis. Hemolysis would not touch albumin or INR."
+N144_L2_O2,3825,Multiple choice,"A patient with jaundice has an elevated total bilirubin with a normal direct fraction, normal ALT, normal alkaline phosphatase, and a hemoglobin of 7.9. Which process is occurring?","A) Obstruction of the common bile duct
+B) Red cell destruction exceeding hepatic conjugating capacity
+C) Hepatocellular damage from a drug
+D) Primary biliary cirrhosis",B,"Total bilirubin is up but the direct (conjugated) fraction is normal, so the excess is unconjugated — it has not reached the liver yet. The liver enzymes are normal, so the liver itself is fine. The low hemoglobin supplies the reason: cells are being destroyed faster than a healthy liver can keep up. Obstruction would raise the direct fraction and alkaline phosphatase."
+N144_L2_O2,3826,Multiple choice,A patient scheduled for a liver biopsy has an INR of 1.7. The provider orders vitamin K. Two days later the INR is unchanged. What does this most likely indicate?,"A) The vitamin K dose was insufficient
+B) The liver has lost the capacity to use vitamin K
+C) The patient has developed a vitamin K allergy
+D) The INR result is erroneous",B,"Vitamin K is an ingredient, not the product. The liver uses it to build prothrombin and factors II, VII, IX and X. Supplying more raw material does nothing if the factory is gone. An INR that corrects with vitamin K suggests a deficiency of absorption; one that does not correct suggests hepatocellular failure. This distinction has prognostic meaning."
+N144_L2_O2,3827,Select all,A patient is being prepared for a percutaneous liver biopsy. Which actions are appropriate? Select all that apply.,"A) Verify that type and crossmatch has been completed
+B) Obtain baseline vital signs
+C) Teach the patient to hold their breath at the end of expiration during needle insertion
+D) Position the patient right lateral for the procedure
+E) Confirm platelet count and prothrombin time
+F) Explain that heavy lifting may resume in 24 hours","A, B, C, E","Blood must be available because bleeding is internal and can be rapid. Baseline vitals give you something to compare against afterward. The breath-hold prevents the liver from moving during insertion. Coagulation studies determine whether the procedure is safe at all. Position for the procedure is supine or LEFT lateral; right side is afterward. No heavy lifting for one week, not 24 hours."
+N144_L2_O2,3855,Multiple choice,"A healthy 24-year-old has mild jaundice during a viral illness. Total bilirubin 2.8, direct fraction normal, all other liver studies normal, hemoglobin normal. What does this most likely represent?","A) Early hepatitis A
+B) Gilbert syndrome
+C) Hemolytic anemia
+D) Biliary obstruction",B,"Isolated unconjugated hyperbilirubinemia with an otherwise normal workup, often unmasked by illness, fasting or stress, is Gilbert syndrome — benign and familial. Hepatitis would raise ALT. Hemolysis would drop hemoglobin. Obstruction would raise the direct fraction and alkaline phosphatase. The normal findings make the diagnosis."
+N144_L2_O3,3794,Multiple choice,A newborn is delivered to a mother with chronic hepatitis B. Which intervention should the nurse anticipate?,"A) Hepatitis B vaccine before hospital discharge
+B) Isolation of the infant for 30 days
+C) Deferral of all vaccines until 6 months of age
+D) Testing at 1 year, with no intervention before then",A,"Hepatitis B transmits mother to child at birth, and about 90% of infected newborns become chronic carriers compared with roughly 5% of adults. That risk is why the hepatitis B vaccine is the first immunization given, before discharge. Waiting until 6 months or a year allows chronic infection to establish."
+N144_L2_O3,3795,Multiple choice,A patient with chronic hepatitis C asks whether an occasional drink is acceptable. Which response is accurate?,"A) Moderate drinking is acceptable once liver enzymes normalize
+B) Alcohol accelerates progression, so complete avoidance is advised
+C) Alcohol is only a concern with hepatitis B
+D) One drink daily may be protective",B,"Alcohol and hepatitis C are two separate insults on the same organ, and together they shorten the time to liver failure considerably. Normalized enzymes do not mean the virus is gone — hepatitis C is usually chronic. There is no protective threshold in established liver disease."
+N144_L2_O3,3796,Multiple choice,A patient with hepatitis B asks why they also need to be concerned about hepatitis D. Which response is correct?,"A) Hepatitis D can only replicate in someone who has hepatitis B
+B) Hepatitis D is a later stage of hepatitis B
+C) Both are transmitted fecal-orally, so exposure is likely
+D) Hepatitis D vaccination is recommended after B infection",A,"Hepatitis D is an incomplete virus that requires the outer coat of hepatitis B to build its particles. It is a separate virus, not a stage of B. There is no separate D vaccine — preventing B prevents D. B and D are bloodborne, not fecal-oral."
+N144_L2_O3,3797,Multiple choice,A pregnant patient in her third trimester is diagnosed with hepatitis E. Why is the nurse particularly concerned?,"A) It will become chronic and require lifelong treatment
+B) Mortality in third-trimester pregnancy is substantially elevated
+C) It transmits to the fetus at birth like hepatitis B
+D) There is no treatment and no vaccine for any patient",B,"Hepatitis E behaves much like hepatitis A — fecal-oral, self-limiting, no chronic form — with one exception that makes it distinct: mortality reaching about 20% in third-trimester pregnancy. That single fact is what separates E from A. Perinatal transmission is the hepatitis B concern."
+N144_L2_O3,3798,Multiple choice,A patient is admitted with acute liver failure. Which history finding is the most likely cause?,"A) A week of acetaminophen at above-label doses for back pain
+B) Recent travel to a region with unsafe water
+C) A new prescription for a proton pump inhibitor
+D) A family history of gallstones",A,"Drug-induced injury accounts for over half of acute liver failure, and acetaminophen is the leading agent. At high doses the liver runs out of the antioxidant needed to neutralize its toxic metabolite, and hepatocytes die. Contaminated water suggests hepatitis A or E, which are usually self-limiting. PPIs and gallstones do not cause acute failure."
+N144_L2_O3,3842,Multiple choice,A nurse sustains a needlestick from a patient with hepatitis B. The nurse completed the hepatitis B vaccine series years ago. What is the priority action?,"A) Begin the vaccine series again immediately
+B) Report the exposure and have antibody titer checked
+C) Begin antiviral prophylaxis for six weeks
+D) No action needed, since the series was completed",B,"Vaccination confers active immunity, but titers can wane and not everyone seroconverts. Reporting and checking the titer determines whether immunoglobulin, a booster, or nothing is needed. Assuming protection without verification is the error. Restarting the series before knowing the titer is premature."
+N144_L2_O3,3843,Select all,Which statements about hepatitis transmission are accurate? Select all that apply.,"A) Hepatitis A and E are transmitted through contaminated food and water
+B) Hepatitis C is the most common bloodborne infection in the United States
+C) Hepatitis D can be acquired independently of hepatitis B
+D) Hepatitis B can be transmitted from mother to infant at delivery
+E) Immunoglobulin provides immediate but temporary protection after exposure","A, B, D, E","A and E are fecal-oral; B, C and D are bloodborne. Hepatitis D is an incomplete virus requiring the outer coat of hepatitis B, so it cannot exist alone — that is the false statement. Immunoglobulin is passive immunity: someone else antibodies, immediate but not remembered by the body."
+N144_L2_O3,3854,Multiple choice,A patient with obesity and type 2 diabetes who denies alcohol use has hepatic steatosis with inflammation on biopsy. What is this?,"A) Alcoholic hepatitis
+B) Nonalcoholic steatohepatitis
+C) Primary biliary cirrhosis
+D) Gilbert syndrome",B,"Fat accumulating in hepatocytes unrelated to alcohol is nonalcoholic fatty liver disease; when inflammation accompanies it, the term is NASH, and it can progress to cirrhosis. The association with obesity and metabolic syndrome is the clue. Gilbert syndrome is a benign unconjugated hyperbilirubinemia with a normal liver."
+N144_L2_O4,3799,Multiple choice,"A patient reports fatigue, joint pain, poor appetite and says food ""tastes strange."" They are not jaundiced. Which phase does the nurse suspect?","A) Pre-icteric
+B) Icteric
+C) Post-icteric
+D) This is not consistent with hepatitis",A,"The pre-icteric phase runs 1 to 3 weeks before jaundice appears and includes fatigue, anorexia, joint pain and the distinctive change in taste and smell. AST and ALT are already rising. The icteric phase begins with jaundice; the post-icteric phase follows it."
+N144_L2_O4,3800,Multiple choice,"A patient with long-standing cirrhosis has a liver that is now small and nodular on examination, where it was previously enlarged. What does this indicate?","A) The disease is improving
+B) The disease has progressed
+C) A new obstruction has developed
+D) The examination technique was inaccurate",B,"Early cirrhosis enlarges the liver because cells swell with fat. As scar tissue matures it contracts, pulling the organ smaller and making the surface nodular. A small liver is a later, worse finding than a large one — which is counterintuitive."
+N144_L2_O4,3801,Multiple choice,A male patient with cirrhosis has developed breast tissue and reduced body hair. Which explanation is correct?,"A) Malnutrition has altered fat distribution
+B) The liver can no longer inactivate estrogen
+C) Corticosteroid therapy is responsible
+D) Ascites has shifted the body's contour",B,"One of the liver's functions is inactivating estrogen. When it fails, estrogen accumulates in both sexes — producing gynecomastia, testicular atrophy and sparse body hair in men, and amenorrhea in women. The same mechanism produces spider angiomas and palmar erythema."
+N144_L2_O4,3802,Multiple choice,A patient with cirrhosis is oriented but has begun sleeping during the day and staying awake at night. Their handwriting has become difficult to read. The EEG is normal. What should the nurse conclude?,"A) These findings are unrelated to the liver
+B) This is stage 1 encephalopathy
+C) This is stage 2 encephalopathy
+D) An EEG rules out encephalopathy",B,"Day-night sleep reversal and impaired handwriting are stage 1 findings, and the EEG is normal at that stage — which is exactly why a daily handwriting sample is used to monitor. Fine motor change appears before anything measurable. Stage 2 adds disorientation and fetor hepaticus."
+N144_L2_O4,3803,Multiple choice,Two patients have encephalopathy. Patient A is rigid with brisk reflexes. Patient B is flaccid with absent reflexes. Which assessment is correct?,"A) Patient A is more advanced
+B) Patient B is more advanced
+C) They are at the same stage
+D) Reflex findings do not correlate with staging",B,"Rigidity with increased reflexes is stage 3 — the brain has lost inhibitory control over spinal reflexes, so they fire unchecked. In stage 4 the cord itself is depressed, so reflexes and asterixis disappear entirely. Absence is worse than excess, which is the trap in this question."
+N144_L2_O4,3804,Select all,Which findings in a patient with cirrhosis indicate DECOMPENSATION rather than compensated disease? Select all that apply.,"A) Ascites
+B) Palmar erythema
+C) Jaundice
+D) Muscle wasting
+E) Vascular spiders
+F) Asterixis","A, C, D, F","Compensated cirrhosis already includes palmar erythema, vascular spiders, splenomegaly, ankle edema and epistaxis. Decompensation adds ascites, jaundice, muscle wasting, asterixis, white nails and caput medusae. The relationship is cumulative — decompensated patients still have the compensated findings."
+N144_L2_O4,3805,Multiple choice,"A patient with cirrhosis has black, tarry stool. Another has bright red blood on the toilet tissue. Which statement is correct?","A) The bright red blood is more concerning because it is arterial
+B) The black stool is more concerning because the source is higher
+C) Both indicate the same degree of blood loss
+D) Black stool in cirrhosis is expected and not concerning",B,"Hemoglobin is digested as blood travels, so the darker it is, the further it came. Black tarry stool points to the esophagus, stomach or duodenum — varices or an ulcer — and it takes significant volume to blacken stool. Bright red on tissue is usually a hemorrhoid or fissure."
+N144_L2_O4,3828,Multiple choice,A patient with cirrhosis has gained 3 kg in four days. Abdominal girth is unchanged. Lungs are clear. What is the most likely explanation?,"A) The ascites is worsening despite the stable girth
+B) Peripheral edema is accumulating
+C) The patient has gained lean body mass
+D) The scale is inaccurate",B,"Three kilograms in four days is three liters of fluid — weight gain that fast is never tissue. Girth is unchanged, so it is not going into the peritoneum. Lungs are clear, so it is not pulmonary. That leaves the interstitium, which is where low albumin allows fluid to accumulate dependently. Muscle cannot be gained at that rate, particularly in a catabolic patient."
+N144_L2_O4,3829,Multiple choice,A patient with alcoholic cirrhosis is admitted. Which combination of findings would suggest the disease has progressed from compensated to decompensated?,"A) Palmar erythema, splenomegaly, intermittent low-grade fever
+B) Ankle edema, epistaxis, firm enlarged liver
+C) Vascular spiders, flatulent dyspepsia, abdominal pain
+D) Jaundice, muscle wasting, asterixis",D,"Options A, B and C list findings present in COMPENSATED disease — palmar erythema, spiders, splenomegaly, ankle edema, epistaxis, low-grade fever, dyspepsia and a firm enlarged liver all appear while the liver is still keeping up. Decompensation adds jaundice, muscle wasting, asterixis, ascites, white nails and caput medusae. Knowing which list a finding belongs to is what this question tests."
+N144_L2_O4,3830,Multiple choice,A cirrhotic patient's ammonia level is 48 mcg/dL (normal 15-45) but they are markedly confused with obvious asterixis. Which conclusion is best?,"A) The confusion must have another cause, since ammonia is nearly normal
+B) Clinical findings guide management more than the absolute ammonia value
+C) The specimen was likely drawn incorrectly
+D) Asterixis at this ammonia level indicates stage 4",B,"Ammonia levels correlate poorly with the degree of encephalopathy. A patient can be deeply encephalopathic with a mildly elevated level, and vice versa. Treatment is titrated to the clinical picture — mental status, asterixis, handwriting — not to the number. Asterixis is present in stages 1 through 3 and disappears in stage 4."
+N144_L2_O4,3844,Multiple choice,"A cirrhotic patient's sodium is 126, potassium 3.1, and they have become increasingly confused over 12 hours. Which relationship best explains the confusion?","A) The hyponatremia alone accounts for it
+B) The hypokalemia increases ammonia entry into the brain
+C) Both values are incidental to the encephalopathy
+D) The potassium is too high to be relevant",B,"Hypokalemia and the alkalosis that accompanies it both increase the amount of ammonia crossing into the brain. This is why potassium-sparing diuretics are chosen in cirrhosis, and why lactulose overdose is dangerous — the diarrhea drops potassium and worsens the condition being treated. The hyponatremia contributes, but the potassium is the modifiable link."
+N144_L2_O4,3850,Multiple choice,"A patient reports pale stools, dark urine, and intense generalized itching for the past week. Which additional finding would you most expect?","A) Intolerance of fatty foods
+B) Increased appetite
+C) Bright red rectal bleeding
+D) Diarrhea that improves with fasting",A,"All the findings in the stem come from one fact: bile is not reaching the intestine. Pale stool because bile pigment colors it, dark urine because conjugated bilirubin exits renally instead, itching because bile salts deposit in skin. The fourth member of that group is fat intolerance, because bile emulsifies fat. Appetite decreases rather than increases."
+N144_L2_O4,3856,Select all,Which findings would the nurse expect in a patient with portal hypertension? Select all that apply.,"A) Splenomegaly
+B) Caput medusae
+C) Esophageal varices
+D) Thrombocytopenia
+E) Elevated ALT
+F) Hemorrhoids","A, B, C, D, F","All of these follow mechanically from pressure backing up through the portal system: the spleen congests and enlarges, then traps platelets; collateral vessels open around the umbilicus, in the esophagus and in the rectum. An elevated ALT reflects hepatocyte damage, which may or may not be present — it is not a consequence of the pressure itself."
+N144_L2_O5,3806,Multiple choice,"A patient's ascites has improved markedly since a TIPS procedure, but they are now confused and disoriented. What is the most likely explanation?","A) The procedure failed and portal pressure has risen
+B) Shunted blood bypasses the liver, so ammonia is not cleared
+C) They are hypovolemic from rapid fluid loss
+D) Contrast dye from the procedure is neurotoxic",B,TIPS lowers portal pressure by routing blood around the scarred liver — which means that blood reaches the brain without passing the liver's checkpoint. Ammonia goes straight through. This is the known trade-off: TIPS relieves ascites and varices at the cost of higher encephalopathy risk. The improved ascites shows the shunt is working.
+N144_L2_O5,3807,Multiple choice,During a large-volume paracentesis the nurse notes the heart rate has risen from 78 to 112 and the blood pressure has fallen. What is happening?,"A) An infection has been introduced
+B) Fluid is shifting from the vessels to refill the drained space
+C) The patient is having a vasovagal reaction to the needle
+D) Bleeding has occurred from the puncture site",B,Remove several liters and the body begins refilling the peritoneal space by recruiting fluid from the circulation. The patient who looked fluid-overloaded becomes hypovolemic. This is precisely why albumin is given during or after the procedure — it holds fluid in the vessels so it cannot be recruited. Bleeding is possible but would show at the site.
+N144_L2_O5,3808,Multiple choice,A patient with esophageal varices has a balloon tamponade tube in place. Which nursing action is correct?,"A) Apply continuous suction to keep the tube clear
+B) Apply intermittent suction
+C) Clamp the suction between assessments
+D) Suction is not used with tamponade tubes",B,"Continuous suction pulls the tube against the mucosa and creates its own ulceration in tissue that is already fragile. Intermittent suction clears pooled blood without sustained traction. If the tube clogs, blood accumulates above the balloon and is aspirated — which is also why both lungs are auscultated."
+N144_L2_O5,3809,Multiple choice,A patient with a balloon tamponade tube becomes acutely short of breath. What equipment must be immediately available?,"A) A suction catheter
+B) Scissors
+C) An oral airway
+D) A second balloon tube",B,"The esophageal balloon sits just below the airway. If it deflates or migrates upward it can obstruct the airway, and the only immediate remedy is to cut the tube and remove it. Scissors stay at the bedside for exactly this reason."
+N144_L2_O5,3810,Multiple choice,"A patient with cirrhosis and varices is prescribed propranolol. They ask what it is for, since their blood pressure is normal. Which response is accurate?","A) It prevents the irregular heart rhythms common in liver disease
+B) It lowers pressure in the portal system to reduce the chance of bleeding
+C) It reduces the liver's workload by slowing metabolism
+D) It treats the anxiety associated with chronic illness",B,"Nonselective beta blockers lower portal pressure by reducing cardiac output and constricting splanchnic vessels, so less blood is forced through the varices. The indication is bleeding prevention, not blood pressure or rhythm. The important caution: it also blunts the tachycardia that is the earliest sign of a bleed."
+N144_L2_O5,3811,Multiple choice,"A patient on nadolol for varices has a hemoglobin drop from 11.2 to 8.1 overnight, with a heart rate of 76. How should the nurse interpret the heart rate?","A) Reassuring — the patient is compensating well
+B) Unreliable — the beta blocker prevents the expected rise
+C) Evidence the hemoglobin result is a laboratory error
+D) Expected, since heart rate falls in acute blood loss",B,"Beta blockers block the sympathetic response, so the tachycardia you would normally rely on never appears. A beta-blocked patient can be actively hemorrhaging with a normal pulse. Monitor blood pressure, urine output and mental status instead, and treat the hemoglobin drop as real."
+N144_L2_O5,3812,Multiple choice,"A patient with cirrhosis has a platelet count of 61,000. Which explanation is correct?","A) The bone marrow is suppressed by ammonia
+B) Portal hypertension congests the spleen, which traps and destroys platelets
+C) Platelets are consumed in the ascitic fluid
+D) The liver normally produces platelets directly",B,"Portal pressure backs up into the splenic vein, the spleen enlarges, and an enlarged spleen sequesters and destroys platelets. The liver contributes indirectly by making less thrombopoietin, but it does not produce platelets itself. This is why cirrhotic patients have both a clotting factor problem and a platelet problem."
+N144_L2_O5,3831,Multiple choice,"A patient with cirrhosis has a temperature of 38.4, diffuse abdominal tenderness, and has become confused since the morning. There is no history of trauma or recent procedure. Which complication should the nurse suspect first?","A) Variceal hemorrhage
+B) Spontaneous bacterial peritonitis
+C) Hepatorenal syndrome
+D) Worsening ascites",B,"Fever plus abdominal tenderness plus new confusion in a patient with ascites is spontaneous bacterial peritonitis until proven otherwise. The ascitic fluid becomes a culture medium and the Kupffer cells that would filter gut bacteria are bypassed. SBP commonly precipitates encephalopathy, which explains the confusion. Variceal bleeding would show blood; hepatorenal syndrome shows a rising creatinine without fever."
+N144_L2_O5,3832,Multiple choice,A cirrhotic patient on spironolactone and furosemide has a creatinine that has risen from 0.9 to 2.3 over five days. Urine output is 20 mL/hr. What should the nurse anticipate?,"A) Increasing the diuretic doses to improve output
+B) Holding the diuretics and notifying the provider
+C) Administering a fluid bolus and continuing diuretics
+D) Adding a third diuretic with a different mechanism",B,"A rising creatinine with falling urine output in a diuretic-treated cirrhotic raises hepatorenal syndrome or diuretic-induced volume depletion. Either way, continuing or increasing diuresis makes it worse. The diuretics are held and the provider is notified. Adding agents compounds the problem."
+N144_L2_O5,3833,Multiple choice,"Immediately following endoscopic band ligation of esophageal varices, which finding should the nurse report immediately?","A) Mild retrosternal discomfort with swallowing
+B) Low-grade temperature of 37.6
+C) Subcutaneous crepitus palpated in the neck
+D) Small streaks of blood in the oral secretions",C,"Crepitus in the neck is subcutaneous emphysema, which means air has escaped from a perforated esophagus into the soft tissues. After instrumentation this is a surgical emergency. Mild chest discomfort with swallowing, a low-grade temperature and minor blood streaking are all expected after banding."
+N144_L2_O5,3834,Multiple choice,A patient with a history of variceal bleeding treated with banding one year ago asks whether they still need beta blockers and periodic endoscopy. Which response is accurate?,"A) No, banding permanently obliterates the varices
+B) Yes, because the risk of rebleeding within the first year is high
+C) No, unless a new bleeding episode occurs
+D) Yes, but only until the liver enzymes normalize",B,"About 70% of survivors rebleed within a year. Banding destroys the treated varices, but the underlying portal hypertension persists and the body builds new collateral vessels through angiogenesis. This is why secondary prophylaxis with beta blockers and surveillance endoscopy continues. Liver enzymes do not govern this decision."
+N144_L2_O5,3846,Multiple choice,"A patient develops massive hematemesis. Vital signs: BP 84/50, HR 126, RR 28. Which action should the nurse take first?","A) Obtain a type and crossmatch
+B) Position the patient to protect the airway
+C) Insert a second large-bore IV
+D) Notify the provider",B,"Airway comes before circulation when a patient is actively vomiting blood — aspiration kills faster than the volume loss. Positioning so blood drains out rather than down is the immediate action. Crossmatch, IV access and notification follow rapidly, but a patient who aspirates while you place an IV has a new and worse problem."
+N144_L2_O5,3847,Multiple choice,A patient with esophageal varices is receiving vasopressin and reports chest pressure. What is the priority action?,"A) Reassure them that this is expected with the infusion
+B) Stop the infusion and notify the provider
+C) Administer the ordered PRN antacid
+D) Slow the infusion rate by half",B,"Vasopressin constricts splanchnic vessels to lower portal pressure, but it constricts coronary arteries as well and can cause angina or infarction. Chest pressure during the infusion is cardiac until proven otherwise. Nitroglycerin is sometimes given concurrently for this reason, and octreotide is preferred precisely because it lacks the coronary effect."
+N144_L2_O5,3852,Multiple choice,A patient being evaluated for liver transplant asks how the waiting list is prioritized. Which response is accurate?,"A) By length of time on the list
+B) By a score reflecting severity of illness
+C) By age, with younger patients prioritized
+D) By the underlying cause of the liver disease",B,"Priority is determined by the MELD score, which reflects how sick the patient is rather than how long they have waited. Time, age and etiology are not primary determinants. Child-Pugh is a related severity score using bilirubin, albumin, prothrombin time, ascites and encephalopathy."
+N144_L2_O5,3853,Multiple choice,Which five parameters make up the Child-Pugh classification?,"A) Bilirubin, albumin, prothrombin time, ascites, encephalopathy
+B) ALT, AST, alkaline phosphatase, GGT, bilirubin
+C) Sodium, potassium, creatinine, BUN, albumin
+D) Platelets, INR, hemoglobin, ammonia, bilirubin",A,"Child-Pugh combines two synthetic markers (albumin, prothrombin time), one excretory marker (bilirubin), and two clinical complications (ascites, encephalopathy). Notice it excludes the damage enzymes — how much ALT is leaking tells you little about whether the organ still does its job."
+N144_L2_O5,3858,Multiple choice,"A patient newly diagnosed with hepatocellular carcinoma asks how this developed when they ""only had hepatitis C."" Which explanation is accurate?","A) The two are unrelated coincidental findings
+B) Decades of chronic inflammation led to cirrhosis, and cirrhosis predisposes to malignant change
+C) The antiviral medications caused it
+D) Hepatitis C directly transforms liver cells within months",B,"The sequence is chronic infection, chronic inflammation, cirrhosis, malignant change — measured in decades. Both hepatitis B and C carry this risk through the same pathway. Antivirals reduce rather than cause it."
+N144_L2_O6,3813,Multiple choice,A patient with ascites asks why they are taking spironolactone rather than a stronger diuretic alone. Which response is most accurate?,"A) It works faster than other diuretics
+B) It blocks aldosterone and spares potassium, which matters here
+C) It protects the kidneys from damage
+D) It is the only diuretic safe in liver disease",B,"Two reasons, both specific to cirrhosis. The failing liver cannot metabolize aldosterone, so blocking it addresses the actual driver of salt and water retention. And these patients are already prone to hypokalemia — which worsens encephalopathy by increasing ammonia entry into the brain — so a potassium-wasting loop diuretic alone would make things worse. Furosemide is usually given with it, not instead of it."
+N144_L2_O6,3814,Multiple choice,A patient receiving lactulose has had 9 loose stools today. What should the nurse do?,"A) Continue as ordered, since more stools mean more ammonia removed
+B) Hold the dose and notify the provider
+C) Add a stool softener to improve comfort
+D) Increase the dose to speed clearance",B,"Lactulose is titrated to 2 or 3 soft stools daily. Nine indicates overdose, and the resulting dehydration and potassium loss make encephalopathy worse, not better — hypokalemia increases the ammonia crossing into the brain. More stools is not more benefit past the target."
+N144_L2_O6,3815,Multiple choice,A patient with stage 2 encephalopathy is agitated overnight. Which order should the nurse question?,"A) Lactulose 30 mL every 4 hours
+B) Lorazepam 1 mg as needed for agitation
+C) Neomycin orally
+D) Daily serum ammonia",B,"Sedatives are discontinued in encephalopathy for three reasons: the liver cannot clear them so they accumulate, they deepen an already depressed CNS and can tip stage 2 toward stage 4, and they mask the mental status that is the primary monitoring tool. Keeping the patient active during the day is the alternative."
+N144_L2_O6,3816,Multiple choice,A patient with cirrhosis and a serum sodium of 128 asks whether they should add salt to their food. Which response is correct?,"A) Yes, the sodium level is low and needs replacement
+B) No — the sodium is diluted by retained water, so fluid is restricted instead
+C) Yes, but only with a salt substitute
+D) Sodium intake does not affect this value",B,"The hyponatremia of cirrhosis is dilutional. The body retains water faster than sodium, so the concentration falls while total body sodium is often high. Adding salt worsens the ascites. The treatment is fluid restriction. Salt substitutes are potassium-based and are a separate hazard in a patient on spironolactone."
+N144_L2_O6,3817,Multiple choice,A patient with cirrhosis reports severe itching. Which intervention addresses the cause rather than the symptom?,"A) Cool compresses to the affected areas
+B) Cholestyramine as ordered
+C) An antihistamine at bedtime
+D) Trimming the fingernails short",B,"The itching comes from bile salts depositing in the skin. Cholestyramine binds those salts in the gut so they are excreted in stool rather than accumulating. The others manage the sensation or limit the damage from scratching — worthwhile, but they do not remove the irritant. The main complication of scratching is secondary infection."
+N144_L2_O6,3818,Select all,Which instructions should the nurse include when teaching a patient with cirrhosis about bleeding precautions? Select all that apply.,"A) Use an electric razor
+B) Use a soft-bristle toothbrush
+C) Hold pressure longer after blood draws
+D) Take aspirin rather than acetaminophen for pain
+E) Report any fall, even without visible injury","A, B, C, E","These patients have two separate problems: no clotting factors and too few platelets. A nick that would not matter in anyone else bleeds persistently, and a fall that would only bruise a normal patient can cause internal bleeding with nothing to stop it. Aspirin impairs platelet function further and is the wrong choice."
+N144_L2_O6,3819,Multiple choice,A patient with cirrhosis asks about foods to avoid. Which item carries a specific and serious risk for this patient?,"A) Raw oysters
+B) Grapefruit juice
+C) Aged cheese
+D) Leafy green vegetables",A,"Vibrio vulnificus in raw shellfish causes fatal sepsis in cirrhotic patients specifically, because the Kupffer cells that would normally clear the organism are bypassed by shunted blood. The risk is far higher than in the general population. The others are not specific hazards in liver disease."
+N144_L2_O6,3820,Multiple choice,A patient with cirrhosis and steatorrhea is prescribed vitamin supplementation. Which form should the nurse expect?,"A) Standard fat-soluble preparations of A, D, E and K
+B) Water-soluble forms of A, D, E and K
+C) Vitamin B12 injections only
+D) No supplementation until the steatorrhea resolves",B,"Steatorrhea means fat is passing undigested, and the fat-soluble vitamins go out with it. Water-soluble preparations bypass that problem entirely. Withholding supplementation makes the deficiency worse, and B12 is not the relevant deficiency here."
+N144_L2_O6,3821,Multiple choice,Four patients with cirrhosis are on the unit. Which should the nurse assess first?,"A) A patient whose abdominal girth increased 2 cm since yesterday
+B) A patient who cannot recall what year it is, having been oriented this morning
+C) A patient reporting itching that keeps them awake
+D) A patient whose ankles are more swollen today",B,"An acute change in mental status is the priority. It may signal rising ammonia, a GI bleed delivering a protein load, spontaneous bacterial peritonitis, or hypoperfusion — several of which are emergencies. The other three are expected findings in cirrhosis that need attention but not first."
+N144_L2_O6,3835,Multiple choice,"A cirrhotic patient is on a 1,500 mL fluid restriction. Family brings ice chips and the patient has consumed what appears to be about 500 mL of ice. How should the nurse count this?","A) Ice does not count toward fluid restriction
+B) Count approximately half the volume of the ice
+C) Count the full 500 mL
+D) Count it only if the patient is symptomatic",B,"Ice occupies roughly twice the volume of the water it melts into, so ice chips are counted as about half their apparent volume. Recording the full volume overestimates intake and may lead to unnecessary restriction elsewhere; recording none underestimates it. In a patient on fluid restriction for dilutional hyponatremia, accurate intake matters."
+N144_L2_O6,3836,Select all,A patient is receiving lactulose for hepatic encephalopathy. Which findings indicate the therapy is working as intended? Select all that apply.,"A) Two to three soft stools daily
+B) Improved orientation to time and place
+C) Resolution of asterixis
+D) Six to eight watery stools daily
+E) Improved legibility of the daily handwriting sample","A, B, C, E","The therapeutic target is 2 to 3 soft stools daily, and the clinical markers of improvement are the same ones used for staging: orientation, asterixis and handwriting. Six to eight watery stools is overdose — it causes dehydration and potassium loss, and hypokalemia increases ammonia entry into the brain, worsening the condition being treated."
+N144_L2_O6,3837,Multiple choice,A patient with cirrhosis is prescribed a 2 gram sodium diet. Which food choice indicates the teaching was effective?,"A) Canned vegetable soup with crackers
+B) A turkey sandwich with deli meat
+C) Baked chicken with fresh green beans
+D) Cottage cheese with canned peaches",C,"Fresh, unprocessed foods are the basis of a sodium-restricted diet. Canned soup, deli meat and cottage cheese are all high in sodium — cottage cheese in particular is often overlooked because it seems like a bland choice. The point of the restriction is that water follows salt; retained sodium means retained water and worsening ascites."
+N144_L2_O6,3838,Multiple choice,A cirrhotic patient with an INR of 2.4 requires a scheduled medication that is available orally and intramuscularly. Which action is best?,"A) Give the intramuscular form for faster onset
+B) Give the oral form
+C) Give the intramuscular form into the deltoid
+D) Hold the medication until the INR normalizes",B,"An intramuscular injection into a patient who cannot clot creates a deep bleed that is neither visible nor compressible, and can form a large hematoma. The oral route avoids this entirely. Changing the injection site does not change the risk. Holding an indicated medication indefinitely is not appropriate when a safe route exists."
+N144_L2_O6,3839,Multiple choice,Which patient with cirrhosis requires the most urgent intervention?,"A) A patient with an ammonia of 94 who is alert and oriented
+B) A patient vomiting bright red blood with a heart rate of 118
+C) A patient with 4+ pitting edema and an albumin of 1.8
+D) A patient with a girth increase of 4 cm over 24 hours",B,"Active hematemesis with tachycardia is variceal hemorrhage — the complication with the highest immediate mortality, and the heart rate confirms the body is already compensating for volume loss. The elevated ammonia matters but the patient is currently oriented. Edema and rising girth are serious and expected findings that do not threaten life in the next hour."
+N144_L2_O6,3840,Multiple choice,A cirrhotic patient's spouse asks why the patient keeps being told not to strain during bowel movements. Which explanation is most accurate for this patient specifically?,"A) Straining worsens hemorrhoids, which are common in liver disease
+B) Straining raises pressure in the portal system and can precipitate variceal bleeding
+C) Straining increases ammonia absorption from the colon
+D) Straining causes fluid to shift into the abdomen",B,"Straining is a Valsalva maneuver, and the resulting rise in intra-abdominal and intrathoracic pressure is transmitted to an already hypertensive portal system with thin-walled varices. Hemorrhoids are indeed rectal varices and can bleed, but the esophageal varices are the life-threatening concern. Ammonia absorption and fluid shifting are not straining-related."
+N144_L2_O6,3845,Multiple choice,A patient with cirrhosis has an order for a potassium supplement and is also receiving spironolactone. What should the nurse do?,"A) Administer both as ordered
+B) Clarify the order before administering
+C) Give the potassium and hold the spironolactone
+D) Give the spironolactone and hold the potassium",B,"Spironolactone is potassium-sparing — it raises potassium. Adding a supplement risks hyperkalemia and dysrhythmias. The combination is not always wrong, particularly if furosemide is also running and the potassium is genuinely low, but it requires the current level and provider confirmation. Independently holding either drug is outside the nurse's scope here."
+N144_L2_O6,3848,Multiple choice,A patient with encephalopathy is ordered branched-chain amino acids. Which rationale is correct?,"A) They are absorbed more rapidly than other proteins
+B) Muscle can use them without hepatic processing, so they raise ammonia less
+C) They are the only proteins that contain no nitrogen
+D) They stimulate hepatic regeneration",B,"Branched-chain amino acids are metabolized peripherally in muscle rather than requiring the liver, so they supply protein without the ammonia load. This matters because restricting protein too severely causes the body to catabolize its own muscle — which is protein, generating more ammonia plus wasting. All amino acids contain nitrogen."
+N144_L2_O6,3849,Multiple choice,A family asks why a cirrhotic patient is encouraged to stay awake and active during the day when they seem exhausted. Which response is best?,"A) Activity prevents the muscle wasting associated with liver disease
+B) Daytime activity restores the sleep-wake cycle without using sedatives
+C) Movement helps the ascitic fluid reabsorb
+D) Exercise improves hepatic blood flow",B,Day-night sleep reversal is a stage 1 encephalopathy finding. Because sedatives are contraindicated — the liver cannot clear them and they deepen CNS depression — daytime activity is the non-pharmacologic way to restore the cycle. Muscle wasting is driven by catabolism rather than inactivity.
+N144_L2_O6,3857,Multiple choice,A cirrhotic patient has a new order for acetaminophen 650 mg every 4 hours as needed. What is the most appropriate action?,"A) Administer as ordered, since acetaminophen is safer than NSAIDs here
+B) Clarify the order, as the potential daily total may exceed what this liver tolerates
+C) Request that ibuprofen be substituted
+D) Refuse to give any analgesic",B,"Acetaminophen is often preferred over NSAIDs in cirrhosis because NSAIDs worsen bleeding and renal perfusion — but that schedule permits up to 3,900 mg daily, well above what is advised in liver disease. The nurse clarifies rather than giving it blindly or withholding analgesia. Ibuprofen is the wrong substitute in a coagulopathic patient."
+N144_L2_O7,3822,Multiple choice,A patient with cirrhosis mentions taking an herbal supplement for anxiety. Which one would most concern the nurse?,"A) Chamomile
+B) Kava kava
+C) Peppermint
+D) Ginger",B,"Kava kava is directly hepatotoxic, with documented cases of acute liver failure requiring transplant. In a patient whose liver is already failing, it is a serious hazard. This is also why the nurse must ask specifically — patients do not classify supplements as drugs and will not volunteer them."
+N144_L2_O7,3823,Multiple choice,"A patient with liver disease says they take milk thistle ""because it is good for the liver."" Which response is most appropriate?","A) Reassure them that it is beneficial and encourage continued use
+B) Tell them to stop immediately, as it is hepatotoxic
+C) Note it for the provider, since evidence is weak and it can interact with their medications
+D) Explain that herbal products do not affect the liver",C,"Milk thistle is marketed as liver-protective, the evidence is weak, and it can interact with medications the liver is already struggling to clear. It is not clearly hepatotoxic like kava kava, so demanding they stop overstates the case — but it belongs on the medication list and in the conversation with the provider."
+N144_L3_O1,3883,Multiple choice,A patient has a single stone lodged at the ampulla of Vater. Which combination of findings should the nurse anticipate?,"A) Jaundice only
+B) Elevated lipase only
+C) Jaundice and elevated lipase
+D) Neither, since one duct can compensate",C,"The common bile duct and the pancreatic duct join at the ampulla before emptying into the duodenum. A stone there blocks both: bile backs up producing jaundice, and pancreatic enzymes back up and activate inside the gland producing pancreatitis. The ducts do not compensate for one another — they share the exit."
+N144_L3_O1,3884,Multiple choice,A patient asks why their gallbladder pain always starts a few hours after dinner rather than while they are eating. Which explanation is accurate?,"A) Stomach acid takes hours to reach the gallbladder
+B) Fat must reach the small intestine to trigger the hormone that contracts the gallbladder
+C) Pain receptors in the gallbladder respond slowly
+D) The gallbladder empties on a fixed schedule unrelated to meals",B,"Cholecystokinin is released by cells in the duodenal lining when fat arrives, travels by bloodstream, and then causes the gallbladder to contract. That whole sequence takes time — which is why the pain is delayed rather than immediate. The gallbladder then squeezes against a stone."
+N144_L3_O1,3885,Multiple choice,Which statement explains why the gallbladder is where stones form?,"A) It produces bile, which crystallizes over time
+B) It concentrates bile by removing water, allowing solids to precipitate
+C) Its acidic environment causes cholesterol to solidify
+D) Bacteria colonize it and form a nidus for stones",B,"The liver makes bile; the gallbladder stores it and pulls water out, concentrating it five to tenfold. Concentrate any solution far enough and dissolved solids come out of solution. This is the same reason the kidneys form stones — they concentrate too."
+N144_L3_O1,3886,Multiple choice,Where are pancreatic digestive enzymes normally activated?,"A) Within the pancreatic acinar cells
+B) In the pancreatic duct
+C) In the duodenum
+D) In the stomach",C,"The pancreas manufactures enzymes capable of digesting tissue and keeps them inactive until they have safely left the organ. Activation occurs in the duodenum. Acute pancreatitis is the failure of that safety mechanism — when the duct obstructs, enzymes activate inside and the gland digests itself."
+N144_L3_O2,3887,Multiple choice,A patient presents 4 days after the onset of severe midepigastric pain. Amylase is normal; lipase is 480 (normal 10-140). Which interpretation is correct?,"A) Pancreatitis is ruled out by the normal amylase
+B) The normal amylase is expected at this point; the lipase supports pancreatitis
+C) The lipase elevation indicates a salivary gland disorder
+D) Both values must be elevated to support the diagnosis",B,"Amylase returns to normal within 48 to 72 hours, so at day four a normal value means nothing. Lipase stays elevated longer, making it the more useful test in a patient who presents late. Lipase is also pancreas-specific; amylase is the one that can come from salivary glands."
+N144_L3_O2,3888,Multiple choice,A patient has an amylase of 310 with a normal lipase and no abdominal pain. Which should the nurse consider?,"A) Early acute pancreatitis
+B) A non-pancreatic source such as salivary gland disease
+C) Chronic pancreatitis
+D) Laboratory error requiring a repeat draw",B,"Amylase is produced by the salivary glands as well as the pancreas, so an isolated amylase elevation does not localize. Lipase is pancreas-specific and is normal here, and there is no pain. Mumps, salivary obstruction and some other conditions raise amylase alone."
+N144_L3_O2,3889,Multiple choice,A patient with right upper quadrant pain has an alkaline phosphatase of 340 and an ALT of 42. What does this pattern suggest?,"A) Hepatocellular damage
+B) Obstruction of bile flow
+C) Pancreatic inflammation
+D) Hemolysis",B,"Alkaline phosphatase is produced by the cells lining the bile ducts and rises when bile flow is obstructed. ALT sits inside hepatocytes and is nearly normal here, so the liver cells themselves are not being destroyed in large numbers. The pattern points to a blockage rather than hepatitis."
+N144_L3_O2,3890,Multiple choice,Which diagnostic study is both diagnostic and therapeutic for a stone obstructing the common bile duct?,"A) Abdominal ultrasound
+B) HIDA scan
+C) ERCP
+D) CT of the abdomen",C,"ERCP passes a scope to the ampulla of Vater, injects dye retrograde into the ducts to visualize the obstruction, and carries instruments that can remove the stone or place a stent during the same procedure. Ultrasound, HIDA and CT only image."
+N144_L3_O2,3891,Multiple choice,A patient with suspected acute cholecystitis has an inconclusive ultrasound. Which study should the nurse anticipate?,"A) HIDA scan
+B) Barium swallow
+C) Colonoscopy
+D) Manometry",A,"Cholescintigraphy, or HIDA scan, gives a radioactive tracer IV that hepatocytes excrete into the biliary tract. If the tracer never reaches the gallbladder, the cystic duct is blocked. It is specifically useful when ultrasound is inconclusive, including acalculous cholecystitis where there is no stone to see."
+N144_L3_O3,3892,Multiple choice,Which patient is at highest risk for cholesterol gallstones?,"A) A 45-year-old woman with obesity taking oral contraceptives
+B) A 30-year-old man with sickle cell disease
+C) A 60-year-old man with cirrhosis
+D) A 25-year-old woman with a biliary tract infection",A,"The classic cholesterol stone risk profile is female, forties, overweight — and estrogen raises the cholesterol content of bile, which is why oral contraceptives add to the risk. The other three describe pigment stone risks: hemolysis in sickle cell, cirrhosis, and biliary infection all produce excess bilirubin."
+N144_L3_O3,3893,Multiple choice,Two causes account for about 80% of acute pancreatitis. Which are they?,"A) Gallstones and alcohol
+B) Trauma and hyperlipidemia
+C) Medications and viral infection
+D) Autoimmune disease and genetics",A,"Gallstones and alcohol together cause about 80%, but by different mechanisms. A stone blocks the duct mechanically. Alcohol is directly toxic to pancreatic cells, thickens secretions so small ducts plug, and causes the outlet sphincter to spasm. Different routes, same endpoint."
+N144_L3_O4,3894,Multiple choice,A patient with severe epigastric pain reports that vomiting does not relieve it and antacids have not helped. Which condition does this pattern most suggest?,"A) Peptic ulcer disease
+B) Acute pancreatitis
+C) Gastroesophageal reflux
+D) Acute gastritis",B,"Both negatives are diagnostic. Antacids fail because this is not an acid problem. Vomiting fails because emptying the stomach does nothing to unblock the pancreatic duct — whereas with a peptic ulcer, vomiting removes acid from the crater and does relieve the pain."
+N144_L3_O4,3895,Multiple choice,A patient with acute pancreatitis develops bruising around the umbilicus. What does this indicate?,"A) Intramuscular injection site trauma
+B) Blood tracking from the retroperitoneum — severe necrotizing disease
+C) Expected bruising from abdominal palpation
+D) Liver failure with coagulopathy",B,"This is Cullen sign. The pancreas is retroperitoneal, so when it bleeds, blood travels along tissue planes and surfaces at the umbilicus or, as Grey Turner sign, at the flank. Either indicates severe necrotizing pancreatitis, not a routine finding."
+N144_L3_O4,3896,Multiple choice,A patient with severe acute pancreatitis has a calcium of 7.1. Which explanation is correct?,"A) The pancreas normally produces calcium
+B) Escaped lipase digests fat, and the resulting fatty acids bind calcium
+C) Vomiting has caused the calcium loss
+D) The low calcium is unrelated to the pancreatitis",B,"This is saponification — literally soap formation. Lipase that has escaped the duct digests surrounding fat, and the free fatty acids produced bind calcium out of the circulation. Hypocalcemia is a recognized marker of severity in acute pancreatitis."
+N144_L3_O4,3897,Multiple choice,A patient with acute pancreatitis has a blood pressure of 88/54 and a heart rate of 122 but appears swollen with a distended abdomen. Which explanation fits?,"A) The patient is fluid overloaded and needs a diuretic
+B) Third-spacing — fluid has left the circulation for the peritoneal space
+C) The blood pressure reading is inaccurate
+D) The patient is having an allergic reaction",B,"Inflamed pancreatic tissue leaks fluid out of the vessels into the peritoneum. The fluid is still inside the patient, which is why they look swollen, but it is no longer circulating, which is why they are hypovolemic. Giving a diuretic to a third-spaced patient makes the intravascular depletion worse."
+N144_L3_O4,3898,Select all,Which findings indicate SEVERE rather than mild acute pancreatitis? Select all that apply.,"A) Grey Turner sign
+B) Midepigastric pain radiating to the back
+C) Mental confusion
+D) Hypocalcemia
+E) Nausea and vomiting
+F) Rigid boardlike abdomen","A, C, D, F","Pain radiating to the back and nausea with vomiting occur in mild interstitial edematous pancreatitis as well — they do not indicate severity. Grey Turner sign means retroperitoneal bleeding, confusion indicates hypoperfusion or shock, hypocalcemia reflects saponification from escaped lipase, and a rigid abdomen means peritonitis."
+N144_L3_O4,3899,Multiple choice,A patient reports clay-colored stools and dark urine. Which finding would complete the expected picture?,"A) Intense generalized itching
+B) Increased appetite
+C) Bright red blood in the stool
+D) Metallic taste in the mouth",A,"All three findings come from bile failing to reach the intestine. Stool loses its pigment, conjugated bilirubin exits through the kidneys instead, and bile salts deposit in the skin causing pruritus. The fourth member of the group is intolerance of fatty foods."
+N144_L3_O5,3900,Multiple choice,A patient with acute cholecystitis has a positive Murphy sign. How should the nurse describe this finding?,"A) Rebound tenderness in the right lower quadrant
+B) The patient stops inspiration when the right upper quadrant is palpated
+C) Pain in the right shoulder on deep palpation
+D) A palpable mass below the right costal margin",B,"The examiner presses up under the right costal margin and asks the patient to inhale. Inspiration pushes the diaphragm and the inflamed gallbladder down onto the fingers, and the patient halts mid-breath from pain. It is about 97% specific — a positive is strong evidence, but a negative does not rule cholecystitis out."
+N144_L3_O5,3901,Multiple choice,What distinguishes cholelithiasis from cholecystitis?,"A) Cholelithiasis is inflammation; cholecystitis is stones
+B) Cholelithiasis is stones; cholecystitis is inflammation, and either can occur without the other
+C) They are two names for the same condition
+D) Cholecystitis always requires the presence of stones",B,"Lith means stone, so cholelithiasis is stones in the gallbladder. Itis means inflammation, so cholecystitis is an inflamed gallbladder. Stones frequently cause the inflammation, but acalculous cholecystitis occurs without stones, and many patients have silent stones with no inflammation."
+N144_L3_O6,3902,Multiple choice,A patient with acute cholecystitis is admitted. Which intervention should the nurse anticipate first?,"A) A high-protein diet to promote healing
+B) NPO status
+C) Ambulation three times daily
+D) A warm compress to the right upper quadrant",B,"Eating — particularly fat — releases cholecystokinin, which makes the inflamed gallbladder contract. NPO removes that stimulus and lets the organ rest. This is the same principle as NPO in pancreatitis. Whenever a patient is made NPO, hydration becomes the next consideration."
+N144_L3_O6,3903,Multiple choice,Why is the diet for resuming intake after acute pancreatitis high in carbohydrate and low in fat and protein?,"A) Carbohydrate is easier to swallow
+B) Fat and protein trigger pancreatic enzyme release most strongly
+C) The pancreas does not produce amylase
+D) Protein worsens the pain through an unknown mechanism",B,"Fat and protein in the duodenum release cholecystokinin, the hormone that signals the pancreas to secrete. Carbohydrate is a weak trigger for CCK, and carbohydrate digestion also begins in the mouth and finishes at the intestinal brush border, so it asks less of the pancreas. The pancreas does produce amylase — but that is not the issue; the issue is what stimulates release."
+N144_L3_O6,3904,Multiple choice,A patient with acute pancreatitis requests ibuprofen for pain. Which response is correct?,"A) NSAIDs are avoided because they irritate the stomach lining
+B) NSAIDs are avoided because they affect clotting in a patient who may be bleeding
+C) NSAIDs are appropriate and preferred over opioids here
+D) NSAIDs are avoided because they stimulate pancreatic secretion",B,"The reason is clotting. Severe pancreatitis can involve retroperitoneal bleeding and disseminated intravascular coagulation, and NSAIDs impair platelet function. Gastric irritation is a real NSAID effect but is not the primary reason in this condition. Opioids are used instead, in doses adequate to minimize restlessness."
+N144_L3_O6,3905,Multiple choice,A patient one day after laparoscopic cholecystectomy reports right shoulder pain. Which action is appropriate?,"A) Notify the provider immediately of possible bile duct injury
+B) Explain this is from the carbon dioxide used during surgery and encourage walking
+C) Apply ice to the shoulder and restrict movement
+D) Obtain a stat cardiac enzyme panel",B,"Carbon dioxide is used to inflate the abdomen during laparoscopy, and residual gas irritates the diaphragm. That irritation refers to the shoulder by way of the phrenic nerve — the same pathway that makes a perforated ulcer hurt in the shoulder, but benign here. Walking helps the gas disperse."
+N144_L3_O6,3906,Select all,A patient is being discharged after a laparoscopic cholecystectomy. Which findings should they be taught to report? Select all that apply.,"A) Fever
+B) Jaundice
+C) Pale, clay-colored stools
+D) Shoulder discomfort for two days
+E) Drainage from an incision
+F) Worsening abdominal pain","A, B, C, E, F","The symptoms to report sort into two groups: infection — fever, worsening pain, incisional drainage — and bile obstruction — jaundice, dark urine, pale stool. Shoulder discomfort for a couple of days is expected from residual carbon dioxide and resolves with walking."
+N144_L3_O6,3907,Multiple choice,A patient has a T-tube in place after a choledochostomy. Which nursing action is correct?,"A) Keep the drainage bag above the level of the insertion site
+B) Keep the drainage bag below the level of the insertion site
+C) Clamp the tube between assessments
+D) Irrigate the tube every four hours",B,"The system drains by gravity, so the bag must stay below the insertion site or bile will not flow out — and could flow back. The tube is never clamped without an order. Output amount, color and character are recorded, and the skin is assessed for bile leakage, which is caustic."
+N144_L3_O6,3908,Multiple choice,A patient with a T-tube has had a sudden decrease in bile output and now appears jaundiced. What does this suggest?,"A) The obstruction has resolved
+B) The tube is blocked
+C) The liver has stopped producing bile
+D) This is expected as healing progresses",B,"Falling output plus new jaundice means bile is not getting out through either the tube or the natural route — the tube is obstructed. Signs of T-tube obstruction are pain, fever, jaundice and clay-colored stools. This is reported, not observed."
+N144_L3_O7,3909,Multiple choice,A patient with a functioning GI tract cannot meet caloric needs orally after a stroke. Which feeding route should the nurse anticipate?,"A) Peripheral parenteral nutrition
+B) Central parenteral nutrition
+C) Enteral feeding
+D) Oral supplements only",C,"If the gut works, use it. Enteral feeding preserves GI integrity, maintains normal intestinal and hepatic metabolism, and avoids the central line infection risk of parenteral nutrition. Bypassing a functioning gut causes it to atrophy. Parenteral is reserved for when the gut cannot be used."
+N144_L3_O7,3910,Multiple choice,A patient is expected to need tube feeding for approximately two weeks. Which route is most appropriate?,"A) Nasogastric tube
+B) Percutaneous endoscopic gastrostomy
+C) Jejunostomy
+D) Central parenteral nutrition",A,"Four weeks is the dividing line. Under four weeks, a nasally placed tube is appropriate; beyond that, nasal irritation and discomfort make a surgically placed route preferable. A PEG or jejunostomy is a procedure with its own risks and is not justified for two weeks."
+N144_L3_O7,3911,Multiple choice,A patient with a documented history of aspiration requires tube feeding. Which placement should the nurse anticipate?,"A) Nasogastric
+B) Orogastric
+C) Nasojejunal
+D) Gastrostomy",C,"Feeding beyond the pylorus reduces the volume sitting in the stomach available to reflux upward. Nasogastric, orogastric and gastrostomy all deliver into the stomach. Post-pyloric placement is the specific answer to aspiration risk."
+N144_L3_O8,3912,Multiple choice,A patient with a jejunostomy is ordered bolus feedings. What should the nurse do?,"A) Administer as ordered using a syringe
+B) Question the order — jejunal feedings must be continuous
+C) Administer but dilute the formula by half
+D) Administer only at night",B,"The jejunum has no reservoir. A bolus delivered there produces dumping syndrome — a concentrated load pulls water out of the bloodstream into the bowel, causing cramping and diarrhea along with falling blood pressure and rising heart rate. Small bowel feedings run continuously by pump."
+N144_L3_O8,3913,Multiple choice,"During a bolus feeding by syringe, the nurse wants to slow the rate. What should be done?","A) Lower the syringe closer to the patient
+B) Raise the syringe higher
+C) Add cold water to the formula
+D) Pinch the tubing partially closed",A,"Bolus feeding by syringe runs on gravity, so the height of the syringe is the rate control. Lowering it slows the flow and raising it speeds it up. Pinching tubing is imprecise and can damage it, and changing the formula temperature does not control rate."
+N144_L3_O8,3914,Multiple choice,A patient receiving continuous tube feeding must be NPO at midnight for a procedure. The nurse stops the pump. What else must be done?,"A) Nothing further is required
+B) Flush the tube
+C) Clamp the tube tightly
+D) Aspirate the residual volume",B,"Formula left standing in a tube dries and sets like glue, jamming the tube by morning. Flushing is required whenever the feeding is stopped or interrupted, in addition to before and after each feeding, before and after each medication, and every four to six hours."
+N144_L3_O8,3915,Multiple choice,"Three medications are due for a patient on tube feeding. The nurse plans to crush them together, mix them in 30 mL of formula, and administer them. Which correction is needed?","A) Use 60 mL of formula instead
+B) Give each medication separately with water flushes between
+C) Mix them in juice rather than formula
+D) Administer them all at the next feeding time",B,"Medications are given separately, never mixed with each other and never with formula. Mixing risks drug interactions and precipitation that clogs the tube, and formula can alter absorption. Flush before, between and after each medication."
+N144_L3_O9,3916,Multiple choice,"A patient receiving continuous tube feeding develops wheezing, restlessness and a drop in oxygen saturation. What is the priority action?","A) Slow the feeding rate
+B) Elevate the head of bed further
+C) Stop the feeding
+D) Check the gastric residual volume",C,"These are signs of aspiration. Every action that allows the feeding to continue is wrong, regardless of what else it adds. Stop the feeding first, then position, assess and notify the provider. On an exam, any option that keeps formula running past a respiratory sign is incorrect."
+N144_L3_O9,3917,Multiple choice,"A patient on tube feeding has a rising sodium, a rising BUN, and dry mucous membranes despite meeting caloric goals. What is the most likely explanation?","A) The formula contains too much protein
+B) The patient is dehydrated because formula is not fully water
+C) Kidney function is deteriorating independently
+D) The feeding rate is too slow",B,"Formula is only 70 to 85% free water, so meeting caloric needs does not mean meeting fluid needs. Rising sodium and BUN with dry membranes is concentration from inadequate free water. Water flushes are a fluid source and count as intake."
+N144_L3_O9,3918,Multiple choice,A nurse is asked to verify feeding tube placement before the first feeding of a newly inserted nasoduodenal tube. Which method is required?,"A) Auscultation while injecting 5 mL of air
+B) Aspiration and pH testing
+C) X-ray confirmation
+D) Measuring the external tube length",C,"X-ray is the gold standard and is required for initial placement, particularly for post-pyloric tubes — which is why they have a metal tip. Auscultation is the most commonly used bedside method and the least reliable. pH testing and external marking are useful for ongoing verification, not initial confirmation."
+N144_L3_O9,3919,Multiple choice,A patient on continuous feeding becomes diaphoretic and dizzy with three loose stools within 20 minutes of a rate increase. What should the nurse do?,"A) Stop the feeding and assess for aspiration
+B) Return to the previous rate and advance more gradually
+C) Increase free water flushes and continue
+D) Check a blood glucose and administer insulin",B,"This is dumping syndrome. A hyperosmolar load hit the small bowel too quickly, water moved from the bloodstream into the gut, and the patient has cramping and diarrhea along with the vasomotor symptoms of falling circulating volume. The fix is rate. Aspiration would present with respiratory signs."
+N144_L3_O9,3920,Multiple choice,"A provider orders routine gastric residual volumes every four hours for a patient on continuous feeding. Based on current course guidance, what is true?","A) Routine measurement is the standard of care
+B) Routine measurement is not recommended; it is checked when indicated
+C) Residuals should be measured every two hours instead
+D) Residuals are never checked under any circumstance",B,"Routine GRV measurement is not recommended and can contribute to tube clogging. It is performed when there is a reason to suspect retention — abdominal distention, feeding intolerance, or suspected pyloric stenosis. Note that the skills checklist uses a 500 mL threshold, so clarify which answer your instructor wants."
+N144_L3_O9,3921,Select all,Which complications of enteral feeding trace back to the fact that formula is only 70-85% free water? Select all that apply.,"A) Diarrhea
+B) Dehydration
+C) Constipation
+D) Aspiration pneumonia
+E) Tube obstruction","A, B, C","A hyperosmolar formula pulls water into the gut, producing diarrhea. Insufficient free water for the concentration given produces dehydration. Insufficient fluid to soften stool produces constipation. Aspiration comes from placement, positioning and vomiting; tube obstruction comes from inadequate flushing and poorly crushed medications."
+N144_L3_O9,3922,Multiple choice,A patient on parenteral nutrition has their infusion run out while awaiting the next bag. What should the nurse anticipate?,"A) Restarting at double the rate to catch up
+B) Hanging D10 until the next bag is available
+C) No intervention, since a brief gap is harmless
+D) Hanging normal saline at the same rate",B,"The body has been producing insulin to match a constant dextrose load. Remove that load abruptly and the circulating insulin has nothing to act on, producing rebound hypoglycemia. D10 maintains the glucose supply until the PN resumes. Normal saline provides volume but no glucose."
+N144_L3_O9,3923,Multiple choice,"A severely malnourished patient begins parenteral nutrition. Six hours later they report nausea and lightheadedness, and laboratory results show a phosphorus of 1.2. What is occurring?","A) An allergic reaction to the lipid emulsion
+B) Refeeding syndrome
+C) Catheter-related sepsis
+D) Rebound hypoglycemia",B,"When nutrition restarts in a starved patient, cells suddenly take up electrolytes to metabolize the arriving glucose, and phosphate, potassium and magnesium fall. Phosphate is the dangerous one because it is required for ATP and the heart runs out of energy. Notify the provider immediately."
+N144_L3_O9,3924,Multiple choice,A nurse is changing the dressing on a central line delivering parenteral nutrition. Which action is essential?,"A) Clean technique with gloves
+B) Sterile technique with a mask worn by the nurse and patient
+C) Clean technique with the patient turned away
+D) Sterile gloves only, no mask needed",B,"The catheter ends near the heart, so contamination goes directly into the systemic circulation — and the dextrose-rich solution is an excellent bacterial growth medium. Strict sterile technique with masks for both nurse and patient is required. The skin and the catheter hub are the major sources of central line bloodstream infection."
+N144_L3_O9,3925,Multiple choice,Which finding in a patient receiving parenteral nutrition most requires immediate attention?,"A) Blood glucose of 168
+B) Temperature of 38.6 with chills
+C) Weight gain of 0.4 kg over three days
+D) Mild nausea",B,"Fever with chills in a patient with a central line delivering a sugar-rich solution suggests catheter-related bloodstream infection, which can progress to sepsis rapidly. Hyperglycemia is expected and managed with monitoring and insulin. Modest weight gain is the goal, and mild nausea is nonspecific."
+N144_L3_O9,3926,Multiple choice,Which laboratory value best indicates whether parenteral nutrition is meeting the patient's nutritional needs?,"A) Serum sodium
+B) Prealbumin
+C) Hemoglobin
+D) Alkaline phosphatase",B,"Prealbumin has a short half-life and responds within days, making it the practical marker of whether nutrition is working. Albumin changes too slowly to reflect recent intake. Sodium, hemoglobin and alkaline phosphatase answer different questions — the electrolytes and organ function tell you whether the therapy is causing harm, not whether it is succeeding."
+N144_L4_O1,3927,Multiple choice,A patient asks why their stool turned pale after a bile duct obstruction. Which explanation is accurate?,"A) Fat is no longer being absorbed, which lightens the stool
+B) Bile pigment is what makes stool brown
+C) The colon is absorbing more water than usual
+D) Bacteria in the colon have been destroyed",B,"Bilirubin in bile, broken down by gut bacteria, gives stool its brown color. Block the bile and the pigment never arrives, so the stool is clay-colored. Unabsorbed fat makes stool greasy, bulky and foul-smelling, but that is steatorrhea — a different appearance."
+N144_L4_O1,3928,Multiple choice,Which three components must be intact for a patient to maintain fecal continence?,"A) Muscle, nerve and brain
+B) Stomach, small intestine and colon
+C) Fiber, fluid and mobility
+D) Sphincter tone alone",A,"Rectal distention relaxes the internal sphincter involuntarily; the external sphincter is under voluntary control. That requires intact muscle, an intact nerve pathway to carry the signal, and an intact brain to make the decision. Damage anywhere on that path causes incontinence, which is why the causes sort into those categories."
+N144_L4_O2,3929,Multiple choice,A patient is scheduled for a hydrogen breath test. Which principle explains how it works?,"A) Hydrogen is produced by the stomach in response to sugar
+B) Humans do not produce hydrogen; bacteria do
+C) Hydrogen levels reflect gastric emptying speed
+D) Hydrogen is a byproduct of protein digestion",B,Human cells produce no hydrogen. Its appearance in the breath means carbohydrate reached colonic bacteria unabsorbed and they fermented it. That is why the test detects lactose intolerance and bacterial overgrowth — it is measuring failed absorption indirectly.
+N144_L4_O2,3930,Multiple choice,How far does a sigmoidoscopy reach compared with a colonoscopy?,"A) Both examine the entire colon
+B) Sigmoidoscopy reaches the descending colon; colonoscopy examines the entire colon
+C) Sigmoidoscopy reaches the transverse colon
+D) Colonoscopy examines only the rectum and sigmoid",B,"Sigmoidoscopy passes the proximal sigmoid into the descending colon and stops there. Colonoscopy continues through the descending, transverse and ascending colon — the whole organ. This matters because a normal sigmoidoscopy does not exclude disease higher up."
+N144_L4_O3,3931,Multiple choice,A patient started on oral opioids for chronic pain asks how to prevent constipation. Which response is best?,"A) Wait and treat it if it develops
+B) Begin a bowel regimen now, at the same time as the opioid
+C) Increase dietary fiber only
+D) Use an enema weekly as prevention",B,"Opioids slow motility directly and reliably, so constipation is expected rather than possible. A bowel regimen starts with the opioid, not after the problem appears. Fiber alone is insufficient against opioid-induced constipation and can worsen impaction without adequate fluid."
+N144_L4_O3,3932,Multiple choice,A patient with a history of stroke is straining during bowel movements. Why is this a specific concern?,"A) Straining can cause rectal prolapse
+B) Straining is a Valsalva maneuver that reduces cardiac output
+C) Straining increases the risk of diverticula
+D) Straining worsens hemorrhoids",B,"Straining raises intrathoracic pressure, which reduces venous return and drops cardiac output. In a patient with stroke or cardiac risk, that transient drop matters. Prolapse and hemorrhoids are real consequences of straining, but they are not why it is dangerous in this specific patient."
+N144_L4_O3,3933,Multiple choice,A nursing home resident who has not had a bowel movement in five days now has frequent small liquid stools. What should the nurse suspect?,"A) Infectious diarrhea requiring isolation
+B) Fecal impaction with overflow
+C) Resolution of the constipation
+D) A reaction to their laxative",B,"A hard mass in the rectum allows fresh liquid stool to squeeze around it. This is constipation presenting as diarrhea, and treating it as diarrhea makes it worse — antidiarrheals would worsen the impaction. Digital examination confirms it, and manual disimpaction may be required."
+N144_L4_O3,3934,Multiple choice,A patient is being taught a bowel training program. When should they attempt a bowel movement?,"A) Whenever the urge occurs, at any time
+B) At the same time each day, ideally after a meal
+C) Only in the evening before bed
+D) Every four hours regardless of urge",B,"Eating triggers the gastrocolic reflex, which signals the colon to make room. Timing the attempt after a meal or a warm drink works with that signal rather than against it. Consistency establishes a pattern. Note what comes out is the previous meal, not the one just eaten."
+N144_L4_O3,3935,Multiple choice,Which laxative class works by drawing water into the bowel?,"A) Bulk-forming
+B) Stimulant
+C) Osmotic
+D) Emollient",C,Osmotic agents such as polyethylene glycol pull water into the bowel lumen. Bulk-forming agents add fiber mass. Stimulants such as bisacodyl increase peristalsis and mucus secretion. Emollients such as docusate hydrate the stool itself rather than flooding the bowel.
+N144_L4_O4,3936,Multiple choice,A patient has had watery stools for 20 days. Which cause should the nurse consider first?,"A) Viral gastroenteritis
+B) Persistent diarrhea, still likely infectious
+C) Chronic diarrhea from an endocrine disorder
+D) Fecal impaction",B,"Acute diarrhea lasts up to 14 days, persistent runs 14 to 30, and chronic exceeds 30 days. At 20 days this is persistent — still in the range where an infectious cause is likely. Beyond 30 days the cause list shifts to medications, metabolic and endocrine disease."
+N144_L4_O4,3937,Multiple choice,"A patient has small-volume diarrhea containing blood and mucus, with a fever. Which classification fits?","A) Noninflammatory, from a noninvasive pathogen
+B) Inflammatory, from an invasive pathogen
+C) Osmotic, from unabsorbed solute
+D) Secretory, from a bacterial toxin",B,"Volume is the discriminator. A noninvasive pathogen sits in the lumen and makes the gut secrete, producing large watery volume without blood. An invasive organism damages the bowel wall itself, so the volume is small but there is blood, mucus and fever."
+N144_L4_O4,3938,Multiple choice,A patient develops watery diarrhea five days after finishing a course of antibiotics. What should the nurse suspect?,"A) A food intolerance
+B) Clostridioides difficile
+C) Irritable bowel syndrome
+D) Lactose intolerance",B,"C. difficile is the most common bacterial cause of antibiotic-associated diarrhea. Antibiotics eliminate the normal flora that keep it in check, and overgrowth follows — sometimes weeks after the course ends. It is reported and tested for, not treated with an antidiarrheal."
+N144_L4_O4,3939,Multiple choice,A patient with prolonged diarrhea develops a cardiac dysrhythmia. Which explanation is correct?,"A) Dehydration has thickened the blood
+B) Potassium was lost along with the fluid
+C) The infection has spread to the heart
+D) Diarrhea causes a direct vagal response",B,"Electrolytes leave with the water, and potassium in particular is critical for cardiac conduction. This is the same chain that makes high-output ileostomies dangerous — lose the colon's reabsorption, whether through diarrhea or surgery, and you lose the electrolytes too."
+N144_L4_O4,3963,Multiple choice,"A patient reports periumbilical pain that has moved to the right lower quadrant over the past six hours, with nausea and a low-grade fever. Which condition fits best?","A) Diverticulitis
+B) Appendicitis
+C) Ulcerative colitis
+D) Irritable bowel syndrome",B,The migration from vague periumbilical visceral pain to sharp localized right lower quadrant parietal pain is the classic appendicitis pattern. Diverticulitis is left lower quadrant. UC is left lower with bloody diarrhea. IBS does not cause fever.
+N144_L4_O4,3964,Multiple choice,An 81-year-old with a perforated appendix had no fever and a normal white count on admission. How should the nurse interpret this?,"A) The perforation must have occurred very recently
+B) Older adults may have absent fever and leukocytosis, which delays diagnosis
+C) The laboratory results were likely erroneous
+D) Perforation does not cause fever or leukocytosis",B,"In older adults, appendicitis may present with absent or minimal pain, vague symptoms, and no fever or leukocytosis — so the patient may have no clear findings until the appendix is gangrenous or has perforated. This is why complication rates are higher in this age group. Age changes how disease presents."
+N144_L4_O4,3965,Multiple choice,A patient with suspected appendicitis has pain in the right lower quadrant when the LEFT lower quadrant is palpated. What is this called?,"A) Murphy sign
+B) Rovsing sign
+C) Cullen sign
+D) McBurney point",B,Rovsing sign works because pressing the left side pushes gas through the colon toward the inflamed appendix on the right. McBurney point is tenderness at a specific location between the umbilicus and the anterior superior iliac spine. Murphy sign is biliary; Cullen sign is periumbilical bruising.
+N144_L4_O5,3940,Multiple choice,"A patient has abdominal pain, bloating, and alternating constipation and diarrhea. Colonoscopy, stool studies and imaging are all normal. Which condition fits?","A) Crohn's disease
+B) Irritable bowel syndrome
+C) Ulcerative colitis
+D) Diverticulitis",B,"IBS is a functional disorder — the bowel looks normal on every test. That is the diagnosis, not a failure of the workup. The tests rule structural disease out, and then the Rome IV criteria rule IBS in. IBD, by contrast, produces visible inflammation and ulceration."
+N144_L4_O5,3941,Multiple choice,A 68-year-old presents with new bowel pattern changes and is told this is probably not IBS. Why?,"A) IBS does not occur in men
+B) IBS is usually diagnosed under age 50, and new symptoms in older adults suggest other causes
+C) IBS always includes bleeding
+D) IBS resolves spontaneously by middle age",B,"IBS is typically diagnosed under 50. New bowel symptoms in an older patient raise colorectal cancer and diverticular disease, which must be excluded before a functional diagnosis is considered. IBS also does not cause bleeding, weight loss or fever — if those are present, it is not IBS."
+N144_L4_O5,3942,Multiple choice,A patient with celiac disease has been strictly gluten-free for three months but still has iron and vitamin D deficiency. What explains this?,"A) Hidden gluten exposure must be occurring
+B) The intestinal villi take up to a year to recover
+C) Celiac disease also impairs gastric acid production
+D) The supplements are being taken incorrectly",B,"Celiac damages the villi, which provide the absorptive surface area. Removing gluten stops the damage but regrowth is slow — the textbook indicates a full year before villous integrity is restored. Ongoing exposure is possible and worth investigating, but the expected timeline explains this first."
+N144_L4_O5,3943,Multiple choice,Why does celiac disease cause malabsorption while ulcerative colitis does not?,"A) Celiac is autoimmune and UC is not
+B) Villi exist only in the small intestine, which celiac damages; UC affects the colon
+C) UC is less severe than celiac
+D) Celiac affects enzyme production directly",B,"Villi provide the absorptive surface, and they exist only in the small intestine. Celiac strips them, and Crohn's commonly involves the distal ileum, so both cause malabsorption. Ulcerative colitis is confined to the colon, which has no villi — so it bleeds rather than starving the patient of nutrients."
+N144_L4_O5,3944,Multiple choice,A patient with lactose intolerance asks whether they must give up dairy entirely. Which response is most accurate?,"A) Yes, all dairy must be eliminated permanently
+B) Most people tolerate 1 to 2 cups daily if spread out in small amounts
+C) Dairy may be resumed after six months of avoidance
+D) Only hard cheeses must be avoided",B,"Complete elimination is usually unnecessary and carries its own risk — dairy is a major source of calcium and vitamin D, and cutting it without supplementation leads to osteoporosis. Most people tolerate small amounts spread through the day, lactase preparations help, and yogurt with active cultures is tolerated better than lactase pills."
+N144_L4_O5,3945,Multiple choice,Which mechanism explains the diarrhea of lactose intolerance?,"A) Secretory — the mucosa actively secretes fluid
+B) Osmotic — undigested lactose pulls water into the bowel
+C) Inflammatory — the lactose damages the mucosa
+D) Malabsorptive — protein is not absorbed",B,"Without lactase, lactose remains undigested in the bowel and draws water toward it osmotically. This is the same physics as dumping syndrome, where a concentrated feeding pulls water from the bloodstream into the gut. Lactose does not damage the mucosa."
+N144_L4_O5,3946,Multiple choice,A patient with cirrhosis and ascites develops a fever and diffuse abdominal tenderness without perforation. Which type of peritonitis is this?,"A) Primary
+B) Secondary
+C) Tertiary
+D) Chemical",A,"Primary peritonitis is spontaneous infection, characteristically in a patient with liver failure and ascites — the fluid becomes a culture medium and the Kupffer cells that would filter gut bacteria are bypassed. Secondary follows perforation of an organ. Tertiary is superinfection in an immunocompromised patient."
+N144_L4_O5,3947,Multiple choice,"A patient with left lower quadrant cramping, fever, and a low-fiber diet history is most likely experiencing which condition?","A) Appendicitis
+B) Diverticulitis
+C) Crohn's disease
+D) Irritable bowel syndrome",B,"Diverticular disease is most common in the sigmoid colon, which sits in the left lower quadrant, and it is associated with a low-fiber diet and increasing age. Fever distinguishes diverticulitis from diverticulosis. Appendicitis is right lower quadrant; Crohn's is typically right lower; IBS has no fever."
+N144_L4_O5,3948,Multiple choice,A patient admitted with acute severe diverticulitis has a colonoscopy ordered. What should the nurse do?,"A) Begin the bowel prep as ordered
+B) Question the order
+C) Proceed without bowel prep
+D) Request sedation be added to the order",B,"Colonoscopy is contraindicated in acute severe diverticulitis. Insufflating air into an inflamed, weakened bowel wall risks perforation. The scope is used to diagnose diverticular disease once the acute episode has resolved, not during it."
+N144_L4_O5,3949,Multiple choice,"A patient two days after abdominal surgery has absent bowel sounds, no flatus, and abdominal distention. Which condition is this?","A) Mechanical obstruction requiring urgent surgery
+B) Paralytic ileus
+C) Peritonitis
+D) Toxic megacolon",B,"Paralytic ileus is expected after abdominal surgery. The body responds to surgical trauma as though it had been injured and shuts the gut down to protect itself. This is why bowel sounds are assessed every shift, the NG tube stays until they return, and passing flatus is the question that matters."
+N144_L4_O5,3950,Multiple choice,A patient with a small bowel obstruction has been vomiting for two days. Which acid-base and electrolyte picture should the nurse anticipate?,"A) Metabolic acidosis with hyperkalemia
+B) Metabolic alkalosis with hypokalemia and hypochloremia
+C) Respiratory alkalosis with hypernatremia
+D) Metabolic acidosis with hypocalcemia",B,"Vomiting loses hydrogen ions, chloride and potassium from the stomach. Losing acid produces alkalosis, and losing chloride and potassium produces hypochloremia and hypokalemia. This is the classic picture of prolonged vomiting from a proximal obstruction."
+N144_L4_O5,3951,Multiple choice,Which sign best indicates that an intestinal obstruction is resolving?,"A) Decreased pain reported by the patient
+B) Passage of flatus or stool
+C) Tolerating sips of water
+D) A softer abdomen on palpation",B,"Passage of flatus means something got all the way through — the most definitive evidence the blockage has cleared. Reduced pain and a softer abdomen are encouraging but can occur with decompression alone, and tolerating fluids does not prove the distal bowel is patent."
+N144_L4_O5,3952,Multiple choice,A patient with IBD has developed a connection between the bowel and the skin near the anus. Which disease does this indicate?,"A) Ulcerative colitis
+B) Crohn's disease
+C) Either, equally likely
+D) Diverticulitis",B,"A fistula is an abnormal connection between structures that should not be connected. Crohn's inflames through ALL layers of the bowel wall, so the inflammation can tunnel to a neighboring structure. Ulcerative colitis stays in the mucosa and submucosa — it cannot tunnel, so it does not produce fistulas."
+N144_L4_O5,3953,Multiple choice,Why does ulcerative colitis produce bloody diarrhea while Crohn's typically does not?,"A) UC affects a larger surface area
+B) UC ulcerates the mucosa, where the surface vessels are
+C) Crohn's patients clot more effectively
+D) UC involves the rectum, which bleeds more readily",B,"Depth explains the difference. UC strips the mucosa, and that is exactly where the surface blood vessels sit, so it bleeds. Crohn's inflames more deeply but does not denude the surface the same way — it tunnels instead, producing fistulas and abscesses."
+N144_L4_O5,3954,Multiple choice,A patient asks whether surgery will cure their inflammatory bowel disease. Which response is accurate for ULCERATIVE COLITIS?,"A) Surgery cannot cure any form of IBD
+B) Removing the colon and rectum cures ulcerative colitis
+C) Surgery cures it only if performed early
+D) Surgery is never indicated in ulcerative colitis",B,"Ulcerative colitis exists only in the colon and rectum. Remove those and the disease is gone — proctocolectomy is curative. Crohn's can affect any part of the GI tract from mouth to anus, so removing a segment does not prevent recurrence elsewhere. Location determines curability."
+N144_L4_O5,3955,Select all,Which findings are characteristic of CROHN'S disease rather than ulcerative colitis? Select all that apply.,"A) Skip lesions
+B) Involvement of all bowel wall layers
+C) Continuous lesions beginning at the rectum
+D) Right lower quadrant pain
+E) Perianal fistulas
+F) Bloody diarrhea","A, B, D, E","Crohn is full-thickness with skip lesions, commonly in the distal ileum and ascending colon, producing right lower quadrant pain and fistulas. Continuous lesions starting at the rectum and bloody diarrhea are ulcerative colitis. Every difference follows from depth and location."
+N144_L4_O5,3956,Multiple choice,A patient with a new ostomy following proctocolectomy for ulcerative colitis asks whether the temporary ileostomy created with their pouch will be permanent. What should the nurse explain about IPAA?,"A) The ileostomy is permanent in all cases
+B) A temporary loop ileostomy protects the pouch and is usually closed at about 3 months
+C) The pouch will eventually fail and require a permanent stoma
+D) The ileostomy closes within two weeks",B,"In restorative proctocolectomy with ileal pouch anal anastomosis, the pouch is connected to the anus and the sphincter is preserved. A temporary loop ileostomy diverts stool while the anastomosis heals and is typically closed around three months. The result is no permanent stoma."
+N144_L4_O5,3966,Multiple choice,A patient with Crohn's disease develops a perianal abscess. Why is prompt drainage important?,"A) To relieve pain only
+B) To prevent fistula formation, fecal incontinence and sepsis
+C) To allow oral antibiotics to be discontinued
+D) To prevent the abscess from becoming malignant",B,"The natural progression is abscess to fistula. Prompt incision and drainage interrupts that sequence and prevents fecal incontinence and sepsis. Notably, most patients with an anorectal abscess do NOT have a fever, so its absence does not mean the abscess can wait."
+N144_L4_O5,3967,Multiple choice,A patient reports bright red blood on the toilet tissue with painful defecation and burning. Which condition is most likely?,"A) Upper GI bleeding
+B) Anal fissure
+C) Diverticular bleeding
+D) Ulcerative colitis",B,"An anal fissure is a longitudinal tear in the anal canal lining, usually from passing a large firm stool. Painful defecation, burning and bright red blood on the tissue are its signature. Bright red on tissue means a distal source; blood from higher up would be darker or mixed with stool."
+N144_L4_O6,3957,Multiple choice,A patient with ulcerative colitis is prescribed mesalamine enemas. They ask why not a pill. Which response is accurate?,"A) Oral mesalamine is not manufactured
+B) UC begins in the rectum, so rectal delivery puts the drug on the inflamed tissue
+C) The oral form causes severe nausea
+D) The rectal route works faster for all bowel diseases",B,"Mesalamine works locally on the mucosa rather than systemically. Ulcerative colitis starts at the rectum and spreads proximally, so rectal administration delivers the drug exactly where the disease is. Oral forms exist and are engineered to release in specific bowel segments."
+N144_L4_O6,3958,Multiple choice,Which medication is preferred for mild-to-moderate CROHN'S disease?,"A) Mesalamine
+B) Budesonide
+C) Loperamide
+D) Infliximab",B,"Aminosalicylates like mesalamine are less effective in Crohn's than in UC. Budesonide is an oral enteric-coated corticosteroid whose action is largely limited to the bowel, which restricts the systemic steroid effects of prednisone. It is tapered over 8 to 12 weeks. Infliximab is reserved for moderate-to-severe disease."
+N144_L4_O6,3959,Multiple choice,A patient with Crohn's disease and perianal fistulas is started on antibiotics. Which combination should the nurse anticipate?,"A) Amoxicillin and clarithromycin
+B) Metronidazole and ciprofloxacin
+C) Vancomycin and gentamicin
+D) Azithromycin alone",B,"Metronidazole plus ciprofloxacin is the standard combination for Crohn's with perianal fistulas or abdominal masses. Metronidazole can cause peripheral neuropathy with prolonged use. Amoxicillin and clarithromycin treat H. pylori, a different problem entirely."
+N144_L4_O6,3960,Multiple choice,A patient with diverticular disease asks about diet. Which recommendation is correct?,"A) Low fiber and low fluid to rest the bowel permanently
+B) Increased fiber with soft foods such as cooked vegetables, and at least 2 L of fluid daily
+C) Clear liquids indefinitely
+D) High protein with minimal fiber",B,"Diverticular disease is associated with a low-fiber diet, so fiber is increased once the acute inflammation has settled — soft, high-fiber foods such as cooked vegetables. Fluid of at least 2 L daily is required, because fiber without fluid worsens constipation. Bulk laxatives and stool softeners are also used."
+N144_L4_O6,3961,Multiple choice,Which goal is appropriate for a patient with inflammatory bowel disease?,"A) Complete elimination of all bowel movements
+B) Prevention of fluid volume deficit
+C) Return to a completely unrestricted diet immediately
+D) Elimination of the need for medication",B,"IBD goals are normal bowel elimination patterns, relief of abdominal pain and cramping, prevention of fluid deficit, and maintenance of optimal nutrition. Fluid deficit is a genuine risk because of the diarrhea, and it leads to the electrolyte imbalances and dysrhythmias listed among the complications."
+N144_L4_O6,3962,Multiple choice,A patient with peritonitis is started on antibiotics. Which approach should the nurse anticipate?,"A) A single narrow-spectrum agent after cultures return
+B) Large-dose broad-spectrum antibiotics started immediately
+C) Oral antibiotics once the patient tolerates fluids
+D) Antibiotics only if the temperature exceeds 39 degrees",B,"Peritonitis means gut flora — a mixed population of organisms — have spilled into a sterile cavity. There is no time to wait for cultures, and no single narrow agent covers the range. Large-dose broad-spectrum coverage starts immediately alongside source control, fluids and monitoring for sepsis."
+N144_L5_O1,3968,Multiple choice,A patient with a sigmoid colostomy and one with an ileostomy are admitted the same day. Which statement about their output is correct?,"A) Both will produce formed stool
+B) The ileostomy output will be liquid and higher volume
+C) The sigmoid colostomy will produce more output
+D) Output volume is the same; only consistency differs",B,"The ileostomy bypasses the colon entirely, so nothing is reabsorbed — output is liquid, 600 to 1,200 mL daily. A sigmoid colostomy sits at the end of the colon after water reabsorption has occurred, so output is formed and 200 to 600 mL. Both volume and consistency differ, and both follow from the same fact."
+N144_L5_O1,3969,Multiple choice,Which patient is a candidate for colostomy irrigation?,"A) A patient with a transverse colostomy
+B) A patient with an ileostomy
+C) A patient with a sigmoid colostomy and formed stool
+D) A patient with an ascending colostomy",C,"Only descending and sigmoid colostomies can be irrigated, because only they produce formed stool — there must be something to regulate. Ascending and transverse colostomies and ileostomies drain liquid continuously. Irrigation higher in the colon also carries greater perforation risk."
+N144_L5_O2,3970,Multiple choice,A patient two days after ostomy surgery has no output and no bowel sounds. What should the nurse do?,"A) Notify the provider of a probable obstruction
+B) Continue to monitor — this is expected
+C) Irrigate the stoma to stimulate output
+D) Remove the NG tube to allow oral intake",B,"Paralytic ileus is expected after abdominal surgery. Nothing is heard on day one or two, gas typically returns on day two to three, and colostomy output begins at three to six days. The NG tube stays on suction until peristalsis returns. Irrigating a fresh postoperative stoma is unsafe."
+N144_L5_O2,3971,Multiple choice,A nurse observes that the first output from a new colostomy is dark and tarry. What does this indicate?,"A) Upper GI bleeding requiring immediate intervention
+B) Shed intestinal lining, which is expected
+C) An ischemic bowel segment
+D) Contamination of the pouch",B,The first output resembles meconium because it is shed lining and mucus rather than digested food — the same reason a newborn's first stool looks that way. Mistaking it for melena leads to an unnecessary workup. True melena would come with other signs of bleeding.
+N144_L5_O2,3972,Multiple choice,A patient is scheduled for ostomy surgery tomorrow. Which preoperative action is most important for their long-term quality of life?,"A) Teaching appliance changes in detail
+B) Ensuring the stoma site is marked and visible to the patient
+C) Administering a sedative the night before
+D) Providing written material about ostomy associations",B,"Site marking determines whether the patient can see and reach the stoma and whether the appliance will seal. The WOC nurse assesses how the patient wears their pants and where fat folds are, sitting AND standing, because folds appear when seated. A stoma placed in a fold will leak. Without marking, the surgeon places it wherever is technically easiest."
+N144_L5_O2,3973,Multiple choice,A nurse is teaching a patient why early ambulation matters after ostomy surgery. Which rationale is correct?,"A) It helps drain the ostomy
+B) It maintains muscle tone and prevents respiratory infection and clots
+C) It reduces the need for parenteral nutrition
+D) It speeds the return of formed stool",B,"The reasons are the same as for any postoperative patient — muscle tone, preventing pneumonia, preventing venous thromboembolism. Ambulation does not drain the ostomy, and most ostomy patients do not require parenteral nutrition. Both of those appear as distractors. Postoperative care first, ostomy-specific care second."
+N144_L5_O3,3974,Multiple choice,A nurse assessing a stoma finds it dusky purple. What is the priority action?,"A) Document the finding and reassess next shift
+B) Notify the provider immediately
+C) Apply a warm compress to improve circulation
+D) Loosen the appliance and continue monitoring",B,"A healthy stoma is moist, pink to red and shiny — it is mucous membrane, like the inside of the cheek. Gray, purple or black indicates impaired blood flow and possible necrosis, which is a surgical emergency. Waiting a shift or applying a compress delays an intervention the stoma may not survive."
+N144_L5_O3,3975,Multiple choice,A patient reports pain at the stoma when the appliance is changed. What should the nurse conclude?,"A) This is normal, as the stoma is highly innervated
+B) The pain originates in the surrounding skin, not the stoma
+C) The stoma is necrotic
+D) The patient requires premedication before every change",B,"The stoma itself has no nerve endings and does not hurt. Pain means something around it — peristomal skin breakdown, a barrier cut too large allowing effluent contact, folliculitis, candidiasis, or mechanical injury from removal. The assessment goes to the skin, not the stoma."
+N144_L5_O3,3976,Multiple choice,"When measuring for a new ostomy appliance, what size opening should the nurse cut?","A) Exactly the size of the stoma
+B) About one-eighth inch larger than the stoma
+C) One-half inch larger than the stoma
+D) One inch larger to allow for swelling",B,"About 0.3 cm, or one-eighth inch, larger. Cut it too large and peristomal skin is exposed to effluent, which contains active digestive enzymes and will digest skin. Cut it exactly to size or smaller and the barrier presses on the stoma itself. The stoma also shrinks over the first 6 to 8 weeks, so it is re-measured."
+N144_L5_O3,3977,Multiple choice,Why is peristomal skin breakdown more common with an ileostomy than a colostomy?,"A) Ileostomy appliances adhere less well
+B) Ileostomy effluent contains a higher concentration of digestive enzymes
+C) Ileostomies are placed in areas with thinner skin
+D) Ileostomy patients change appliances less frequently",B,"Effluent from an ileostomy has not passed through the colon, so it is liquid and enzyme-rich. Those enzymes digest food — and they digest skin just as readily. Colostomy output is more formed and has had the enzymes largely neutralized and absorbed along the way."
+N144_L5_O3,3978,Multiple choice,A nurse is cleaning peristomal skin during an appliance change. Which action is correct?,"A) Scrub with soap and warm water
+B) Clean gently with warm water and no soap, then pat dry
+C) Use alcohol to ensure the area is disinfected
+D) Apply powder before cleaning",B,"Warm water only. Soap leaves residue that interferes with barrier adhesion and can irritate already fragile skin, and scrubbing damages it further. The area is patted dry rather than rubbed. Residual paste should not be picked at."
+N144_L5_O3,3979,Multiple choice,When should a patient empty their ostomy pouch?,"A) Only when it is completely full
+B) When it is one-third to one-half full
+C) Once daily regardless of content
+D) Only when changing the entire appliance",B,"A fuller pouch is heavier and the weight pulls on the seal, which is the most common reason appliances come off. Emptying at one-third to one-half full prevents that. The appliance itself is replaced every 3 to 7 days, or sooner if soiled, wet, loose or leaking."
+N144_L5_O3,3980,Multiple choice,A patient with a sigmoid colostomy is beginning irrigation. What volume should the nurse start with?,"A) 250 mL of sterile water
+B) 500 mL of warm tap water
+C) 1,000 mL of warm tap water
+D) 1,500 mL of normal saline",B,"Irrigation starts at 500 mL of warm tap water and increases by about 100 mL daily to a maximum of 1,000 mL. Tap water is used, not sterile water or saline. Starting at the maximum volume risks cramping and, in extreme cases, perforation."
+N144_L5_O3,3981,Multiple choice,During colostomy irrigation the patient reports cramping. What should the nurse do?,"A) Stop the procedure permanently
+B) Slow the flow rate, and pause temporarily if cramping persists
+C) Increase the flow to finish more quickly
+D) Continue at the same rate, as cramping is expected throughout",B,"Infusing fluid distends the colon, which is what triggers peristalsis. Too rapid an infusion distends it to the point that afferent sensory neurons perceive it as pain. Slowing the rate resolves it; if cramping persists, pause and resume slowly once it subsides."
+N144_L5_O3,3982,Multiple choice,Where should the irrigation reservoir be positioned?,"A) At the level of the stoma
+B) At the shoulder height of the seated patient
+C) As high as possible for adequate pressure
+D) On the floor beside the toilet",B,"Shoulder height of the seated patient provides adequate gravity flow without excessive pressure. Too high forces fluid in too rapidly, causing cramping and raising perforation risk. Too low and the fluid will not flow. This is the same gravity principle as tube feeding."
+N144_L5_O3,3983,Select all,Which conditions are contraindications to colostomy irrigation? Select all that apply.,"A) Stomal stenosis
+B) Parastomal hernia
+C) Current radiation therapy
+D) A sigmoid colostomy with formed stool
+E) Cardiac or renal disease
+F) Stoma prolapse","A, B, C, E, F","A sigmoid colostomy with formed stool is the ideal candidate, not a contraindication. The others all are: stenosis narrows the opening, hernia and prolapse distort the anatomy, radiation causes fragile tissue and adhesions, and cardiac or renal disease makes the fluid shift and vasovagal risk unacceptable. Liquid stool and disease of the remaining colon also contraindicate it."
+N144_L5_O3,3984,Multiple choice,"During irrigation a patient becomes dizzy, with a heart rate of 48 and a blood pressure of 88/52. What should the nurse do?","A) Continue slowly and monitor
+B) Stop the irrigation immediately, stay with the patient and notify the provider
+C) Have the patient lie flat and resume in five minutes
+D) Increase the flow rate to finish quickly",B,"Dizziness with bradycardia and hypotension is a vasovagal reaction — one of the two emergencies recognized during irrigation. The other is bowel perforation, signaled by retention of a large volume of instilled fluid, excessive bleeding, or acute pain. Either requires stopping, staying with the patient, and notifying the provider."
+N144_L5_O3,3985,Multiple choice,During irrigation the nurse notes that very little of the instilled fluid has returned and the patient reports acute pain. What should the nurse suspect?,"A) The patient needs a larger volume
+B) Bowel perforation
+C) Normal variation in return
+D) Stoma stenosis requiring dilation",B,"Retention of a large volume of instilled fluid, excessive bleeding, and acute pain are the signs of bowel perforation during irrigation. Fluid that does not return may be entering the peritoneal cavity. Stop immediately, do not leave the patient, and notify the provider."
+N144_L5_O3,3986,Multiple choice,How long does a complete colostomy irrigation typically take?,"A) 10 to 15 minutes
+B) 20 to 30 minutes
+C) 45 to 60 minutes
+D) 2 hours",C,"Fluid instills over 5 to 10 minutes, the sleeve drains for 10 to 15 minutes, and it stays in place another 30 to 45 minutes. The total is 45 to 60 minutes — which is why patience is listed as a criterion for patients who want to self-irrigate, alongside manual dexterity, mental alertness, bathroom access and adequate eyesight."
+N144_L5_O3,3987,Multiple choice,An ileostomy patient reports cramping and decreased output after a meal. Which food is the most likely cause?,"A) White rice
+B) Popcorn and nuts
+C) Bananas
+D) Scrambled eggs",B,"Corn, nuts, seeds and vegetable peelings can cause food blockage of an ileostomy. The ileostomy lumen is narrower and the output more liquid, so fibrous material that would pass a colostomy can obstruct it. Cramping with decreased output after such a meal suggests blockage."
+N144_L5_O3,3988,Multiple choice,An ostomy patient says they have stopped eating and drinking so there will be less output to manage. What is the priority response?,"A) Agree that reducing intake is an effective strategy
+B) Explain that output continues regardless and this causes dehydration
+C) Suggest they reduce only fluid intake
+D) Recommend they eat but avoid all fluids with meals",B,"Output does not stop, because the GI tract sheds lining and secretes fluid regardless of intake. Meanwhile an ileostomy already loses 600 to 1,200 mL daily. Restricting intake produces dehydration and electrolyte loss — fluid intake must go up, not down."
+N144_L5_O3,3989,Multiple choice,Which food would the nurse suggest to help control ostomy odor?,"A) Asparagus
+B) Spinach
+C) Cabbage
+D) Fish",B,"Spinach and parsley are deodorizing. Asparagus, cabbage, onions and fish are the odor producers. Bismuth subcarbonate tablets are also used as ordered — but they are similar to Pepto-Bismol and contain aspirin, so bleeding risk should be checked first."
+N144_L5_O3,3990,Multiple choice,An ileostomy patient has a potassium of 3.0 and reports muscle weakness. Which explanation is correct?,"A) The ileostomy has no effect on electrolytes
+B) The colon is bypassed, so sodium and potassium are lost in the liquid output
+C) The patient is likely overhydrated
+D) Potassium loss occurs only with colostomies",B,"The colon reabsorbs water and electrolytes. Bypass it with an ileostomy and 600 to 1,200 mL of liquid output leaves daily, carrying sodium and potassium with it. Replacement is given as ordered with IV fluid support. This is the same chain that makes prolonged diarrhea cause dysrhythmias."
+N144_L5_O3,3991,Multiple choice,A patient is visibly distressed on the first postoperative day and refuses to look at their new stoma. What is the most appropriate nursing action?,"A) Insist on teaching appliance changes now, since discharge is approaching
+B) Acknowledge the grief and delay education until the patient is receptive
+C) Have a family member perform all care permanently
+D) Tell the patient that most people adjust within a few days",B,"Grief over altered body function and appearance is expected, and a patient in acute distress will not retain teaching — pushing it damages trust. Education is delayed until the patient is receptive. Assigning care permanently to family removes the patient's autonomy, and minimizing the reaction dismisses it."
+N144_L5_O3,3992,Multiple choice,"While emptying a patient's ostomy pouch, the nurse notices a strong odor. What is the most appropriate response?","A) Comment on the odor to normalize it
+B) Maintain a neutral expression and continue
+C) Leave the room briefly to compose oneself
+D) Apply a mask in the patient's view",B,"Reacting negatively to the odor or appearance of effluent compounds the patient's negative feelings about their ostomy — this is written into the skills checklist as a specific instruction. The nurse's facial expression and behavior are part of the intervention, not incidental to it."
+N144_MEDS,3859,Multiple choice,"A patient is prescribed sucralfate four times daily. The medication record schedules it at 0800, 1200, 1700 and 2100 — with meals at 0800, 1200 and 1700. Which action is correct?","A) Administer as scheduled
+B) Reschedule the doses to one hour before each meal and at bedtime
+C) Give all four doses at bedtime
+D) Hold the daytime doses and give only the bedtime dose",B,"Sucralfate forms a paste that adheres to the ulcer crater, so it must arrive before food and acid do. Given with a meal there is nothing for it to coat and the dose is wasted. The correct schedule is one hour before meals plus bedtime, on an empty stomach."
+N144_MEDS,3860,Multiple choice,"A patient on sucralfate is also prescribed levothyroxine, warfarin and an antacid. Which scheduling concern is most important?","A) The antacid should be given immediately after the sucralfate
+B) Levothyroxine and warfarin must be separated from sucralfate by 2 hours
+C) All four may be given together with food
+D) Warfarin should be held while sucralfate is prescribed",B,"Sucralfate's paste binds other oral medications and blocks their absorption — digoxin, phenytoin, warfarin, quinolones and levothyroxine are the ones named. Two hours of separation is required. The antacid is a separate issue: sucralfate needs acid to activate, so an antacid within 30 minutes reduces its effect. Holding warfarin is not indicated."
+N144_MEDS,3861,Multiple choice,An 82-year-old admitted for a peptic ulcer becomes confused on the second hospital day. Which medication should the nurse review first?,"A) Famotidine
+B) Cimetidine
+C) Pantoprazole
+D) Amoxicillin",B,"Cimetidine crosses the blood-brain barrier and causes confusion in older adults — it is the H2 blocker with the most adverse effects and the most drug interactions, because it inhibits cytochrome P450. Famotidine is preferred for this reason. New confusion in an older adult on cimetidine is a drug effect, not a dementia workup."
+N144_MEDS,3862,Multiple choice,"A patient taking cimetidine is also on warfarin, phenytoin and theophylline. What should the nurse anticipate?","A) Reduced effectiveness of all three drugs
+B) Elevated levels of all three drugs
+C) No interaction, as cimetidine acts only in the stomach
+D) The need to increase all three doses",B,"Cimetidine inhibits cytochrome P450, the enzyme system that metabolizes these drugs. Inhibit the metabolism and the drug is not cleared, so levels rise — increasing bleeding risk with warfarin and toxicity with phenytoin and theophylline. Doses typically need to be reduced, not increased."
+N144_MEDS,3863,Multiple choice,A patient asks why their pantoprazole must be taken before breakfast rather than with it. Which response is accurate?,"A) Food destroys the medication
+B) The proton pumps are activated by eating, so the drug must already be present
+C) Taking it with food causes nausea
+D) It is only a convention and timing does not matter",B,"PPIs irreversibly disable the H+/K+ ATPase pump, but they can only bind pumps that are actively working. Eating switches the pumps on, so the drug has to be circulating when that happens — 30 to 60 minutes before the first meal. Taking it after the meal means most of the pumps have already fired."
+N144_MEDS,3864,Select all,A patient has been on a proton pump inhibitor for six years. Which risks should the nurse assess for? Select all that apply.,"A) Clostridioides difficile infection
+B) Fractures of the hip, wrist or spine
+C) Hypomagnesemia
+D) Vitamin B12 deficiency
+E) Hyperkalemia
+F) Pneumonia","A, B, C, D, F","All of these trace to one fact: stomach acid is both a defense and a solvent. Remove it long-term and you lose the barrier that kills swallowed organisms — hence C. difficile and pneumonia — and you lose the acid needed to absorb calcium, magnesium, B12 and iron, hence fractures, hypomagnesemia and B12 deficiency. Hyperkalemia is not a PPI effect."
+N144_MEDS,3865,Multiple choice,A patient on omeprazole for two years is scheduled for a urea breath test tomorrow to check for H. pylori. What should the nurse do?,"A) Proceed with the test as scheduled
+B) Hold tonight's dose only
+C) Contact the provider, as the PPI should have been held for two weeks
+D) Give an extra dose before the test",C,"PPIs suppress H. pylori without eradicating it. The organism stops splitting urea, so the test reads negative in a patient who is actually infected. PPIs are held two weeks and antibiotics or bismuth one month before the test. Holding a single dose is insufficient."
+N144_MEDS,3866,Multiple choice,A patient completing H. pylori triple therapy calls on day 8 to say they feel better and asks whether they can stop the antibiotics. Which response is correct?,"A) Yes, symptom resolution indicates eradication
+B) No — the full 10 to 14 day course is needed or the ulcer will recur
+C) Yes, but continue the proton pump inhibitor
+D) Stop only the clarithromycin and finish the amoxicillin",B,"Symptom relief comes from the acid suppression, not from eradication of the organism. Stopping early leaves H. pylori alive, the ulcer recurs, and resistance may develop. The entire regimen — both antibiotics and the PPI — runs the full course."
+N144_MEDS,3867,Multiple choice,A patient prescribed clarithromycin also takes simvastatin. What should the nurse anticipate?,"A) No interaction between these drugs
+B) The statin may need to be held, as clarithromycin raises its level
+C) The clarithromycin dose should be doubled
+D) Both should be given at bedtime together",B,"Clarithromycin inhibits CYP3A4, which metabolizes simvastatin. Blocking that pathway raises statin levels and increases the risk of myopathy and rhabdomyolysis. Statins are commonly held during a macrolide course. Clarithromycin also prolongs the QT interval and causes a metallic taste."
+N144_MEDS,3868,Multiple choice,A patient on lactulose for encephalopathy reports 8 watery stools today and feels weak and lightheaded. Which laboratory value is the priority to check?,"A) Ammonia
+B) Potassium
+C) Albumin
+D) Bilirubin",B,"Eight watery stools is lactulose overdose. The resulting fluid and potassium loss produces hypokalemia — and hypokalemia increases the amount of ammonia crossing into the brain, so the overdose worsens the very condition being treated. Weakness and lightheadedness fit both volume depletion and low potassium."
+N144_MEDS,3869,Multiple choice,A patient with cirrhosis is receiving lactulose. Which finding best indicates the drug is working?,"A) The patient reports the taste is tolerable
+B) The patient correctly states the date and their handwriting has improved
+C) The patient has had six stools today
+D) The serum ammonia has dropped by 2 mcg/dL",B,"The goal is clearing ammonia to improve neurologic function, so orientation, asterixis and the daily handwriting sample are the measures that matter. Six stools exceeds the 2 to 3 target. Ammonia levels correlate poorly with clinical status, so a small numeric change means less than the patient's mental state."
+N144_MEDS,3870,Multiple choice,"A patient is prescribed cholestyramine for pruritus, plus digoxin and levothyroxine. How should these be scheduled?","A) All three together for convenience
+B) Digoxin and levothyroxine 1 hour before or 4 to 6 hours after the cholestyramine
+C) Cholestyramine first, then the others 15 minutes later
+D) Cholestyramine only at bedtime, others in the morning together",B,"Cholestyramine binds bile salts — and it binds other drugs and the fat-soluble vitamins as well. That is the same mechanism that makes it work, so the interaction is unavoidable and must be managed by timing. One hour before or four to six hours after is the standard separation."
+N144_MEDS,3871,Multiple choice,A patient receiving cholestyramine long-term should be monitored for deficiency of which nutrients?,"A) Vitamin C and folate
+B) Vitamins A, D, E and K
+C) Iron and zinc
+D) B12 and thiamine",B,"Cholestyramine binds bile salts, and bile is required to absorb fat — so the fat-soluble vitamins go out with the unabsorbed fat. Vitamin K matters most here, because the liver needs it to build clotting factors and these patients are already at bleeding risk."
+N144_MEDS,3872,Multiple choice,A nurse is preparing cholestyramine powder. Which action is correct?,"A) Administer the dry powder followed by a sip of water
+B) Mix in 4 to 6 ounces of fluid and allow it to dissolve
+C) Mix with 5 mL of water for a concentrated dose
+D) Sprinkle the powder on the tongue",B,Cholestyramine must never be taken dry — the powder can swell and cause esophageal obstruction. It is mixed in 4 to 6 ounces of fluid and allowed to dissolve fully. Concentrating it in a small volume defeats the purpose and increases the risk.
+N144_MEDS,3873,Multiple choice,A patient with pigment gallstones asks whether they can take medication to dissolve them instead of having surgery. Which response is accurate?,"A) Yes, ursodeoxycholic acid dissolves all types of stones over 6 to 12 months
+B) Medication only dissolves cholesterol stones, not pigment stones
+C) Surgery is never required for gallstones
+D) Medication works but only if started within a week of diagnosis",B,"Ursodeoxycholic acid works by reducing the cholesterol saturation of bile so cholesterol redissolves. Pigment stones are made of bilirubin and calcium salts, and this mechanism has no effect on them — they must be removed surgically. Stone type determines whether medical management is even an option."
+N144_MEDS,3874,Multiple choice,A patient with ulcerative colitis is prescribed mesalamine by rectal suppository and asks why it is not a pill. Which response is accurate?,"A) The oral form is not available
+B) Ulcerative colitis begins in the rectum, so the drug works where the disease is
+C) Rectal administration avoids all side effects
+D) The medication is destroyed by stomach acid",B,"Mesalamine acts locally on the bowel mucosa rather than systemically. Ulcerative colitis starts at the rectum and spreads proximally, so delivering the drug rectally puts it directly on the inflamed tissue. Oral forms exist and are designed to release in specific bowel segments."
+N144_MEDS,3875,Multiple choice,A patient with ulcerative colitis on mesalamine asks for something to slow their diarrhea. Which response is correct?,"A) Loperamide is appropriate and can be obtained over the counter
+B) Antidiarrheals are avoided because they can precipitate toxic megacolon
+C) Diphenoxylate-atropine is preferred over loperamide here
+D) Any antidiarrheal is acceptable if taken with the mesalamine",B,"Slowing an already inflamed colon allows it to dilate, and toxic megacolon can follow. Both loperamide and diphenoxylate-atropine are avoided in ulcerative colitis for this reason. This is one of the most commonly tested points about IBD management."
+N144_MEDS,3876,Multiple choice,A patient is scheduled for their first infliximab infusion. Which assessment finding must be addressed before it can proceed?,"A) A positive tuberculin skin test
+B) A hemoglobin of 10.8
+C) Mild abdominal cramping
+D) A history of seasonal allergies",A,"Infliximab blocks tumor necrosis factor, which the immune system uses to contain latent tuberculosis. Suppressing it can reactivate a dormant infection, so TB screening is required before the first dose. Hepatitis B screening is also done. The other findings are common in IBD and do not prevent the infusion."
+N144_MEDS,3877,Select all,A patient is starting infliximab. Which teaching points should the nurse include? Select all that apply.,"A) Report fever, sore throat or a wound that will not heal
+B) Live vaccines should be avoided
+C) Notify the provider before any dental or surgical procedure
+D) Take the medication by mouth each morning
+E) Report any new shortness of breath or swelling in the legs","A, B, C, E","Infliximab suppresses the immune system, so signs of infection must be reported promptly and live vaccines are contraindicated. It can worsen heart failure, which is why new dyspnea or edema is reported. It is given by IV infusion, not orally."
+N144_MEDS,3878,Multiple choice,A patient asks why docusate sodium has not produced a bowel movement four hours after the dose. Which response is accurate?,"A) The dose was probably too low
+B) It softens stool over 12 to 72 hours rather than stimulating the bowel
+C) It should be taken on an empty stomach to work faster
+D) A second dose can be given now",B,"Docusate is an emollient — a stool softener that draws water and fat into the stool. It does not increase peristalsis, so it is not a rescue for acute constipation. Onset is 12 to 72 hours. A stimulant such as bisacodyl would act faster because it works by a different mechanism."
+N144_MEDS,3879,Multiple choice,A patient recovering from a myocardial infarction is prescribed docusate sodium. What is the rationale?,"A) To treat the constipation caused by cardiac medications
+B) To prevent straining, which reduces cardiac output
+C) To increase peristalsis slowed by bed rest
+D) To reduce the risk of paralytic ileus",B,"Straining is a Valsalva maneuver: it raises intrathoracic pressure, reduces venous return, and drops cardiac output — dangerous after an MI. Docusate softens the stool so it passes without straining. It does not increase peristalsis, which is what distinguishes it from a stimulant."
+N144_MEDS,3880,Multiple choice,A patient with cirrhosis and alcohol withdrawal is prescribed chlordiazepoxide. Which assessment is the priority?,"A) Blood pressure
+B) Level of consciousness
+C) Blood glucose
+D) Urine output",B,"Benzodiazepines are cleared by the liver. In cirrhosis they accumulate, deepen an already depressed CNS, and can mask or worsen hepatic encephalopathy — where mental status is the primary monitoring tool. This patient is at risk from both the withdrawal and the treatment, and level of consciousness is where both show first."
+N144_MEDS,3881,Select all,A patient starting disulfiram needs teaching about hidden alcohol. Which products should they be taught to avoid? Select all that apply.,"A) Mouthwash
+B) Cough syrup
+C) Aftershave and cologne
+D) Vanilla extract
+E) Hand sanitizer
+F) Carbonated soft drinks","A, B, C, D, E","Disulfiram blocks aldehyde dehydrogenase, so any alcohol exposure causes acetaldehyde accumulation and a violent reaction — flushing, throbbing headache, vomiting, tachycardia, hypotension. Topical and inhaled sources count, which is why aftershave and hand sanitizer are included. Avoidance continues for 14 days after the last dose. Soft drinks contain no alcohol."
+N144_MEDS,3882,Multiple choice,"A patient on disulfiram presents with flushing, throbbing headache, vomiting and a heart rate of 128. What is the most likely cause?","A) An allergic reaction to the medication
+B) Exposure to alcohol from any source
+C) The expected therapeutic effect of the drug
+D) Alcohol withdrawal",B,"This is the disulfiram-alcohol reaction. The drug blocks the enzyme that converts acetaldehyde to acetate, so acetaldehyde accumulates and produces these symptoms. Severe reactions can cause dysrhythmias, seizures and death. The reaction is the drug's deterrent mechanism, but it is not a therapeutic effect to be allowed — it requires assessment and support."
