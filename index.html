@@ -384,22 +384,61 @@ td.lo{background:#fff5f5!important}td.hi{background:#eff6ff!important}
 .dash-lectures{display:flex;flex-direction:column;gap:8px}
 .dash-lec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
   padding:11px 14px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
-/* hero: the nearest exam */
-.dash-hero{display:grid;grid-template-columns:1fr minmax(200px,38%);gap:14px 24px;align-items:center;
-  background:var(--surface);border:1px solid var(--border);border-left:5px solid var(--accent);
-  border-radius:var(--r-card);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
-.dash-hero.good{border-left-color:var(--got)}
-.dash-hero.mid{border-left-color:var(--unsure)}
-.dash-hero.low{border-left-color:var(--missed)}
-.dash-hero-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted)}
-.dash-hero-pct{font-size:44px;font-weight:800;line-height:1.05;color:var(--text);margin:4px 0 6px;
-  font-variant-numeric:tabular-nums}
-.dash-hero-pct small{font-size:13px;font-weight:600;color:var(--text-muted);margin-left:8px}
-.dash-hero .srs-bar{margin:0 0 10px}
-.dash-hero-facts{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
-.dash-hero-facts b{color:var(--text);font-weight:800}
-.dash-hero-side{display:flex;flex-direction:column;gap:10px}
+/* hero: the nearest exam. A ring for the one number, then flashcards and
+   questions as two bars where "seen" (pale) underlays "ready" (solid). */
+.dash-hero{display:grid;grid-template-columns:auto 1fr;gap:14px 26px;align-items:center;
+  background:linear-gradient(135deg,var(--surface) 0%,var(--surface) 60%,var(--cobalt-bg) 100%);
+  border:1px solid var(--border);border-radius:var(--r-card);padding:20px 22px;margin-bottom:12px;
+  box-shadow:var(--shadow)}
+.dash-hero.good{background:linear-gradient(135deg,var(--surface) 0%,var(--surface) 60%,var(--forest-bg) 100%)}
+.dash-hero.mid{background:linear-gradient(135deg,var(--surface) 0%,var(--surface) 60%,#fffbeb 100%)}
+.dash-hero.low{background:linear-gradient(135deg,var(--surface) 0%,var(--surface) 60%,var(--rust-bg) 100%)}
+.dash-gauge-col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:128px}
+.dash-gauge{position:relative;width:118px;height:118px}
+.dash-gauge svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dg-bg{fill:none;stroke:var(--border);stroke-width:9}
+.dg-fill{fill:none;stroke:var(--accent);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+.dash-gauge.good .dg-fill{stroke:var(--got)}
+.dash-gauge.mid .dg-fill{stroke:var(--unsure)}
+.dash-gauge.low .dg-fill{stroke:var(--missed)}
+.dg-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none}
+.dg-txt b{font-size:27px;font-weight:800;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+.dg-txt span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-top:3px}
+.dash-gauge-cap{font-size:11.5px;font-weight:600;color:var(--text-muted);text-align:center;line-height:1.3}
+.dash-hero-body{min-width:0;display:flex;flex-direction:column;gap:12px}
+.dash-hero-lbl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--text-muted)}
+.dash-date-chip{background:var(--text);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;
+  letter-spacing:.03em}
+.dash-kinds{display:flex;flex-direction:column;gap:10px}
+.dash-kind-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;
+  margin-bottom:5px}
+.dash-kind-top b{font-weight:800;color:var(--text)}
+.dash-kind-top span{color:var(--text-muted);font-variant-numeric:tabular-nums}
+.dash-kbar{position:relative;height:9px;background:var(--border);border-radius:5px;overflow:hidden}
+.dash-kbar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;transition:width .6s ease}
+.dash-kbar i.seen{background:rgba(79,126,248,.28)}
+.dash-kbar i.ready{background:var(--accent)}
+.dash-hero.good .dash-kbar i.ready{background:var(--got)}
+.dash-hero.good .dash-kbar i.seen{background:rgba(34,197,94,.25)}
+.dash-hero.mid .dash-kbar i.ready{background:var(--unsure)}
+.dash-hero.mid .dash-kbar i.seen{background:rgba(245,158,11,.25)}
+.dash-hero.low .dash-kbar i.ready{background:var(--missed)}
+.dash-hero.low .dash-kbar i.seen{background:rgba(239,68,68,.22)}
+.dash-kind-foot{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text-muted);margin-top:5px}
+.dash-kind-foot span{display:inline-flex;align-items:center;gap:5px}
+.dash-sw{width:9px;height:9px;border-radius:2px;display:inline-block;background:var(--accent)}
+.dash-sw.seen{background:rgba(79,126,248,.28)}
+.dash-hero.good .dash-sw{background:var(--got)} .dash-hero.good .dash-sw.seen{background:rgba(34,197,94,.25)}
+.dash-hero.mid .dash-sw{background:var(--unsure)} .dash-hero.mid .dash-sw.seen{background:rgba(245,158,11,.25)}
+.dash-hero.low .dash-sw{background:var(--missed)} .dash-hero.low .dash-sw.seen{background:rgba(239,68,68,.22)}
 .dash-hero-pace{font-size:13.5px;line-height:1.5;color:var(--text)}
+.dash-hero-note{grid-column:1 / -1;font-size:11.5px;line-height:1.5;color:var(--text-muted);
+  border-top:1px solid var(--border);padding-top:10px}
+/* today: numbers as tiles */
+.dash-today{background:var(--surface)}
+.dash-num{background:var(--g50);border-radius:10px;padding:10px 12px;min-width:70px}
+.dash-num-sep{display:none}
 .dash-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
   margin:0 0 12px}
 .dash-notice .dash-link{padding:0}
@@ -9423,52 +9462,90 @@ function render(){
   renderSettingsPage();
 }
 
+/* Everything in scope for one exam, split by kind. The scheduler's own
+   readiness lumps flashcards and quiz questions into "items", which read as
+   if another course's deck had leaked in ("490 items, 339 never seen" on a
+   332-card course). Cards and questions are counted apart here, and "seen"
+   is shown next to "ready" so a week of studying is visible even while the
+   exam-day recall bar is still low. */
+function examScope(key){
+  return (plan && plan._items ? plan._items : []).filter(function(it){
+    return ES.examsCovering(ES.unitOf(it, unitsMap)).indexOf(key) > -1;
+  });
+}
+function kindStats(scope, onDayMs, now){
+  var out = { card:{total:0,seen:0,ready:0,failing:0}, quiz:{total:0,seen:0,ready:0,failing:0} };
+  scope.forEach(function(it){
+    var k = out[it.kind] || out.card;
+    k.total++;
+    if(ES.neverSeen(it)) return;
+    k.seen++;
+    if(ES.predictR(sched, it, onDayMs) >= ES.READY_THRESHOLD) k.ready++;
+    if(isFailingItem(it)) k.failing++;
+  });
+  return out;
+}
+function kindRowHtml(label, k){
+  if(!k.total) return '';
+  var seenPct = Math.round(100*k.seen/k.total), readyPct = Math.round(100*k.ready/k.total);
+  return '<div class="dash-kind">'
+    + '<div class="dash-kind-top"><b>'+label+'</b><span>'+k.seen+' of '+k.total+' seen</span></div>'
+    + '<div class="dash-kbar"><i class="seen" style="width:'+seenPct+'%"></i><i class="ready" style="width:'+readyPct+'%"></i></div>'
+    + '<div class="dash-kind-foot"><span><i class="dash-sw ready"></i>'+k.ready+' ready for exam day</span>'
+    + '<span><i class="dash-sw seen"></i>'+(k.seen-k.ready)+' seen, not solid yet</span>'
+    + (k.failing ? '<span class="srs-fail">'+k.failing+' failing</span>' : '')
+    + '</div></div>';
+}
+function gaugeHtml(pct, tone){
+  var C = 2*Math.PI*40;
+  return '<div class="dash-gauge '+tone+'"><svg viewBox="0 0 100 100" aria-hidden="true">'
+    + '<circle class="dg-bg" cx="50" cy="50" r="40"/>'
+    + '<circle class="dg-fill" cx="50" cy="50" r="40" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-pct/100)).toFixed(1)+'"/>'
+    + '</svg><div class="dg-txt"><b>'+pct+'%</b><span>ready</span></div></div>';
+}
+
 /* How prepared am I: the nearest exam with a date, its readiness and the pace
-   it needs. Without a date, how far through the course she is. */
+   it needs. Without a date, how far through the deck she is. */
 function heroHtml(){
+  var now = Date.now();
   var live = (plan.projection || []).filter(function(p){ return p.applicable; })
     .sort(function(a,b){ return a.daysLeft - b.daysLeft; });
   var p = live[0];
   var e = p && plan.exams.filter(function(x){ return x.key === p.key; })[0];
+  var thr = Math.round(ES.READY_THRESHOLD*100);
   if(!p || !e){
-    var all = (plan._items || []).filter(function(i){ return i.kind === 'card'; });
-    var st = window.StudySession.objectiveStats(all, { now: Date.now(), dayStart: dayStartMs(Date.now()), recall: recallNow });
-    var tot = {total:0, started:0, learned:0}, rs = [];
-    Object.keys(st).filter(function(o){ return !window.ObjectiveTree.parentOf(o); }).forEach(function(o){
-      tot.total += st[o].total; tot.started += st[o].started; tot.learned += st[o].learned;
-      if(st[o].recall != null) rs.push(st[o].recall);
-    });
-    var pct = tot.total ? Math.round(100*tot.started/tot.total) : 0;
-    var recall = rs.length ? Math.round(100*rs.reduce(function(a,b){ return a+b; },0)/rs.length) : null;
+    var ks0 = kindStats(plan._items || [], ES.startOfDay(now), now);
+    var tot0 = ks0.card.total + ks0.quiz.total, seen0 = ks0.card.seen + ks0.quiz.seen;
+    var pct0 = tot0 ? Math.round(100*seen0/tot0) : 0;
     return '<div class="dash-hero">'
-      + '<div class="dash-hero-main"><div class="dash-hero-pct">'+pct+'%<small>of the deck started</small></div>'
-      + '<div class="dash-hero-facts">'
-      + '<div><b>'+tot.started+'</b> of '+tot.total+' cards started</div>'
-      + '<div><b>'+tot.learned+'</b> learned</div>'
-      + (recall != null ? '<div><b>'+recall+'%</b> recall on what you have started</div>' : '')
-      + '</div></div>'
-      + '<div class="dash-hero-side"><div class="srs-sub">No exam date set, so there is no countdown yet.</div>'
-      + '<button class="srs-btn srs-btn-ghost" onclick="goTo(\'settings\')">Add exam dates</button></div>'
-      + '</div>';
+      + '<div class="dash-gauge-col">'+gaugeHtml(pct0, '')+'<div class="dash-gauge-cap">of the course started</div></div>'
+      + '<div class="dash-hero-body">'
+      + '<div class="dash-hero-lbl">No exam date yet</div>'
+      + '<div class="dash-kinds">'+kindRowHtml('Flashcards', ks0.card)+kindRowHtml('Quiz questions', ks0.quiz)+'</div>'
+      + '<div class="dash-hero-pace">Add your exam dates and this becomes a countdown with a readiness score. '
+      + '<button class="dash-link" onclick="goTo(\'settings\')">Add exam dates →</button></div>'
+      + '</div></div>';
   }
+  var onDay = ES.parseDate(examDates[p.key]);
+  var ks = kindStats(examScope(p.key), onDay == null ? ES.startOfDay(now) : onDay, now);
+  var when = new Date(examDates[p.key]+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
   var days = e.daysRemaining === 0 ? 'today' : e.daysRemaining+' day'+(e.daysRemaining===1?'':'s')+' away';
   var tone = e.readyPct >= 80 ? 'good' : e.readyPct >= 50 ? 'mid' : 'low';
   var paceLine;
   if(p.totalWork === 0) paceLine = 'Nothing outstanding before the '+esc2(EXAM_LABEL[p.key])+'.';
   else if(p.noPaceData) paceLine = '<b>'+p.needPerDay+' a day</b> gets through the '+p.totalWork.toLocaleString()+' items left in time.';
   else if(p.behind) paceLine = '<b class="srs-fail">Behind.</b> You need <b>'+p.needPerDay+' a day</b> and have been doing about '+p.recentPace+'.';
-  else paceLine = '<b>On track:</b> '+p.needPerDay+' a day gets you there; you have been doing about '+p.recentPace+'.';
+  else paceLine = '<b>On track.</b> '+p.needPerDay+' a day gets you there; you have been doing about '+p.recentPace+'.';
   return '<div class="dash-hero '+tone+'">'
-    + '<div class="dash-hero-main">'
-    + '<div class="dash-hero-lbl">'+esc2(EXAM_LABEL[p.key])+' \u00b7 '+esc2(days)+'</div>'
-    + '<div class="dash-hero-pct">'+e.readyPct+'%<small>ready</small></div>'
-    + '<div class="srs-bar"><span style="width:'+e.readyPct+'%"></span></div>'
-    + '<div class="dash-hero-facts">'
-    + '<div><b>'+e.total+'</b> items on the exam</div>'
-    + '<div><b>'+e.neverSeen+'</b> never seen</div>'
-    + '<div><b>'+e.failing+'</b> failing</div>'
-    + '</div></div>'
-    + '<div class="dash-hero-side"><div class="dash-hero-pace">'+paceLine+'</div></div>'
+    + '<div class="dash-gauge-col">'+gaugeHtml(e.readyPct, tone)
+    + '<div class="dash-gauge-cap">for the '+esc2(EXAM_LABEL[p.key])+'</div></div>'
+    + '<div class="dash-hero-body">'
+    + '<div class="dash-hero-lbl"><span class="dash-date-chip">'+esc2(when)+'</span>'+esc2(days)+'</div>'
+    + '<div class="dash-kinds">'+kindRowHtml('Flashcards', ks.card)+kindRowHtml('Quiz questions', ks.quiz)+'</div>'
+    + '<div class="dash-hero-pace">'+paceLine+'</div>'
+    + '</div>'
+    + '<div class="dash-hero-note">Ready means a predicted recall of '+thr+'% or better on '+esc2(when)
+    + '. A card you have seen once does not count until reviews have made it stick, so this number climbs late and fast.</div>'
     + '</div>';
 }
 
@@ -9663,9 +9740,8 @@ function sweepHtml(){
     : '';
 
   return '<div class="srs-sweep">' + body + overlapNote
-    + '<div class="srs-sub" style="margin-top:8px">Every item in scope is seen '
-    + 'at least once before its exam. New material outside it is paused, and '
-    + 'neither the daily cap nor the ceiling trims this.</div>'
+    + '<div class="srs-sub" style="margin-top:8px">The sweep makes sure everything on the exam is seen '
+    + 'at least once before the day. It ignores the daily limits.</div>'
     + '</div>';
 }
 
@@ -9738,6 +9814,8 @@ function examCardsHtml(){
       : e.daysRemaining===0 ? 'today'
       : e.daysRemaining+' day'+(e.daysRemaining===1?'':'s')+' away';
     var when = v ? new Date(v+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+    var onDay = ES.parseDate(v);
+    var ks = kindStats(examScope(k), onDay == null ? ES.startOfDay(Date.now()) : onDay, Date.now());
     return '<div class="srs-card'+cls+(v?'':' unset')+'">'
       + '<div class="srs-card-top"><div class="srs-card-name">'+esc2(e.label||EXAM_LABEL[k])+'</div>'
       + '<div class="srs-card-days">'+esc2(v ? when+' \u00b7 '+days : days)+'</div></div>'
@@ -9747,9 +9825,10 @@ function examCardsHtml(){
           : '<div class="srs-date-hint">No date \u2014 <button class="dash-link" style="padding:0" '
             + 'onclick="goTo(\'settings\')">set it in Settings</button></div>')
       + '<div class="srs-facts">'
-      + '<div><b>'+e.total+'</b> items</div>'
-      + '<div><b>'+e.neverSeen+'</b> never seen</div>'
-      + '<div><b>'+e.failing+'</b> failing</div>'
+      + (!ks.card.total && !ks.quiz.total ? '<div>nothing assigned to this exam yet</div>' : '')
+      + (ks.card.total ? '<div><b>'+ks.card.seen+'/'+ks.card.total+'</b> cards seen</div>' : '')
+      + (ks.quiz.total ? '<div><b>'+ks.quiz.seen+'/'+ks.quiz.total+'</b> questions seen</div>' : '')
+      + (e.failing ? '<div><b class="srs-fail">'+e.failing+'</b> failing</div>' : '')
       + '</div></div>';
   }).join('') + '</div>';
 }
