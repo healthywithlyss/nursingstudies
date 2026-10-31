@@ -1,0 +1,13 @@
+{
+  "me_name": "Me",
+  "participants": [
+    { "name": "First Person",  "handles": ["+1 555 010 1234"] },
+    { "name": "Second Person", "handles": ["+1 555 010 9876", "second.person@example.com"] }
+  ],
+  "start_date": null,
+  "end_date": null,
+  "timezone": null,
+  "include_reactions": true,
+  "page_size": "letter",
+  "pdf_footer": "CONFIDENTIAL"
+}

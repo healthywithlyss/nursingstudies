@@ -1,0 +1,8 @@
+# Never commit real data or real phone numbers
+config.json
+exports/
+test_data/
+*.db
+*.db-wal
+*.db-shm
+__pycache__/
